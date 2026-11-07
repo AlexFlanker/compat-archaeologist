@@ -7,6 +7,7 @@ input is a stated assumption in assumptions.yaml.
 from __future__ import annotations
 
 import json
+from concurrent.futures import ThreadPoolExecutor
 
 import yaml
 
@@ -139,13 +140,9 @@ def estimate_rewrites(profile: str, target: str, gaps: list[dict], ledger: dict)
     """Model estimates, cached so a demo run gives the same numbers. Absent, never guessed, if Muse is down."""
     path = OUT_DIR / profile / "rewrite_estimates.json"
     cache = json.loads(path.read_text()) if path.exists() else {}
-    changed = False
-    for gap in gaps:
-        key = f"{target}|{gap['key']}"
-        if key in cache:
-            continue
-        if not meta_client.is_configured():
-            continue
+    missing = [gap for gap in gaps if f"{target}|{gap['key']}" not in cache] if meta_client.is_configured() else []
+
+    def estimate(gap: dict):
         code_refs = [
             source["ref"]
             for item in ledger["items"]
@@ -154,7 +151,7 @@ def estimate_rewrites(profile: str, target: str, gaps: list[dict], ledger: dict)
             if source["type"] == "code"
         ]
         try:
-            cache[key] = meta_client.structured(
+            return gap, meta_client.structured(
                 purpose=f"rewrite_estimate:{target}:{gap['key']}",
                 system=ESTIMATE_PROMPT,
                 user=json.dumps(
@@ -165,9 +162,16 @@ def estimate_rewrites(profile: str, target: str, gaps: list[dict], ledger: dict)
                 schema=ESTIMATE_SCHEMA,
                 schema_name="estimate",
             )
-            changed = True
         except meta_client.MetaUnavailable as exc:
             print(f"  [tco] no estimate for {gap['key']}: {exc}")
+            return gap, None
+
+    changed = False
+    with ThreadPoolExecutor(max_workers=4) as pool:
+        for gap, result in pool.map(estimate, missing):
+            if result is not None:
+                cache[f"{target}|{gap['key']}"] = result
+                changed = True
     if changed:
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(json.dumps(cache, indent=2))

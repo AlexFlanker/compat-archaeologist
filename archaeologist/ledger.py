@@ -8,6 +8,7 @@ with a single source gets its confidence from SubQ Snap, and stays unknown if Su
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 from collections import defaultdict
 
@@ -197,24 +198,33 @@ def build_items(data_profile: dict, summary: dict, code_doc: dict, entries: list
     return items
 
 
-def build_behaviors(data_profile: dict, code_doc: dict) -> list[dict]:
+def build_behaviors(data_profile: dict, code_doc: dict, profile: str = "shoplog", refresh: bool = False) -> list[dict]:
     invariants = {invariant["id"]: invariant for invariant in data_profile["invariants"]}
     rules = code_doc.get("business_rules", [])
 
     if meta_client.is_configured() and (rules or invariants):
         listing = "\n".join(f"{number}. {rule['rule']} ({rule['file']}:{rule['line']})" for number, rule in enumerate(rules, start=1))
         mined = "\n".join(f"{key} [{value['scope']}] {value['rule']} (n={value['support']})" for key, value in invariants.items())
+        user = f"Code rules:\n{listing or '(none)'}\n\nData invariants:\n{mined or '(none)'}"
+        # Same evidence in, same answer out: reuse the last reconciliation unless asked to refresh.
+        cache_path = EVIDENCE_DIR / f"{profile}_behaviors_cache.json"
+        digest = hashlib.sha256((RECONCILE_PROMPT + user).encode()).hexdigest()
+        cached = json.loads(cache_path.read_text()) if cache_path.exists() else {}
+        if not refresh and cached.get("digest") == digest:
+            print(f"  [meta] reconcile_behaviors · cached from {cached.get('model')} (same evidence)")
+            return _behaviors_from_model(cached["behaviors"], rules, invariants)
         try:
             response = meta_client.structured(
                 purpose="reconcile_behaviors",
                 system=RECONCILE_PROMPT,
-                user=f"Code rules:\n{listing or '(none)'}\n\nData invariants:\n{mined or '(none)'}",
+                user=user,
                 schema=RECONCILE_SCHEMA,
                 schema_name="behaviors",
             )
         except meta_client.MetaUnavailable as exc:
             print(f"  [ledger] Muse unavailable for reconciliation ({exc}); keeping raw evidence")
         else:
+            cache_path.write_text(json.dumps({"digest": digest, "model": meta_client.model_name(), "behaviors": response.get("behaviors", [])}, indent=2))
             return _behaviors_from_model(response.get("behaviors", []), rules, invariants)
 
     behaviors = []
@@ -309,7 +319,7 @@ def run(profile: str, refresh_code: bool = True) -> dict:
     atlas = extract_atlas.run(profile)
 
     items = build_items(data_profile, summary, code_doc, entries, atlas)
-    behaviors = build_behaviors(data_profile, code_doc)
+    behaviors = build_behaviors(data_profile, code_doc, profile, refresh=refresh_code)
     item_answer = _resolve_single_source_confidence(profile, items, lambda record: f"{record['feature']}. {record['behavior']}")
     behavior_answer = _resolve_single_source_confidence(profile, behaviors, lambda record: record["statement"])
 

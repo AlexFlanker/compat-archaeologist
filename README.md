@@ -53,7 +53,11 @@ FerretDB's own [compatibility page](https://docs.ferretdb.io/migration/compatibi
 - **With Muse reading the code:** 10 of 10 found and 10 of 10 labeled correctly. That includes the refund window, which exists only in code and is correctly labeled INFERRED.
 - **Disclosure:** one scoring pattern was fixed after the first Muse run, because it depended on word order. Before the fix, the score was 9 found and 8 labeled. The change log is in `archaeologist/scoreboard.py`.
 
-**Fairness check.** The same pipeline, thresholds and assumptions run on a control app, ShopLog Lite, which uses only plain CRUD. Its verdict: *the migration is fine*, with FerretDB matching MongoDB on everything it does.
+**Fairness check.** The same pipeline, thresholds and assumptions run on a control app, ShopLog Lite, which uses only plain CRUD. Its verdict is *the migration is fine*: FerretDB matched MongoDB on everything it does, with a 12-month net of +$8,604.
+
+**Probes.** Meta Muse wrote 30 behavioral probes for ShopLog. Muse predicted MongoDB's behavior wrongly 9 times; each time MongoDB, acting as the oracle, rejected the probe and Muse repaired it. No probe had to be excluded. MongoDB against itself matched on all 30.
+
+**Second opinion.** SubQ Snap's probability that migrating is net-positive within 12 months, given the same facts: ShopLog to FerretDB **0.0001**, control app to FerretDB **0.94**.
 
 **AWS DocumentDB.** Engine 8.0.2's documentation lists support for most of these features. The memo flags only where ShopLog's actual usage conflicts with documented limits (`$shift` in window functions, `$text` exclusion terms and array fields, Atlas Search) and marks the target as **not verified**. FerretDB results say nothing about DocumentDB: they are different engines with similar names.
 

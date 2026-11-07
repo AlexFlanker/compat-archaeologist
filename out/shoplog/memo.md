@@ -6,18 +6,18 @@
 
 | | FerretDB (observed) | AWS DocumentDB (inferred) |
 |---|---|---|
-| Recommendation | Stay for now: blocking gaps exist, and the rewrite isn't priced yet | Not verified: test on a real cluster before deciding |
-| Confidence | High (measured; self-check clean) | Low: documentation only, nothing measured |
-| Net over 12 months (base, best to worst) | -$38,343 (-$5,404 to -$128,671) | -$16,377 (-$11,457 to -$31,677) |
+| Recommendation | Stay: fixing the gaps costs more than the migration saves | Not verified: test on a real cluster before deciding |
+| Confidence | High (measured; self-check clean; SubQ P(net-positive) 0.00) | Low: documentation only, nothing measured |
+| Net over 12 months (base, best to worst) | -$98,823 (-$36,124 to -$234,031) | -$41,337 (-$24,897 to -$74,877) |
 | Reversibility (100 = easy to go back) | 15/100 (OBSERVED) | 75/100 (INFERRED) |
 
 **Top risks**
 
-1. **Checkout isn't atomic: stock can be reserved without an order, and a rollback does nothing** (FerretDB, silent). Evidence: probe `T.txn_abort`; code [shoplog/checkout.py:57](../../shoplog/checkout.py#L57).
-2. **Logins and email uniqueness stop ignoring case: duplicate accounts, failed sign-ins** (FerretDB, silent). Evidence: probe `T.collation_unique`; 17/40 replayed ops differ; code [shoplog/customers.py:9](../../shoplog/customers.py#L9), [shoplog/schema.py:9](../../shoplog/schema.py#L9).
-3. **Invalid orders get written: the schema validator isn't enforced** (FerretDB, silent). Evidence: probe `T.validator`; code [shoplog/schema.py:12](../../shoplog/schema.py#L12), [shoplog/schema.py:42](../../shoplog/schema.py#L42).
+1. **Checkout isn't atomic: stock can be reserved without an order, and a rollback does nothing** (FerretDB, silent). Evidence: probe `F4.txn-abort-rollback`; probe `F4.txn-commit-atomic`; code [shoplog/checkout.py:57](../../shoplog/checkout.py#L57).
+2. **Logins and email uniqueness stop ignoring case: duplicate accounts, failed sign-ins** (FerretDB, silent). Evidence: probe `F6.ci-lookup`; probe `F6.ci-unique`; 17/40 replayed ops differ; code [shoplog/customers.py:9](../../shoplog/customers.py#L9), [shoplog/schema.py:60](../../shoplog/schema.py#L60).
+3. **Invalid orders get written: the schema validator isn't enforced** (FerretDB, silent). Evidence: probe `F8.orders-required-fields`; probe `F8.orders-enum-total`; code [shoplog/schema.py:12](../../shoplog/schema.py#L12).
 4. **Constraints don't survive a clean cutover: customers.email_ci_unique index (unique, collation), orders $jsonSchema validator** (FerretDB, cutover). Evidence: cutover check, clean run: 6 of 23 checks failed.
-5. **Queries on orders run 580× slower ($lookup sub-pipeline + $facet)** (FerretDB, performance). Evidence: replay p95 7.04 ms → 4082.2 ms; code [shoplog/analytics.py:21](../../shoplog/analytics.py#L21), [shoplog/analytics.py:33](../../shoplog/analytics.py#L33).
+5. **Queries on orders run 562× slower ($lookup sub-pipeline + $facet)** (FerretDB, performance). Evidence: replay p95 7.48 ms → 4202.1 ms; code [shoplog/analytics.py:33](../../shoplog/analytics.py#L33).
 
 **12-month cost, base case** (yearly figures; best and worst cases in the appendix)
 
@@ -29,20 +29,20 @@
 | Scale-ups for slow paths (INFERRED) | $5,759 | $0 |
 | Extra services (search) | $11,938 | $11,938 |
 | Running it yourself | $11,520 | $0 |
-| Migration and rewrites | $4,800 (5 person-days); rewrites not estimated yet | $4,800 (5 person-days); rewrites not estimated yet |
+| Migration and rewrites | $65,280 (68 person-days) | $29,760 (31 person-days) |
 | Expected incident cost | $29,250 | $4,500 |
-| **Net vs staying** | **-$38,343** | **-$16,377** |
+| **Net vs staying** | **-$98,823** | **-$41,337** |
 
 **Measured on replay** (synthetic dataset, 38 MB; both engines local, same limits)
 
 | Path | MongoDB p95 | FerretDB p95 | FerretDB over the timeout | Timeout used |
 |---|---|---|---|---|
-| Online | 1.32 ms | 3.73 ms | 0% of 367 | 1,000 ms |
-| Reporting | 7.04 ms | 4,082 ms | 0% of 17 | 30,000 ms |
+| Online | 1.92 ms | 4.41 ms | 0% of 367 | 1,000 ms |
+| Reporting | 7.48 ms | 4,202 ms | 0% of 17 | 30,000 ms |
 | Event-driven (change streams) | works | ❌ Not supported | | |
 
 **At production size (INFERRED)**: the data size at which each slow path reaches its timeout, projected from the measured 38.4 MB using the growth shape of its query plan. This assumes every collection grows by the same factor.
-- F1 reporting query on orders (30 s timeout): MongoDB grows linear (index lookups) and reaches it at ~164 GB; FerretDB grows quadratic (a sequential scan inside a nested loop) and reaches it at ~100 MB.
+- F1 reporting query on orders (30 s timeout): MongoDB grows linear (index lookups) and reaches it at ~154 GB; FerretDB grows quadratic (a sequential scan inside a nested loop) and reaches it at ~100 MB.
 - At TB scale both engines need work on reporting, such as pre-aggregation, but FerretDB hits the limit orders of magnitude sooner.
 
 **Business questions**: on untouched data, 8 of 8 answers match on FerretDB. After a clean cutover and one morning of traffic, 5 of 8 differ:
@@ -53,7 +53,7 @@
 - How many customers are in each loyalty tier? bronze: customers 3,040 → 3,041.
 - The same 12 checkouts: MongoDB 6 completed, 6 refused: out of stock; FerretDB 6 error 59, 6 refused: out of stock. Error 59 means commit isn't implemented: the shopper is told it failed, but the order was already written.
 
-**Hidden rules recovered blind**: 8 of 10 found (+1 partly), 9 of 10 labeled correctly (OBSERVED or INFERRED). Scored against [docs/RULES.md](../../docs/RULES.md), which the pipeline never reads. Code evidence for this run: static_scan_only.
+**Hidden rules recovered blind**: 10 of 10 found, 10 of 10 labeled correctly (OBSERVED or INFERRED). Scored against [docs/RULES.md](../../docs/RULES.md), which the pipeline never reads. Code evidence for this run: muse_cached. One scoring pattern was fixed after the first run with Muse; the change log is in `archaeologist/scoreboard.py`.
 
 **Cutover fidelity**: a simulated full-load + CDC migration with nothing injected failed 6 of 23 checks on FerretDB: customers.email_ci_unique index (unique, collation), orders $jsonSchema validator, Business rule: emails that collide when case is ignored, Business rule: orders that break the order schema.
 In a drill with faults injected on purpose (CDC gap: 30 change events dropped mid-cutover; Copier skipped unique index coupon_once_per_customer), the verifier caught 2 of 2.
@@ -70,10 +70,10 @@ Reversibility deductions: FerretDB: -30 No change streams on the target: moving 
 
 | Target | Evidence | Blocking gaps | Net over 12 months (base) | Decision | SubQ Snap: P(net-positive) |
 |---|---|---|---|---|---|
-| FerretDB | OBSERVED | 6 | -$38,343 | Stay for now: blocking gaps exist, and the rewrite isn't priced yet | unavailable (SUBQ_API_KEY is not set) |
-| AWS DocumentDB | INFERRED | 3 | -$16,377 | Not verified: test on a real cluster before deciding | unavailable (SUBQ_API_KEY is not set) |
+| FerretDB | OBSERVED | 6 | -$98,823 | Stay: fixing the gaps costs more than the migration saves | 0.00 |
+| AWS DocumentDB | INFERRED | 3 | -$41,337 | Not verified: test on a real cluster before deciding | 0.00 |
 
-The decision comes from measured gaps, list prices and stated assumptions. The SubQ probability is a separate second opinion on the same facts.
+The decision comes from measured gaps, list prices and stated assumptions. The SubQ probability is a separate second opinion on the same facts, from subq-snap-1.1.
 
 Tested: MongoDB 8.0.34 and FerretDB v2.7.0 (which reports itself as MongoDB 7.0.77). This app and its data are fictional and synthetic.
 
@@ -81,25 +81,33 @@ Tested: MongoDB 8.0.34 and FerretDB v2.7.0 (which reports itself as MongoDB 7.0.
 
 | # | What the app depends on | Reconstructed from | Status | Confidence | FerretDB (OBSERVED) | AWS DocumentDB 8.0.2 (INFERRED from docs) |
 |---|---|---|---|---|---|---|
-| F1 | $lookup sub-pipeline + $facet | query log (30 ops) + code | OBSERVED | 0.90 | ✅ Same behavior<br>17/17 replayed ops equal | 🔵 [Documented as supported](https://docs.aws.amazon.com/documentdb/latest/developerguide/lookup.html)<br>Since Sub-pipeline correlated $lookup and $facet: 8.0.2 |
-| F2 | $setWindowFields | query log (60 ops) + code | OBSERVED | 0.90 | ✅ Same behavior<br>1/1 probes equal<br>40/40 replayed ops equal | 🟠 [Docs conflict with this app's usage](https://docs.aws.amazon.com/documentdb/latest/developerguide/setWindowFields.html)<br>The app uses $shift, which the docs list as unsupported |
-| F3 | arrayFilters / positional $[<id>] updates | data + query log (56 ops) + code | OBSERVED | 0.97 | ✅ Same behavior<br>1/1 probes equal<br>56/56 replayed ops equal | 🔵 [Documented as supported](https://docs.aws.amazon.com/documentdb/latest/developerguide/dollarIdentifier-update.html)<br>Since All versions |
-| F4 | Multi-document transactions | query log (60 ops) + code | OBSERVED | 0.90 | ❌ Different result<br>0/1 probes equal<br>**Silent: no error raised** | 🔵 [Documented as supported](https://docs.aws.amazon.com/documentdb/latest/developerguide/transactions.html)<br>Since 4.0 |
-| F5 | Change streams | query log (57 ops) + code | OBSERVED | 0.90 | ❌ Not supported<br>0/1 probes equal | 🔵 [Documented as supported](https://docs.aws.amazon.com/documentdb/latest/developerguide/change_streams.html)<br>Since All supported versions |
-| F6 | Case-insensitive collation index | data + query log (110 ops) + code | OBSERVED | 0.97 | ❌ Not supported<br>0/1 probes equal<br>23/40 replayed ops equal | 🔵 [Documented as supported](https://docs.aws.amazon.com/documentdb/latest/devguide/collation.html)<br>Since 8.0 |
-| F7 | Partial index + TTL index | data + query log (70 ops) + code | OBSERVED | 0.97 | ⚪ Not tested | 🔵 [Documented as supported](https://docs.aws.amazon.com/documentdb/latest/developerguide/partial-index.html)<br>Since Partial index 5.0; TTL all versions |
-| F8 | $jsonSchema validator | data + query log (5 ops) + code | OBSERVED | 0.97 | ❌ Different result<br>0/1 probes equal<br>**Silent: no error raised** | 🔵 [Documented as supported](https://docs.aws.amazon.com/documentdb/latest/developerguide/json-schema-validation.html)<br>Since 4.0 |
-| F9 | $text search | data + query log (100 ops) + code | OBSERVED | 0.97 | 🟡 Same matches, different ranking<br>1/1 probes equal<br>0/40 replayed ops equal | 🟠 [Docs conflict with this app's usage](https://docs.aws.amazon.com/documentdb/latest/developerguide/text-search.html)<br>The app searches with exclusion terms (for example -refurbished), which the docs say aren't supported<br>The app's text index covers an array field, which the docs say isn't supported |
-| F10 | Plain CRUD by _id and simple filters | data + query log (1,034 ops) + code | OBSERVED | 0.97 | ✅ Same behavior<br>1/1 probes equal<br>504/504 replayed ops equal | 🔵 [Documented as supported](https://docs.aws.amazon.com/documentdb/latest/developerguide/mongo-apis.html)<br>Since All versions |
-| F11 | Atlas Search ($search with a search index) | code | INFERRED | unknown | 🟠 INFERRED: [not supported per FerretDB docs](https://docs.ferretdb.io/migration/compatibility/)<br>The compatibility page lists no $search stage or search index commands. Locally, FerretDB also refused $listSearchIndexes (code 40324). | 🟠 [Docs conflict with this app's usage](https://docs.aws.amazon.com/documentdb/latest/developerguide/search.html)<br>The app uses Atlas Search, which DocumentDB doesn't provide; a separate search service is needed |
-| X:graphLookup | graphLookup | code | INFERRED | unknown | ⚪ Not tested | ⚪ Not covered in our review |
+| F1 | $lookup sub-pipeline + $facet | query log (30 ops) + code | OBSERVED | 0.90 | ✅ Same behavior<br>3/3 probes equal<br>17/17 replayed ops equal | 🔵 [Documented as supported](https://docs.aws.amazon.com/documentdb/latest/developerguide/lookup.html)<br>Since Sub-pipeline correlated $lookup and $facet: 8.0.2 |
+| F2 | $setWindowFields | query log (60 ops) + code | OBSERVED | 0.90 | ✅ Same behavior<br>3/3 probes equal<br>40/40 replayed ops equal | 🟠 [Docs conflict with this app's usage](https://docs.aws.amazon.com/documentdb/latest/developerguide/setWindowFields.html)<br>The app uses $shift, which the docs list as unsupported |
+| F3 | arrayFilters / positional $[<id>] updates | data + query log (56 ops) + code | OBSERVED | 0.97 | ✅ Same behavior<br>3/3 probes equal<br>56/56 replayed ops equal | 🔵 [Documented as supported](https://docs.aws.amazon.com/documentdb/latest/developerguide/dollarIdentifier-update.html)<br>Since All versions |
+| F4 | Multi-document transactions | query log (60 ops) + code | OBSERVED | 0.90 | ❌ Not supported<br>0/3 probes equal<br>**Silent: no error raised** | 🔵 [Documented as supported](https://docs.aws.amazon.com/documentdb/latest/developerguide/transactions.html)<br>Since 4.0 |
+| F5 | Change streams | query log (57 ops) + code | OBSERVED | 0.90 | ❌ Not supported<br>0/3 probes equal | 🔵 [Documented as supported](https://docs.aws.amazon.com/documentdb/latest/developerguide/change_streams.html)<br>Since All supported versions |
+| F6 | Case-insensitive collation index | data + query log (110 ops) + code | OBSERVED | 0.97 | ❌ Not supported<br>0/3 probes equal<br>23/40 replayed ops equal<br>**Silent: no error raised** | 🔵 [Documented as supported](https://docs.aws.amazon.com/documentdb/latest/devguide/collation.html)<br>Since 8.0 |
+| F7 | Partial index + TTL index | data + query log (70 ops) + code | OBSERVED | 0.97 | ✅ Same behavior<br>3/3 probes equal | 🔵 [Documented as supported](https://docs.aws.amazon.com/documentdb/latest/developerguide/partial-index.html)<br>Since Partial index 5.0; TTL all versions |
+| F8 | $jsonSchema validator | data + query log (5 ops) + code | OBSERVED | 0.97 | ❌ Different result<br>0/3 probes equal<br>**Silent: no error raised** | 🔵 [Documented as supported](https://docs.aws.amazon.com/documentdb/latest/developerguide/json-schema-validation.html)<br>Since 4.0 |
+| F9 | $text search | data + query log (100 ops) + code | OBSERVED | 0.97 | 🟡 Same matches, different ranking<br>3/3 probes equal<br>0/40 replayed ops equal | 🟠 [Docs conflict with this app's usage](https://docs.aws.amazon.com/documentdb/latest/developerguide/text-search.html)<br>The app searches with exclusion terms (for example -refurbished), which the docs say aren't supported<br>The app's text index covers an array field, which the docs say isn't supported |
+| F10 | Plain CRUD by _id and simple filters | data + query log (1,034 ops) + code | OBSERVED | 0.97 | ✅ Same behavior<br>2/2 probes equal<br>504/504 replayed ops equal | 🔵 [Documented as supported](https://docs.aws.amazon.com/documentdb/latest/developerguide/mongo-apis.html)<br>Since All versions |
+| F11 | Atlas Search ($search with a search index) | code | INFERRED | 0.96 | 🟠 INFERRED: [not supported per FerretDB docs](https://docs.ferretdb.io/migration/compatibility/)<br>The compatibility page lists no $search stage or search index commands. Locally, FerretDB also refused $listSearchIndexes (code 40324). | 🟠 [Docs conflict with this app's usage](https://docs.aws.amazon.com/documentdb/latest/developerguide/search.html)<br>The app uses Atlas Search, which DocumentDB doesn't provide; a separate search service is needed |
+| X:graphLookup | graphLookup | code | INFERRED | 0.57 | ✅ Same behavior<br>1/1 probes equal | ⚪ Not covered in our review |
 
 ## What differed on FerretDB
 
-- **T.txn_abort** (❌ Different result): Aborted transaction leaves no trace. At step `read`, MongoDB gave `10` and FerretDB gave `7` (at `$.docs[0].n`).
-- **T.collation_unique** (❌ Not supported): Case-insensitive unique index rejects a case variant. Step `index` failed with code 115: "Error in specification { "key" : { "email" : 1 }, "name" : "ci", "unique" : true, "collation" : { "locale" : "en", "strength" : 2 } } :: caused by :: createIndex.collatio".
-- **T.validator** (❌ Different result): $jsonSchema validator rejects a bad document. At step `bad`, MongoDB gave `121` and FerretDB gave `<absent>` (at `$.error_code`).
-- **T.change_stream** (❌ Not supported): A change stream delivers an update with the full document. Step `open` failed with code 115: "Stage $changeStream is not supported yet in native pipeline, full error: {'ok': 0.0, 'errmsg': 'Stage $changeStream is not supported yet in native pipeline', 'code': 115,".
+- **F4.txn-abort-rollback** (❌ Different result): Abort rolls back multi-line reservations and order. At step `check-inv-rolled-back`, MongoDB gave `10` and FerretDB gave `8` (at `$.docs[0].stock`).
+- **F4.txn-commit-atomic** (❌ Not supported): Commit atomically persists reservations order and cart. Step `commit` failed with code 59: "no such command: 'commitTransaction', full error: {'ok': 0.0, 'errmsg': "no such command: 'commitTransaction'", 'code': 59, 'codeName': 'CommandNotFound'}".
+- **F4.txn-isolation-uncommitted** (❌ Different result): Uncommitted reservation invisible outside transaction. At step `read-outside-sees-old`, MongoDB gave `10` and FerretDB gave `8` (at `$.docs[0].stock`).
+- **F5.cs-filter-update-replace** (❌ Not supported): Change stream filtered to update and replace only. Step `open-filtered` failed with code 115: "Stage $changeStream is not supported yet in native pipeline, full error: {'ok': 0.0, 'errmsg': 'Stage $changeStream is not supported yet in native pipeline', 'code': 115,".
+- **F5.cs-fulldocument-lookup** (❌ Not supported): Change stream fullDocument updateLookup on update. Step `open-lookup` failed with code 115: "Stage $changeStream is not supported yet in native pipeline, full error: {'ok': 0.0, 'errmsg': 'Stage $changeStream is not supported yet in native pipeline', 'code': 115,".
+- **F5.cs-event-per-change** (❌ Not supported): Change stream one event per change with non-blocking poll. Step `open-filtered` failed with code 115: "Stage $changeStream is not supported yet in native pipeline, full error: {'ok': 0.0, 'errmsg': 'Stage $changeStream is not supported yet in native pipeline', 'code': 115,".
+- **F6.ci-lookup** (❌ Different result): Case-insensitive email lookup with collation. At step `find-upper-with-collation`, MongoDB gave `1` and FerretDB gave `0` (at `$.docs.length`).
+- **F6.ci-unique** (❌ Not supported): Case-insensitive unique email via collation index. Step `create-ci-unique-index` failed with code 115: "Error in specification { "key" : { "email" : 1 }, "name" : "email_ci_unique", "unique" : true, "collation" : { "locale" : "en", "strength" : 2 } } :: caused by :: createI".
+- **F6.ci-gating** (❌ Different result): Collation controls case sensitivity of email match. At step `find-with-collation-matches`, MongoDB gave `1` and FerretDB gave `0` (at `$.docs.length`).
+- **F8.orders-required-fields** (❌ Different result): $jsonSchema requires customer_id, status, items, total and placed_at on orders. At step `insert missing customer_id fails`, MongoDB gave `121` and FerretDB gave `<absent>` (at `$.error_code`).
+- **F8.orders-enum-total** (❌ Different result): $jsonSchema enum and minimum on orders status and total. At step `insert bad status fails`, MongoDB gave `121` and FerretDB gave `<absent>` (at `$.error_code`).
+- **F8.orders-types-update** (❌ Different result): $jsonSchema bsonType on items and placed_at plus update validation on orders. At step `insert items not array fails`, MongoDB gave `121` and FerretDB gave `<absent>` (at `$.error_code`).
 - **Schema setup `customers.email_ci`** was refused with code 115: "Error in specification { "unique" : true, "name" : "email_ci_unique", "key" : { "email" : 1 }, "collation" : { "locale" : "en", "strength" : 2 } } :: caused by :: createI".
 - **Replay `Sb98d4c91`** (F6, customers): 17 of 40 replayed operations differed (17 × different number of documents).
 - **Replay `Se780f2b8`** (F9, products): 40 of 40 replayed operations differed (40 × same matches, ranked differently).
@@ -155,14 +163,14 @@ A copier that works like a managed migration tool does a full load with indexes 
 
 | Rule | Found | Label | Expected | Evidence |
 |---|---|---|---|---|
-| R1 Tier discounts; legacy_vip never takes a coupon | yes | OBSERVED | OBSERVED | INV-019: [orders] customers.tier=legacy_vip ⇒ coupon_code is absent; B19 (INV-019): customers.tier=legacy_vip ⇒ coupon_code is absent [orders] |
+| R1 Tier discounts; legacy_vip never takes a coupon | yes | OBSERVED | OBSERVED | INV-019: [orders] customers.tier=legacy_vip ⇒ coupon_code is absent; B31 (INV-017, INV-018, INV-020): Tier discount is bronze 0%, silver 5%, gold 10%, legacy_vip 15% off subtotal, so silver, g |
 | R2 WELCOME10 works once per customer | yes | OBSERVED | OBSERVED | catalog:orders.coupon_once_per_customer: orders.coupon_once_per_customer on ['customer_id', 'coupon_code'] is unique and partial on |
-| R3 Free shipping from $75 of discounted merchandise | yes | OBSERVED | OBSERVED | INV-028: [orders] shipping=0 when subtotal - discount ≥ 7500, otherwise shipping=795; B28 (INV-028): shipping=0 when subtotal - discount ≥ 7500, otherwise shipping=795 [orders] |
-| R4 8.5% tax on merchandise; no tax field before 2021 | yes | OBSERVED | OBSERVED | INV-026: [orders] tax is absent before ~2021-01-01 and int from then on (placed_at); B26 (INV-026): tax is absent before ~2021-01-01 and int from then on (placed_at) [orders] |
+| R3 Free shipping from $75 of discounted merchandise | yes | OBSERVED | OBSERVED | INV-028: [orders] shipping=0 when subtotal - discount ≥ 7500, otherwise shipping=795; B35 (INV-027, INV-028, shoplog/pricing.py:18): Discounted merchandise (subtotal - discount) of 7500 or more gets free shipping (shipping  |
+| R4 8.5% tax on merchandise; no tax field before 2021 | yes | OBSERVED | OBSERVED | INV-026: [orders] tax is absent before ~2021-01-01 and int from then on (placed_at); B36 (shoplog/pricing.py:19): Tax is 8.5% (850 bps) applied to discounted merchandise excluding shipping |
 | R5 Float dollars before 2018, integer cents after | yes | OBSERVED | OBSERVED | INV-021: [orders] subtotal is double before ~2018-01-01 and int from then on (placed_at); INV-024: [orders] total is double before ~2018-01-01 and int from then on (placed_at) |
-| R6 Order state machine; only placed or paid can be cancelled | partly | OBSERVED | OBSERVED | INV-002: [orders] status=cancelled ⇒ delivered_at is absent; B02 (INV-002): status=cancelled ⇒ delivered_at is absent [orders] |
-| R7 Refund window: 30 days, 90 for legacy_vip | no |  | INFERRED |  |
-| R8 Clearance items are final sale | yes | OBSERVED | OBSERVED | INV-029: [orders.items[]] category=clearance ⇒ refund_status=none; B29 (INV-029): category=clearance ⇒ refund_status=none [orders.items[]] |
+| R6 Order state machine; only placed or paid can be cancelled | yes | OBSERVED | OBSERVED | B25 (shoplog/orders.py:11): An order can be cancelled only from 2 prior statuses: placed or paid, never after shipped |
+| R7 Refund window: 30 days, 90 for legacy_vip | yes | INFERRED | INFERRED | B37 (shoplog/refunds.py:7): Orders in the legacy_vip tier may be refunded up to 90 days after delivered_at; B38 (shoplog/refunds.py:8): Orders in all other tiers may be refunded up to 30 days after delivered_at |
+| R8 Clearance items are final sale | yes | OBSERVED | OBSERVED | INV-029: [orders.items[]] category=clearance ⇒ refund_status=none; B39 (INV-029, shoplog/refunds.py:9): Items in the clearance category are final sale and are never eligible for refund, so clear |
 | R9 refund_total > 0 exactly when refunded | yes | OBSERVED | OBSERVED | INV-008: [orders] status=partially_refunded ⇒ refund_total > 0; INV-012: [orders] status=refunded ⇒ refund_total > 0 |
 | R10 Active carts expire after 24 hours; converted carts are kept | yes | OBSERVED | OBSERVED | catalog:carts.active_cart_expiry: carts.active_cart_expiry on ['expires_at'] is partial on {"status": "active"}; catalog:carts.active_cart_expiry: carts.active_cart_expiry is TTL, expireAfterSeconds=0 |
 
@@ -198,39 +206,39 @@ AWS DocumentDB version differences (INFERRED from docs, not measured):
 
 ## Latency
 
-Both engines ran in Docker on one machine, with the same CPU and memory limits, the same data, and alternating order. FerretDB's image holds Postgres and FerretDB in one container, so they share its limit. Overall read p50/p95: MongoDB 0.44 ms / 6.50 ms, FerretDB 0.62 ms / 5.48 ms.
-Writes (353 replayed) p50/p95: MongoDB 1.21 ms / 1.83 ms, FerretDB 0.60 ms / 0.91 ms. MongoDB here also writes an oplog as a replica set. These are local numbers for comparison, not production estimates.
+Both engines ran in Docker on one machine, with the same CPU and memory limits, the same data, and alternating order. FerretDB's image holds Postgres and FerretDB in one container, so they share its limit. Overall read p50/p95: MongoDB 0.48 ms / 6.59 ms, FerretDB 0.70 ms / 6.04 ms.
+Writes (353 replayed) p50/p95: MongoDB 1.43 ms / 2.35 ms, FerretDB 0.73 ms / 1.54 ms. MongoDB here also writes an oplog as a replica set. These are local numbers for comparison, not production estimates.
 
 | Feature | Operation | Samples | MongoDB p50 / p95 | FerretDB p50 / p95 | FerretDB compared at p50 |
 |---|---|---|---|---|---|
-| F1 | orders: $match → $addFields → $lookup → $unwind | 7/20 (time budget reached) | 6.50 ms / 7.04 ms | 3,987 ms / 4,082 ms | 613.4× |
-| F10 | orders: find | 15/15 | 7.91 ms / 39.23 ms | 7.54 ms / 30.70 ms | 1.0× faster |
-| F2 | orders: $match → $addFields → $setWindowFields → $project | 40/60 | 0.47 ms / 0.64 ms | 3.62 ms / 3.78 ms | 7.7× |
-| F10 | orders: find | 1/1 | 1.32 ms / 1.32 ms | 3.26 ms / 3.26 ms | 2.5× |
-| F1 | products: $lookup → $match → $group → $sort | 10/10 | 6.62 ms / 7.02 ms | 1.73 ms / 1.94 ms | 3.8× faster |
-| F10 | orders: find | 40/40 | 0.80 ms / 1.39 ms | 0.91 ms / 1.91 ms | 1.1× |
-| F9 | products: find | 40/100 | 0.67 ms / 0.84 ms | 1.61 ms / 1.82 ms | 2.4× |
-| F6 | customers: find | 40/110 | 0.28 ms / 0.33 ms | 0.70 ms / 0.84 ms | 2.5× |
-| F10 | products: find | 30/30 | 0.49 ms / 0.93 ms | 0.58 ms / 0.80 ms | 1.2× |
-| F10 | orders: find | 40/100 | 0.39 ms / 0.74 ms | 0.47 ms / 0.79 ms | 1.2× |
-| other | orders: $match → $group | 40/46 | 0.37 ms / 0.57 ms | 0.43 ms / 0.61 ms | 1.2× |
-| F10 | carts: find | 40/70 | 0.29 ms / 0.48 ms | 0.38 ms / 0.58 ms | 1.3× |
-| F10 | orders: find | 1/1 | 0.72 ms / 0.72 ms | 0.53 ms / 0.53 ms | 1.4× faster |
-| F10 | orders: find | 40/270 | 0.27 ms / 1.07 ms | 0.35 ms / 0.52 ms | 1.3× |
+| F1 | orders: $match → $addFields → $lookup → $unwind | 7/20 (time budget reached) | 6.75 ms / 7.48 ms | 3,959 ms / 4,202 ms | 586.5× |
+| F10 | orders: find | 15/15 | 8.46 ms / 43.42 ms | 7.98 ms / 41.26 ms | 1.1× faster |
+| F2 | orders: $match → $addFields → $setWindowFields → $project | 40/60 | 0.64 ms / 1.28 ms | 3.79 ms / 4.92 ms | 5.9× |
+| F10 | orders: find | 1/1 | 1.57 ms / 1.57 ms | 3.38 ms / 3.38 ms | 2.2× |
+| F9 | products: find | 40/100 | 0.93 ms / 1.74 ms | 1.84 ms / 3.02 ms | 2.0× |
+| F10 | orders: find | 40/40 | 0.84 ms / 1.96 ms | 1.12 ms / 2.69 ms | 1.3× |
+| F1 | products: $lookup → $match → $group → $sort | 10/10 | 6.62 ms / 6.71 ms | 1.73 ms / 2.30 ms | 3.8× faster |
+| F10 | orders: find | 40/270 | 0.40 ms / 0.72 ms | 0.50 ms / 1.10 ms | 1.2× |
+| F6 | customers: find | 40/110 | 0.34 ms / 0.89 ms | 0.77 ms / 1.03 ms | 2.3× |
+| other | orders: $match → $group | 40/46 | 0.40 ms / 0.56 ms | 0.46 ms / 0.76 ms | 1.1× |
+| F10 | orders: find | 40/100 | 0.44 ms / 0.71 ms | 0.50 ms / 0.72 ms | 1.1× |
+| F10 | carts: find | 40/70 | 0.30 ms / 0.48 ms | 0.40 ms / 0.67 ms | 1.3× |
+| F10 | products: find | 30/30 | 0.46 ms / 0.50 ms | 0.56 ms / 0.61 ms | 1.2× |
+| F10 | orders: find | 1/1 | 0.69 ms / 0.69 ms | 0.50 ms / 0.50 ms | 1.4× faster |
 
 ## Why the slow paths are slow
 
 Plans from the MongoDB MCP Server's `explain` tool (`mongodb-mcp-server@3.2.2 explain`), run read-only against each engine on the slowest replayed queries.
 
-**F1 on orders** (replay p95 7.04 ms on MongoDB, 4,082 ms on FerretDB)
+**F1 on orders** (replay p95 7.48 ms on MongoDB, 4,202 ms on FerretDB)
 - MongoDB: `IXSCAN(status_1_placed_at_-1) → FETCH → PROJECTION_SIMPLE → $addFields → $lookup(indexes=['_id_'], collection scans=0, docs examined=309) → $facet`, 306 documents examined.
 - FerretDB (Postgres plan): `Aggregate → ProjectSet → Subquery Scan → Nested Loop → Index Scan(status_1_placed_at_-1) → Aggregate → Seq Scan → Aggregate → Function Scan(bson_lookup_unwind) → Append → Aggregate → Sort → Subquery Scan → Aggregate → CTE Scan → Aggregate → Sort → Subquery Scan → Aggregate → CTE Scan → Aggregate → Limit → Sort → CTE Scan`, with 1 sequential scan(s) and 1 nested loop(s).
 
-**F2 on orders** (replay p95 0.64 ms on MongoDB, 3.78 ms on FerretDB)
+**F2 on orders** (replay p95 1.28 ms on MongoDB, 4.92 ms on FerretDB)
 - MongoDB: `IXSCAN(customer_id_1_placed_at_-1) → FETCH → PROJECTION_SIMPLE → $addFields → $sort → $_internalSetWindowFields → $project`, 13 documents examined.
 - FerretDB (Postgres plan): `Subquery Scan → WindowAgg → WindowAgg → WindowAgg → WindowAgg → Sort → Bitmap Heap Scan → BitmapAnd → Bitmap Index Scan(status_1_placed_at_-1) → Bitmap Index Scan(customer_id_1_placed_at_-1)`, with 0 sequential scan(s) and 0 nested loop(s).
 
-**F10 on orders** (replay p95 1.32 ms on MongoDB, 3.26 ms on FerretDB)
+**F10 on orders** (replay p95 1.57 ms on MongoDB, 3.38 ms on FerretDB)
 - MongoDB: `IXSCAN(_id_) → FETCH → PROJECTION_DEFAULT → LIMIT`, 179 documents examined.
 - FerretDB (Postgres plan): `Limit → Sort → Bitmap Heap Scan → BitmapAnd → Bitmap Index Scan(status_1_placed_at_-1) → Bitmap Index Scan(_id_)`, with 0 sequential scan(s) and 0 nested loop(s).
 
@@ -249,10 +257,10 @@ No Atlas evidence was collected for this run. `scripts/atlas_evidence.py` seeds 
 | Infrastructure saved | $7,227 | -$7,077 |
 | Self-managed operations | -$11,520 | -$0 |
 | Migration baseline (assumed hours) | 40 h | 40 h |
-| Rewrites (Muse estimate, INFERRED) | not estimated | not estimated |
+| Rewrites (Muse estimate, INFERRED) | 504 h | 208 h |
 | Residual incident risk (assumed) | -$29,250 | -$4,500 |
-| **Net over 12 months, base** | **-$38,343** | **-$16,377** |
-| Net, best to worst case | -$5,404 to -$128,671 | -$11,457 to -$31,677 |
+| **Net over 12 months, base** | **-$98,823** | **-$41,337** |
+| Net, best to worst case | -$36,124 to -$234,031 | -$24,897 to -$74,877 |
 | Rewrite hours the savings can pay for | 0 h | 0 h |
 | Payback | Never at these numbers | Never at these numbers |
 
@@ -260,66 +268,101 @@ No Atlas evidence was collected for this run. `scripts/atlas_evidence.py` seeds 
 
 | Scenario | FerretDB net (base) | FerretDB decision | DocumentDB net (base) | DocumentDB decision |
 |---|---|---|---|---|
-| 1 cluster(s) | -$35,123 | STAY_UNPRICED | -$11,069 | VERIFY_FIRST |
-| 4 cluster(s) | -$38,343 | STAY_UNPRICED | -$16,377 | VERIFY_FIRST |
-| 10 cluster(s) | -$44,781 | STAY_UNPRICED | -$26,991 | VERIFY_FIRST |
-| 25 cluster(s) | -$60,878 | STAY_UNPRICED | -$53,528 | VERIFY_FIRST |
-| Atlas billed per node (see below) | $34,541 | STAY_UNPRICED | $56,507 | VERIFY_FIRST |
+| 1 cluster(s) | -$95,603 | STAY | -$36,029 | VERIFY_FIRST |
+| 4 cluster(s) | -$98,823 | STAY | -$41,337 | VERIFY_FIRST |
+| 10 cluster(s) | -$105,261 | STAY | -$51,951 | VERIFY_FIRST |
+| 25 cluster(s) | -$121,358 | STAY | -$78,488 | VERIFY_FIRST |
+| Atlas billed per node (see below) | -$25,939 | STAY | $31,547 | VERIFY_FIRST |
 
 **Check your Atlas invoice.** MongoDB's public sources disagree on whether the listed hourly price covers a whole default cluster or one node, and that changes the baseline threefold. The base case assumes the whole cluster, because the [pricing page](https://www.mongodb.com/pricing) says M10 starts at $56.94/month, which is its hourly rate with no multiplier. [The billing docs](https://www.mongodb.com/docs/atlas/billing/cluster-configuration-costs/) describe the cost as applying to each data-bearing node. The last row shows that case.
 
 List prices and every assumption are in [assumptions.yaml](../../assumptions.yaml), including 4 fictional clusters. DocumentDB uses the cheaper of its Standard and I/O-Optimized options, at equal RAM to Atlas M40 but half the vCPUs, which favors migrating.
 
+### Rewrite estimates (Muse, INFERRED)
+
+| Target | Gap | Low / base / high hours | Approach |
+|---|---|---|---|
+| FerretDB | Multi-document transactions | 80 / 160 / 280 | Replace the multi-document transaction in shoplog/checkout.py:57 with an application saga: idempotent pending-order insert, conditional inventory decrements, then finalize/cancel with compensating rollbacks plus a background reconciler and repair for partial stocks/orders. |
+| FerretDB | Change streams | 40 / 80 / 140 | Replace the $changeStream watcher in shoplog/inventory_sync.py with indexed polling on updatedAt/_id plus a persisted checkpoint and idempotent apply, adding tombstones/indexes to cover filtered update/replace and fullDocument lookup. Add catch-up/backfill verification and lag/duplicate testing before rollout. |
+| FerretDB | Case-insensitive collation index | 24 / 48 / 80 | Replace collation-based matching/uniqueness with a normalized lowercase email field with a standard unique index and update all lookups/writes to use it. Backfill and de-duplicate existing customers with conflicting case variants, then verify case-insensitive signup/login paths. |
+| FerretDB | $jsonSchema validator | 16 / 28 / 48 | Replace DB-level $jsonSchema enforcement with a shared application validator for orders inserts/updates covering required fields, enum/minimum and bsonTypes. Audit and repair any invalid orders already written to FerretDB and add regression tests verifying rejections without relying on error 121. |
+| FerretDB | Slow path on orders ($lookup sub-pipeline + $facet) | 24 / 48 / 80 | Split the $facet into separate count and page queries and replace the $lookup sub-pipeline with simple indexed lookups plus application-side join in shoplog/analytics.py, with covering indexes and p95/parity validation on FerretDB. |
+| FerretDB | Atlas Search ($search with a search index) | 72 / 140 / 250 | Deploy a dedicated search service (OpenSearch/Elasticsearch) alongside FerretDB with async catalog sync plus full backfill, and rewrite the $search aggregations in catalog.py to query it with parity-tested ranking. Backfill existing data and cut over with dual-run validation before removing the Atlas index from schema.py. |
+| AWS DocumentDB | $setWindowFields | 8 / 20 / 40 | Replace the $setWindowFields/$shift pipeline in shoplog/analytics.py with a DocumentDB-compatible sorted query plus application-side shift/lead-lag computation preserving partition and sort semantics. Validate output parity against MongoDB including boundary/null cases and performance, then roll out. |
+| AWS DocumentDB | $text search | 24 / 48 / 80 | Flatten array values plus text fields into a denormalized plain-string search field with write-path maintenance and one-time backfill, indexed instead of the array. Rewrite $text queries to DocumentDB-supported regex/contains queries with application-side filtering for exclusion (-term) operators and regression tests for relevance. |
+| AWS DocumentDB | Atlas Search ($search with a search index) | 80 / 140 / 240 | Replace Atlas $search with Amazon OpenSearch Service: provision index, build change-stream sync with full backfill, and rewrite catalog.py queries and schema index definition to query OpenSearch with relevance-parity testing. |
+
 ## Reconstructed business behavior
 
-Recovered without any documentation. 29 of 29 are OBSERVED in the data. The rest appear only in code, so they are INFERRED.
+Recovered without any documentation. 9 of 50 are OBSERVED in the data. The rest appear only in code, so they are INFERRED.
 
 | ID | Behavior | Status | Confidence | Evidence |
 |---|---|---|---|---|
-| B01 | status=cancelled ⇒ refund_total = 0 [orders] | OBSERVED | unknown | INV-001 (n=1231) |
-| B02 | status=cancelled ⇒ delivered_at is absent [orders] | OBSERVED | unknown | INV-002 (n=1231) |
-| B03 | status=delivered ⇒ refund_total = 0 [orders] | OBSERVED | unknown | INV-003 (n=21681) |
-| B04 | status=delivered ⇒ delivered_at is present [orders] | OBSERVED | unknown | INV-004 (n=21681) |
-| B05 | status=paid ⇒ delivered_at is absent [orders] | OBSERVED | unknown | INV-005 (n=43) |
-| B06 | status=paid ⇒ tax is present [orders] | OBSERVED | unknown | INV-006 (n=43) |
-| B07 | status=partially_refunded ⇒ shipping = 0 [orders] | OBSERVED | unknown | INV-007 (n=646) |
-| B08 | status=partially_refunded ⇒ refund_total > 0 [orders] | OBSERVED | unknown | INV-008 (n=646) |
-| B09 | status=partially_refunded ⇒ delivered_at is present [orders] | OBSERVED | unknown | INV-009 (n=646) |
-| B10 | status=placed ⇒ delivered_at is absent [orders] | OBSERVED | unknown | INV-010 (n=48) |
-| B11 | status=placed ⇒ tax is present [orders] | OBSERVED | unknown | INV-011 (n=48) |
-| B12 | status=refunded ⇒ refund_total > 0 [orders] | OBSERVED | unknown | INV-012 (n=1145) |
-| B13 | status=refunded ⇒ delivered_at is present [orders] | OBSERVED | unknown | INV-013 (n=1145) |
-| B14 | status=shipped ⇒ refund_total = 0 [orders] | OBSERVED | unknown | INV-014 (n=206) |
-| B15 | status=shipped ⇒ delivered_at is absent [orders] | OBSERVED | unknown | INV-015 (n=206) |
-| B16 | status=shipped ⇒ tax is present [orders] | OBSERVED | unknown | INV-016 (n=206) |
-| B17 | customers.tier=gold ⇒ discount > 0 [orders] | OBSERVED | unknown | INV-017 (n=3004) |
-| B18 | customers.tier=legacy_vip ⇒ discount > 0 [orders] | OBSERVED | unknown | INV-018 (n=681) |
-| B19 | customers.tier=legacy_vip ⇒ coupon_code is absent [orders] | OBSERVED | unknown | INV-019 (n=681) |
-| B20 | customers.tier=silver ⇒ discount > 0 [orders] | OBSERVED | unknown | INV-020 (n=6209) |
-| B21 | subtotal is double before ~2018-01-01 and int from then on (placed_at) [orders] | OBSERVED | unknown | INV-021 (n=25000) |
-| B22 | discount is double before ~2018-01-01 and int from then on (placed_at) [orders] | OBSERVED | unknown | INV-022 (n=25000) |
-| B23 | shipping is double before ~2018-01-01 and int from then on (placed_at) [orders] | OBSERVED | unknown | INV-023 (n=25000) |
-| B24 | total is double before ~2018-01-01 and int from then on (placed_at) [orders] | OBSERVED | unknown | INV-024 (n=25000) |
-| B25 | refund_total is double before ~2018-01-01 and int from then on (placed_at) [orders] | OBSERVED | unknown | INV-025 (n=25000) |
-| B26 | tax is absent before ~2021-01-01 and int from then on (placed_at) [orders] | OBSERVED | unknown | INV-026 (n=25000) |
-| B27 | shipping=0 when tax ≥ 637, otherwise shipping=795 [orders] | OBSERVED | unknown | INV-027 (n=14794) |
-| B28 | shipping=0 when subtotal - discount ≥ 7500, otherwise shipping=795 [orders] | OBSERVED | unknown | INV-028 (n=20924) |
-| B29 | category=clearance ⇒ refund_status=none [orders.items[]] | OBSERVED | unknown | INV-029 (n=8399) |
+| B01 | Cancelled orders are excluded from the revenue report (only orders with status not equal to cancelled count) | INFERRED | 0.77 | [shoplog/analytics.py:18](../../shoplog/analytics.py#L18) |
+| B02 | Dollar totals stored as double were migrated to integer cents by multiplying by 100 and rounding to 0 decimals: subtotal, discount, shipping, total and refund_total are double before ~2018-01-01 and int from then on | OBSERVED | 0.90 | INV-021 (n=25000), INV-022 (n=25000), INV-023 (n=25000), INV-024 (n=25000) |
+| B03 | Revenue report returns the 5 largest orders by total_cents | INFERRED | 0.79 | [shoplog/analytics.py:49](../../shoplog/analytics.py#L49) |
+| B04 | Customer timeline maintains a 90-day rolling spend total per customer ordered by placed_at | INFERRED | 0.68 | [shoplog/analytics.py:86](../../shoplog/analytics.py#L86) |
+| B05 | A SKU is low-stock when on_hand is less than the given threshold and low-stock SKUs are counted per category | INFERRED | 0.84 | [shoplog/analytics.py:65](../../shoplog/analytics.py#L65) |
+| B06 | A cart's lifetime is 24 hours after its last touch/update | INFERRED | 0.97 | [shoplog/carts.py:7](../../shoplog/carts.py#L7) |
+| B07 | Touching a cart marks it active and resets its expiry to 24 hours from now | INFERRED | 0.99 | [shoplog/carts.py:19](../../shoplog/carts.py#L19) |
+| B08 | Only the customer's cart with status active counts as the current active cart | INFERRED | 1.00 | [shoplog/carts.py:27](../../shoplog/carts.py#L27) |
+| B09 | A cart can only be discarded while it is still active; converted carts are not deleted by discard | INFERRED | 0.96 | [shoplog/carts.py:31](../../shoplog/carts.py#L31) |
+| B10 | Converting a cart marks it converted and records the order_id that fulfilled it | INFERRED | 1.00 | [shoplog/carts.py:37](../../shoplog/carts.py#L37) |
+| B11 | Storefront search returns at most 20 products by default | INFERRED | 0.95 | [shoplog/catalog.py:8](../../shoplog/catalog.py#L8) |
+| B12 | Autocomplete returns at most 8 name suggestions by default | INFERRED | 0.82 | [shoplog/catalog.py:20](../../shoplog/catalog.py#L20) |
+| B13 | Browsing products in a category returns at most 40 products by default | INFERRED | 0.48 | [shoplog/catalog.py:40](../../shoplog/catalog.py#L40) |
+| B14 | Storefront name/description/tags text matching tolerates at most 1 edit (fuzzy maxEdits 1) | INFERRED | 0.79 | [shoplog/catalog.py:11](../../shoplog/catalog.py#L11) |
+| B15 | Order items are assigned sequential line_id values starting at 1 (index + 1) | INFERRED | 0.97 | [shoplog/checkout.py:32](../../shoplog/checkout.py#L32) |
+| B16 | Each new order line starts with refunded amount 0 | INFERRED | 0.99 | [shoplog/checkout.py:39](../../shoplog/checkout.py#L39) |
+| B17 | Every new order starts with refund_total of 0 and only orders whose status is delivered or partially_refunded can be refunded, so cancelled, shipped and delivered orders with no refund have refund_total = 0 | OBSERVED | 0.90 | INV-001 (n=1231), INV-003 (n=21681), INV-014 (n=206), [shoplog/checkout.py:48](../../shoplog/checkout.py#L48) |
+| B18 | Checkout fails with OutOfStock unless exactly 1 inventory document is updated per order line, meaning on_hand must cover the ordered qty | INFERRED | 1.00 | [shoplog/checkout.py:64](../../shoplog/checkout.py#L64) |
+| B19 | New customers start with 0 loyalty points | INFERRED | 0.93 | [shoplog/customers.py:14](../../shoplog/customers.py#L14) |
+| B20 | Only 2 operation types — update and replace — on inventory create inventory_events entries; inserts and deletes are ignored | INFERRED | 0.91 | [shoplog/inventory_sync.py:7](../../shoplog/inventory_sync.py#L7) |
+| B21 | Referral chain lookup follows referred_by links up to 3 levels deep by default | INFERRED | 0.71 | [shoplog/legacy_reports.py:6](../../shoplog/legacy_reports.py#L6) |
+| B22 | An order can move to paid only from 1 prior status: placed | INFERRED | 1.00 | [shoplog/orders.py:8](../../shoplog/orders.py#L8) |
+| B23 | An order can move to shipped only from 1 prior status: paid | INFERRED | 1.00 | [shoplog/orders.py:9](../../shoplog/orders.py#L9) |
+| B24 | An order can move to delivered only from 1 prior status: shipped | INFERRED | 1.00 | [shoplog/orders.py:10](../../shoplog/orders.py#L10) |
+| B25 | An order can be cancelled only from 2 prior statuses: placed or paid, never after shipped | INFERRED | 1.00 | [shoplog/orders.py:11](../../shoplog/orders.py#L11) |
+| B26 | When an order is marked delivered, delivered_at must be set to the same transition time as updated_at, so delivered_at is present for delivered, partially_refunded and refunded orders and absent for placed, paid, shipped and cancelled orders | OBSERVED | 0.90 | INV-002 (n=1231), INV-004 (n=21681), INV-005 (n=43), INV-009 (n=646) |
+| B27 | Every status change must append 1 history entry with the new status and timestamp while updating status | INFERRED | 1.00 | [shoplog/orders.py:22](../../shoplog/orders.py#L22) |
+| B28 | Customer order history returns at most 20 orders, newest placed_at first with _id tie-breaker | INFERRED | 1.00 | [shoplog/orders.py:31](../../shoplog/orders.py#L31) |
+| B29 | Search for orders containing a SKU returns at most 100 orders placed since the given date, newest first | INFERRED | 0.99 | [shoplog/orders.py:42](../../shoplog/orders.py#L42) |
+| B30 | Listing open orders by a status returns at most 50 orders, newest placed_at first | INFERRED | 1.00 | [shoplog/orders.py:50](../../shoplog/orders.py#L50) |
+| B31 | Tier discount is bronze 0%, silver 5%, gold 10%, legacy_vip 15% off subtotal, so silver, gold and legacy_vip orders have discount > 0 | OBSERVED | 0.90 | INV-017 (n=3004), INV-018 (n=681), INV-020 (n=6209), [shoplog/pricing.py:3](../../shoplog/pricing.py#L3) |
+| B32 | Coupon code WELCOME10 is worth 1000 off merchandise | INFERRED | 0.98 | [shoplog/pricing.py:4](../../shoplog/pricing.py#L4) |
+| B33 | legacy_vip tier cannot use coupons - any coupon is ignored for legacy_vip, so legacy_vip orders have coupon_code absent | OBSERVED | 0.90 | INV-019 (n=681), [shoplog/pricing.py:13](../../shoplog/pricing.py#L13) |
+| B34 | Total discount (tier + coupon) is capped at subtotal so merchandise never goes negative | INFERRED | 1.00 | [shoplog/pricing.py:16](../../shoplog/pricing.py#L16) |
+| B35 | Discounted merchandise (subtotal - discount) of 7500 or more gets free shipping (shipping 0), otherwise shipping is 795 flat, corresponding to tax >= 637 vs shipping 795 | OBSERVED | 0.90 | INV-027 (n=14794), INV-028 (n=20924), [shoplog/pricing.py:18](../../shoplog/pricing.py#L18) |
+| B36 | Tax is 8.5% (850 bps) applied to discounted merchandise excluding shipping | INFERRED | 1.00 | [shoplog/pricing.py:19](../../shoplog/pricing.py#L19) |
+| B37 | Orders in the legacy_vip tier may be refunded up to 90 days after delivered_at | INFERRED | 0.87 | [shoplog/refunds.py:7](../../shoplog/refunds.py#L7) |
+| B38 | Orders in all other tiers may be refunded up to 30 days after delivered_at | INFERRED | 0.98 | [shoplog/refunds.py:8](../../shoplog/refunds.py#L8) |
+| B39 | Items in the clearance category are final sale and are never eligible for refund, so clearance line items have refund_status=none | OBSERVED | 0.90 | INV-029 (n=8399), [shoplog/refunds.py:9](../../shoplog/refunds.py#L9) |
+| B40 | Only line items whose refund_status is none can be refunded; already refunded lines are excluded | INFERRED | 1.00 | [shoplog/refunds.py:29](../../shoplog/refunds.py#L29) |
+| B41 | After a refund the order status becomes partially_refunded if refundable lines remain, otherwise it becomes refunded, so partially_refunded and refunded orders have refund_total > 0 | OBSERVED | 0.90 | INV-008 (n=646), INV-012 (n=1145), [shoplog/refunds.py:60](../../shoplog/refunds.py#L60) |
+| B42 | An order must include all 5 fields: customer_id, status, items, total and placed_at | INFERRED | 1.00 | [shoplog/schema.py:14](../../shoplog/schema.py#L14) |
+| B43 | Each order must contain at least 1 item | INFERRED | 1.00 | [shoplog/schema.py:28](../../shoplog/schema.py#L28) |
+| B44 | Order total must be 0 or greater | INFERRED | 1.00 | [shoplog/schema.py:29](../../shoplog/schema.py#L29) |
+| B45 | Order status must be one of 7 values: placed, paid, shipped, delivered, cancelled, partially_refunded, refunded | INFERRED | 0.97 | [shoplog/schema.py:18](../../shoplog/schema.py#L18) |
+| B46 | A customer can use the same coupon_code only once; orders without a coupon_code are exempt | INFERRED | 1.00 | [shoplog/schema.py:54](../../shoplog/schema.py#L54) |
+| B47 | Customer email addresses must be unique ignoring case (English collation strength 2) | INFERRED | 0.99 | [shoplog/schema.py:9](../../shoplog/schema.py#L9) |
+| B48 | Only carts with status active automatically expire at expires_at (expireAfterSeconds 0) | INFERRED | 1.00 | [shoplog/schema.py:67](../../shoplog/schema.py#L67) |
+| B49 | Product text search ranks name with weight 10, tags with weight 5 and description with weight 1 | INFERRED | 0.98 | [shoplog/schema.py:77](../../shoplog/schema.py#L77) |
+| B50 | Tax is absent before ~2021-01-01 and present as int from then on (placed_at) | OBSERVED | 0.99 | INV-026 (n=25000) |
 
 ### Code that never ran
 
-- **F11** (Atlas Search ($search with a search index)) appears at [shoplog/catalog.py:10](../../shoplog/catalog.py#L10), [shoplog/catalog.py:22](../../shoplog/catalog.py#L22), [shoplog/schema.py:106](../../shoplog/schema.py#L106), but no operation in the query log used it. It may be dead code. Confidence: unknown (unknown: SUBQ_API_KEY is not set).
-- **X:graphLookup** (graphLookup) appears at [shoplog/legacy_reports.py:10](../../shoplog/legacy_reports.py#L10), but no operation in the query log used it. It may be dead code. Confidence: unknown (unknown: SUBQ_API_KEY is not set).
+- **F11** (Atlas Search ($search with a search index)) appears at [shoplog/catalog.py:10](../../shoplog/catalog.py#L10), [shoplog/catalog.py:22](../../shoplog/catalog.py#L22), [shoplog/schema.py:106](../../shoplog/schema.py#L106), but no operation in the query log used it. It may be dead code. Confidence: 0.96 (subq-snap-1.1, single source).
+- **X:graphLookup** (graphLookup) appears at [shoplog/legacy_reports.py:10](../../shoplog/legacy_reports.py#L10), but no operation in the query log used it. It may be dead code. Confidence: 0.57 (subq-snap-1.1, single source).
 
 ## How far to trust this
 
-- **Self-check:** MongoDB against itself gave 8/8 equal probes, 382/382 equal reads, and 350/350 equal writes with 0 final-state differences. So the differences above don't come from the comparison itself.
-- **Probes:** 8 ran, **handwritten test fixtures, not generated by the model**. MongoDB is the oracle: a probe counts only if it ran cleanly on MongoDB and predicted its result. 0 probe(s) failed that check after retries and were excluded, not counted against the target.
-- **Code evidence:** source is `static_scan_only`. Citations are checked by a program. 0 model citation(s) were dropped because the cited line didn't contain the quoted token.
+- **Self-check:** MongoDB against itself gave 30/30 equal probes, 397/397 equal reads, and 353/353 equal writes with 0 final-state differences. So the differences above don't come from the comparison itself.
+- **Probes:** 30 ran, generated by muse-spark-1.3. MongoDB is the oracle: a probe counts only if it ran cleanly on MongoDB and predicted its result. 0 probe(s) failed that check after retries and were excluded, not counted against the target.
+- **Code evidence:** source is `muse_cached`. Citations are checked by a program. 0 model citation(s) were dropped because the cited line didn't contain the quoted token.
 - **Replay coverage:** the log has 1,554 entries. Not replayed: 205 sync worker bookkeeping; 60 inside a transaction (covered by probes); 57 change stream (covered by probes); 5 insert: the profiler doesn't keep the documents; 1 cursor maintenance. Reads are capped per operation shape.
 - **Two different products:** FerretDB 2 runs on Postgres with an open-source DocumentDB extension. AWS DocumentDB is a separate engine with a similar name. FerretDB's results say nothing about AWS DocumentDB.
 - **DocumentDB rows are INFERRED:** we read AWS's docs for engine 8.0.2 and compared them with this app's usage. Nothing ran there. Set `TARGET_URI` to a real cluster to replace them with observed results.
 - **Fair by construction:** the same pipeline, thresholds and assumptions run on every workload. ShopLog was deliberately built to depend on MongoDB-specific features, and the control app wasn't.
 - **Not modeled:** data transfer, backups, support plans and committed-use discounts. Rewrite hours are model estimates, and the risk inputs are assumptions.
 
-Evidence: [ledger](ledger.json) · [runs](runs.json) · [cost model](tco.json) · run `20261107T214841Z`
+Evidence: [ledger](ledger.json) · [runs](runs.json) · [cost model](tco.json) · run `20261107T221427Z`

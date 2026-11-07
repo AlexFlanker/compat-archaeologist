@@ -1,0 +1,56 @@
+{
+  "FerretDB|behavior:F4": {
+    "approach": "Replace the multi-document transaction in shoplog/checkout.py:57 with an application saga: idempotent pending-order insert, conditional inventory decrements, then finalize/cancel with compensating rollbacks plus a background reconciler and repair for partial stocks/orders.",
+    "hours_base": 160,
+    "hours_high": 280,
+    "hours_low": 80
+  },
+  "FerretDB|behavior:F5": {
+    "approach": "Replace the $changeStream watcher in shoplog/inventory_sync.py with indexed polling on updatedAt/_id plus a persisted checkpoint and idempotent apply, adding tombstones/indexes to cover filtered update/replace and fullDocument lookup. Add catch-up/backfill verification and lag/duplicate testing before rollout.",
+    "hours_base": 80,
+    "hours_high": 140,
+    "hours_low": 40
+  },
+  "FerretDB|behavior:F6": {
+    "approach": "Replace collation-based matching/uniqueness with a normalized lowercase email field with a standard unique index and update all lookups/writes to use it. Backfill and de-duplicate existing customers with conflicting case variants, then verify case-insensitive signup/login paths.",
+    "hours_base": 48.0,
+    "hours_high": 80.0,
+    "hours_low": 24.0
+  },
+  "FerretDB|behavior:F8": {
+    "approach": "Replace DB-level $jsonSchema enforcement with a shared application validator for orders inserts/updates covering required fields, enum/minimum and bsonTypes. Audit and repair any invalid orders already written to FerretDB and add regression tests verifying rejections without relying on error 121.",
+    "hours_base": 28.0,
+    "hours_high": 48.0,
+    "hours_low": 16.0
+  },
+  "FerretDB|performance:S78e856b9": {
+    "approach": "Split the $facet into separate count and page queries and replace the $lookup sub-pipeline with simple indexed lookups plus application-side join in shoplog/analytics.py, with covering indexes and p95/parity validation on FerretDB.",
+    "hours_base": 48.0,
+    "hours_high": 80.0,
+    "hours_low": 24.0
+  },
+  "FerretDB|documented:F11": {
+    "approach": "Deploy a dedicated search service (OpenSearch/Elasticsearch) alongside FerretDB with async catalog sync plus full backfill, and rewrite the $search aggregations in catalog.py to query it with parity-tested ranking. Backfill existing data and cut over with dual-run validation before removing the Atlas index from schema.py.",
+    "hours_base": 140.0,
+    "hours_high": 250.0,
+    "hours_low": 72.0
+  },
+  "AWS DocumentDB|documented:F2": {
+    "approach": "Replace the $setWindowFields/$shift pipeline in shoplog/analytics.py with a DocumentDB-compatible sorted query plus application-side shift/lead-lag computation preserving partition and sort semantics. Validate output parity against MongoDB including boundary/null cases and performance, then roll out.",
+    "hours_base": 20.0,
+    "hours_high": 40.0,
+    "hours_low": 8.0
+  },
+  "AWS DocumentDB|documented:F9": {
+    "approach": "Flatten array values plus text fields into a denormalized plain-string search field with write-path maintenance and one-time backfill, indexed instead of the array. Rewrite $text queries to DocumentDB-supported regex/contains queries with application-side filtering for exclusion (-term) operators and regression tests for relevance.",
+    "hours_base": 48.0,
+    "hours_high": 80.0,
+    "hours_low": 24.0
+  },
+  "AWS DocumentDB|documented:F11": {
+    "approach": "Replace Atlas $search with Amazon OpenSearch Service: provision index, build change-stream sync with full backfill, and rewrite catalog.py queries and schema index definition to query OpenSearch with relevance-parity testing.",
+    "hours_base": 140.0,
+    "hours_high": 240.0,
+    "hours_low": 80.0
+  }
+}

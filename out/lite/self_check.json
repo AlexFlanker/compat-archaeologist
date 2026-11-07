@@ -1,8 +1,8 @@
 {
-  "run_id": "20261107T205443Z-self",
+  "run_id": "20261107T221640Z-self",
   "profile": "lite",
   "self_check": true,
-  "probe_origin": "handwritten_fixture",
+  "probe_origin": "muse",
   "engines": {
     "source": {
       "reported_version": "8.0.34",
@@ -17,57 +17,64 @@
   },
   "probes": [
     {
-      "probe_id": "T.crud_control",
+      "probe_id": "F10.orders-crud-by-id",
       "feature_id": "F10",
-      "title": "Plain find, update and delete by _id",
-      "behavior": "Basic CRUD round trip",
+      "title": "Plain CRUD by _id with status update",
+      "behavior": "Insert then find_one by _id, update status and updated_at by _id and verify, delete by _id and verify gone",
       "source": {
         "outcome": "completed",
         "steps": [
           {
-            "label": "seed",
+            "label": "insert-seed",
             "op": "command",
-            "ms": 13.25,
+            "ms": 22.28,
             "status": "ok"
           },
           {
-            "label": "update",
+            "label": "find-by-id",
             "op": "command",
-            "ms": 1.6,
+            "ms": 0.79,
             "status": "ok",
             "captured": {
-              "n": 1,
-              "nModified": 1
+              "docs": [
+                {
+                  "_id": "O00003113",
+                  "customer_id": "C000441",
+                  "status": "created",
+                  "updated_at": "2026-10-01T00:00:00.000+00:00"
+                }
+              ]
             },
             "capture": true,
             "types": {
-              "n": "int",
-              "nModified": "int"
+              "docs": [
+                {
+                  "_id": null,
+                  "customer_id": null,
+                  "status": null,
+                  "updated_at": null
+                }
+              ]
             }
           },
           {
-            "label": "delete",
+            "label": "update-status",
             "op": "command",
-            "ms": 0.86,
-            "status": "ok",
-            "captured": {
-              "n": 1
-            },
-            "capture": true,
-            "types": {
-              "n": "int"
-            }
+            "ms": 1.15,
+            "status": "ok"
           },
           {
-            "label": "read",
+            "label": "verify-update",
             "op": "command",
             "ms": 0.56,
             "status": "ok",
             "captured": {
               "docs": [
                 {
-                  "_id": "a",
-                  "s": "paid"
+                  "_id": "O00000317",
+                  "customer_id": "C000441",
+                  "status": "paid",
+                  "updated_at": "2026-11-01T00:00:00.000+00:00"
                 }
               ]
             },
@@ -76,42 +83,250 @@
               "docs": [
                 {
                   "_id": null,
-                  "s": null
+                  "customer_id": null,
+                  "status": null,
+                  "updated_at": null
                 }
               ]
             }
+          },
+          {
+            "label": "delete-by-id",
+            "op": "command",
+            "ms": 1.01,
+            "status": "ok"
+          },
+          {
+            "label": "verify-deleted",
+            "op": "command",
+            "ms": 0.5,
+            "status": "ok",
+            "captured": {
+              "docs": []
+            },
+            "capture": true,
+            "types": {
+              "docs": []
+            }
           }
         ],
-        "seconds": 0.12
+        "seconds": 0.03
       },
       "target": {
         "outcome": "completed",
         "steps": [
           {
-            "label": "seed",
+            "label": "insert-seed",
             "op": "command",
-            "ms": 13.82,
+            "ms": 20.77,
             "status": "ok"
           },
           {
-            "label": "update",
+            "label": "find-by-id",
             "op": "command",
-            "ms": 1.2,
+            "ms": 0.7,
             "status": "ok",
             "captured": {
-              "n": 1,
-              "nModified": 1
+              "docs": [
+                {
+                  "_id": "O00003113",
+                  "customer_id": "C000441",
+                  "status": "created",
+                  "updated_at": "2026-10-01T00:00:00.000+00:00"
+                }
+              ]
             },
             "capture": true,
             "types": {
-              "n": "int",
-              "nModified": "int"
+              "docs": [
+                {
+                  "_id": null,
+                  "customer_id": null,
+                  "status": null,
+                  "updated_at": null
+                }
+              ]
             }
           },
           {
-            "label": "delete",
+            "label": "update-status",
+            "op": "command",
+            "ms": 1.31,
+            "status": "ok"
+          },
+          {
+            "label": "verify-update",
+            "op": "command",
+            "ms": 0.91,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": "O00000317",
+                  "customer_id": "C000441",
+                  "status": "paid",
+                  "updated_at": "2026-11-01T00:00:00.000+00:00"
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": null,
+                  "customer_id": null,
+                  "status": null,
+                  "updated_at": null
+                }
+              ]
+            }
+          },
+          {
+            "label": "delete-by-id",
+            "op": "command",
+            "ms": 2.81,
+            "status": "ok"
+          },
+          {
+            "label": "verify-deleted",
+            "op": "command",
+            "ms": 0.51,
+            "status": "ok",
+            "captured": {
+              "docs": []
+            },
+            "capture": true,
+            "types": {
+              "docs": []
+            }
+          }
+        ],
+        "seconds": 0.133
+      },
+      "verdict": "equal",
+      "detail": {}
+    },
+    {
+      "probe_id": "F10.orders-filter-sort-count",
+      "feature_id": "F10",
+      "title": "Filter by customer and status with sort limit and count",
+      "behavior": "Lists orders for customer_id sorted by _id with limit, lists orders for status sorted by _id with limit, counts orders by status",
+      "source": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "insert-seed",
+            "op": "command",
+            "ms": 18.59,
+            "status": "ok"
+          },
+          {
+            "label": "find-by-customer",
+            "op": "command",
+            "ms": 1.51,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": "O00000001",
+                  "customer_id": "C000441",
+                  "status": "delivered"
+                },
+                {
+                  "_id": "O00000002",
+                  "customer_id": "C000441",
+                  "status": "paid"
+                },
+                {
+                  "_id": "O00000004",
+                  "customer_id": "C000441",
+                  "status": "delivered"
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": null,
+                  "customer_id": null,
+                  "status": null
+                },
+                {
+                  "_id": null,
+                  "customer_id": null,
+                  "status": null
+                },
+                {
+                  "_id": null,
+                  "customer_id": null,
+                  "status": null
+                }
+              ]
+            }
+          },
+          {
+            "label": "find-by-status",
             "op": "command",
             "ms": 0.73,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": "O00000001",
+                  "customer_id": "C000441",
+                  "status": "delivered"
+                },
+                {
+                  "_id": "O00000003",
+                  "customer_id": "C000999",
+                  "status": "delivered"
+                },
+                {
+                  "_id": "O00000004",
+                  "customer_id": "C000441",
+                  "status": "delivered"
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": null,
+                  "customer_id": null,
+                  "status": null
+                },
+                {
+                  "_id": null,
+                  "customer_id": null,
+                  "status": null
+                },
+                {
+                  "_id": null,
+                  "customer_id": null,
+                  "status": null
+                }
+              ]
+            }
+          },
+          {
+            "label": "count-delivered",
+            "op": "command",
+            "ms": 0.93,
+            "status": "ok",
+            "captured": {
+              "n": 3
+            },
+            "capture": true,
+            "types": {
+              "n": "int"
+            }
+          },
+          {
+            "label": "count-paid",
+            "op": "command",
+            "ms": 0.47,
             "status": "ok",
             "captured": {
               "n": 1
@@ -120,17 +335,40 @@
             "types": {
               "n": "int"
             }
+          }
+        ],
+        "seconds": 0.026
+      },
+      "target": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "insert-seed",
+            "op": "command",
+            "ms": 22.79,
+            "status": "ok"
           },
           {
-            "label": "read",
+            "label": "find-by-customer",
             "op": "command",
-            "ms": 0.55,
+            "ms": 1.03,
             "status": "ok",
             "captured": {
               "docs": [
                 {
-                  "_id": "a",
-                  "s": "paid"
+                  "_id": "O00000001",
+                  "customer_id": "C000441",
+                  "status": "delivered"
+                },
+                {
+                  "_id": "O00000002",
+                  "customer_id": "C000441",
+                  "status": "paid"
+                },
+                {
+                  "_id": "O00000004",
+                  "customer_id": "C000441",
+                  "status": "delivered"
                 }
               ]
             },
@@ -139,13 +377,95 @@
               "docs": [
                 {
                   "_id": null,
-                  "s": null
+                  "customer_id": null,
+                  "status": null
+                },
+                {
+                  "_id": null,
+                  "customer_id": null,
+                  "status": null
+                },
+                {
+                  "_id": null,
+                  "customer_id": null,
+                  "status": null
                 }
               ]
             }
+          },
+          {
+            "label": "find-by-status",
+            "op": "command",
+            "ms": 0.69,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": "O00000001",
+                  "customer_id": "C000441",
+                  "status": "delivered"
+                },
+                {
+                  "_id": "O00000003",
+                  "customer_id": "C000999",
+                  "status": "delivered"
+                },
+                {
+                  "_id": "O00000004",
+                  "customer_id": "C000441",
+                  "status": "delivered"
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": null,
+                  "customer_id": null,
+                  "status": null
+                },
+                {
+                  "_id": null,
+                  "customer_id": null,
+                  "status": null
+                },
+                {
+                  "_id": null,
+                  "customer_id": null,
+                  "status": null
+                }
+              ]
+            }
+          },
+          {
+            "label": "count-delivered",
+            "op": "command",
+            "ms": 0.63,
+            "status": "ok",
+            "captured": {
+              "n": 3
+            },
+            "capture": true,
+            "types": {
+              "n": "int"
+            }
+          },
+          {
+            "label": "count-paid",
+            "op": "command",
+            "ms": 0.56,
+            "status": "ok",
+            "captured": {
+              "n": 1
+            },
+            "capture": true,
+            "types": {
+              "n": "int"
+            }
           }
         ],
-        "seconds": 0.12
+        "seconds": 0.03
       },
       "verdict": "equal",
       "detail": {}
@@ -157,9 +477,95 @@
         {
           "shape_id": "S4b871cdf",
           "collection": "orders",
+          "path": "online",
           "features": [
             "F10"
           ],
+          "source_ms_samples": [
+            0.68,
+            0.49,
+            0.48,
+            0.46,
+            0.5,
+            0.42,
+            0.42,
+            0.39,
+            0.38,
+            0.37,
+            0.37,
+            0.36,
+            0.37,
+            0.36,
+            0.36,
+            0.35,
+            0.33,
+            0.32,
+            0.33,
+            0.32,
+            0.34,
+            0.38,
+            0.37,
+            0.36,
+            0.36,
+            0.42,
+            0.4,
+            0.4,
+            0.39,
+            0.37,
+            0.43,
+            0.41,
+            0.41,
+            0.37,
+            0.37,
+            0.37,
+            0.39,
+            0.36,
+            0.36,
+            0.37
+          ],
+          "target_ms_samples": [
+            0.62,
+            0.52,
+            0.45,
+            0.46,
+            0.45,
+            0.47,
+            0.43,
+            0.43,
+            0.37,
+            0.37,
+            0.37,
+            0.36,
+            0.36,
+            0.35,
+            0.36,
+            0.32,
+            0.32,
+            0.33,
+            0.33,
+            0.33,
+            0.5,
+            0.41,
+            0.38,
+            0.4,
+            0.38,
+            0.36,
+            0.36,
+            0.4,
+            0.39,
+            0.36,
+            0.39,
+            0.39,
+            0.38,
+            0.36,
+            0.37,
+            0.37,
+            0.38,
+            0.38,
+            0.36,
+            0.38
+          ],
+          "target_timeouts": 0,
           "stages": [],
           "replayed": 40,
           "in_log": 300,
@@ -168,10 +574,10 @@
           "target_errors": 0,
           "source_errors": 0,
           "budget_exhausted": false,
-          "source_p50_ms": 0.36,
-          "source_p95_ms": 0.64,
-          "target_p50_ms": 0.37,
-          "target_p95_ms": 0.92,
+          "source_p50_ms": 0.37,
+          "source_p95_ms": 0.5,
+          "target_p50_ms": 0.38,
+          "target_p95_ms": 0.52,
           "first_difference": null,
           "difference_kinds": {},
           "ranking_only": false,
@@ -180,9 +586,95 @@
         {
           "shape_id": "S003befd8",
           "collection": "orders",
+          "path": "online",
           "features": [
             "F10"
           ],
+          "source_ms_samples": [
+            0.49,
+            0.44,
+            0.47,
+            0.42,
+            0.44,
+            0.49,
+            0.52,
+            0.44,
+            0.5,
+            0.42,
+            0.45,
+            0.43,
+            0.5,
+            0.46,
+            0.49,
+            0.41,
+            0.49,
+            0.42,
+            0.44,
+            0.42,
+            0.45,
+            0.42,
+            0.45,
+            0.46,
+            0.43,
+            0.41,
+            0.42,
+            0.43,
+            0.43,
+            0.43,
+            0.44,
+            0.42,
+            0.43,
+            0.42,
+            0.42,
+            0.41,
+            0.43,
+            0.41,
+            0.43,
+            0.43
+          ],
+          "target_ms_samples": [
+            0.45,
+            0.49,
+            0.43,
+            0.47,
+            0.46,
+            0.44,
+            0.44,
+            0.43,
+            0.45,
+            0.43,
+            0.43,
+            0.44,
+            0.45,
+            0.44,
+            0.45,
+            0.45,
+            0.46,
+            0.44,
+            0.44,
+            0.44,
+            0.44,
+            0.42,
+            0.43,
+            0.44,
+            0.44,
+            0.43,
+            0.44,
+            0.45,
+            0.42,
+            0.48,
+            0.45,
+            0.41,
+            0.43,
+            0.42,
+            0.41,
+            0.41,
+            0.42,
+            0.43,
+            0.41,
+            0.4
+          ],
+          "target_timeouts": 0,
           "stages": [],
           "replayed": 40,
           "in_log": 150,
@@ -191,10 +683,10 @@
           "target_errors": 0,
           "source_errors": 0,
           "budget_exhausted": false,
-          "source_p50_ms": 0.35,
-          "source_p95_ms": 0.41,
-          "target_p50_ms": 0.35,
-          "target_p95_ms": 0.4,
+          "source_p50_ms": 0.43,
+          "source_p95_ms": 0.5,
+          "target_p50_ms": 0.44,
+          "target_p95_ms": 0.48,
           "first_difference": null,
           "difference_kinds": {},
           "ranking_only": false,
@@ -203,9 +695,95 @@
         {
           "shape_id": "S6629c94b",
           "collection": "orders",
+          "path": "online",
           "features": [
             "F10"
           ],
+          "source_ms_samples": [
+            0.48,
+            0.48,
+            0.48,
+            0.44,
+            0.48,
+            0.48,
+            0.48,
+            0.46,
+            0.49,
+            0.5,
+            0.48,
+            0.47,
+            0.48,
+            0.46,
+            0.5,
+            0.42,
+            0.46,
+            0.43,
+            0.48,
+            0.48,
+            0.48,
+            0.48,
+            0.44,
+            0.45,
+            0.5,
+            0.48,
+            0.5,
+            0.46,
+            0.47,
+            0.48,
+            0.49,
+            0.47,
+            0.48,
+            0.45,
+            0.49,
+            0.47,
+            0.5,
+            0.48,
+            0.47,
+            0.5
+          ],
+          "target_ms_samples": [
+            0.49,
+            0.47,
+            0.44,
+            0.5,
+            0.48,
+            0.46,
+            0.49,
+            0.48,
+            0.46,
+            0.5,
+            0.46,
+            0.47,
+            0.48,
+            0.46,
+            0.5,
+            0.48,
+            0.44,
+            0.44,
+            0.47,
+            0.49,
+            0.48,
+            0.49,
+            0.43,
+            0.44,
+            0.47,
+            0.48,
+            0.48,
+            0.48,
+            0.48,
+            0.48,
+            0.48,
+            0.48,
+            0.45,
+            0.46,
+            0.48,
+            0.49,
+            0.44,
+            0.44,
+            0.46,
+            0.48
+          ],
+          "target_timeouts": 0,
           "stages": [],
           "replayed": 40,
           "in_log": 50,
@@ -214,10 +792,10 @@
           "target_errors": 0,
           "source_errors": 0,
           "budget_exhausted": false,
-          "source_p50_ms": 0.42,
-          "source_p95_ms": 0.46,
-          "target_p50_ms": 0.42,
-          "target_p95_ms": 0.46,
+          "source_p50_ms": 0.48,
+          "source_p95_ms": 0.5,
+          "target_p50_ms": 0.48,
+          "target_p95_ms": 0.5,
           "first_difference": null,
           "difference_kinds": {},
           "ranking_only": false,
@@ -226,7 +804,73 @@
         {
           "shape_id": "S70f34912",
           "collection": "orders",
+          "path": "reporting",
           "features": [],
+          "source_ms_samples": [
+            0.87,
+            0.78,
+            0.8,
+            0.77,
+            0.86,
+            0.69,
+            0.72,
+            0.7,
+            0.69,
+            0.68,
+            0.65,
+            0.65,
+            0.63,
+            0.65,
+            0.59,
+            0.59,
+            0.6,
+            1.76,
+            0.6,
+            0.56,
+            0.59,
+            0.56,
+            0.56,
+            0.56,
+            0.58,
+            0.58,
+            0.56,
+            0.54,
+            0.55,
+            0.55
+          ],
+          "target_ms_samples": [
+            0.77,
+            0.83,
+            0.75,
+            0.77,
+            0.78,
+            0.75,
+            0.71,
+            0.78,
+            0.72,
+            0.69,
+            0.66,
+            0.68,
+            0.64,
+            0.67,
+            0.66,
+            0.62,
+            0.59,
+            0.6,
+            0.58,
+            0.58,
+            0.57,
+            0.57,
+            0.54,
+            0.58,
+            0.6,
+            0.58,
+            0.55,
+            0.55,
+            0.57,
+            0.54
+          ],
+          "target_timeouts": 0,
           "stages": [
             "$match",
             "$group"
@@ -238,10 +882,10 @@
           "target_errors": 0,
           "source_errors": 0,
           "budget_exhausted": false,
-          "source_p50_ms": 0.61,
-          "source_p95_ms": 0.86,
-          "target_p50_ms": 0.62,
-          "target_p95_ms": 0.83,
+          "source_p50_ms": 0.63,
+          "source_p95_ms": 0.87,
+          "target_p50_ms": 0.64,
+          "target_p95_ms": 0.78,
           "first_difference": null,
           "difference_kinds": {},
           "ranking_only": false,
@@ -249,10 +893,10 @@
         }
       ],
       "overall": {
-        "source_p50_ms": 0.4,
-        "source_p95_ms": 0.72,
-        "target_p50_ms": 0.4,
-        "target_p95_ms": 0.77,
+        "source_p50_ms": 0.46,
+        "source_p95_ms": 0.7,
+        "target_p50_ms": 0.45,
+        "target_p95_ms": 0.72,
         "compared_on_both": 150
       }
     },
@@ -264,10 +908,10 @@
       "source_errors": 0,
       "first_difference": null,
       "first_error": null,
-      "source_p50_ms": 0.87,
-      "source_p95_ms": 1.52,
-      "target_p50_ms": 1.0,
-      "target_p95_ms": 1.79,
+      "source_p50_ms": 0.4,
+      "source_p95_ms": 1.47,
+      "target_p50_ms": 0.41,
+      "target_p95_ms": 1.25,
       "by_feature": {
         "F10": {
           "equal": 70
@@ -286,7 +930,11 @@
       "verdict": "equal",
       "probes": [
         {
-          "probe_id": "T.crud_control",
+          "probe_id": "F10.orders-crud-by-id",
+          "verdict": "equal"
+        },
+        {
+          "probe_id": "F10.orders-filter-sort-count",
           "verdict": "equal"
         }
       ],

@@ -126,21 +126,45 @@
           "feature": "F4",
           "name": "Multi-document transactions",
           "kind": "silent",
-          "verdict": "result_diff",
+          "verdict": "unsupported",
           "confidence": 0.9,
           "blocking": true,
           "evidence": [
             {
-              "probe_id": "T.txn_abort",
+              "probe_id": "F4.txn-abort-rollback",
               "verdict": "result_diff",
-              "title": "Aborted transaction leaves no trace",
+              "title": "Abort rolls back multi-line reservations and order",
               "detail": {
                 "silent": true,
-                "at_step": "read",
+                "at_step": "check-inv-rolled-back",
                 "difference": {
-                  "path": "$.docs[0].n",
+                  "path": "$.docs[0].stock",
                   "source": 10,
-                  "target": 7
+                  "target": 8
+                }
+              }
+            },
+            {
+              "probe_id": "F4.txn-commit-atomic",
+              "verdict": "unsupported",
+              "title": "Commit atomically persists reservations order and cart",
+              "detail": {
+                "at_step": "commit",
+                "code": 59,
+                "message": "no such command: 'commitTransaction', full error: {'ok': 0.0, 'errmsg': \"no such command: 'commitTransaction'\", 'code': 59, 'codeName': 'CommandNotFound'}"
+              }
+            },
+            {
+              "probe_id": "F4.txn-isolation-uncommitted",
+              "verdict": "result_diff",
+              "title": "Uncommitted reservation invisible outside transaction",
+              "detail": {
+                "silent": true,
+                "at_step": "read-outside-sees-old",
+                "difference": {
+                  "path": "$.docs[0].stock",
+                  "source": 10,
+                  "target": 8
                 }
               }
             }
@@ -152,7 +176,12 @@
             "errors": 0
           },
           "schema_rejections": [],
-          "estimate": null
+          "estimate": {
+            "approach": "Replace the multi-document transaction in shoplog/checkout.py:57 with an application saga: idempotent pending-order insert, conditional inventory decrements, then finalize/cancel with compensating rollbacks plus a background reconciler and repair for partial stocks/orders.",
+            "hours_base": 160,
+            "hours_high": 280,
+            "hours_low": 80
+          }
         },
         {
           "key": "behavior:F5",
@@ -164,11 +193,31 @@
           "blocking": true,
           "evidence": [
             {
-              "probe_id": "T.change_stream",
+              "probe_id": "F5.cs-filter-update-replace",
               "verdict": "unsupported",
-              "title": "A change stream delivers an update with the full document",
+              "title": "Change stream filtered to update and replace only",
               "detail": {
-                "at_step": "open",
+                "at_step": "open-filtered",
+                "code": 115,
+                "message": "Stage $changeStream is not supported yet in native pipeline, full error: {'ok': 0.0, 'errmsg': 'Stage $changeStream is not supported yet in native pipeline', 'code': 115, 'codeName': 'CommandNotSupported'}"
+              }
+            },
+            {
+              "probe_id": "F5.cs-fulldocument-lookup",
+              "verdict": "unsupported",
+              "title": "Change stream fullDocument updateLookup on update",
+              "detail": {
+                "at_step": "open-lookup",
+                "code": 115,
+                "message": "Stage $changeStream is not supported yet in native pipeline, full error: {'ok': 0.0, 'errmsg': 'Stage $changeStream is not supported yet in native pipeline', 'code': 115, 'codeName': 'CommandNotSupported'}"
+              }
+            },
+            {
+              "probe_id": "F5.cs-event-per-change",
+              "verdict": "unsupported",
+              "title": "Change stream one event per change with non-blocking poll",
+              "detail": {
+                "at_step": "open-filtered",
                 "code": 115,
                 "message": "Stage $changeStream is not supported yet in native pipeline, full error: {'ok': 0.0, 'errmsg': 'Stage $changeStream is not supported yet in native pipeline', 'code': 115, 'codeName': 'CommandNotSupported'}"
               }
@@ -181,7 +230,12 @@
             "errors": 0
           },
           "schema_rejections": [],
-          "estimate": null
+          "estimate": {
+            "approach": "Replace the $changeStream watcher in shoplog/inventory_sync.py with indexed polling on updatedAt/_id plus a persisted checkpoint and idempotent apply, adding tombstones/indexes to cover filtered update/replace and fullDocument lookup. Add catch-up/backfill verification and lag/duplicate testing before rollout.",
+            "hours_base": 80,
+            "hours_high": 140,
+            "hours_low": 40
+          }
         },
         {
           "key": "behavior:F6",
@@ -193,13 +247,41 @@
           "blocking": true,
           "evidence": [
             {
-              "probe_id": "T.collation_unique",
-              "verdict": "unsupported",
-              "title": "Case-insensitive unique index rejects a case variant",
+              "probe_id": "F6.ci-lookup",
+              "verdict": "result_diff",
+              "title": "Case-insensitive email lookup with collation",
               "detail": {
-                "at_step": "index",
+                "silent": true,
+                "at_step": "find-upper-with-collation",
+                "difference": {
+                  "path": "$.docs.length",
+                  "source": 1,
+                  "target": 0
+                }
+              }
+            },
+            {
+              "probe_id": "F6.ci-unique",
+              "verdict": "unsupported",
+              "title": "Case-insensitive unique email via collation index",
+              "detail": {
+                "at_step": "create-ci-unique-index",
                 "code": 115,
-                "message": "Error in specification { \"key\" : { \"email\" : 1 }, \"name\" : \"ci\", \"unique\" : true, \"collation\" : { \"locale\" : \"en\", \"strength\" : 2 } } :: caused by :: createIndex.collation is not implemented yet, full error: {'ok': 0.0, 'errmsg': 'Error in specification { \"key\" : { \"email\" : 1 }, \"name\" : \"ci\", \"unique\" : true, \"collation\" : { \"locale\" : \"en\", \"strength\" : 2 } } :: caused by :: createIndex.collati"
+                "message": "Error in specification { \"key\" : { \"email\" : 1 }, \"name\" : \"email_ci_unique\", \"unique\" : true, \"collation\" : { \"locale\" : \"en\", \"strength\" : 2 } } :: caused by :: createIndex.collation is not implemented yet, full error: {'ok': 0.0, 'errmsg': 'Error in specification { \"key\" : { \"email\" : 1 }, \"name\" : \"email_ci_unique\", \"unique\" : true, \"collation\" : { \"locale\" : \"en\", \"strength\" : 2 } } :: caused"
+              }
+            },
+            {
+              "probe_id": "F6.ci-gating",
+              "verdict": "result_diff",
+              "title": "Collation controls case sensitivity of email match",
+              "detail": {
+                "silent": true,
+                "at_step": "find-with-collation-matches",
+                "difference": {
+                  "path": "$.docs.length",
+                  "source": 1,
+                  "target": 0
+                }
               }
             }
           ],
@@ -217,7 +299,12 @@
               "error": "Error in specification { \"unique\" : true, \"name\" : \"email_ci_unique\", \"key\" : { \"email\" : 1 }, \"collation\" : { \"locale\" : \"en\", \"strength\" : 2 } } :: caused by :: createIndex.collation is not implemented yet, full error: {'ok': 0.0, 'errmsg': 'Error in specification { \"unique\" : true, \"name\" : \"emai"
             }
           ],
-          "estimate": null
+          "estimate": {
+            "approach": "Replace collation-based matching/uniqueness with a normalized lowercase email field with a standard unique index and update all lookups/writes to use it. Backfill and de-duplicate existing customers with conflicting case variants, then verify case-insensitive signup/login paths.",
+            "hours_base": 48.0,
+            "hours_high": 80.0,
+            "hours_low": 24.0
+          }
         },
         {
           "key": "behavior:F8",
@@ -229,12 +316,40 @@
           "blocking": true,
           "evidence": [
             {
-              "probe_id": "T.validator",
+              "probe_id": "F8.orders-required-fields",
               "verdict": "result_diff",
-              "title": "$jsonSchema validator rejects a bad document",
+              "title": "$jsonSchema requires customer_id, status, items, total and placed_at on orders",
               "detail": {
                 "silent": true,
-                "at_step": "bad",
+                "at_step": "insert missing customer_id fails",
+                "difference": {
+                  "path": "$.error_code",
+                  "source": 121,
+                  "target": "<absent>"
+                }
+              }
+            },
+            {
+              "probe_id": "F8.orders-enum-total",
+              "verdict": "result_diff",
+              "title": "$jsonSchema enum and minimum on orders status and total",
+              "detail": {
+                "silent": true,
+                "at_step": "insert bad status fails",
+                "difference": {
+                  "path": "$.error_code",
+                  "source": 121,
+                  "target": "<absent>"
+                }
+              }
+            },
+            {
+              "probe_id": "F8.orders-types-update",
+              "verdict": "result_diff",
+              "title": "$jsonSchema bsonType on items and placed_at plus update validation on orders",
+              "detail": {
+                "silent": true,
+                "at_step": "insert items not array fails",
                 "difference": {
                   "path": "$.error_code",
                   "source": 121,
@@ -250,7 +365,12 @@
             "errors": 0
           },
           "schema_rejections": [],
-          "estimate": null
+          "estimate": {
+            "approach": "Replace DB-level $jsonSchema enforcement with a shared application validator for orders inserts/updates covering required fields, enum/minimum and bsonTypes. Audit and repair any invalid orders already written to FerretDB and add regression tests verifying rejections without relying on error 121.",
+            "hours_base": 28.0,
+            "hours_high": 48.0,
+            "hours_low": 16.0
+          }
         },
         {
           "key": "performance:S78e856b9",
@@ -270,12 +390,17 @@
                 "$unwind",
                 "$facet"
               ],
-              "source_p95_ms": 7.04,
-              "target_p95_ms": 4082.2,
+              "source_p95_ms": 7.48,
+              "target_p95_ms": 4202.1,
               "samples": 7
             }
           ],
-          "estimate": null
+          "estimate": {
+            "approach": "Split the $facet into separate count and page queries and replace the $lookup sub-pipeline with simple indexed lookups plus application-side join in shoplog/analytics.py, with covering indexes and p95/parity validation on FerretDB.",
+            "hours_base": 48.0,
+            "hours_high": 80.0,
+            "hours_low": 24.0
+          }
         },
         {
           "key": "documented:F11",
@@ -283,7 +408,7 @@
           "name": "Atlas Search ($search with a search index)",
           "kind": "documented_conflict",
           "verdict": "documented_conflict",
-          "confidence": null,
+          "confidence": 0.959,
           "blocking": true,
           "evidence": [
             {
@@ -291,7 +416,12 @@
               "url": "https://docs.ferretdb.io/migration/compatibility/"
             }
           ],
-          "estimate": null
+          "estimate": {
+            "approach": "Deploy a dedicated search service (OpenSearch/Elasticsearch) alongside FerretDB with async catalog sync plus full backfill, and rewrite the $search aggregations in catalog.py to query it with parity-tested ranking. Backfill existing data and cut over with dual-run validation before removing the Atlas index from schema.py.",
+            "hours_base": 140.0,
+            "hours_high": 250.0,
+            "hours_low": 72.0
+          }
         }
       ],
       "economics": {
@@ -302,16 +432,16 @@
         "search_service_annual": 11937.6,
         "infra_savings": 7227.45,
         "net": {
-          "best": -5403.7,
-          "base": -38342.55,
-          "worst": -128671.4
+          "best": -36123.7,
+          "base": -98822.55,
+          "worst": -234031.4
         },
         "breakdown": {
           "best": {
             "ops_cost": 5760,
             "migration_hours": 24,
-            "rewrite_hours": 0,
-            "one_time_cost": 2880,
+            "rewrite_hours": 256.0,
+            "one_time_cost": 33600.0,
             "residual_risk_cost": 9750.0,
             "infra_savings": 12986.3,
             "lines": {
@@ -320,8 +450,8 @@
               "scale_ups": 0.0,
               "extra_services": 11937.6,
               "operations": 5760,
-              "migration_and_rewrites": 2880,
-              "person_days": 3.0,
+              "migration_and_rewrites": 33600.0,
+              "person_days": 35.0,
               "incidents": 9750.0,
               "plan": null
             }
@@ -329,8 +459,8 @@
           "base": {
             "ops_cost": 11520,
             "migration_hours": 40,
-            "rewrite_hours": 0,
-            "one_time_cost": 4800,
+            "rewrite_hours": 504.0,
+            "one_time_cost": 65280.0,
             "residual_risk_cost": 29250.000000000004,
             "infra_savings": 7227.45,
             "lines": {
@@ -339,8 +469,8 @@
               "scale_ups": 5758.85,
               "extra_services": 11937.6,
               "operations": 11520,
-              "migration_and_rewrites": 4800,
-              "person_days": 5.0,
+              "migration_and_rewrites": 65280.0,
+              "person_days": 68.0,
               "incidents": 29250.0,
               "plan": null
             }
@@ -348,8 +478,8 @@
           "worst": {
             "ops_cost": 23040,
             "migration_hours": 80,
-            "rewrite_hours": 0,
-            "one_time_cost": 9600,
+            "rewrite_hours": 878.0,
+            "one_time_cost": 114960.0,
             "residual_risk_cost": 97500.00000000001,
             "infra_savings": 1468.6,
             "lines": {
@@ -358,8 +488,8 @@
               "scale_ups": 11517.7,
               "extra_services": 11937.6,
               "operations": 23040,
-              "migration_and_rewrites": 9600,
-              "person_days": 10.0,
+              "migration_and_rewrites": 114960.0,
+              "person_days": 119.8,
               "incidents": 97500.0,
               "plan": null
             }
@@ -367,43 +497,36 @@
         },
         "payback_months": null,
         "break_even_rewrite_hours": 0,
-        "rewrite_estimates_missing": [
-          "behavior:F4",
-          "behavior:F5",
-          "behavior:F6",
-          "behavior:F8",
-          "performance:S78e856b9",
-          "documented:F11"
-        ]
+        "rewrite_estimates_missing": []
       },
-      "decision": "STAY_UNPRICED",
-      "decision_text": "Stay for now: blocking gaps exist, and the rewrite isn't priced yet",
+      "decision": "STAY",
+      "decision_text": "Stay: fixing the gaps costs more than the migration saves",
       "sensitivity": {
         "atlas_per_node": {
-          "net_base": 34540.65,
+          "net_base": -25939.35,
           "infra_savings": 80110.65,
-          "decision": "STAY_UNPRICED"
+          "decision": "STAY"
         },
         "clusters": {
           "1": {
-            "net_base": -35123.13,
+            "net_base": -95603.13,
             "infra_savings": 1806.87,
-            "decision": "STAY_UNPRICED"
+            "decision": "STAY"
           },
           "4": {
-            "net_base": -38342.55,
+            "net_base": -98822.55,
             "infra_savings": 7227.45,
-            "decision": "STAY_UNPRICED"
+            "decision": "STAY"
           },
           "10": {
-            "net_base": -44781.36,
+            "net_base": -105261.36,
             "infra_savings": 18068.64,
-            "decision": "STAY_UNPRICED"
+            "decision": "STAY"
           },
           "25": {
-            "net_base": -60878.4,
+            "net_base": -121358.4,
             "infra_savings": 45171.6,
-            "decision": "STAY_UNPRICED"
+            "decision": "STAY"
           }
         }
       }
@@ -425,7 +548,12 @@
               "url": "https://docs.aws.amazon.com/documentdb/latest/developerguide/setWindowFields.html"
             }
           ],
-          "estimate": null
+          "estimate": {
+            "approach": "Replace the $setWindowFields/$shift pipeline in shoplog/analytics.py with a DocumentDB-compatible sorted query plus application-side shift/lead-lag computation preserving partition and sort semantics. Validate output parity against MongoDB including boundary/null cases and performance, then roll out.",
+            "hours_base": 20.0,
+            "hours_high": 40.0,
+            "hours_low": 8.0
+          }
         },
         {
           "key": "documented:F9",
@@ -445,7 +573,12 @@
               "url": "https://docs.aws.amazon.com/documentdb/latest/developerguide/text-search.html"
             }
           ],
-          "estimate": null
+          "estimate": {
+            "approach": "Flatten array values plus text fields into a denormalized plain-string search field with write-path maintenance and one-time backfill, indexed instead of the array. Rewrite $text queries to DocumentDB-supported regex/contains queries with application-side filtering for exclusion (-term) operators and regression tests for relevance.",
+            "hours_base": 48.0,
+            "hours_high": 80.0,
+            "hours_low": 24.0
+          }
         },
         {
           "key": "documented:F11",
@@ -453,7 +586,7 @@
           "name": "Atlas Search ($search with a search index)",
           "kind": "documented_conflict",
           "verdict": "documented_conflict",
-          "confidence": null,
+          "confidence": 0.959,
           "blocking": true,
           "evidence": [
             {
@@ -461,7 +594,12 @@
               "url": "https://docs.aws.amazon.com/documentdb/latest/developerguide/search.html"
             }
           ],
-          "estimate": null
+          "estimate": {
+            "approach": "Replace Atlas $search with Amazon OpenSearch Service: provision index, build change-stream sync with full backfill, and rewrite catalog.py queries and schema index definition to query OpenSearch with relevance-parity testing.",
+            "hours_base": 140.0,
+            "hours_high": 240.0,
+            "hours_low": 80.0
+          }
         }
       ],
       "economics": {
@@ -472,16 +610,16 @@
         "search_service_annual": 11937.6,
         "infra_savings": -7076.56,
         "net": {
-          "best": -11456.56,
-          "base": -16376.56,
-          "worst": -31676.56
+          "best": -24896.56,
+          "base": -41336.56,
+          "worst": -74876.56
         },
         "breakdown": {
           "best": {
             "ops_cost": 0,
             "migration_hours": 24,
-            "rewrite_hours": 0,
-            "one_time_cost": 2880,
+            "rewrite_hours": 112.0,
+            "one_time_cost": 16320.0,
             "residual_risk_cost": 1500.0000000000002,
             "infra_savings": -7076.56,
             "lines": {
@@ -490,8 +628,8 @@
               "scale_ups": 0.0,
               "extra_services": 11937.6,
               "operations": 0,
-              "migration_and_rewrites": 2880,
-              "person_days": 3.0,
+              "migration_and_rewrites": 16320.0,
+              "person_days": 17.0,
               "incidents": 1500.0,
               "plan": "I/O-Optimized"
             }
@@ -499,8 +637,8 @@
           "base": {
             "ops_cost": 0,
             "migration_hours": 40,
-            "rewrite_hours": 0,
-            "one_time_cost": 4800,
+            "rewrite_hours": 208.0,
+            "one_time_cost": 29760.0,
             "residual_risk_cost": 4500.000000000001,
             "infra_savings": -7076.56,
             "lines": {
@@ -509,8 +647,8 @@
               "scale_ups": 0.0,
               "extra_services": 11937.6,
               "operations": 0,
-              "migration_and_rewrites": 4800,
-              "person_days": 5.0,
+              "migration_and_rewrites": 29760.0,
+              "person_days": 31.0,
               "incidents": 4500.0,
               "plan": "I/O-Optimized"
             }
@@ -518,8 +656,8 @@
           "worst": {
             "ops_cost": 0,
             "migration_hours": 80,
-            "rewrite_hours": 0,
-            "one_time_cost": 9600,
+            "rewrite_hours": 360.0,
+            "one_time_cost": 52800.0,
             "residual_risk_cost": 15000.000000000002,
             "infra_savings": -7076.56,
             "lines": {
@@ -528,8 +666,8 @@
               "scale_ups": 0.0,
               "extra_services": 11937.6,
               "operations": 0,
-              "migration_and_rewrites": 9600,
-              "person_days": 10.0,
+              "migration_and_rewrites": 52800.0,
+              "person_days": 55.0,
               "incidents": 15000.0,
               "plan": "I/O-Optimized"
             }
@@ -537,38 +675,34 @@
         },
         "payback_months": null,
         "break_even_rewrite_hours": 0,
-        "rewrite_estimates_missing": [
-          "documented:F2",
-          "documented:F9",
-          "documented:F11"
-        ]
+        "rewrite_estimates_missing": []
       },
       "decision": "VERIFY_FIRST",
       "decision_text": "Not verified: test on a real cluster before deciding",
       "sensitivity": {
         "atlas_per_node": {
-          "net_base": 56506.64,
+          "net_base": 31546.64,
           "infra_savings": 65806.64,
           "decision": "VERIFY_FIRST"
         },
         "clusters": {
           "1": {
-            "net_base": -11069.14,
+            "net_base": -36029.14,
             "infra_savings": -1769.14,
             "decision": "VERIFY_FIRST"
           },
           "4": {
-            "net_base": -16376.56,
+            "net_base": -41336.56,
             "infra_savings": -7076.56,
             "decision": "VERIFY_FIRST"
           },
           "10": {
-            "net_base": -26991.4,
+            "net_base": -51951.4,
             "infra_savings": -17691.4,
             "decision": "VERIFY_FIRST"
           },
           "25": {
-            "net_base": -53528.5,
+            "net_base": -78488.5,
             "infra_savings": -44228.5,
             "decision": "VERIFY_FIRST"
           }
@@ -577,7 +711,11 @@
     }
   },
   "subq": {
-    "available": false,
-    "reason": "SUBQ_API_KEY is not set"
+    "available": true,
+    "model": "subq-snap-1.1",
+    "probabilities": {
+      "FerretDB": 9.573782153893262e-05,
+      "AWS DocumentDB": 0.0002132709341822192
+    }
   }
 }

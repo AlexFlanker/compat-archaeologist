@@ -79,7 +79,7 @@ def _intent(text: str) -> dict:
 
 async def _run_pipeline(profile: str) -> tuple[bool, str]:
     process = await asyncio.create_subprocess_exec(
-        sys.executable, "-m", "archaeologist.pipeline", "--profile", profile, "--no-live-code",
+        sys.executable, "-m", "archaeologist.pipeline", "--profile", profile,
         cwd=str(ROOT), stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.STDOUT,
     )
     try:

@@ -1,8 +1,8 @@
 {
-  "run_id": "20261107T214841Z",
+  "run_id": "20261107T221427Z",
   "profile": "shoplog",
   "self_check": false,
-  "probe_origin": "handwritten_fixture",
+  "probe_origin": "muse",
   "engines": {
     "source": {
       "reported_version": "8.0.34",
@@ -17,46 +17,61 @@
   },
   "probes": [
     {
-      "probe_id": "T.array_filters",
-      "feature_id": "F3",
-      "title": "arrayFilters updates only matching elements",
-      "behavior": "Only the elements selected by the filter change",
+      "probe_id": "F1.revenue_facet_full",
+      "feature_id": "F1",
+      "title": "Revenue $lookup sub-pipeline plus $facet by_tier by_month largest",
+      "behavior": "revenue report joins orders to customers via $lookup let/pipeline + $unwind and returns by_tier, by_month and largest in one $facet; cancelled and out-of-range orders excluded, double totals converted to cents",
       "source": {
         "outcome": "completed",
         "steps": [
           {
-            "label": "seed",
+            "label": "insert_customers",
             "op": "command",
-            "ms": 52.87,
+            "ms": 59.78,
             "status": "ok"
           },
           {
-            "label": "update",
+            "label": "insert_orders",
             "op": "command",
-            "ms": 3.3,
+            "ms": 14.1,
             "status": "ok"
           },
           {
-            "label": "read",
+            "label": "revenue_facet",
             "op": "command",
-            "ms": 1.22,
+            "ms": 1.38,
             "status": "ok",
             "captured": {
               "docs": [
                 {
-                  "_id": 1,
-                  "items": [
+                  "by_month": [
                     {
-                      "id": 1,
-                      "s": "refunded"
+                      "_id": "2024-01",
+                      "revenue": 20050
+                    }
+                  ],
+                  "by_tier": [
+                    {
+                      "_id": "gold",
+                      "orders": 1,
+                      "revenue": 12050
                     },
                     {
-                      "id": 2,
-                      "s": "none"
+                      "_id": "silver",
+                      "orders": 1,
+                      "revenue": 8000
+                    }
+                  ],
+                  "largest": [
+                    {
+                      "_id": "o1",
+                      "tier": "gold",
+                      "total_cents": 12050
                     },
                     {
-                      "id": 3,
-                      "s": "done"
+                      "_id": "o2",
+                      "tier": "silver",
+                      "total_cents": 8000
                     }
                   ]
                 }
@@ -66,19 +81,34 @@
             "types": {
               "docs": [
                 {
-                  "_id": "int",
-                  "items": [
+                  "by_month": [
                     {
-                      "id": "int",
-                      "s": null
+                      "_id": null,
+                      "revenue": "double"
+                    }
+                  ],
+                  "by_tier": [
+                    {
+                      "_id": null,
+                      "orders": "int",
+                      "revenue": "double"
                     },
                     {
-                      "id": "int",
-                      "s": null
+                      "_id": null,
+                      "orders": "int",
+                      "revenue": "int"
+                    }
+                  ],
+                  "largest": [
+                    {
+                      "_id": null,
+                      "tier": null,
+                      "total_cents": "double"
                     },
                     {
-                      "id": "int",
-                      "s": null
+                      "_id": null,
+                      "tier": null,
+                      "total_cents": "int"
                     }
                   ]
                 }
@@ -86,44 +116,59 @@
             }
           }
         ],
-        "seconds": 0.065
+        "seconds": 0.116
       },
       "target": {
         "outcome": "completed",
         "steps": [
           {
-            "label": "seed",
+            "label": "insert_customers",
             "op": "command",
-            "ms": 19.57,
+            "ms": 26.05,
             "status": "ok"
           },
           {
-            "label": "update",
+            "label": "insert_orders",
             "op": "command",
-            "ms": 1.55,
+            "ms": 5.57,
             "status": "ok"
           },
           {
-            "label": "read",
+            "label": "revenue_facet",
             "op": "command",
-            "ms": 0.88,
+            "ms": 4.0,
             "status": "ok",
             "captured": {
               "docs": [
                 {
-                  "_id": 1,
-                  "items": [
+                  "by_month": [
                     {
-                      "id": 1,
-                      "s": "refunded"
+                      "_id": "2024-01",
+                      "revenue": 20050
+                    }
+                  ],
+                  "by_tier": [
+                    {
+                      "_id": "gold",
+                      "orders": 1,
+                      "revenue": 12050
                     },
                     {
-                      "id": 2,
-                      "s": "none"
+                      "_id": "silver",
+                      "orders": 1,
+                      "revenue": 8000
+                    }
+                  ],
+                  "largest": [
+                    {
+                      "_id": "o1",
+                      "tier": "gold",
+                      "total_cents": 12050
                     },
                     {
-                      "id": 3,
-                      "s": "done"
+                      "_id": "o2",
+                      "tier": "silver",
+                      "total_cents": 8000
                     }
                   ]
                 }
@@ -133,19 +178,34 @@
             "types": {
               "docs": [
                 {
-                  "_id": "int",
-                  "items": [
+                  "by_month": [
                     {
-                      "id": "int",
-                      "s": null
+                      "_id": null,
+                      "revenue": "double"
+                    }
+                  ],
+                  "by_tier": [
+                    {
+                      "_id": null,
+                      "orders": "int",
+                      "revenue": "double"
                     },
                     {
-                      "id": "int",
-                      "s": null
+                      "_id": null,
+                      "orders": "int",
+                      "revenue": "int"
+                    }
+                  ],
+                  "largest": [
+                    {
+                      "_id": null,
+                      "tier": null,
+                      "total_cents": "double"
                     },
                     {
-                      "id": "int",
-                      "s": null
+                      "_id": null,
+                      "tier": null,
+                      "total_cents": "int"
                     }
                   ]
                 }
@@ -153,59 +213,45 @@
             }
           }
         ],
-        "seconds": 0.033
+        "seconds": 0.116
       },
       "verdict": "equal",
       "detail": {}
     },
     {
-      "probe_id": "T.txn_abort",
-      "feature_id": "F4",
-      "title": "Aborted transaction leaves no trace",
-      "behavior": "A write inside an aborted transaction is rolled back",
+      "probe_id": "F1.inventory_lookup_pipeline",
+      "feature_id": "F1",
+      "title": "Lookup with localField plus pipeline filter and group",
+      "behavior": "products join inventory via $lookup with localField/foreignField plus pipeline $expr $lt filter, then $match stock.0 $exists and $group by category with $sort",
       "source": {
         "outcome": "completed",
         "steps": [
           {
-            "label": "create",
+            "label": "insert_products",
             "op": "command",
-            "ms": 53.89,
+            "ms": 58.26,
             "status": "ok"
           },
           {
-            "label": "seed",
+            "label": "insert_inventory",
             "op": "command",
-            "ms": 2.77,
+            "ms": 14.2,
             "status": "ok"
           },
           {
-            "label": "begin",
-            "op": "txn_start",
-            "ms": 0.01,
-            "status": "ok"
-          },
-          {
-            "label": "decrement",
+            "label": "lookup_pipeline_group",
             "op": "command",
-            "ms": 2.14,
-            "status": "ok"
-          },
-          {
-            "label": "abort",
-            "op": "txn_abort",
-            "ms": 5.35,
-            "status": "ok"
-          },
-          {
-            "label": "read",
-            "op": "command",
-            "ms": 0.66,
+            "ms": 1.75,
             "status": "ok",
             "captured": {
               "docs": [
                 {
-                  "_id": 1,
-                  "n": 10
+                  "_id": "books",
+                  "skus": 1
+                },
+                {
+                  "_id": "toys",
+                  "skus": 1
                 }
               ]
             },
@@ -213,58 +259,302 @@
             "types": {
               "docs": [
                 {
-                  "_id": "int",
-                  "n": "int"
+                  "_id": null,
+                  "skus": "int"
+                },
+                {
+                  "_id": null,
+                  "skus": "int"
                 }
               ]
             }
           }
         ],
-        "seconds": 0.085
+        "seconds": 0.114
       },
       "target": {
         "outcome": "completed",
         "steps": [
           {
-            "label": "create",
+            "label": "insert_products",
             "op": "command",
-            "ms": 19.59,
+            "ms": 15.45,
             "status": "ok"
           },
           {
-            "label": "seed",
+            "label": "insert_inventory",
             "op": "command",
-            "ms": 1.46,
+            "ms": 9.31,
             "status": "ok"
           },
           {
-            "label": "begin",
-            "op": "txn_start",
-            "ms": 0.01,
-            "status": "ok"
-          },
-          {
-            "label": "decrement",
+            "label": "lookup_pipeline_group",
             "op": "command",
-            "ms": 1.88,
-            "status": "ok"
-          },
+            "ms": 4.94,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": "books",
+                  "skus": 1
+                },
+                {
+                  "_id": "toys",
+                  "skus": 1
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": null,
+                  "skus": "int"
+                },
+                {
+                  "_id": null,
+                  "skus": "int"
+                }
+              ]
+            }
+          }
+        ],
+        "seconds": 0.107
+      },
+      "verdict": "equal",
+      "detail": {}
+    },
+    {
+      "probe_id": "F1.revenue_facet_largest_top5",
+      "feature_id": "F1",
+      "title": "Facet largest top-5 with lookup tier",
+      "behavior": "revenue largest facet returns 5 largest orders sorted by total_cents desc with tier from $lookup sub-pipeline, exercising $sort $limit $project inside $facet and double-to-cents conversion",
+      "source": {
+        "outcome": "completed",
+        "steps": [
           {
-            "label": "abort",
-            "op": "txn_abort",
-            "ms": 0.58,
-            "status": "ok"
-          },
-          {
-            "label": "read",
+            "label": "insert_customers",
             "op": "command",
-            "ms": 0.63,
+            "ms": 57.75,
+            "status": "ok"
+          },
+          {
+            "label": "insert_orders",
+            "op": "command",
+            "ms": 14.51,
+            "status": "ok"
+          },
+          {
+            "label": "facet_largest_top5",
+            "op": "command",
+            "ms": 2.25,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "largest": [
+                    {
+                      "_id": "o5",
+                      "tier": "silver",
+                      "total_cents": 9999
+                    },
+                    {
+                      "_id": "o6",
+                      "tier": "gold",
+                      "total_cents": 7000
+                    },
+                    {
+                      "_id": "o3",
+                      "tier": "gold",
+                      "total_cents": 3075
+                    },
+                    {
+                      "_id": "o2",
+                      "tier": "silver",
+                      "total_cents": 2000
+                    },
+                    {
+                      "_id": "o1",
+                      "tier": "gold",
+                      "total_cents": 1000
+                    }
+                  ]
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "largest": [
+                    {
+                      "_id": null,
+                      "tier": null,
+                      "total_cents": "double"
+                    },
+                    {
+                      "_id": null,
+                      "tier": null,
+                      "total_cents": "int"
+                    },
+                    {
+                      "_id": null,
+                      "tier": null,
+                      "total_cents": "double"
+                    },
+                    {
+                      "_id": null,
+                      "tier": null,
+                      "total_cents": "int"
+                    },
+                    {
+                      "_id": null,
+                      "tier": null,
+                      "total_cents": "double"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ],
+        "seconds": 0.115
+      },
+      "target": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "insert_customers",
+            "op": "command",
+            "ms": 18.3,
+            "status": "ok"
+          },
+          {
+            "label": "insert_orders",
+            "op": "command",
+            "ms": 9.32,
+            "status": "ok"
+          },
+          {
+            "label": "facet_largest_top5",
+            "op": "command",
+            "ms": 2.45,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "largest": [
+                    {
+                      "_id": "o5",
+                      "tier": "silver",
+                      "total_cents": 9999
+                    },
+                    {
+                      "_id": "o6",
+                      "tier": "gold",
+                      "total_cents": 7000
+                    },
+                    {
+                      "_id": "o3",
+                      "tier": "gold",
+                      "total_cents": 3075
+                    },
+                    {
+                      "_id": "o2",
+                      "tier": "silver",
+                      "total_cents": 2000
+                    },
+                    {
+                      "_id": "o1",
+                      "tier": "gold",
+                      "total_cents": 1000
+                    }
+                  ]
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "largest": [
+                    {
+                      "_id": null,
+                      "tier": null,
+                      "total_cents": "double"
+                    },
+                    {
+                      "_id": null,
+                      "tier": null,
+                      "total_cents": "int"
+                    },
+                    {
+                      "_id": null,
+                      "tier": null,
+                      "total_cents": "double"
+                    },
+                    {
+                      "_id": null,
+                      "tier": null,
+                      "total_cents": "int"
+                    },
+                    {
+                      "_id": null,
+                      "tier": null,
+                      "total_cents": "double"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ],
+        "seconds": 0.119
+      },
+      "verdict": "equal",
+      "detail": {}
+    },
+    {
+      "probe_id": "F2.swf-running-total-seq",
+      "feature_id": "F2",
+      "title": "Running total and sequence via $setWindowFields",
+      "behavior": "Customer timeline running_total with documents unbounded to current and order_seq with $documentNumber partitioned by customer_id ordered by placed_at; cancelled and other-customer docs must be excluded by $match",
+      "source": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "seed-orders",
+            "op": "command",
+            "ms": 60.18,
+            "status": "ok"
+          },
+          {
+            "label": "running-total-seq",
+            "op": "command",
+            "ms": 1.77,
             "status": "ok",
             "captured": {
               "docs": [
                 {
                   "_id": 1,
-                  "n": 7
+                  "order_seq": 1,
+                  "placed_at": "2026-01-10T00:00:00.000+00:00",
+                  "running_total": 1000,
+                  "total_cents": 1000
+                },
+                {
+                  "_id": 2,
+                  "order_seq": 2,
+                  "placed_at": "2026-02-15T00:00:00.000+00:00",
+                  "running_total": 3000,
+                  "total_cents": 2000
+                },
+                {
+                  "_id": 3,
+                  "order_seq": 3,
+                  "placed_at": "2026-03-20T00:00:00.000+00:00",
+                  "running_total": 4500,
+                  "total_cents": 1500
                 }
               ]
             },
@@ -273,501 +563,1560 @@
               "docs": [
                 {
                   "_id": "int",
-                  "n": "int"
+                  "order_seq": "int",
+                  "placed_at": null,
+                  "running_total": "int",
+                  "total_cents": "int"
+                },
+                {
+                  "_id": "int",
+                  "order_seq": "int",
+                  "placed_at": null,
+                  "running_total": "int",
+                  "total_cents": "int"
+                },
+                {
+                  "_id": "int",
+                  "order_seq": "int",
+                  "placed_at": null,
+                  "running_total": "int",
+                  "total_cents": "int"
                 }
               ]
             }
           }
         ],
-        "seconds": 0.034
+        "seconds": 0.074
       },
-      "verdict": "result_diff",
-      "detail": {
-        "silent": true,
-        "at_step": "read",
-        "difference": {
-          "path": "$.docs[0].n",
-          "source": 10,
-          "target": 7
-        }
-      }
+      "target": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "seed-orders",
+            "op": "command",
+            "ms": 20.18,
+            "status": "ok"
+          },
+          {
+            "label": "running-total-seq",
+            "op": "command",
+            "ms": 6.12,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": 1,
+                  "order_seq": 1,
+                  "placed_at": "2026-01-10T00:00:00.000+00:00",
+                  "running_total": 1000,
+                  "total_cents": 1000
+                },
+                {
+                  "_id": 2,
+                  "order_seq": 2,
+                  "placed_at": "2026-02-15T00:00:00.000+00:00",
+                  "running_total": 3000,
+                  "total_cents": 2000
+                },
+                {
+                  "_id": 3,
+                  "order_seq": 3,
+                  "placed_at": "2026-03-20T00:00:00.000+00:00",
+                  "running_total": 4500,
+                  "total_cents": 1500
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": "int",
+                  "order_seq": "int",
+                  "placed_at": null,
+                  "running_total": "int",
+                  "total_cents": "int"
+                },
+                {
+                  "_id": "int",
+                  "order_seq": "int",
+                  "placed_at": null,
+                  "running_total": "int",
+                  "total_cents": "int"
+                },
+                {
+                  "_id": "int",
+                  "order_seq": "int",
+                  "placed_at": null,
+                  "running_total": "int",
+                  "total_cents": "int"
+                }
+              ]
+            }
+          }
+        ],
+        "seconds": 0.103
+      },
+      "verdict": "equal",
+      "detail": {}
     },
     {
-      "probe_id": "T.collation_unique",
-      "feature_id": "F6",
-      "title": "Case-insensitive unique index rejects a case variant",
-      "behavior": "Two emails differing only by case collide",
+      "probe_id": "F2.swf-rolling-90d",
+      "feature_id": "F2",
+      "title": "90-day rolling sum via range window",
+      "behavior": "Customer timeline 90-day rolling sum with $sum range [-90,current] unit day partitioned by customer ordered by placed_at; includes double total conversion via $cond $type $round",
       "source": {
         "outcome": "completed",
         "steps": [
           {
-            "label": "index",
+            "label": "seed-orders",
             "op": "command",
-            "ms": 53.11,
+            "ms": 57.87,
             "status": "ok"
           },
           {
-            "label": "first",
+            "label": "rolling-90d",
             "op": "command",
-            "ms": 2.95,
-            "status": "ok"
-          },
-          {
-            "label": "variant",
-            "op": "command",
-            "ms": 0.78,
+            "ms": 2.3,
             "status": "ok",
             "captured": {
-              "error_code": 11000
+              "docs": [
+                {
+                  "_id": 1,
+                  "placed_at": "2026-01-01T00:00:00.000+00:00",
+                  "rolling_90d": 1000,
+                  "total_cents": 1000
+                },
+                {
+                  "_id": 2,
+                  "placed_at": "2026-02-01T00:00:00.000+00:00",
+                  "rolling_90d": 3050,
+                  "total_cents": 2050
+                },
+                {
+                  "_id": 3,
+                  "placed_at": "2026-05-15T00:00:00.000+00:00",
+                  "rolling_90d": 1500,
+                  "total_cents": 1500
+                }
+              ]
             },
             "capture": true,
-            "message": "write error"
+            "types": {
+              "docs": [
+                {
+                  "_id": "int",
+                  "placed_at": null,
+                  "rolling_90d": "int",
+                  "total_cents": "int"
+                },
+                {
+                  "_id": "int",
+                  "placed_at": null,
+                  "rolling_90d": "double",
+                  "total_cents": "double"
+                },
+                {
+                  "_id": "int",
+                  "placed_at": null,
+                  "rolling_90d": "int",
+                  "total_cents": "int"
+                }
+              ]
+            }
           }
         ],
-        "seconds": 0.065
+        "seconds": 0.072
+      },
+      "target": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "seed-orders",
+            "op": "command",
+            "ms": 14.55,
+            "status": "ok"
+          },
+          {
+            "label": "rolling-90d",
+            "op": "command",
+            "ms": 3.51,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": 1,
+                  "placed_at": "2026-01-01T00:00:00.000+00:00",
+                  "rolling_90d": 1000,
+                  "total_cents": 1000
+                },
+                {
+                  "_id": 2,
+                  "placed_at": "2026-02-01T00:00:00.000+00:00",
+                  "rolling_90d": 3050,
+                  "total_cents": 2050
+                },
+                {
+                  "_id": 3,
+                  "placed_at": "2026-05-15T00:00:00.000+00:00",
+                  "rolling_90d": 1500,
+                  "total_cents": 1500
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": "int",
+                  "placed_at": null,
+                  "rolling_90d": "int",
+                  "total_cents": "int"
+                },
+                {
+                  "_id": "int",
+                  "placed_at": null,
+                  "rolling_90d": "double",
+                  "total_cents": "double"
+                },
+                {
+                  "_id": "int",
+                  "placed_at": null,
+                  "rolling_90d": "int",
+                  "total_cents": "int"
+                }
+              ]
+            }
+          }
+        ],
+        "seconds": 0.098
+      },
+      "verdict": "equal",
+      "detail": {}
+    },
+    {
+      "probe_id": "F2.swf-prev-order-shift",
+      "feature_id": "F2",
+      "title": "Previous order date via $shift",
+      "behavior": "Customer timeline previous order date with $shift by -1 partitioned by customer ordered by placed_at; first order must yield null",
+      "source": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "seed-orders",
+            "op": "command",
+            "ms": 60.29,
+            "status": "ok"
+          },
+          {
+            "label": "prev-order-shift",
+            "op": "command",
+            "ms": 1.81,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": 1,
+                  "placed_at": "2026-01-10T00:00:00.000+00:00",
+                  "previous_order_at": null,
+                  "total_cents": 1000
+                },
+                {
+                  "_id": 2,
+                  "placed_at": "2026-02-15T00:00:00.000+00:00",
+                  "previous_order_at": "2026-01-10T00:00:00.000+00:00",
+                  "total_cents": 2000
+                },
+                {
+                  "_id": 3,
+                  "placed_at": "2026-03-20T00:00:00.000+00:00",
+                  "previous_order_at": "2026-02-15T00:00:00.000+00:00",
+                  "total_cents": 1500
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": "int",
+                  "placed_at": null,
+                  "previous_order_at": null,
+                  "total_cents": "int"
+                },
+                {
+                  "_id": "int",
+                  "placed_at": null,
+                  "previous_order_at": null,
+                  "total_cents": "int"
+                },
+                {
+                  "_id": "int",
+                  "placed_at": null,
+                  "previous_order_at": null,
+                  "total_cents": "int"
+                }
+              ]
+            }
+          }
+        ],
+        "seconds": 0.075
+      },
+      "target": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "seed-orders",
+            "op": "command",
+            "ms": 21.01,
+            "status": "ok"
+          },
+          {
+            "label": "prev-order-shift",
+            "op": "command",
+            "ms": 1.61,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": 1,
+                  "placed_at": "2026-01-10T00:00:00.000+00:00",
+                  "previous_order_at": null,
+                  "total_cents": 1000
+                },
+                {
+                  "_id": 2,
+                  "placed_at": "2026-02-15T00:00:00.000+00:00",
+                  "previous_order_at": "2026-01-10T00:00:00.000+00:00",
+                  "total_cents": 2000
+                },
+                {
+                  "_id": 3,
+                  "placed_at": "2026-03-20T00:00:00.000+00:00",
+                  "previous_order_at": "2026-02-15T00:00:00.000+00:00",
+                  "total_cents": 1500
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": "int",
+                  "placed_at": null,
+                  "previous_order_at": null,
+                  "total_cents": "int"
+                },
+                {
+                  "_id": "int",
+                  "placed_at": null,
+                  "previous_order_at": null,
+                  "total_cents": "int"
+                },
+                {
+                  "_id": "int",
+                  "placed_at": null,
+                  "previous_order_at": null,
+                  "total_cents": "int"
+                }
+              ]
+            }
+          }
+        ],
+        "seconds": 0.103
+      },
+      "verdict": "equal",
+      "detail": {}
+    },
+    {
+      "probe_id": "F3.arrayfilter-refund-selected",
+      "feature_id": "F3",
+      "title": "Filtered positional refund targets only requested lines",
+      "behavior": "mark only the requested order lines as refunded with a filtered positional update guarded by line_id list and refund_status none",
+      "source": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "seed-order",
+            "op": "command",
+            "ms": 39.85,
+            "status": "ok"
+          },
+          {
+            "label": "refund-selected-lines",
+            "op": "command",
+            "ms": 10.67,
+            "status": "ok"
+          },
+          {
+            "label": "verify-only-targeted-refunded",
+            "op": "command",
+            "ms": 0.79,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": "O00001995",
+                  "items": [
+                    {
+                      "line_id": 1,
+                      "refund_status": "refunded",
+                      "refunded_at": "2026-11-02T00:00:00.000+00:00"
+                    },
+                    {
+                      "line_id": 2,
+                      "refund_status": "refunded",
+                      "refunded_at": "2026-11-02T00:00:00.000+00:00"
+                    },
+                    {
+                      "line_id": 3,
+                      "refund_status": "none"
+                    }
+                  ],
+                  "refund_total": 64800,
+                  "status": "delivered",
+                  "updated_at": "2026-11-02T00:00:00.000+00:00"
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": null,
+                  "items": [
+                    {
+                      "line_id": "int",
+                      "refund_status": null,
+                      "refunded_at": null
+                    },
+                    {
+                      "line_id": "int",
+                      "refund_status": null,
+                      "refunded_at": null
+                    },
+                    {
+                      "line_id": "int",
+                      "refund_status": null
+                    }
+                  ],
+                  "refund_total": "int",
+                  "status": null,
+                  "updated_at": null
+                }
+              ]
+            }
+          }
+        ],
+        "seconds": 0.054
+      },
+      "target": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "seed-order",
+            "op": "command",
+            "ms": 16.52,
+            "status": "ok"
+          },
+          {
+            "label": "refund-selected-lines",
+            "op": "command",
+            "ms": 14.25,
+            "status": "ok"
+          },
+          {
+            "label": "verify-only-targeted-refunded",
+            "op": "command",
+            "ms": 2.21,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": "O00001995",
+                  "items": [
+                    {
+                      "line_id": 1,
+                      "refund_status": "refunded",
+                      "refunded_at": "2026-11-02T00:00:00.000+00:00"
+                    },
+                    {
+                      "line_id": 2,
+                      "refund_status": "refunded",
+                      "refunded_at": "2026-11-02T00:00:00.000+00:00"
+                    },
+                    {
+                      "line_id": 3,
+                      "refund_status": "none"
+                    }
+                  ],
+                  "refund_total": 64800,
+                  "status": "delivered",
+                  "updated_at": "2026-11-02T00:00:00.000+00:00"
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": null,
+                  "items": [
+                    {
+                      "line_id": "int",
+                      "refund_status": null,
+                      "refunded_at": null
+                    },
+                    {
+                      "line_id": "int",
+                      "refund_status": null,
+                      "refunded_at": null
+                    },
+                    {
+                      "line_id": "int",
+                      "refund_status": null
+                    }
+                  ],
+                  "refund_total": "int",
+                  "status": null,
+                  "updated_at": null
+                }
+              ]
+            }
+          }
+        ],
+        "seconds": 0.103
+      },
+      "verdict": "equal",
+      "detail": {}
+    },
+    {
+      "probe_id": "F3.arrayfilter-refund-guard",
+      "feature_id": "F3",
+      "title": "Filtered positional guard skips already-refunded lines",
+      "behavior": "filtered positional guard on refund_status none prevents re-refunding an already refunded line",
+      "source": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "seed-mixed-states",
+            "op": "command",
+            "ms": 34.52,
+            "status": "ok"
+          },
+          {
+            "label": "refund-with-guard",
+            "op": "command",
+            "ms": 11.21,
+            "status": "ok"
+          },
+          {
+            "label": "verify-guard-preserved",
+            "op": "command",
+            "ms": 0.8,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": "O00001995",
+                  "items": [
+                    {
+                      "line_id": 1,
+                      "refund_status": "refunded",
+                      "refunded_at": "2026-11-02T00:00:00.000+00:00"
+                    },
+                    {
+                      "line_id": 2,
+                      "refund_status": "refunded",
+                      "refunded_at": "2026-10-20T00:00:00.000+00:00"
+                    },
+                    {
+                      "line_id": 3,
+                      "refund_status": "none"
+                    }
+                  ],
+                  "refund_total": 74800,
+                  "status": "partially_refunded",
+                  "updated_at": "2026-11-02T00:00:00.000+00:00"
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": null,
+                  "items": [
+                    {
+                      "line_id": "int",
+                      "refund_status": null,
+                      "refunded_at": null
+                    },
+                    {
+                      "line_id": "int",
+                      "refund_status": null,
+                      "refunded_at": null
+                    },
+                    {
+                      "line_id": "int",
+                      "refund_status": null
+                    }
+                  ],
+                  "refund_total": "int",
+                  "status": null,
+                  "updated_at": null
+                }
+              ]
+            }
+          }
+        ],
+        "seconds": 0.049
+      },
+      "target": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "seed-mixed-states",
+            "op": "command",
+            "ms": 10.12,
+            "status": "ok"
+          },
+          {
+            "label": "refund-with-guard",
+            "op": "command",
+            "ms": 11.36,
+            "status": "ok"
+          },
+          {
+            "label": "verify-guard-preserved",
+            "op": "command",
+            "ms": 2.31,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": "O00001995",
+                  "items": [
+                    {
+                      "line_id": 1,
+                      "refund_status": "refunded",
+                      "refunded_at": "2026-11-02T00:00:00.000+00:00"
+                    },
+                    {
+                      "line_id": 2,
+                      "refund_status": "refunded",
+                      "refunded_at": "2026-10-20T00:00:00.000+00:00"
+                    },
+                    {
+                      "line_id": 3,
+                      "refund_status": "none"
+                    }
+                  ],
+                  "refund_total": 74800,
+                  "status": "partially_refunded",
+                  "updated_at": "2026-11-02T00:00:00.000+00:00"
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": null,
+                  "items": [
+                    {
+                      "line_id": "int",
+                      "refund_status": null,
+                      "refunded_at": null
+                    },
+                    {
+                      "line_id": "int",
+                      "refund_status": null,
+                      "refunded_at": null
+                    },
+                    {
+                      "line_id": "int",
+                      "refund_status": null
+                    }
+                  ],
+                  "refund_total": "int",
+                  "status": null,
+                  "updated_at": null
+                }
+              ]
+            }
+          }
+        ],
+        "seconds": 0.101
+      },
+      "verdict": "equal",
+      "detail": {}
+    },
+    {
+      "probe_id": "F3.all-positional-reviewed",
+      "feature_id": "F3",
+      "title": "All-positional marks every line reviewed",
+      "behavior": "mark every order line as reviewed in a single update using the all-positional $[] operator",
+      "source": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "seed-order",
+            "op": "command",
+            "ms": 32.36,
+            "status": "ok"
+          },
+          {
+            "label": "mark-all-reviewed",
+            "op": "command",
+            "ms": 11.08,
+            "status": "ok"
+          },
+          {
+            "label": "verify-all-reviewed",
+            "op": "command",
+            "ms": 0.67,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": "O00001473",
+                  "items": [
+                    {
+                      "line_id": 1,
+                      "reviewed_by": "qa-bot",
+                      "sku": "A"
+                    },
+                    {
+                      "line_id": 2,
+                      "reviewed_by": "qa-bot",
+                      "sku": "B"
+                    },
+                    {
+                      "line_id": 3,
+                      "reviewed_by": "qa-bot",
+                      "sku": "C"
+                    }
+                  ],
+                  "status": "delivered"
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": null,
+                  "items": [
+                    {
+                      "line_id": "int",
+                      "reviewed_by": null,
+                      "sku": null
+                    },
+                    {
+                      "line_id": "int",
+                      "reviewed_by": null,
+                      "sku": null
+                    },
+                    {
+                      "line_id": "int",
+                      "reviewed_by": null,
+                      "sku": null
+                    }
+                  ],
+                  "status": null
+                }
+              ]
+            }
+          }
+        ],
+        "seconds": 0.047
+      },
+      "target": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "seed-order",
+            "op": "command",
+            "ms": 9.56,
+            "status": "ok"
+          },
+          {
+            "label": "mark-all-reviewed",
+            "op": "command",
+            "ms": 4.3,
+            "status": "ok"
+          },
+          {
+            "label": "verify-all-reviewed",
+            "op": "command",
+            "ms": 1.48,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": "O00001473",
+                  "items": [
+                    {
+                      "line_id": 1,
+                      "reviewed_by": "qa-bot",
+                      "sku": "A"
+                    },
+                    {
+                      "line_id": 2,
+                      "reviewed_by": "qa-bot",
+                      "sku": "B"
+                    },
+                    {
+                      "line_id": 3,
+                      "reviewed_by": "qa-bot",
+                      "sku": "C"
+                    }
+                  ],
+                  "status": "delivered"
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": null,
+                  "items": [
+                    {
+                      "line_id": "int",
+                      "reviewed_by": null,
+                      "sku": null
+                    },
+                    {
+                      "line_id": "int",
+                      "reviewed_by": null,
+                      "sku": null
+                    },
+                    {
+                      "line_id": "int",
+                      "reviewed_by": null,
+                      "sku": null
+                    }
+                  ],
+                  "status": null
+                }
+              ]
+            }
+          }
+        ],
+        "seconds": 0.09
+      },
+      "verdict": "equal",
+      "detail": {}
+    },
+    {
+      "probe_id": "F4.txn-abort-rollback",
+      "feature_id": "F4",
+      "title": "Abort rolls back multi-line reservations and order",
+      "behavior": "checkout must atomically reserve inventory for all lines, insert the order, and convert the cart in one transaction, rolling back all reservations if any line is out of stock or the order insert fails",
+      "source": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "seed-inv",
+            "op": "command",
+            "ms": 30.26,
+            "status": "ok"
+          },
+          {
+            "label": "start",
+            "op": "txn_start",
+            "ms": 0.03,
+            "status": "ok"
+          },
+          {
+            "label": "reserve-in-txn",
+            "op": "command",
+            "ms": 1.79,
+            "status": "ok"
+          },
+          {
+            "label": "insert-order-in-txn",
+            "op": "command",
+            "ms": 10.74,
+            "status": "ok"
+          },
+          {
+            "label": "abort",
+            "op": "txn_abort",
+            "ms": 1.77,
+            "status": "ok"
+          },
+          {
+            "label": "check-inv-rolled-back",
+            "op": "command",
+            "ms": 0.95,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": 1,
+                  "sku": "A",
+                  "stock": 10
+                },
+                {
+                  "_id": 2,
+                  "sku": "B",
+                  "stock": 5
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": "int",
+                  "sku": null,
+                  "stock": "int"
+                },
+                {
+                  "_id": "int",
+                  "sku": null,
+                  "stock": "int"
+                }
+              ]
+            }
+          },
+          {
+            "label": "check-orders-rolled-back",
+            "op": "command",
+            "ms": 0.42,
+            "status": "ok",
+            "captured": {
+              "docs": []
+            },
+            "capture": true,
+            "types": {
+              "docs": []
+            }
+          }
+        ],
+        "seconds": 0.053
+      },
+      "target": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "seed-inv",
+            "op": "command",
+            "ms": 10.92,
+            "status": "ok"
+          },
+          {
+            "label": "start",
+            "op": "txn_start",
+            "ms": 0.04,
+            "status": "ok"
+          },
+          {
+            "label": "reserve-in-txn",
+            "op": "command",
+            "ms": 3.53,
+            "status": "ok"
+          },
+          {
+            "label": "insert-order-in-txn",
+            "op": "command",
+            "ms": 7.11,
+            "status": "ok"
+          },
+          {
+            "label": "abort",
+            "op": "txn_abort",
+            "ms": 0.64,
+            "status": "ok"
+          },
+          {
+            "label": "check-inv-rolled-back",
+            "op": "command",
+            "ms": 62.1,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": 1,
+                  "sku": "A",
+                  "stock": 8
+                },
+                {
+                  "_id": 2,
+                  "sku": "B",
+                  "stock": 4
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": "int",
+                  "sku": null,
+                  "stock": "int"
+                },
+                {
+                  "_id": "int",
+                  "sku": null,
+                  "stock": "int"
+                }
+              ]
+            }
+          },
+          {
+            "label": "check-orders-rolled-back",
+            "op": "command",
+            "ms": 1.49,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": 100,
+                  "lines": [
+                    {
+                      "qty": 2,
+                      "sku": "A"
+                    },
+                    {
+                      "qty": 1,
+                      "sku": "B"
+                    }
+                  ],
+                  "status": "pending"
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": "int",
+                  "lines": [
+                    {
+                      "qty": "int",
+                      "sku": null
+                    },
+                    {
+                      "qty": "int",
+                      "sku": null
+                    }
+                  ],
+                  "status": null
+                }
+              ]
+            }
+          }
+        ],
+        "seconds": 0.109
+      },
+      "verdict": "result_diff",
+      "detail": {
+        "silent": true,
+        "at_step": "check-inv-rolled-back",
+        "difference": {
+          "path": "$.docs[0].stock",
+          "source": 10,
+          "target": 8
+        }
+      }
+    },
+    {
+      "probe_id": "F4.txn-commit-atomic",
+      "feature_id": "F4",
+      "title": "Commit atomically persists reservations order and cart",
+      "behavior": "checkout must atomically reserve inventory for all lines, insert the order, and convert the cart in one transaction, persisting all three only on commit",
+      "source": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "seed-inv",
+            "op": "command",
+            "ms": 27.29,
+            "status": "ok"
+          },
+          {
+            "label": "seed-cart",
+            "op": "command",
+            "ms": 11.02,
+            "status": "ok"
+          },
+          {
+            "label": "start",
+            "op": "txn_start",
+            "ms": 0.01,
+            "status": "ok"
+          },
+          {
+            "label": "reserve-in-txn",
+            "op": "command",
+            "ms": 1.01,
+            "status": "ok"
+          },
+          {
+            "label": "insert-order-in-txn",
+            "op": "command",
+            "ms": 5.14,
+            "status": "ok"
+          },
+          {
+            "label": "convert-cart-in-txn",
+            "op": "command",
+            "ms": 0.6,
+            "status": "ok"
+          },
+          {
+            "label": "commit",
+            "op": "txn_commit",
+            "ms": 2.02,
+            "status": "ok"
+          },
+          {
+            "label": "check-inv-committed",
+            "op": "command",
+            "ms": 0.54,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": 1,
+                  "sku": "A",
+                  "stock": 8
+                },
+                {
+                  "_id": 2,
+                  "sku": "B",
+                  "stock": 4
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": "int",
+                  "sku": null,
+                  "stock": "int"
+                },
+                {
+                  "_id": "int",
+                  "sku": null,
+                  "stock": "int"
+                }
+              ]
+            }
+          },
+          {
+            "label": "check-order-committed",
+            "op": "command",
+            "ms": 0.65,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": 101,
+                  "lines": [
+                    {
+                      "qty": 2,
+                      "sku": "A"
+                    },
+                    {
+                      "qty": 1,
+                      "sku": "B"
+                    }
+                  ],
+                  "status": "pending"
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": "int",
+                  "lines": [
+                    {
+                      "qty": "int",
+                      "sku": null
+                    },
+                    {
+                      "qty": "int",
+                      "sku": null
+                    }
+                  ],
+                  "status": null
+                }
+              ]
+            }
+          },
+          {
+            "label": "check-cart-committed",
+            "op": "command",
+            "ms": 0.49,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": 7,
+                  "items": [
+                    {
+                      "qty": 2,
+                      "sku": "A"
+                    }
+                  ],
+                  "status": "ordered",
+                  "user": "u1"
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": "int",
+                  "items": [
+                    {
+                      "qty": "int",
+                      "sku": null
+                    }
+                  ],
+                  "status": null,
+                  "user": null
+                }
+              ]
+            }
+          }
+        ],
+        "seconds": 0.089
       },
       "target": {
         "outcome": "failed",
         "steps": [
           {
-            "label": "index",
+            "label": "seed-inv",
             "op": "command",
-            "ms": 1.22,
+            "ms": 9.2,
+            "status": "ok"
+          },
+          {
+            "label": "seed-cart",
+            "op": "command",
+            "ms": 4.56,
+            "status": "ok"
+          },
+          {
+            "label": "start",
+            "op": "txn_start",
+            "ms": 0.06,
+            "status": "ok"
+          },
+          {
+            "label": "reserve-in-txn",
+            "op": "command",
+            "ms": 2.72,
+            "status": "ok"
+          },
+          {
+            "label": "insert-order-in-txn",
+            "op": "command",
+            "ms": 65.25,
+            "status": "ok"
+          },
+          {
+            "label": "convert-cart-in-txn",
+            "op": "command",
+            "ms": 1.48,
+            "status": "ok"
+          },
+          {
+            "label": "commit",
+            "op": "txn_commit",
+            "ms": 0.78,
             "status": "error",
-            "code": 115,
-            "message": "Error in specification { \"key\" : { \"email\" : 1 }, \"name\" : \"ci\", \"unique\" : true, \"collation\" : { \"locale\" : \"en\", \"strength\" : 2 } } :: caused by :: createIndex.collation is not implemented yet, full error: {'ok': 0.0, 'errmsg': 'Error in specification { \"key\" : { \"email\" : 1 }, \"name\" : \"ci\", \"unique\" : true, \"collation\" : { \"locale\" : \"en\", \"strength\" : 2 } } :: caused by :: createIndex.collati"
+            "code": 59,
+            "message": "no such command: 'commitTransaction', full error: {'ok': 0.0, 'errmsg': \"no such command: 'commitTransaction'\", 'code': 59, 'codeName': 'CommandNotFound'}"
           }
         ],
-        "seconds": 0.002
+        "seconds": 0.111
       },
       "verdict": "unsupported",
       "detail": {
-        "at_step": "index",
-        "code": 115,
-        "message": "Error in specification { \"key\" : { \"email\" : 1 }, \"name\" : \"ci\", \"unique\" : true, \"collation\" : { \"locale\" : \"en\", \"strength\" : 2 } } :: caused by :: createIndex.collation is not implemented yet, full error: {'ok': 0.0, 'errmsg': 'Error in specification { \"key\" : { \"email\" : 1 }, \"name\" : \"ci\", \"unique\" : true, \"collation\" : { \"locale\" : \"en\", \"strength\" : 2 } } :: caused by :: createIndex.collati"
+        "at_step": "commit",
+        "code": 59,
+        "message": "no such command: 'commitTransaction', full error: {'ok': 0.0, 'errmsg': \"no such command: 'commitTransaction'\", 'code': 59, 'codeName': 'CommandNotFound'}"
       }
     },
     {
-      "probe_id": "T.validator",
-      "feature_id": "F8",
-      "title": "$jsonSchema validator rejects a bad document",
-      "behavior": "An insert violating the schema is refused",
+      "probe_id": "F4.txn-isolation-uncommitted",
+      "feature_id": "F4",
+      "title": "Uncommitted reservation invisible outside transaction",
+      "behavior": "uncommitted checkout reservation must not be visible outside the transaction but must be visible inside, and abort must restore the original stock",
       "source": {
         "outcome": "completed",
         "steps": [
           {
-            "label": "create",
+            "label": "seed-inv",
             "op": "command",
-            "ms": 54.04,
+            "ms": 11.19,
             "status": "ok"
           },
           {
-            "label": "bad",
+            "label": "start",
+            "op": "txn_start",
+            "ms": 0.02,
+            "status": "ok"
+          },
+          {
+            "label": "reserve-in-txn",
             "op": "command",
-            "ms": 1.97,
+            "ms": 1.43,
+            "status": "ok"
+          },
+          {
+            "label": "read-outside-sees-old",
+            "op": "command",
+            "ms": 0.9,
             "status": "ok",
             "captured": {
-              "error_code": 121
+              "docs": [
+                {
+                  "_id": 1,
+                  "sku": "A",
+                  "stock": 10
+                }
+              ]
             },
             "capture": true,
-            "message": "write error"
+            "types": {
+              "docs": [
+                {
+                  "_id": "int",
+                  "sku": null,
+                  "stock": "int"
+                }
+              ]
+            }
+          },
+          {
+            "label": "read-inside-sees-new",
+            "op": "command",
+            "ms": 1.18,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": 1,
+                  "sku": "A",
+                  "stock": 8
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": "int",
+                  "sku": null,
+                  "stock": "int"
+                }
+              ]
+            }
+          },
+          {
+            "label": "abort",
+            "op": "txn_abort",
+            "ms": 0.63,
+            "status": "ok"
+          },
+          {
+            "label": "read-after-abort",
+            "op": "command",
+            "ms": 0.57,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": 1,
+                  "sku": "A",
+                  "stock": 10
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": "int",
+                  "sku": null,
+                  "stock": "int"
+                }
+              ]
+            }
           }
         ],
-        "seconds": 0.059
+        "seconds": 0.022
       },
       "target": {
         "outcome": "completed",
         "steps": [
           {
-            "label": "create",
+            "label": "seed-inv",
             "op": "command",
-            "ms": 24.82,
+            "ms": 7.1,
             "status": "ok"
           },
           {
-            "label": "bad",
+            "label": "start",
+            "op": "txn_start",
+            "ms": 0.02,
+            "status": "ok"
+          },
+          {
+            "label": "reserve-in-txn",
             "op": "command",
-            "ms": 2.28,
-            "status": "unexpected_success",
+            "ms": 63.06,
+            "status": "ok"
+          },
+          {
+            "label": "read-outside-sees-old",
+            "op": "command",
+            "ms": 1.18,
+            "status": "ok",
             "captured": {
-              "no_error": true
+              "docs": [
+                {
+                  "_id": 1,
+                  "sku": "A",
+                  "stock": 8
+                }
+              ]
             },
-            "capture": true
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": "int",
+                  "sku": null,
+                  "stock": "int"
+                }
+              ]
+            }
+          },
+          {
+            "label": "read-inside-sees-new",
+            "op": "command",
+            "ms": 1.12,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": 1,
+                  "sku": "A",
+                  "stock": 8
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": "int",
+                  "sku": null,
+                  "stock": "int"
+                }
+              ]
+            }
+          },
+          {
+            "label": "abort",
+            "op": "txn_abort",
+            "ms": 0.75,
+            "status": "ok"
+          },
+          {
+            "label": "read-after-abort",
+            "op": "command",
+            "ms": 0.92,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": 1,
+                  "sku": "A",
+                  "stock": 8
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": "int",
+                  "sku": null,
+                  "stock": "int"
+                }
+              ]
+            }
           }
         ],
-        "seconds": 0.04
+        "seconds": 0.092
       },
       "verdict": "result_diff",
       "detail": {
         "silent": true,
-        "at_step": "bad",
+        "at_step": "read-outside-sees-old",
         "difference": {
-          "path": "$.error_code",
-          "source": 121,
-          "target": "<absent>"
+          "path": "$.docs[0].stock",
+          "source": 10,
+          "target": 8
         }
       }
     },
     {
-      "probe_id": "T.text_exclusion",
-      "feature_id": "F9",
-      "title": "$text honors exclusion terms",
-      "behavior": "A term prefixed with a minus removes matching documents",
-      "source": {
-        "outcome": "completed",
-        "steps": [
-          {
-            "label": "index",
-            "op": "command",
-            "ms": 56.26,
-            "status": "ok"
-          },
-          {
-            "label": "seed",
-            "op": "command",
-            "ms": 2.02,
-            "status": "ok"
-          },
-          {
-            "label": "search",
-            "op": "command",
-            "ms": 1.67,
-            "status": "ok",
-            "captured": {
-              "docs": [
-                {
-                  "_id": 1
-                }
-              ]
-            },
-            "capture": true,
-            "types": {
-              "docs": [
-                {
-                  "_id": "int"
-                }
-              ]
-            }
-          }
-        ],
-        "seconds": 0.068
-      },
-      "target": {
-        "outcome": "completed",
-        "steps": [
-          {
-            "label": "index",
-            "op": "command",
-            "ms": 27.24,
-            "status": "ok"
-          },
-          {
-            "label": "seed",
-            "op": "command",
-            "ms": 1.61,
-            "status": "ok"
-          },
-          {
-            "label": "search",
-            "op": "command",
-            "ms": 23.96,
-            "status": "ok",
-            "captured": {
-              "docs": [
-                {
-                  "_id": 1
-                }
-              ]
-            },
-            "capture": true,
-            "types": {
-              "docs": [
-                {
-                  "_id": "int"
-                }
-              ]
-            }
-          }
-        ],
-        "seconds": 0.061
-      },
-      "verdict": "equal",
-      "detail": {}
-    },
-    {
-      "probe_id": "T.window",
-      "feature_id": "F2",
-      "title": "$setWindowFields computes a running total",
-      "behavior": "A running sum accumulates per partition in sort order",
-      "source": {
-        "outcome": "completed",
-        "steps": [
-          {
-            "label": "seed",
-            "op": "command",
-            "ms": 54.21,
-            "status": "ok"
-          },
-          {
-            "label": "window",
-            "op": "command",
-            "ms": 1.03,
-            "status": "ok",
-            "captured": {
-              "docs": [
-                {
-                  "_id": 1,
-                  "run": 10
-                },
-                {
-                  "_id": 2,
-                  "run": 15
-                },
-                {
-                  "_id": 3,
-                  "run": 7
-                }
-              ]
-            },
-            "capture": true,
-            "types": {
-              "docs": [
-                {
-                  "_id": "int",
-                  "run": "int"
-                },
-                {
-                  "_id": "int",
-                  "run": "int"
-                },
-                {
-                  "_id": "int",
-                  "run": "int"
-                }
-              ]
-            }
-          }
-        ],
-        "seconds": 0.057
-      },
-      "target": {
-        "outcome": "completed",
-        "steps": [
-          {
-            "label": "seed",
-            "op": "command",
-            "ms": 23.57,
-            "status": "ok"
-          },
-          {
-            "label": "window",
-            "op": "command",
-            "ms": 1.01,
-            "status": "ok",
-            "captured": {
-              "docs": [
-                {
-                  "_id": 1,
-                  "run": 10
-                },
-                {
-                  "_id": 2,
-                  "run": 15
-                },
-                {
-                  "_id": 3,
-                  "run": 7
-                }
-              ]
-            },
-            "capture": true,
-            "types": {
-              "docs": [
-                {
-                  "_id": "int",
-                  "run": "int"
-                },
-                {
-                  "_id": "int",
-                  "run": "int"
-                },
-                {
-                  "_id": "int",
-                  "run": "int"
-                }
-              ]
-            }
-          }
-        ],
-        "seconds": 0.032
-      },
-      "verdict": "equal",
-      "detail": {}
-    },
-    {
-      "probe_id": "T.crud_control",
-      "feature_id": "F10",
-      "title": "Plain find, update and delete by _id",
-      "behavior": "Basic CRUD round trip",
-      "source": {
-        "outcome": "completed",
-        "steps": [
-          {
-            "label": "seed",
-            "op": "command",
-            "ms": 6.06,
-            "status": "ok"
-          },
-          {
-            "label": "update",
-            "op": "command",
-            "ms": 1.46,
-            "status": "ok",
-            "captured": {
-              "n": 1,
-              "nModified": 1
-            },
-            "capture": true,
-            "types": {
-              "n": "int",
-              "nModified": "int"
-            }
-          },
-          {
-            "label": "delete",
-            "op": "command",
-            "ms": 18.41,
-            "status": "ok",
-            "captured": {
-              "n": 1
-            },
-            "capture": true,
-            "types": {
-              "n": "int"
-            }
-          },
-          {
-            "label": "read",
-            "op": "command",
-            "ms": 0.41,
-            "status": "ok",
-            "captured": {
-              "docs": [
-                {
-                  "_id": "a",
-                  "s": "paid"
-                }
-              ]
-            },
-            "capture": true,
-            "types": {
-              "docs": [
-                {
-                  "_id": null,
-                  "s": null
-                }
-              ]
-            }
-          }
-        ],
-        "seconds": 0.03
-      },
-      "target": {
-        "outcome": "completed",
-        "steps": [
-          {
-            "label": "seed",
-            "op": "command",
-            "ms": 4.94,
-            "status": "ok"
-          },
-          {
-            "label": "update",
-            "op": "command",
-            "ms": 1.9,
-            "status": "ok",
-            "captured": {
-              "n": 1,
-              "nModified": 1
-            },
-            "capture": true,
-            "types": {
-              "n": "int",
-              "nModified": "int"
-            }
-          },
-          {
-            "label": "delete",
-            "op": "command",
-            "ms": 1.28,
-            "status": "ok",
-            "captured": {
-              "n": 1
-            },
-            "capture": true,
-            "types": {
-              "n": "int"
-            }
-          },
-          {
-            "label": "read",
-            "op": "command",
-            "ms": 3.32,
-            "status": "ok",
-            "captured": {
-              "docs": [
-                {
-                  "_id": "a",
-                  "s": "paid"
-                }
-              ]
-            },
-            "capture": true,
-            "types": {
-              "docs": [
-                {
-                  "_id": null,
-                  "s": null
-                }
-              ]
-            }
-          }
-        ],
-        "seconds": 0.023
-      },
-      "verdict": "equal",
-      "detail": {}
-    },
-    {
-      "probe_id": "T.change_stream",
+      "probe_id": "F5.cs-filter-update-replace",
       "feature_id": "F5",
-      "title": "A change stream delivers an update with the full document",
-      "behavior": "A watcher sees the update and the post-image via updateLookup",
+      "title": "Change stream filtered to update and replace only",
+      "behavior": "Change stream with $match filter to update/replace only delivers updates and replaces while suppressing inserts",
       "source": {
         "outcome": "completed",
         "steps": [
           {
             "label": "seed",
             "op": "command",
-            "ms": 20.67,
+            "ms": 35.39,
             "status": "ok"
           },
           {
-            "label": "open",
+            "label": "open-filtered",
             "op": "watch_open",
-            "ms": 0.78,
+            "ms": 1.78,
             "status": "ok"
           },
           {
-            "label": "update",
+            "label": "update-one",
             "op": "command",
-            "ms": 1.14,
+            "ms": 10.66,
             "status": "ok"
           },
           {
-            "label": "next",
+            "label": "insert-filtered-out",
+            "op": "command",
+            "ms": 1.05,
+            "status": "ok"
+          },
+          {
+            "label": "replace-one",
+            "op": "command",
+            "ms": 1.72,
+            "status": "ok"
+          },
+          {
+            "label": "poll-two-events",
             "op": "watch_next",
-            "ms": 0.34,
+            "ms": 0.72,
             "status": "ok",
             "captured": [
               {
@@ -776,17 +2125,161 @@
                 },
                 "fullDocument": {
                   "_id": 1,
-                  "n": 9
+                  "qty": 9,
+                  "sku": "a"
                 },
                 "ns": {
-                  "coll": "i"
+                  "coll": "inventory"
                 },
                 "operationType": "update",
                 "updateDescription": {
                   "removedFields": [],
                   "truncatedArrays": [],
                   "updatedFields": {
-                    "n": 9
+                    "qty": 9
+                  }
+                }
+              },
+              {
+                "documentKey": {
+                  "_id": 2
+                },
+                "fullDocument": {
+                  "_id": 2,
+                  "qty": 4,
+                  "sku": "b"
+                },
+                "ns": {
+                  "coll": "inventory"
+                },
+                "operationType": "replace"
+              }
+            ],
+            "capture": true,
+            "types": [
+              {
+                "documentKey": {
+                  "_id": "int"
+                },
+                "fullDocument": {
+                  "_id": "int",
+                  "qty": "int",
+                  "sku": null
+                },
+                "ns": {
+                  "coll": null
+                },
+                "operationType": null,
+                "updateDescription": {
+                  "removedFields": [],
+                  "truncatedArrays": [],
+                  "updatedFields": {
+                    "qty": "int"
+                  }
+                }
+              },
+              {
+                "documentKey": {
+                  "_id": "int"
+                },
+                "fullDocument": {
+                  "_id": "int",
+                  "qty": "int",
+                  "sku": null
+                },
+                "ns": {
+                  "coll": null
+                },
+                "operationType": null
+              }
+            ]
+          },
+          {
+            "label": "close",
+            "op": "watch_close",
+            "ms": 1.08,
+            "status": "ok"
+          }
+        ],
+        "seconds": 0.055
+      },
+      "target": {
+        "outcome": "failed",
+        "steps": [
+          {
+            "label": "seed",
+            "op": "command",
+            "ms": 12.26,
+            "status": "ok"
+          },
+          {
+            "label": "open-filtered",
+            "op": "watch_open",
+            "ms": 2.51,
+            "status": "error",
+            "code": 115,
+            "message": "Stage $changeStream is not supported yet in native pipeline, full error: {'ok': 0.0, 'errmsg': 'Stage $changeStream is not supported yet in native pipeline', 'code': 115, 'codeName': 'CommandNotSupported'}"
+          }
+        ],
+        "seconds": 0.03
+      },
+      "verdict": "unsupported",
+      "detail": {
+        "at_step": "open-filtered",
+        "code": 115,
+        "message": "Stage $changeStream is not supported yet in native pipeline, full error: {'ok': 0.0, 'errmsg': 'Stage $changeStream is not supported yet in native pipeline', 'code': 115, 'codeName': 'CommandNotSupported'}"
+      }
+    },
+    {
+      "probe_id": "F5.cs-fulldocument-lookup",
+      "feature_id": "F5",
+      "title": "Change stream fullDocument updateLookup on update",
+      "behavior": "Change stream with fullDocument updateLookup returns the post-update document for update operations",
+      "source": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "seed",
+            "op": "command",
+            "ms": 38.06,
+            "status": "ok"
+          },
+          {
+            "label": "open-lookup",
+            "op": "watch_open",
+            "ms": 1.41,
+            "status": "ok"
+          },
+          {
+            "label": "update-qty",
+            "op": "command",
+            "ms": 7.9,
+            "status": "ok"
+          },
+          {
+            "label": "poll-fullDocument",
+            "op": "watch_next",
+            "ms": 0.81,
+            "status": "ok",
+            "captured": [
+              {
+                "documentKey": {
+                  "_id": 10
+                },
+                "fullDocument": {
+                  "_id": 10,
+                  "qty": 9,
+                  "sku": "a"
+                },
+                "ns": {
+                  "coll": "inventory"
+                },
+                "operationType": "update",
+                "updateDescription": {
+                  "removedFields": [],
+                  "truncatedArrays": [],
+                  "updatedFields": {
+                    "qty": 9
                   }
                 }
               }
@@ -799,7 +2292,8 @@
                 },
                 "fullDocument": {
                   "_id": "int",
-                  "n": "int"
+                  "qty": "int",
+                  "sku": null
                 },
                 "ns": {
                   "coll": null
@@ -809,7 +2303,7 @@
                   "removedFields": [],
                   "truncatedArrays": [],
                   "updatedFields": {
-                    "n": "int"
+                    "qty": "int"
                   }
                 }
               }
@@ -818,11 +2312,11 @@
           {
             "label": "close",
             "op": "watch_close",
-            "ms": 0.23,
+            "ms": 1.05,
             "status": "ok"
           }
         ],
-        "seconds": 0.125
+        "seconds": 0.052
       },
       "target": {
         "outcome": "failed",
@@ -830,26 +2324,2651 @@
           {
             "label": "seed",
             "op": "command",
-            "ms": 6.18,
+            "ms": 11.54,
             "status": "ok"
           },
           {
-            "label": "open",
+            "label": "open-lookup",
             "op": "watch_open",
-            "ms": 0.65,
+            "ms": 3.29,
             "status": "error",
             "code": 115,
             "message": "Stage $changeStream is not supported yet in native pipeline, full error: {'ok': 0.0, 'errmsg': 'Stage $changeStream is not supported yet in native pipeline', 'code': 115, 'codeName': 'CommandNotSupported'}"
           }
         ],
-        "seconds": 0.023
+        "seconds": 0.031
       },
       "verdict": "unsupported",
       "detail": {
-        "at_step": "open",
+        "at_step": "open-lookup",
         "code": 115,
         "message": "Stage $changeStream is not supported yet in native pipeline, full error: {'ok': 0.0, 'errmsg': 'Stage $changeStream is not supported yet in native pipeline', 'code': 115, 'codeName': 'CommandNotSupported'}"
       }
+    },
+    {
+      "probe_id": "F5.cs-event-per-change",
+      "feature_id": "F5",
+      "title": "Change stream one event per change with non-blocking poll",
+      "behavior": "Change stream with non-blocking polling emits one event per update in order without loss and empty poll returns promptly",
+      "source": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "seed",
+            "op": "command",
+            "ms": 30.89,
+            "status": "ok"
+          },
+          {
+            "label": "open-filtered",
+            "op": "watch_open",
+            "ms": 1.46,
+            "status": "ok"
+          },
+          {
+            "label": "insert-filtered",
+            "op": "command",
+            "ms": 8.65,
+            "status": "ok"
+          },
+          {
+            "label": "replace-first",
+            "op": "command",
+            "ms": 2.21,
+            "status": "ok"
+          },
+          {
+            "label": "replace-second",
+            "op": "command",
+            "ms": 1.98,
+            "status": "ok"
+          },
+          {
+            "label": "poll-two-changes",
+            "op": "watch_next",
+            "ms": 0.71,
+            "status": "ok",
+            "captured": [
+              {
+                "documentKey": {
+                  "_id": 10
+                },
+                "fullDocument": {
+                  "_id": 10,
+                  "qty": 90,
+                  "sku": "a"
+                },
+                "ns": {
+                  "coll": "inventory"
+                },
+                "operationType": "replace"
+              },
+              {
+                "documentKey": {
+                  "_id": 10
+                },
+                "fullDocument": {
+                  "_id": 10,
+                  "qty": 80,
+                  "sku": "a"
+                },
+                "ns": {
+                  "coll": "inventory"
+                },
+                "operationType": "replace"
+              }
+            ],
+            "capture": true,
+            "types": [
+              {
+                "documentKey": {
+                  "_id": "int"
+                },
+                "fullDocument": {
+                  "_id": "int",
+                  "qty": "int",
+                  "sku": null
+                },
+                "ns": {
+                  "coll": null
+                },
+                "operationType": null
+              },
+              {
+                "documentKey": {
+                  "_id": "int"
+                },
+                "fullDocument": {
+                  "_id": "int",
+                  "qty": "int",
+                  "sku": null
+                },
+                "ns": {
+                  "coll": null
+                },
+                "operationType": null
+              }
+            ]
+          },
+          {
+            "label": "poll-empty-nonblocking",
+            "op": "watch_next",
+            "ms": 607.87,
+            "status": "ok",
+            "captured": [],
+            "capture": true,
+            "types": []
+          },
+          {
+            "label": "close",
+            "op": "watch_close",
+            "ms": 1.8,
+            "status": "ok"
+          }
+        ],
+        "seconds": 0.69
+      },
+      "target": {
+        "outcome": "failed",
+        "steps": [
+          {
+            "label": "seed",
+            "op": "command",
+            "ms": 11.74,
+            "status": "ok"
+          },
+          {
+            "label": "open-filtered",
+            "op": "watch_open",
+            "ms": 2.48,
+            "status": "error",
+            "code": 115,
+            "message": "Stage $changeStream is not supported yet in native pipeline, full error: {'ok': 0.0, 'errmsg': 'Stage $changeStream is not supported yet in native pipeline', 'code': 115, 'codeName': 'CommandNotSupported'}"
+          }
+        ],
+        "seconds": 0.025
+      },
+      "verdict": "unsupported",
+      "detail": {
+        "at_step": "open-filtered",
+        "code": 115,
+        "message": "Stage $changeStream is not supported yet in native pipeline, full error: {'ok': 0.0, 'errmsg': 'Stage $changeStream is not supported yet in native pipeline', 'code': 115, 'codeName': 'CommandNotSupported'}"
+      }
+    },
+    {
+      "probe_id": "F6.ci-lookup",
+      "feature_id": "F6",
+      "title": "Case-insensitive email lookup with collation",
+      "behavior": "customer lookup by email must match case-insensitively using collation strength 2",
+      "source": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "insert-seed",
+            "op": "command",
+            "ms": 30.98,
+            "status": "ok"
+          },
+          {
+            "label": "find-upper-with-collation",
+            "op": "command",
+            "ms": 1.02,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": 1,
+                  "email": "User4841@example.com",
+                  "name": "Alice"
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": "int",
+                  "email": null,
+                  "name": null
+                }
+              ]
+            }
+          },
+          {
+            "label": "find-lower-with-collation",
+            "op": "command",
+            "ms": 0.53,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": 1,
+                  "email": "User4841@example.com",
+                  "name": "Alice"
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": "int",
+                  "email": null,
+                  "name": null
+                }
+              ]
+            }
+          }
+        ],
+        "seconds": 0.035
+      },
+      "target": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "insert-seed",
+            "op": "command",
+            "ms": 14.23,
+            "status": "ok"
+          },
+          {
+            "label": "find-upper-with-collation",
+            "op": "command",
+            "ms": 1.14,
+            "status": "ok",
+            "captured": {
+              "docs": []
+            },
+            "capture": true,
+            "types": {
+              "docs": []
+            }
+          },
+          {
+            "label": "find-lower-with-collation",
+            "op": "command",
+            "ms": 0.72,
+            "status": "ok",
+            "captured": {
+              "docs": []
+            },
+            "capture": true,
+            "types": {
+              "docs": []
+            }
+          }
+        ],
+        "seconds": 0.081
+      },
+      "verdict": "result_diff",
+      "detail": {
+        "silent": true,
+        "at_step": "find-upper-with-collation",
+        "difference": {
+          "path": "$.docs.length",
+          "source": 1,
+          "target": 0
+        }
+      }
+    },
+    {
+      "probe_id": "F6.ci-unique",
+      "feature_id": "F6",
+      "title": "Case-insensitive unique email via collation index",
+      "behavior": "customer email uniqueness is case-insensitive via collation index locale en strength 2",
+      "source": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "create-ci-unique-index",
+            "op": "command",
+            "ms": 12.81,
+            "status": "ok"
+          },
+          {
+            "label": "insert-base",
+            "op": "command",
+            "ms": 2.74,
+            "status": "ok"
+          },
+          {
+            "label": "insert-case-variant-duplicate",
+            "op": "command",
+            "ms": 1.31,
+            "status": "ok",
+            "captured": {
+              "error_code": 11000
+            },
+            "capture": true,
+            "message": "write error"
+          },
+          {
+            "label": "insert-distinct-allowed",
+            "op": "command",
+            "ms": 1.61,
+            "status": "ok"
+          },
+          {
+            "label": "read-all-after-unique-check",
+            "op": "command",
+            "ms": 0.42,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": 1,
+                  "email": "User@example.com"
+                },
+                {
+                  "_id": 3,
+                  "email": "Other@example.com"
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": "int",
+                  "email": null
+                },
+                {
+                  "_id": "int",
+                  "email": null
+                }
+              ]
+            }
+          }
+        ],
+        "seconds": 0.072
+      },
+      "target": {
+        "outcome": "failed",
+        "steps": [
+          {
+            "label": "create-ci-unique-index",
+            "op": "command",
+            "ms": 2.57,
+            "status": "error",
+            "code": 115,
+            "message": "Error in specification { \"key\" : { \"email\" : 1 }, \"name\" : \"email_ci_unique\", \"unique\" : true, \"collation\" : { \"locale\" : \"en\", \"strength\" : 2 } } :: caused by :: createIndex.collation is not implemented yet, full error: {'ok': 0.0, 'errmsg': 'Error in specification { \"key\" : { \"email\" : 1 }, \"name\" : \"email_ci_unique\", \"unique\" : true, \"collation\" : { \"locale\" : \"en\", \"strength\" : 2 } } :: caused"
+          }
+        ],
+        "seconds": 0.004
+      },
+      "verdict": "unsupported",
+      "detail": {
+        "at_step": "create-ci-unique-index",
+        "code": 115,
+        "message": "Error in specification { \"key\" : { \"email\" : 1 }, \"name\" : \"email_ci_unique\", \"unique\" : true, \"collation\" : { \"locale\" : \"en\", \"strength\" : 2 } } :: caused by :: createIndex.collation is not implemented yet, full error: {'ok': 0.0, 'errmsg': 'Error in specification { \"key\" : { \"email\" : 1 }, \"name\" : \"email_ci_unique\", \"unique\" : true, \"collation\" : { \"locale\" : \"en\", \"strength\" : 2 } } :: caused"
+      }
+    },
+    {
+      "probe_id": "F6.ci-gating",
+      "feature_id": "F6",
+      "title": "Collation controls case sensitivity of email match",
+      "behavior": "email match without collation is case-sensitive and with collation strength 2 is case-insensitive",
+      "source": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "insert-seed",
+            "op": "command",
+            "ms": 11.72,
+            "status": "ok"
+          },
+          {
+            "label": "find-without-collation-no-match",
+            "op": "command",
+            "ms": 1.25,
+            "status": "ok",
+            "captured": {
+              "docs": []
+            },
+            "capture": true,
+            "types": {
+              "docs": []
+            }
+          },
+          {
+            "label": "find-with-collation-matches",
+            "op": "command",
+            "ms": 0.5,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": 1,
+                  "email": "MixedCase@Example.COM"
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": "int",
+                  "email": null
+                }
+              ]
+            }
+          }
+        ],
+        "seconds": 0.016
+      },
+      "target": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "insert-seed",
+            "op": "command",
+            "ms": 9.82,
+            "status": "ok"
+          },
+          {
+            "label": "find-without-collation-no-match",
+            "op": "command",
+            "ms": 60.99,
+            "status": "ok",
+            "captured": {
+              "docs": []
+            },
+            "capture": true,
+            "types": {
+              "docs": []
+            }
+          },
+          {
+            "label": "find-with-collation-matches",
+            "op": "command",
+            "ms": 3.27,
+            "status": "ok",
+            "captured": {
+              "docs": []
+            },
+            "capture": true,
+            "types": {
+              "docs": []
+            }
+          }
+        ],
+        "seconds": 0.083
+      },
+      "verdict": "result_diff",
+      "detail": {
+        "silent": true,
+        "at_step": "find-with-collation-matches",
+        "difference": {
+          "path": "$.docs.length",
+          "source": 1,
+          "target": 0
+        }
+      }
+    },
+    {
+      "probe_id": "F7.partial-unique-missing-exempt",
+      "feature_id": "F7",
+      "title": "Partial unique allows missing coupon but rejects duplicate per customer",
+      "behavior": "coupon_code uniqueness per customer is enforced only when coupon_code exists via partial unique index",
+      "source": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "create-partial-unique-index",
+            "op": "command",
+            "ms": 54.92,
+            "status": "ok"
+          },
+          {
+            "label": "insert-first-coupon",
+            "op": "command",
+            "ms": 9.77,
+            "status": "ok"
+          },
+          {
+            "label": "insert-duplicate-same-customer-coupon",
+            "op": "command",
+            "ms": 6.12,
+            "status": "ok",
+            "captured": {
+              "error_code": 11000
+            },
+            "capture": true,
+            "message": "write error"
+          },
+          {
+            "label": "insert-no-coupon-first",
+            "op": "command",
+            "ms": 1.26,
+            "status": "ok"
+          },
+          {
+            "label": "insert-no-coupon-second",
+            "op": "command",
+            "ms": 1.33,
+            "status": "ok"
+          },
+          {
+            "label": "verify-missing-exempt-duplicate-rejected",
+            "op": "command",
+            "ms": 0.6,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": 1,
+                  "coupon_code": "SAVE10",
+                  "customer_id": "custA"
+                },
+                {
+                  "_id": 3,
+                  "customer_id": "custA"
+                },
+                {
+                  "_id": 4,
+                  "customer_id": "custA"
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": "int",
+                  "coupon_code": null,
+                  "customer_id": null
+                },
+                {
+                  "_id": "int",
+                  "customer_id": null
+                },
+                {
+                  "_id": "int",
+                  "customer_id": null
+                }
+              ]
+            }
+          }
+        ],
+        "seconds": 0.077
+      },
+      "target": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "create-partial-unique-index",
+            "op": "command",
+            "ms": 45.56,
+            "status": "ok"
+          },
+          {
+            "label": "insert-first-coupon",
+            "op": "command",
+            "ms": 1.81,
+            "status": "ok"
+          },
+          {
+            "label": "insert-duplicate-same-customer-coupon",
+            "op": "command",
+            "ms": 4.92,
+            "status": "ok",
+            "captured": {
+              "error_code": 11000
+            },
+            "capture": true,
+            "message": "write error"
+          },
+          {
+            "label": "insert-no-coupon-first",
+            "op": "command",
+            "ms": 1.73,
+            "status": "ok"
+          },
+          {
+            "label": "insert-no-coupon-second",
+            "op": "command",
+            "ms": 1.65,
+            "status": "ok"
+          },
+          {
+            "label": "verify-missing-exempt-duplicate-rejected",
+            "op": "command",
+            "ms": 1.03,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": 1,
+                  "coupon_code": "SAVE10",
+                  "customer_id": "custA"
+                },
+                {
+                  "_id": 3,
+                  "customer_id": "custA"
+                },
+                {
+                  "_id": 4,
+                  "customer_id": "custA"
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": "int",
+                  "coupon_code": null,
+                  "customer_id": null
+                },
+                {
+                  "_id": "int",
+                  "customer_id": null
+                },
+                {
+                  "_id": "int",
+                  "customer_id": null
+                }
+              ]
+            }
+          }
+        ],
+        "seconds": 0.065
+      },
+      "verdict": "equal",
+      "detail": {}
+    },
+    {
+      "probe_id": "F7.partial-unique-per-customer",
+      "feature_id": "F7",
+      "title": "Partial unique coupon allows same code for different customers",
+      "behavior": "coupon_code uniqueness is per customer, same coupon_code for different customers is allowed",
+      "source": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "create-partial-unique-index",
+            "op": "command",
+            "ms": 15.22,
+            "status": "ok"
+          },
+          {
+            "label": "insert-custA-coupon",
+            "op": "command",
+            "ms": 10.21,
+            "status": "ok"
+          },
+          {
+            "label": "insert-custB-same-coupon",
+            "op": "command",
+            "ms": 6.39,
+            "status": "ok"
+          },
+          {
+            "label": "insert-duplicate-same-customer",
+            "op": "command",
+            "ms": 1.12,
+            "status": "ok",
+            "captured": {
+              "error_code": 11000
+            },
+            "capture": true,
+            "message": "write error"
+          },
+          {
+            "label": "verify-per-customer-uniqueness",
+            "op": "command",
+            "ms": 1.37,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": 1,
+                  "coupon_code": "SAVE10",
+                  "customer_id": "custA"
+                },
+                {
+                  "_id": 2,
+                  "coupon_code": "SAVE10",
+                  "customer_id": "custB"
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": "int",
+                  "coupon_code": null,
+                  "customer_id": null
+                },
+                {
+                  "_id": "int",
+                  "coupon_code": null,
+                  "customer_id": null
+                }
+              ]
+            }
+          }
+        ],
+        "seconds": 0.038
+      },
+      "target": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "create-partial-unique-index",
+            "op": "command",
+            "ms": 43.36,
+            "status": "ok"
+          },
+          {
+            "label": "insert-custA-coupon",
+            "op": "command",
+            "ms": 2.35,
+            "status": "ok"
+          },
+          {
+            "label": "insert-custB-same-coupon",
+            "op": "command",
+            "ms": 1.33,
+            "status": "ok"
+          },
+          {
+            "label": "insert-duplicate-same-customer",
+            "op": "command",
+            "ms": 4.3,
+            "status": "ok",
+            "captured": {
+              "error_code": 11000
+            },
+            "capture": true,
+            "message": "write error"
+          },
+          {
+            "label": "verify-per-customer-uniqueness",
+            "op": "command",
+            "ms": 1.3,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": 1,
+                  "coupon_code": "SAVE10",
+                  "customer_id": "custA"
+                },
+                {
+                  "_id": 2,
+                  "coupon_code": "SAVE10",
+                  "customer_id": "custB"
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": "int",
+                  "coupon_code": null,
+                  "customer_id": null
+                },
+                {
+                  "_id": "int",
+                  "coupon_code": null,
+                  "customer_id": null
+                }
+              ]
+            }
+          }
+        ],
+        "seconds": 0.06
+      },
+      "verdict": "equal",
+      "detail": {}
+    },
+    {
+      "probe_id": "F7.ttl-active-only-expiry",
+      "feature_id": "F7",
+      "title": "TTL expires only active carts at expires_at",
+      "behavior": "active carts auto-delete at expires_at via TTL index limited to status active",
+      "source": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "create-partial-ttl-index",
+            "op": "command",
+            "ms": 18.94,
+            "status": "ok"
+          },
+          {
+            "label": "insert-active-expired-cart",
+            "op": "command",
+            "ms": 1.07,
+            "status": "ok"
+          },
+          {
+            "label": "insert-inactive-expired-cart",
+            "op": "command",
+            "ms": 1.06,
+            "status": "ok"
+          },
+          {
+            "label": "wait-for-ttl",
+            "op": "wait_ttl",
+            "ms": 72000.64,
+            "status": "ok"
+          },
+          {
+            "label": "verify-only-active-expired",
+            "op": "command",
+            "ms": 1.78,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": 2,
+                  "expires_at": "2026-01-01T00:00:00.000+00:00",
+                  "status": "completed"
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": "int",
+                  "expires_at": null,
+                  "status": null
+                }
+              ]
+            }
+          }
+        ],
+        "seconds": 72.057
+      },
+      "target": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "create-partial-ttl-index",
+            "op": "command",
+            "ms": 6.47,
+            "status": "ok"
+          },
+          {
+            "label": "insert-active-expired-cart",
+            "op": "command",
+            "ms": 1.96,
+            "status": "ok"
+          },
+          {
+            "label": "insert-inactive-expired-cart",
+            "op": "command",
+            "ms": 1.64,
+            "status": "ok"
+          },
+          {
+            "label": "wait-for-ttl",
+            "op": "wait_ttl",
+            "ms": 72004.84,
+            "status": "ok"
+          },
+          {
+            "label": "verify-only-active-expired",
+            "op": "command",
+            "ms": 7.7,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": 2,
+                  "expires_at": "2026-01-01T00:00:00.000+00:00",
+                  "status": "completed"
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": "int",
+                  "expires_at": null,
+                  "status": null
+                }
+              ]
+            }
+          }
+        ],
+        "seconds": 72.04
+      },
+      "verdict": "equal",
+      "detail": {}
+    },
+    {
+      "probe_id": "F8.orders-required-fields",
+      "feature_id": "F8",
+      "title": "$jsonSchema requires customer_id, status, items, total and placed_at on orders",
+      "behavior": "orders enforces $jsonSchema with required customer_id, status, items, total, placed_at at level moderate; inserts missing a required field fail with 121 and only valid docs persist",
+      "source": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "create orders with validator",
+            "op": "command",
+            "ms": 15.8,
+            "status": "ok"
+          },
+          {
+            "label": "insert valid order",
+            "op": "command",
+            "ms": 1.14,
+            "status": "ok"
+          },
+          {
+            "label": "insert missing customer_id fails",
+            "op": "command",
+            "ms": 1.07,
+            "status": "ok",
+            "captured": {
+              "error_code": 121
+            },
+            "capture": true,
+            "message": "write error"
+          },
+          {
+            "label": "insert missing total fails",
+            "op": "command",
+            "ms": 0.68,
+            "status": "ok",
+            "captured": {
+              "error_code": 121
+            },
+            "capture": true,
+            "message": "write error"
+          },
+          {
+            "label": "read back orders",
+            "op": "command",
+            "ms": 1.26,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": 1,
+                  "customer_id": "c123",
+                  "items": [
+                    {
+                      "qty": 2,
+                      "sku": "a1"
+                    }
+                  ],
+                  "placed_at": "2026-01-01T00:00:00.000+00:00",
+                  "status": "pending",
+                  "total": 49.99
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": "int",
+                  "customer_id": null,
+                  "items": [
+                    {
+                      "qty": "int",
+                      "sku": null
+                    }
+                  ],
+                  "placed_at": null,
+                  "status": null,
+                  "total": "double"
+                }
+              ]
+            }
+          }
+        ],
+        "seconds": 0.022
+      },
+      "target": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "create orders with validator",
+            "op": "command",
+            "ms": 7.55,
+            "status": "ok"
+          },
+          {
+            "label": "insert valid order",
+            "op": "command",
+            "ms": 1.07,
+            "status": "ok"
+          },
+          {
+            "label": "insert missing customer_id fails",
+            "op": "command",
+            "ms": 0.92,
+            "status": "unexpected_success",
+            "captured": {
+              "no_error": true
+            },
+            "capture": true
+          },
+          {
+            "label": "insert missing total fails",
+            "op": "command",
+            "ms": 1.22,
+            "status": "unexpected_success",
+            "captured": {
+              "no_error": true
+            },
+            "capture": true
+          },
+          {
+            "label": "read back orders",
+            "op": "command",
+            "ms": 1.06,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": 1,
+                  "customer_id": "c123",
+                  "items": [
+                    {
+                      "qty": 2,
+                      "sku": "a1"
+                    }
+                  ],
+                  "placed_at": "2026-01-01T00:00:00.000+00:00",
+                  "status": "pending",
+                  "total": 49.99
+                },
+                {
+                  "_id": 2,
+                  "items": [
+                    {
+                      "qty": 2,
+                      "sku": "a1"
+                    }
+                  ],
+                  "placed_at": "2026-01-01T00:00:00.000+00:00",
+                  "status": "pending",
+                  "total": 19.99
+                },
+                {
+                  "_id": 3,
+                  "customer_id": "c123",
+                  "items": [
+                    {
+                      "qty": 2,
+                      "sku": "a1"
+                    }
+                  ],
+                  "placed_at": "2026-01-01T00:00:00.000+00:00",
+                  "status": "pending"
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": "int",
+                  "customer_id": null,
+                  "items": [
+                    {
+                      "qty": "int",
+                      "sku": null
+                    }
+                  ],
+                  "placed_at": null,
+                  "status": null,
+                  "total": "double"
+                },
+                {
+                  "_id": "int",
+                  "items": [
+                    {
+                      "qty": "int",
+                      "sku": null
+                    }
+                  ],
+                  "placed_at": null,
+                  "status": null,
+                  "total": "double"
+                },
+                {
+                  "_id": "int",
+                  "customer_id": null,
+                  "items": [
+                    {
+                      "qty": "int",
+                      "sku": null
+                    }
+                  ],
+                  "placed_at": null,
+                  "status": null
+                }
+              ]
+            }
+          }
+        ],
+        "seconds": 0.019
+      },
+      "verdict": "result_diff",
+      "detail": {
+        "silent": true,
+        "at_step": "insert missing customer_id fails",
+        "difference": {
+          "path": "$.error_code",
+          "source": 121,
+          "target": "<absent>"
+        }
+      }
+    },
+    {
+      "probe_id": "F8.orders-enum-total",
+      "feature_id": "F8",
+      "title": "$jsonSchema enum and minimum on orders status and total",
+      "behavior": "orders $jsonSchema restricts status to pending/paid/shipped/cancelled and total to >=0; violating inserts fail with 121 and only valid doc persists",
+      "source": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "create orders with validator",
+            "op": "command",
+            "ms": 16.49,
+            "status": "ok"
+          },
+          {
+            "label": "insert valid order",
+            "op": "command",
+            "ms": 1.72,
+            "status": "ok"
+          },
+          {
+            "label": "insert bad status fails",
+            "op": "command",
+            "ms": 0.8,
+            "status": "ok",
+            "captured": {
+              "error_code": 121
+            },
+            "capture": true,
+            "message": "write error"
+          },
+          {
+            "label": "insert negative total fails",
+            "op": "command",
+            "ms": 1.28,
+            "status": "ok",
+            "captured": {
+              "error_code": 121
+            },
+            "capture": true,
+            "message": "write error"
+          },
+          {
+            "label": "read back orders",
+            "op": "command",
+            "ms": 0.54,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": 20,
+                  "customer_id": "c020",
+                  "items": [
+                    {
+                      "qty": 1,
+                      "sku": "a1"
+                    }
+                  ],
+                  "placed_at": "2026-02-01T00:00:00.000+00:00",
+                  "status": "pending",
+                  "total": 49.99
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": "int",
+                  "customer_id": null,
+                  "items": [
+                    {
+                      "qty": "int",
+                      "sku": null
+                    }
+                  ],
+                  "placed_at": null,
+                  "status": null,
+                  "total": "double"
+                }
+              ]
+            }
+          }
+        ],
+        "seconds": 0.024
+      },
+      "target": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "create orders with validator",
+            "op": "command",
+            "ms": 7.1,
+            "status": "ok"
+          },
+          {
+            "label": "insert valid order",
+            "op": "command",
+            "ms": 0.83,
+            "status": "ok"
+          },
+          {
+            "label": "insert bad status fails",
+            "op": "command",
+            "ms": 1.01,
+            "status": "unexpected_success",
+            "captured": {
+              "no_error": true
+            },
+            "capture": true
+          },
+          {
+            "label": "insert negative total fails",
+            "op": "command",
+            "ms": 1.16,
+            "status": "unexpected_success",
+            "captured": {
+              "no_error": true
+            },
+            "capture": true
+          },
+          {
+            "label": "read back orders",
+            "op": "command",
+            "ms": 0.64,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": 20,
+                  "customer_id": "c020",
+                  "items": [
+                    {
+                      "qty": 1,
+                      "sku": "a1"
+                    }
+                  ],
+                  "placed_at": "2026-02-01T00:00:00.000+00:00",
+                  "status": "pending",
+                  "total": 49.99
+                },
+                {
+                  "_id": 21,
+                  "customer_id": "c021",
+                  "items": [
+                    {
+                      "qty": 1,
+                      "sku": "a1"
+                    }
+                  ],
+                  "placed_at": "2026-02-01T00:00:00.000+00:00",
+                  "status": "archived",
+                  "total": 10
+                },
+                {
+                  "_id": 22,
+                  "customer_id": "c022",
+                  "items": [
+                    {
+                      "qty": 1,
+                      "sku": "a1"
+                    }
+                  ],
+                  "placed_at": "2026-02-01T00:00:00.000+00:00",
+                  "status": "paid",
+                  "total": -5
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": "int",
+                  "customer_id": null,
+                  "items": [
+                    {
+                      "qty": "int",
+                      "sku": null
+                    }
+                  ],
+                  "placed_at": null,
+                  "status": null,
+                  "total": "double"
+                },
+                {
+                  "_id": "int",
+                  "customer_id": null,
+                  "items": [
+                    {
+                      "qty": "int",
+                      "sku": null
+                    }
+                  ],
+                  "placed_at": null,
+                  "status": null,
+                  "total": "int"
+                },
+                {
+                  "_id": "int",
+                  "customer_id": null,
+                  "items": [
+                    {
+                      "qty": "int",
+                      "sku": null
+                    }
+                  ],
+                  "placed_at": null,
+                  "status": null,
+                  "total": "int"
+                }
+              ]
+            }
+          }
+        ],
+        "seconds": 0.018
+      },
+      "verdict": "result_diff",
+      "detail": {
+        "silent": true,
+        "at_step": "insert bad status fails",
+        "difference": {
+          "path": "$.error_code",
+          "source": 121,
+          "target": "<absent>"
+        }
+      }
+    },
+    {
+      "probe_id": "F8.orders-types-update",
+      "feature_id": "F8",
+      "title": "$jsonSchema bsonType on items and placed_at plus update validation on orders",
+      "behavior": "orders $jsonSchema requires items as array and placed_at as date and validates updates to valid docs; violating inserts and updates fail with 121 while valid update succeeds",
+      "source": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "create orders with validator",
+            "op": "command",
+            "ms": 12.01,
+            "status": "ok"
+          },
+          {
+            "label": "insert valid order",
+            "op": "command",
+            "ms": 13.92,
+            "status": "ok"
+          },
+          {
+            "label": "insert items not array fails",
+            "op": "command",
+            "ms": 1.01,
+            "status": "ok",
+            "captured": {
+              "error_code": 121
+            },
+            "capture": true,
+            "message": "write error"
+          },
+          {
+            "label": "insert placed_at string fails",
+            "op": "command",
+            "ms": 0.6,
+            "status": "ok",
+            "captured": {
+              "error_code": 121
+            },
+            "capture": true,
+            "message": "write error"
+          },
+          {
+            "label": "invalid update total fails",
+            "op": "command",
+            "ms": 1.23,
+            "status": "ok",
+            "captured": {
+              "error_code": 121
+            },
+            "capture": true,
+            "message": "write error"
+          },
+          {
+            "label": "valid update status succeeds",
+            "op": "command",
+            "ms": 1.47,
+            "status": "ok"
+          },
+          {
+            "label": "read back orders",
+            "op": "command",
+            "ms": 0.76,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": 30,
+                  "customer_id": "c030",
+                  "items": [
+                    {
+                      "qty": 2,
+                      "sku": "a1"
+                    }
+                  ],
+                  "placed_at": "2026-03-01T00:00:00.000+00:00",
+                  "status": "shipped",
+                  "total": 49.99
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": "int",
+                  "customer_id": null,
+                  "items": [
+                    {
+                      "qty": "int",
+                      "sku": null
+                    }
+                  ],
+                  "placed_at": null,
+                  "status": null,
+                  "total": "double"
+                }
+              ]
+            }
+          }
+        ],
+        "seconds": 0.039
+      },
+      "target": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "create orders with validator",
+            "op": "command",
+            "ms": 5.31,
+            "status": "ok"
+          },
+          {
+            "label": "insert valid order",
+            "op": "command",
+            "ms": 1.44,
+            "status": "ok"
+          },
+          {
+            "label": "insert items not array fails",
+            "op": "command",
+            "ms": 1.13,
+            "status": "unexpected_success",
+            "captured": {
+              "no_error": true
+            },
+            "capture": true
+          },
+          {
+            "label": "insert placed_at string fails",
+            "op": "command",
+            "ms": 1.56,
+            "status": "unexpected_success",
+            "captured": {
+              "no_error": true
+            },
+            "capture": true
+          },
+          {
+            "label": "invalid update total fails",
+            "op": "command",
+            "ms": 1.8,
+            "status": "unexpected_success",
+            "captured": {
+              "no_error": true
+            },
+            "capture": true
+          },
+          {
+            "label": "valid update status succeeds",
+            "op": "command",
+            "ms": 1.3,
+            "status": "ok"
+          },
+          {
+            "label": "read back orders",
+            "op": "command",
+            "ms": 0.78,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": 30,
+                  "customer_id": "c030",
+                  "items": [
+                    {
+                      "qty": 2,
+                      "sku": "a1"
+                    }
+                  ],
+                  "placed_at": "2026-03-01T00:00:00.000+00:00",
+                  "status": "shipped",
+                  "total": -5
+                },
+                {
+                  "_id": 31,
+                  "customer_id": "c031",
+                  "items": {
+                    "sku": "a1"
+                  },
+                  "placed_at": "2026-03-01T00:00:00.000+00:00",
+                  "status": "pending",
+                  "total": 10
+                },
+                {
+                  "_id": 32,
+                  "customer_id": "c032",
+                  "items": [
+                    {
+                      "qty": 1,
+                      "sku": "a1"
+                    }
+                  ],
+                  "placed_at": "2026-03-01",
+                  "status": "pending",
+                  "total": 10
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": "int",
+                  "customer_id": null,
+                  "items": [
+                    {
+                      "qty": "int",
+                      "sku": null
+                    }
+                  ],
+                  "placed_at": null,
+                  "status": null,
+                  "total": "int"
+                },
+                {
+                  "_id": "int",
+                  "customer_id": null,
+                  "items": {
+                    "sku": null
+                  },
+                  "placed_at": null,
+                  "status": null,
+                  "total": "int"
+                },
+                {
+                  "_id": "int",
+                  "customer_id": null,
+                  "items": [
+                    {
+                      "qty": "int",
+                      "sku": null
+                    }
+                  ],
+                  "placed_at": null,
+                  "status": null,
+                  "total": "int"
+                }
+              ]
+            }
+          }
+        ],
+        "seconds": 0.02
+      },
+      "verdict": "result_diff",
+      "detail": {
+        "silent": true,
+        "at_step": "insert items not array fails",
+        "difference": {
+          "path": "$.error_code",
+          "source": 121,
+          "target": "<absent>"
+        }
+      }
+    },
+    {
+      "probe_id": "F9.text_weighted_ranking",
+      "feature_id": "F9",
+      "title": "Text search weighted ranking with active filter",
+      "behavior": "Active product keyword search uses $text with weighted text index (name:10, tags:5, description:1) and $meta textScore ranking; higher-weight field matches must rank first and inactive products must be filtered.",
+      "source": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "create-text-index",
+            "op": "command",
+            "ms": 25.68,
+            "status": "ok"
+          },
+          {
+            "label": "seed-products",
+            "op": "command",
+            "ms": 0.99,
+            "status": "ok"
+          },
+          {
+            "label": "search-premium-ranked",
+            "op": "command",
+            "ms": 0.46,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": 3,
+                  "category": "jackets",
+                  "name": "premium jacket",
+                  "price": 99
+                },
+                {
+                  "_id": 2,
+                  "category": "jackets",
+                  "name": "basic jacket",
+                  "price": 79
+                },
+                {
+                  "_id": 1,
+                  "category": "jackets",
+                  "name": "basic jacket",
+                  "price": 69
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": "int",
+                  "category": null,
+                  "name": null,
+                  "price": "int"
+                },
+                {
+                  "_id": "int",
+                  "category": null,
+                  "name": null,
+                  "price": "int"
+                },
+                {
+                  "_id": "int",
+                  "category": null,
+                  "name": null,
+                  "price": "int"
+                }
+              ]
+            }
+          }
+        ],
+        "seconds": 0.03
+      },
+      "target": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "create-text-index",
+            "op": "command",
+            "ms": 5.27,
+            "status": "ok"
+          },
+          {
+            "label": "seed-products",
+            "op": "command",
+            "ms": 2.64,
+            "status": "ok"
+          },
+          {
+            "label": "search-premium-ranked",
+            "op": "command",
+            "ms": 3.22,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": 3,
+                  "category": "jackets",
+                  "name": "premium jacket",
+                  "price": 99
+                },
+                {
+                  "_id": 2,
+                  "category": "jackets",
+                  "name": "basic jacket",
+                  "price": 79
+                },
+                {
+                  "_id": 1,
+                  "category": "jackets",
+                  "name": "basic jacket",
+                  "price": 69
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": "int",
+                  "category": null,
+                  "name": null,
+                  "price": "int"
+                },
+                {
+                  "_id": "int",
+                  "category": null,
+                  "name": null,
+                  "price": "int"
+                },
+                {
+                  "_id": "int",
+                  "category": null,
+                  "name": null,
+                  "price": "int"
+                }
+              ]
+            }
+          }
+        ],
+        "seconds": 0.016
+      },
+      "verdict": "equal",
+      "detail": {}
+    },
+    {
+      "probe_id": "F9.text_exclusion_term",
+      "feature_id": "F9",
+      "title": "Text search exclusion term with active filter",
+      "behavior": "Product search supports $text exclusion terms (e.g. premium -jacket) combined with active:true filter and textScore sort; excluded-term documents must not match.",
+      "source": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "create-text-index",
+            "op": "command",
+            "ms": 25.34,
+            "status": "ok"
+          },
+          {
+            "label": "seed-products",
+            "op": "command",
+            "ms": 1.0,
+            "status": "ok"
+          },
+          {
+            "label": "search-exclusion",
+            "op": "command",
+            "ms": 0.72,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": 2,
+                  "category": "boots",
+                  "name": "premium boots",
+                  "price": 89
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": "int",
+                  "category": null,
+                  "name": null,
+                  "price": "int"
+                }
+              ]
+            }
+          }
+        ],
+        "seconds": 0.03
+      },
+      "target": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "create-text-index",
+            "op": "command",
+            "ms": 6.59,
+            "status": "ok"
+          },
+          {
+            "label": "seed-products",
+            "op": "command",
+            "ms": 1.11,
+            "status": "ok"
+          },
+          {
+            "label": "search-exclusion",
+            "op": "command",
+            "ms": 3.62,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": 2,
+                  "category": "boots",
+                  "name": "premium boots",
+                  "price": 89
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": "int",
+                  "category": null,
+                  "name": null,
+                  "price": "int"
+                }
+              ]
+            }
+          }
+        ],
+        "seconds": 0.02
+      },
+      "verdict": "equal",
+      "detail": {}
+    },
+    {
+      "probe_id": "F9.text_search_active_ranked",
+      "feature_id": "F9",
+      "title": "Text search active products ranked by textScore",
+      "behavior": "Keyword product search uses $text index over name, description and tags with weights and returns only active products sorted by textScore ranking.",
+      "source": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "create-text-index",
+            "op": "command",
+            "ms": 23.74,
+            "status": "ok"
+          },
+          {
+            "label": "seed-products",
+            "op": "command",
+            "ms": 1.52,
+            "status": "ok"
+          },
+          {
+            "label": "search-premium-active-ranked",
+            "op": "command",
+            "ms": 0.66,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": 1,
+                  "category": "jackets",
+                  "name": "premium jacket",
+                  "price": 99
+                },
+                {
+                  "_id": 2,
+                  "category": "jackets",
+                  "name": "leather jacket",
+                  "price": 99
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": "int",
+                  "category": null,
+                  "name": null,
+                  "price": "int"
+                },
+                {
+                  "_id": "int",
+                  "category": null,
+                  "name": null,
+                  "price": "int"
+                }
+              ]
+            }
+          }
+        ],
+        "seconds": 0.028
+      },
+      "target": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "create-text-index",
+            "op": "command",
+            "ms": 5.31,
+            "status": "ok"
+          },
+          {
+            "label": "seed-products",
+            "op": "command",
+            "ms": 2.26,
+            "status": "ok"
+          },
+          {
+            "label": "search-premium-active-ranked",
+            "op": "command",
+            "ms": 2.0,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": 1,
+                  "category": "jackets",
+                  "name": "premium jacket",
+                  "price": 99
+                },
+                {
+                  "_id": 2,
+                  "category": "jackets",
+                  "name": "leather jacket",
+                  "price": 99
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": "int",
+                  "category": null,
+                  "name": null,
+                  "price": "int"
+                },
+                {
+                  "_id": "int",
+                  "category": null,
+                  "name": null,
+                  "price": "int"
+                }
+              ]
+            }
+          }
+        ],
+        "seconds": 0.017
+      },
+      "verdict": "equal",
+      "detail": {}
+    },
+    {
+      "probe_id": "F10.cart-upsert-fetch-convert-discard",
+      "feature_id": "F10",
+      "title": "Cart upsert fetch convert conditional delete",
+      "behavior": "Touching a cart must upsert by _id marking active, fetching uses find by customer_id+status, converting updates status/order_id by _id, discarding deletes only when still active",
+      "source": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "touch-upsert",
+            "op": "command",
+            "ms": 13.42,
+            "status": "ok"
+          },
+          {
+            "label": "fetch-by-customer-status",
+            "op": "command",
+            "ms": 1.22,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": "cart1",
+                  "customer_id": "custA",
+                  "status": "active"
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": null,
+                  "customer_id": null,
+                  "status": null
+                }
+              ]
+            }
+          },
+          {
+            "label": "convert-cart",
+            "op": "command",
+            "ms": 2.32,
+            "status": "ok"
+          },
+          {
+            "label": "fetch-converted",
+            "op": "command",
+            "ms": 0.37,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": "cart1",
+                  "customer_id": "custA",
+                  "order_id": "O1",
+                  "status": "converted"
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": null,
+                  "customer_id": null,
+                  "order_id": null,
+                  "status": null
+                }
+              ]
+            }
+          },
+          {
+            "label": "discard-active-only-miss",
+            "op": "command",
+            "ms": 0.36,
+            "status": "ok"
+          },
+          {
+            "label": "verify-still-present",
+            "op": "command",
+            "ms": 0.26,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": "cart1",
+                  "customer_id": "custA",
+                  "order_id": "O1",
+                  "status": "converted"
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": null,
+                  "customer_id": null,
+                  "order_id": null,
+                  "status": null
+                }
+              ]
+            }
+          }
+        ],
+        "seconds": 0.12
+      },
+      "target": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "touch-upsert",
+            "op": "command",
+            "ms": 6.61,
+            "status": "ok"
+          },
+          {
+            "label": "fetch-by-customer-status",
+            "op": "command",
+            "ms": 3.49,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": "cart1",
+                  "customer_id": "custA",
+                  "status": "active"
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": null,
+                  "customer_id": null,
+                  "status": null
+                }
+              ]
+            }
+          },
+          {
+            "label": "convert-cart",
+            "op": "command",
+            "ms": 0.83,
+            "status": "ok"
+          },
+          {
+            "label": "fetch-converted",
+            "op": "command",
+            "ms": 0.96,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": "cart1",
+                  "customer_id": "custA",
+                  "order_id": "O1",
+                  "status": "converted"
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": null,
+                  "customer_id": null,
+                  "order_id": null,
+                  "status": null
+                }
+              ]
+            }
+          },
+          {
+            "label": "discard-active-only-miss",
+            "op": "command",
+            "ms": 1.19,
+            "status": "ok"
+          },
+          {
+            "label": "verify-still-present",
+            "op": "command",
+            "ms": 1.13,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": "cart1",
+                  "customer_id": "custA",
+                  "order_id": "O1",
+                  "status": "converted"
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": null,
+                  "customer_id": null,
+                  "order_id": null,
+                  "status": null
+                }
+              ]
+            }
+          }
+        ],
+        "seconds": 0.03
+      },
+      "verdict": "equal",
+      "detail": {}
+    },
+    {
+      "probe_id": "F10.order-cas-history-find",
+      "feature_id": "F10",
+      "title": "Order compare-and-set with history and filtered finds",
+      "behavior": "Order status must compare-and-set on _id+status $in while $set status/updated_at and $push history with no modification on stale prior set, history uses find by customer_id with projection sort limit, open orders uses find by status with sort limit and count",
+      "source": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "insert-orders",
+            "op": "command",
+            "ms": 11.64,
+            "status": "ok"
+          },
+          {
+            "label": "cas-success",
+            "op": "command",
+            "ms": 2.18,
+            "status": "ok"
+          },
+          {
+            "label": "verify-paid",
+            "op": "command",
+            "ms": 1.07,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": "O10",
+                  "customer_id": "custB",
+                  "history": [
+                    "paid"
+                  ],
+                  "placed_at": "2026-01-01T00:00:00.000+00:00",
+                  "status": "paid",
+                  "updated_at": "2026-01-10T00:00:00.000+00:00"
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": null,
+                  "customer_id": null,
+                  "history": [
+                    null
+                  ],
+                  "placed_at": null,
+                  "status": null,
+                  "updated_at": null
+                }
+              ]
+            }
+          },
+          {
+            "label": "cas-stale-noop",
+            "op": "command",
+            "ms": 0.55,
+            "status": "ok"
+          },
+          {
+            "label": "verify-still-paid",
+            "op": "command",
+            "ms": 0.39,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": "O10",
+                  "customer_id": "custB",
+                  "history": [
+                    "paid"
+                  ],
+                  "placed_at": "2026-01-01T00:00:00.000+00:00",
+                  "status": "paid",
+                  "updated_at": "2026-01-10T00:00:00.000+00:00"
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": null,
+                  "customer_id": null,
+                  "history": [
+                    null
+                  ],
+                  "placed_at": null,
+                  "status": null,
+                  "updated_at": null
+                }
+              ]
+            }
+          },
+          {
+            "label": "history-by-customer",
+            "op": "command",
+            "ms": 0.36,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": "O11",
+                  "status": "placed"
+                },
+                {
+                  "_id": "O10",
+                  "status": "paid"
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": null,
+                  "status": null
+                },
+                {
+                  "_id": null,
+                  "status": null
+                }
+              ]
+            }
+          },
+          {
+            "label": "open-by-status",
+            "op": "command",
+            "ms": 0.3,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": "O11",
+                  "status": "placed"
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": null,
+                  "status": null
+                }
+              ]
+            }
+          },
+          {
+            "label": "count-by-customer",
+            "op": "command",
+            "ms": 0.31,
+            "status": "ok",
+            "captured": {
+              "n": 2
+            },
+            "capture": true,
+            "types": {
+              "n": "int"
+            }
+          }
+        ],
+        "seconds": 0.118
+      },
+      "target": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "insert-orders",
+            "op": "command",
+            "ms": 5.35,
+            "status": "ok"
+          },
+          {
+            "label": "cas-success",
+            "op": "command",
+            "ms": 0.95,
+            "status": "ok"
+          },
+          {
+            "label": "verify-paid",
+            "op": "command",
+            "ms": 0.62,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": "O10",
+                  "customer_id": "custB",
+                  "history": [
+                    "paid"
+                  ],
+                  "placed_at": "2026-01-01T00:00:00.000+00:00",
+                  "status": "paid",
+                  "updated_at": "2026-01-10T00:00:00.000+00:00"
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": null,
+                  "customer_id": null,
+                  "history": [
+                    null
+                  ],
+                  "placed_at": null,
+                  "status": null,
+                  "updated_at": null
+                }
+              ]
+            }
+          },
+          {
+            "label": "cas-stale-noop",
+            "op": "command",
+            "ms": 0.65,
+            "status": "ok"
+          },
+          {
+            "label": "verify-still-paid",
+            "op": "command",
+            "ms": 0.53,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": "O10",
+                  "customer_id": "custB",
+                  "history": [
+                    "paid"
+                  ],
+                  "placed_at": "2026-01-01T00:00:00.000+00:00",
+                  "status": "paid",
+                  "updated_at": "2026-01-10T00:00:00.000+00:00"
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": null,
+                  "customer_id": null,
+                  "history": [
+                    null
+                  ],
+                  "placed_at": null,
+                  "status": null,
+                  "updated_at": null
+                }
+              ]
+            }
+          },
+          {
+            "label": "history-by-customer",
+            "op": "command",
+            "ms": 0.96,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": "O11",
+                  "status": "placed"
+                },
+                {
+                  "_id": "O10",
+                  "status": "paid"
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": null,
+                  "status": null
+                },
+                {
+                  "_id": null,
+                  "status": null
+                }
+              ]
+            }
+          },
+          {
+            "label": "open-by-status",
+            "op": "command",
+            "ms": 0.58,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": "O11",
+                  "status": "placed"
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": null,
+                  "status": null
+                }
+              ]
+            }
+          },
+          {
+            "label": "count-by-customer",
+            "op": "command",
+            "ms": 0.92,
+            "status": "ok",
+            "captured": {
+              "n": 2
+            },
+            "capture": true,
+            "types": {
+              "n": "int"
+            }
+          }
+        ],
+        "seconds": 0.026
+      },
+      "verdict": "equal",
+      "detail": {}
+    },
+    {
+      "probe_id": "X:graphLookup.graphlookup-referral-chain",
+      "feature_id": "X:graphLookup",
+      "title": "Referral chain via $graphLookup with depth tracking",
+      "behavior": "referral chain report recursively follows referred_by to _id in customers and collects ancestors as referrers with depth tracking",
+      "source": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "seed customers chain",
+            "op": "command",
+            "ms": 11.74,
+            "status": "ok"
+          },
+          {
+            "label": "graphLookup ancestors with depth",
+            "op": "command",
+            "ms": 1.41,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "ancestor": "carol",
+                  "depth": 0
+                },
+                {
+                  "ancestor": "bob",
+                  "depth": 1
+                },
+                {
+                  "ancestor": "alice",
+                  "depth": 2
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "ancestor": null,
+                  "depth": "int"
+                },
+                {
+                  "ancestor": null,
+                  "depth": "int"
+                },
+                {
+                  "ancestor": null,
+                  "depth": "int"
+                }
+              ]
+            }
+          }
+        ],
+        "seconds": 0.015
+      },
+      "target": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "seed customers chain",
+            "op": "command",
+            "ms": 6.09,
+            "status": "ok"
+          },
+          {
+            "label": "graphLookup ancestors with depth",
+            "op": "command",
+            "ms": 3.94,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "ancestor": "carol",
+                  "depth": 0
+                },
+                {
+                  "ancestor": "bob",
+                  "depth": 1
+                },
+                {
+                  "ancestor": "alice",
+                  "depth": 2
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "ancestor": null,
+                  "depth": "int"
+                },
+                {
+                  "ancestor": null,
+                  "depth": "int"
+                },
+                {
+                  "ancestor": null,
+                  "depth": "int"
+                }
+              ]
+            }
+          }
+        ],
+        "seconds": 0.024
+      },
+      "verdict": "equal",
+      "detail": {}
     }
   ],
   "replay": {
@@ -863,88 +4982,88 @@
             "F10"
           ],
           "source_ms_samples": [
+            0.8,
+            0.72,
+            0.58,
+            0.52,
+            0.48,
+            0.46,
+            0.52,
+            0.48,
+            0.46,
+            0.43,
+            0.43,
+            0.57,
+            0.47,
+            0.43,
+            0.45,
+            0.43,
+            0.51,
+            0.46,
+            0.34,
+            0.33,
+            0.4,
             0.37,
-            0.32,
-            0.31,
-            0.31,
-            1.23,
-            0.49,
-            0.47,
-            0.27,
-            0.29,
-            0.27,
-            0.25,
-            1.07,
-            0.24,
-            0.25,
-            0.23,
-            0.24,
-            0.25,
-            0.27,
-            0.29,
-            0.47,
-            0.36,
-            0.27,
+            0.38,
+            0.33,
             0.3,
-            0.26,
-            0.25,
-            0.27,
-            0.23,
-            0.24,
-            0.29,
-            0.26,
-            0.27,
-            0.26,
-            0.29,
-            0.27,
-            0.26,
+            0.33,
             0.35,
-            0.26,
-            0.27,
-            0.27,
-            0.28
+            0.32,
+            0.29,
+            0.31,
+            0.3,
+            0.32,
+            0.37,
+            0.31,
+            0.29,
+            0.32,
+            0.44,
+            0.34,
+            0.3,
+            0.33
           ],
           "target_ms_samples": [
+            1.1,
+            1.1,
+            0.74,
+            0.66,
+            0.61,
+            0.67,
+            0.82,
+            0.7,
+            0.6,
+            0.57,
+            0.51,
+            0.52,
+            0.56,
+            0.74,
+            1.0,
+            0.63,
+            0.51,
+            0.49,
+            0.5,
+            0.41,
+            0.39,
+            0.39,
+            0.51,
+            0.43,
+            0.41,
+            0.35,
             0.41,
             0.43,
-            0.47,
-            0.35,
-            0.4,
-            0.37,
-            0.47,
-            0.43,
-            0.44,
-            0.38,
-            0.36,
-            0.4,
-            0.34,
-            0.3,
-            0.32,
-            0.29,
-            0.35,
             0.46,
-            0.38,
-            0.52,
-            0.45,
-            0.32,
-            0.33,
-            0.34,
-            0.35,
-            0.34,
-            0.35,
-            0.29,
-            1.52,
-            0.37,
             0.36,
-            0.34,
-            0.35,
-            0.32,
-            0.32,
-            0.34,
-            0.35,
-            0.31,
-            0.35,
-            0.32
+            0.46,
+            0.43,
+            0.48,
+            0.41,
+            0.38,
+            0.4,
+            0.54,
+            0.38,
+            0.37,
+            0.42
           ],
           "target_timeouts": 0,
           "stages": [],
@@ -955,10 +5074,10 @@
           "target_errors": 0,
           "source_errors": 0,
           "budget_exhausted": false,
-          "source_p50_ms": 0.27,
-          "source_p95_ms": 1.07,
-          "target_p50_ms": 0.35,
-          "target_p95_ms": 0.52,
+          "source_p50_ms": 0.4,
+          "source_p95_ms": 0.72,
+          "target_p50_ms": 0.5,
+          "target_p95_ms": 1.1,
           "first_difference": null,
           "difference_kinds": {},
           "ranking_only": false,
@@ -972,88 +5091,88 @@
             "F6"
           ],
           "source_ms_samples": [
-            0.27,
-            0.29,
-            0.28,
+            0.33,
+            0.36,
+            0.34,
+            0.34,
+            0.33,
+            0.35,
             0.33,
             0.31,
-            0.3,
-            0.29,
-            0.26,
-            0.28,
-            0.29,
-            0.26,
-            0.31,
-            0.27,
-            0.29,
-            0.26,
-            0.27,
-            0.62,
-            0.26,
-            0.31,
-            0.27,
-            0.26,
-            0.28,
-            0.28,
-            0.27,
-            0.28,
-            0.27,
-            0.26,
-            0.28,
-            0.26,
             0.32,
-            0.3,
-            0.27,
-            0.27,
-            0.27,
-            0.27,
-            0.28,
-            0.3,
-            0.27,
+            0.35,
             0.29,
-            0.26
+            0.39,
+            0.38,
+            0.33,
+            0.3,
+            0.4,
+            0.42,
+            0.35,
+            0.89,
+            0.46,
+            0.36,
+            0.5,
+            0.36,
+            0.44,
+            0.35,
+            0.37,
+            0.32,
+            0.29,
+            0.28,
+            1.05,
+            0.32,
+            0.29,
+            0.32,
+            0.33,
+            0.29,
+            0.39,
+            0.35,
+            0.28,
+            0.32,
+            0.29
           ],
           "target_ms_samples": [
             0.82,
-            0.77,
-            0.36,
-            0.56,
-            0.67,
-            0.59,
-            0.77,
-            0.52,
-            0.69,
-            0.43,
-            0.77,
-            0.36,
-            0.36,
+            0.93,
+            0.46,
+            0.6,
             0.84,
-            0.43,
-            0.62,
-            0.79,
-            0.45,
-            0.75,
-            0.4,
-            0.36,
-            0.44,
-            0.65,
-            0.78,
-            0.35,
-            0.62,
-            0.62,
+            0.6,
+            0.88,
+            0.56,
             0.82,
-            0.77,
-            0.85,
-            0.82,
-            0.78,
+            0.51,
+            0.87,
+            0.46,
             0.5,
-            0.7,
+            0.89,
+            0.56,
             0.76,
-            0.71,
+            0.95,
+            0.73,
+            3.71,
+            0.55,
+            0.63,
+            0.64,
+            0.92,
+            1.03,
+            0.47,
+            0.72,
+            0.64,
+            0.79,
+            0.82,
+            0.85,
+            0.86,
+            0.78,
+            0.7,
+            0.75,
+            0.77,
             0.74,
-            0.74,
-            0.74,
-            0.76
+            0.78,
+            0.79,
+            0.81,
+            0.75
           ],
           "target_timeouts": 0,
           "stages": [],
@@ -1064,10 +5183,10 @@
           "target_errors": 0,
           "source_errors": 0,
           "budget_exhausted": false,
-          "source_p50_ms": 0.28,
-          "source_p95_ms": 0.33,
-          "target_p50_ms": 0.7,
-          "target_p95_ms": 0.84,
+          "source_p50_ms": 0.34,
+          "source_p95_ms": 0.89,
+          "target_p50_ms": 0.77,
+          "target_p95_ms": 1.03,
           "first_difference": {
             "path": "$.docs.length",
             "source": 1,
@@ -1087,88 +5206,88 @@
             "F9"
           ],
           "source_ms_samples": [
-            0.45,
-            0.84,
-            0.71,
-            0.74,
-            0.71,
-            0.51,
-            0.72,
-            0.74,
-            0.77,
-            0.73,
-            0.66,
-            0.51,
-            0.56,
-            0.61,
+            0.54,
+            1.18,
+            1.01,
+            0.98,
+            0.94,
+            1.92,
+            1.35,
+            1.02,
+            0.93,
+            0.87,
+            0.89,
             0.7,
-            0.53,
-            0.49,
-            0.63,
-            0.51,
-            0.59,
-            0.57,
-            0.67,
-            0.69,
-            0.74,
-            0.64,
-            0.88,
+            0.84,
+            0.81,
+            1.06,
             0.75,
-            0.65,
+            0.94,
+            0.86,
             0.76,
-            0.47,
-            0.76,
-            0.76,
-            0.57,
-            0.67,
-            0.55,
             0.8,
-            0.68,
-            0.46,
-            0.49,
-            0.52
+            0.81,
+            0.8,
+            1.0,
+            1.06,
+            0.94,
+            1.04,
+            0.91,
+            1.74,
+            1.16,
+            1.14,
+            1.2,
+            0.92,
+            0.64,
+            1.27,
+            0.65,
+            0.98,
+            0.86,
+            0.62,
+            0.61,
+            0.8
           ],
           "target_ms_samples": [
-            0.97,
-            1.74,
-            1.66,
-            2.53,
-            1.55,
-            1.05,
-            1.52,
-            1.51,
-            1.82,
-            1.6,
-            1.74,
-            1.65,
-            1.61,
-            1.63,
-            1.53,
-            1.64,
-            1.67,
-            1.54,
-            1.01,
-            1.7,
-            1.64,
-            1.72,
-            1.59,
-            1.74,
-            1.69,
+            1.09,
+            4.03,
+            1.87,
+            2.09,
+            1.76,
+            1.4,
             1.79,
-            1.52,
-            1.54,
-            1.62,
-            1.04,
-            1.58,
+            1.94,
+            1.99,
+            1.79,
+            1.99,
+            1.91,
+            1.91,
+            1.84,
+            1.73,
+            1.76,
+            1.96,
+            1.85,
+            1.3,
+            1.86,
+            1.74,
+            2.27,
+            1.65,
+            3.02,
+            1.84,
+            1.72,
+            1.68,
+            1.88,
+            2.2,
+            1.74,
+            1.83,
+            1.87,
+            1.64,
+            2.37,
+            1.74,
+            1.83,
+            1.82,
+            1.65,
             1.63,
-            1.66,
-            1.51,
-            1.67,
-            1.59,
-            1.56,
-            1.53,
-            1.53,
-            1.59
+            1.94
           ],
           "target_timeouts": 0,
           "stages": [],
@@ -1179,10 +5298,10 @@
           "target_errors": 0,
           "source_errors": 0,
           "budget_exhausted": false,
-          "source_p50_ms": 0.67,
-          "source_p95_ms": 0.84,
-          "target_p50_ms": 1.61,
-          "target_p95_ms": 1.82,
+          "source_p50_ms": 0.93,
+          "source_p95_ms": 1.74,
+          "target_p50_ms": 1.84,
+          "target_p95_ms": 3.02,
           "first_difference": {
             "path": "$.docs[0]._id",
             "source": "SKU-0062",
@@ -1202,88 +5321,88 @@
             "F10"
           ],
           "source_ms_samples": [
-            0.35,
-            0.41,
-            0.41,
-            0.37,
-            0.4,
-            0.4,
-            0.53,
-            0.44,
-            0.47,
-            0.43,
-            0.5,
-            0.38,
-            0.47,
-            0.42,
             0.39,
-            0.39,
-            0.42,
-            0.32,
-            0.39,
-            0.37,
-            0.37,
-            0.33,
-            0.36,
-            3.13,
-            0.53,
-            0.31,
-            0.34,
-            0.34,
-            0.34,
-            0.33,
-            0.45,
-            0.33,
-            0.32,
-            0.43,
-            0.34,
-            0.62,
-            0.74,
-            0.36,
             0.46,
-            0.36
+            0.44,
+            0.39,
+            0.43,
+            0.44,
+            0.5,
+            0.49,
+            0.5,
+            0.41,
+            0.38,
+            0.36,
+            0.38,
+            0.48,
+            0.56,
+            0.59,
+            0.74,
+            0.44,
+            0.49,
+            0.63,
+            0.6,
+            0.53,
+            0.64,
+            0.43,
+            0.47,
+            0.44,
+            0.41,
+            0.39,
+            0.43,
+            0.37,
+            0.51,
+            0.44,
+            0.41,
+            0.71,
+            0.63,
+            0.44,
+            0.42,
+            0.44,
+            0.42,
+            0.46
           ],
           "target_ms_samples": [
-            0.43,
-            0.49,
-            0.47,
+            0.4,
             0.51,
-            0.48,
-            0.48,
+            0.5,
+            0.41,
+            0.49,
+            0.46,
+            0.7,
+            0.65,
+            0.66,
             0.59,
-            0.44,
             0.49,
             0.45,
-            0.62,
-            0.52,
-            0.66,
-            0.6,
-            0.44,
             0.41,
-            0.53,
-            0.37,
-            0.45,
-            2.39,
-            0.42,
-            0.34,
             0.47,
-            0.37,
-            0.54,
-            0.4,
-            0.43,
-            0.37,
-            0.41,
-            0.4,
             0.52,
-            0.36,
-            0.41,
-            0.45,
-            0.54,
-            0.79,
-            0.52,
-            0.43,
+            0.48,
+            0.57,
+            0.46,
             0.6,
-            0.54
+            0.66,
+            0.65,
+            0.48,
+            0.68,
+            0.67,
+            0.56,
+            0.4,
+            0.56,
+            0.75,
+            0.42,
+            0.43,
+            0.64,
+            0.56,
+            0.64,
+            0.72,
+            0.4,
+            0.45,
+            0.42,
+            0.49,
+            0.39,
+            0.44
           ],
           "target_timeouts": 0,
           "stages": [],
@@ -1294,10 +5413,10 @@
           "target_errors": 0,
           "source_errors": 0,
           "budget_exhausted": false,
-          "source_p50_ms": 0.39,
-          "source_p95_ms": 0.74,
-          "target_p50_ms": 0.47,
-          "target_p95_ms": 0.79,
+          "source_p50_ms": 0.44,
+          "source_p95_ms": 0.71,
+          "target_p50_ms": 0.5,
+          "target_p95_ms": 0.72,
           "first_difference": null,
           "difference_kinds": {},
           "ranking_only": false,
@@ -1311,88 +5430,88 @@
             "F10"
           ],
           "source_ms_samples": [
-            0.32,
+            0.29,
             0.31,
-            0.4,
-            0.43,
-            0.48,
+            0.36,
+            0.45,
+            0.39,
             0.33,
             0.29,
-            0.27,
-            0.27,
-            0.43,
-            0.32,
-            0.29,
-            0.28,
-            0.29,
-            0.27,
-            0.31,
-            0.44,
-            0.38,
-            0.37,
-            0.29,
-            0.29,
-            0.28,
-            0.28,
-            0.25,
-            0.27,
-            0.27,
-            0.26,
             0.3,
-            0.26,
-            0.26,
-            0.26,
-            0.27,
+            0.28,
+            0.3,
+            0.3,
+            0.29,
+            0.3,
             0.27,
             0.29,
             0.48,
+            0.47,
+            0.35,
+            0.43,
             0.27,
-            0.39,
+            0.28,
+            0.27,
+            0.35,
+            0.25,
             0.26,
-            0.29,
-            0.28
+            0.41,
+            0.5,
+            0.31,
+            0.3,
+            0.44,
+            0.44,
+            0.31,
+            0.27,
+            0.27,
+            0.3,
+            0.28,
+            0.26,
+            0.32,
+            0.4,
+            0.44
           ],
           "target_ms_samples": [
-            0.34,
+            0.33,
+            0.38,
             0.37,
+            0.33,
+            0.57,
+            0.54,
             0.46,
-            0.34,
-            0.61,
+            0.39,
             0.38,
-            0.37,
-            0.38,
-            0.42,
-            0.48,
-            0.36,
-            0.35,
-            0.36,
-            0.36,
-            0.4,
-            0.36,
-            0.58,
-            0.55,
-            0.45,
-            0.33,
-            0.39,
-            0.42,
-            0.39,
-            0.34,
-            0.37,
-            0.36,
-            0.39,
-            0.33,
-            0.38,
-            0.4,
-            0.36,
-            0.34,
-            0.39,
             0.4,
             0.49,
-            0.37,
+            0.47,
+            0.35,
+            0.36,
+            0.44,
+            0.56,
+            0.5,
+            0.36,
+            0.36,
+            0.35,
+            0.38,
+            0.36,
+            0.48,
             0.33,
+            0.4,
+            0.42,
+            0.48,
             0.32,
+            0.43,
+            0.67,
+            0.47,
+            0.41,
             0.39,
-            0.35
+            0.34,
+            0.37,
+            0.35,
+            0.36,
+            0.42,
+            0.5,
+            0.78
           ],
           "target_timeouts": 0,
           "stages": [],
@@ -1403,10 +5522,10 @@
           "target_errors": 0,
           "source_errors": 0,
           "budget_exhausted": false,
-          "source_p50_ms": 0.29,
+          "source_p50_ms": 0.3,
           "source_p95_ms": 0.48,
-          "target_p50_ms": 0.38,
-          "target_p95_ms": 0.58,
+          "target_p50_ms": 0.4,
+          "target_p95_ms": 0.67,
           "first_difference": null,
           "difference_kinds": {},
           "ranking_only": false,
@@ -1420,88 +5539,88 @@
             "F2"
           ],
           "source_ms_samples": [
-            0.64,
-            0.47,
-            0.47,
-            0.51,
-            0.47,
-            0.46,
-            0.54,
-            0.42,
-            0.44,
-            0.42,
-            0.63,
-            0.4,
-            0.46,
-            0.45,
-            0.52,
-            0.49,
-            0.45,
-            0.41,
-            0.48,
-            0.41,
-            0.48,
-            0.4,
-            0.5,
-            0.39,
-            0.52,
-            0.45,
-            0.51,
-            0.42,
-            0.49,
-            0.47,
-            0.49,
-            0.38,
-            0.46,
-            0.44,
-            0.59,
-            0.43,
             0.55,
-            0.42,
+            0.52,
+            0.55,
+            0.57,
+            0.46,
+            0.55,
+            0.46,
+            0.66,
+            0.65,
+            0.75,
+            0.61,
+            0.55,
+            0.69,
             0.64,
-            0.36
+            0.55,
+            0.68,
+            0.56,
+            0.63,
+            0.55,
+            0.73,
+            0.51,
+            0.73,
+            0.58,
+            0.7,
+            0.72,
+            0.73,
+            0.59,
+            0.72,
+            0.66,
+            0.96,
+            0.82,
+            0.71,
+            0.44,
+            2.3,
+            0.63,
+            1.28,
+            0.71,
+            0.81,
+            0.59,
+            0.58
           ],
           "target_ms_samples": [
-            3.64,
             3.66,
-            3.67,
-            3.7,
-            3.62,
-            3.61,
-            3.79,
-            3.59,
-            3.66,
-            3.76,
-            3.7,
-            3.56,
-            3.49,
-            3.64,
-            3.68,
             3.6,
-            3.62,
-            3.49,
-            3.55,
-            3.51,
-            3.62,
-            3.55,
-            3.71,
-            3.55,
-            3.48,
-            3.62,
-            3.78,
-            3.58,
+            4.92,
+            3.69,
             3.6,
-            3.6,
+            3.69,
             3.73,
-            3.58,
-            3.62,
-            3.52,
-            3.57,
-            3.56,
-            3.59,
-            3.65,
-            3.64,
-            3.45
+            4.04,
+            4.14,
+            3.89,
+            3.66,
+            3.7,
+            3.75,
+            3.71,
+            3.78,
+            4.04,
+            3.86,
+            3.83,
+            3.85,
+            3.79,
+            3.78,
+            3.81,
+            3.99,
+            3.75,
+            3.8,
+            3.88,
+            3.71,
+            3.85,
+            3.79,
+            4.47,
+            4.41,
+            3.78,
+            3.91,
+            3.77,
+            3.76,
+            6.04,
+            4.15,
+            3.96,
+            3.79,
+            3.77
           ],
           "target_timeouts": 0,
           "stages": [
@@ -1517,10 +5636,10 @@
           "target_errors": 0,
           "source_errors": 0,
           "budget_exhausted": false,
-          "source_p50_ms": 0.47,
-          "source_p95_ms": 0.64,
-          "target_p50_ms": 3.62,
-          "target_p95_ms": 3.78,
+          "source_p50_ms": 0.64,
+          "source_p95_ms": 1.28,
+          "target_p50_ms": 3.79,
+          "target_p95_ms": 4.92,
           "first_difference": null,
           "difference_kinds": {},
           "ranking_only": false,
@@ -1532,88 +5651,88 @@
           "path": "online",
           "features": [],
           "source_ms_samples": [
-            0.54,
-            0.35,
-            0.41,
             0.57,
+            0.39,
+            0.42,
+            0.4,
+            0.37,
+            0.46,
+            0.41,
+            0.56,
             0.5,
-            0.37,
+            0.45,
+            0.42,
+            0.42,
             0.39,
+            0.38,
+            0.43,
+            0.45,
+            0.42,
+            0.38,
+            0.4,
+            0.45,
             0.41,
-            0.39,
+            0.38,
+            0.37,
+            0.47,
+            0.38,
+            0.37,
             0.37,
             0.35,
-            0.51,
-            0.5,
-            0.38,
-            0.38,
-            0.38,
-            0.37,
-            0.58,
-            0.37,
-            0.39,
-            0.39,
-            0.34,
-            0.37,
-            0.35,
-            0.33,
-            0.32,
-            0.32,
-            0.33,
-            0.32,
-            0.32,
-            0.32,
-            0.34,
-            0.33,
-            0.31,
-            0.35,
-            0.33,
+            0.53,
             0.41,
-            0.55,
-            0.41,
-            0.43
+            0.37,
+            0.36,
+            0.35,
+            0.4,
+            0.43,
+            0.38,
+            0.35,
+            0.39,
+            0.43,
+            0.39
           ],
           "target_ms_samples": [
+            0.49,
             0.52,
-            0.54,
-            0.53,
+            0.47,
+            0.48,
+            0.76,
+            0.57,
             0.49,
             0.56,
+            0.55,
             0.52,
+            0.51,
+            0.47,
             0.46,
-            0.41,
-            0.49,
-            0.46,
-            0.43,
-            0.45,
             0.48,
-            0.43,
-            0.41,
+            0.5,
+            0.53,
+            0.46,
             0.4,
-            0.4,
-            0.61,
-            0.67,
-            0.43,
-            0.43,
-            0.39,
-            0.41,
-            0.38,
-            0.45,
-            0.35,
-            0.36,
-            0.37,
-            0.42,
-            0.36,
             0.44,
-            0.35,
+            2.12,
+            0.46,
+            0.41,
+            0.43,
+            0.37,
+            0.47,
+            0.46,
             0.4,
-            0.36,
+            0.44,
+            0.47,
+            0.41,
+            0.43,
+            0.38,
+            0.39,
             0.49,
+            0.44,
+            0.38,
             0.42,
-            0.58,
-            0.54,
-            0.42,
-            0.41
+            0.41,
+            0.45,
+            0.4
           ],
           "target_timeouts": 0,
           "stages": [
@@ -1627,10 +5746,10 @@
           "target_errors": 0,
           "source_errors": 0,
           "budget_exhausted": false,
-          "source_p50_ms": 0.37,
-          "source_p95_ms": 0.57,
-          "target_p50_ms": 0.43,
-          "target_p95_ms": 0.61,
+          "source_p50_ms": 0.4,
+          "source_p95_ms": 0.56,
+          "target_p50_ms": 0.46,
+          "target_p95_ms": 0.76,
           "first_difference": null,
           "difference_kinds": {},
           "ranking_only": false,
@@ -1644,88 +5763,88 @@
             "F10"
           ],
           "source_ms_samples": [
-            0.87,
-            0.86,
-            1.74,
-            1.28,
-            0.8,
-            0.67,
-            0.87,
-            0.61,
-            0.98,
-            1.39,
-            0.99,
-            0.65,
-            0.65,
-            0.94,
-            0.6,
-            0.62,
-            0.63,
-            0.91,
-            0.7,
-            0.59,
-            0.67,
-            1.05,
-            0.69,
-            0.85,
-            0.76,
-            0.65,
-            0.63,
-            0.63,
-            0.7,
-            1.15,
-            0.71,
-            1.09,
+            0.9,
+            1.71,
+            2.94,
+            1.53,
+            1.13,
+            0.79,
+            0.81,
             0.74,
-            0.7,
-            0.78,
-            1.14,
-            1.01,
+            1.07,
+            0.81,
+            1.04,
+            0.69,
+            0.96,
+            1.24,
+            0.67,
+            0.66,
+            0.62,
+            1.05,
+            0.64,
+            0.59,
+            0.64,
+            1.07,
+            0.76,
+            0.63,
+            0.65,
+            0.68,
+            0.68,
+            0.68,
+            0.69,
+            1.18,
+            0.69,
             1.12,
-            1.06,
-            1.11
+            0.71,
+            1.96,
+            0.84,
+            1.16,
+            1.02,
+            1.09,
+            0.98,
+            1.24
           ],
           "target_ms_samples": [
-            0.89,
-            1.01,
-            1.91,
-            1.1,
-            0.83,
-            1.82,
-            0.85,
-            0.81,
+            1.05,
+            2.69,
+            2.77,
+            1.59,
+            1.22,
             1.14,
             0.9,
-            1.12,
-            0.82,
-            0.72,
-            1.0,
-            2.07,
-            0.83,
-            0.78,
-            1.1,
-            0.77,
-            0.74,
-            0.78,
-            1.19,
-            0.87,
-            0.76,
-            0.85,
-            0.85,
-            0.85,
-            0.85,
-            0.84,
-            1.29,
-            0.87,
-            1.18,
-            0.96,
-            1.03,
-            0.91,
-            1.3,
+            1.06,
             1.38,
+            0.78,
+            1.23,
+            0.88,
+            1.81,
+            1.44,
+            1.7,
+            0.86,
+            0.77,
+            1.21,
+            0.79,
+            0.73,
+            0.77,
+            1.12,
+            0.88,
+            0.75,
+            0.79,
+            0.78,
+            0.79,
+            0.8,
+            0.83,
+            1.25,
+            0.87,
             1.22,
-            1.52,
-            1.33
+            0.98,
+            1.51,
+            0.94,
+            1.33,
+            1.31,
+            1.93,
+            1.4,
+            1.23
           ],
           "target_timeouts": 0,
           "stages": [],
@@ -1736,10 +5855,10 @@
           "target_errors": 0,
           "source_errors": 0,
           "budget_exhausted": false,
-          "source_p50_ms": 0.8,
-          "source_p95_ms": 1.39,
-          "target_p50_ms": 0.91,
-          "target_p95_ms": 1.91,
+          "source_p50_ms": 0.84,
+          "source_p95_ms": 1.96,
+          "target_p50_ms": 1.12,
+          "target_p95_ms": 2.69,
           "first_difference": null,
           "difference_kinds": {},
           "ranking_only": false,
@@ -1753,68 +5872,68 @@
             "F10"
           ],
           "source_ms_samples": [
-            0.53,
-            1.01,
-            0.55,
-            0.52,
-            0.64,
-            0.58,
-            0.52,
-            0.55,
-            0.48,
-            0.93,
-            0.59,
-            0.51,
+            0.47,
             0.45,
-            0.5,
+            0.47,
+            0.46,
             0.48,
+            0.43,
             0.44,
-            0.49,
+            0.43,
             0.46,
-            0.46,
+            0.45,
+            0.43,
             0.45,
             0.45,
             0.43,
-            0.44,
-            0.52,
-            0.49,
-            0.49,
-            0.46,
-            0.79,
+            0.47,
             0.45,
-            0.43
+            0.44,
+            0.46,
+            0.5,
+            0.5,
+            0.49,
+            0.48,
+            0.48,
+            0.45,
+            0.45,
+            0.43,
+            0.45,
+            0.49,
+            0.47,
+            0.48
           ],
           "target_ms_samples": [
-            0.61,
-            0.64,
-            0.61,
-            0.62,
-            0.73,
-            0.74,
-            0.7,
-            0.66,
-            0.8,
-            1.1,
-            0.7,
-            0.58,
-            0.58,
+            0.57,
             0.56,
+            0.48,
             0.56,
-            0.53,
-            0.54,
-            0.54,
             0.59,
+            0.61,
+            0.54,
+            0.48,
+            0.55,
+            0.5,
+            0.54,
+            0.58,
+            0.54,
+            0.51,
             0.55,
             0.58,
-            0.58,
-            0.55,
-            0.52,
-            0.56,
-            0.55,
-            0.58,
-            0.76,
             0.59,
-            0.57
+            0.57,
+            0.61,
+            0.54,
+            0.57,
+            0.56,
+            0.57,
+            0.54,
+            0.55,
+            0.59,
+            0.57,
+            0.58,
+            0.6,
+            0.54
           ],
           "target_timeouts": 0,
           "stages": [],
@@ -1825,10 +5944,10 @@
           "target_errors": 0,
           "source_errors": 0,
           "budget_exhausted": false,
-          "source_p50_ms": 0.49,
-          "source_p95_ms": 0.93,
-          "target_p50_ms": 0.58,
-          "target_p95_ms": 0.8,
+          "source_p50_ms": 0.46,
+          "source_p95_ms": 0.5,
+          "target_p50_ms": 0.56,
+          "target_p95_ms": 0.61,
           "first_difference": null,
           "difference_kinds": {},
           "ranking_only": false,
@@ -1842,22 +5961,22 @@
             "F1"
           ],
           "source_ms_samples": [
-            6.37,
+            6.53,
+            7.39,
             6.75,
-            6.5,
-            6.94,
-            6.45,
-            7.04,
-            5.55
+            6.97,
+            6.68,
+            7.48,
+            5.89
           ],
           "target_ms_samples": [
-            3605.89,
-            3987.06,
-            3990.11,
-            3959.92,
-            4082.2,
-            3996.4,
-            3554.18
+            3659.88,
+            3867.53,
+            3958.74,
+            4202.1,
+            4123.37,
+            3985.3,
+            3538.73
           ],
           "target_timeouts": 0,
           "stages": [
@@ -1874,10 +5993,10 @@
           "target_errors": 0,
           "source_errors": 0,
           "budget_exhausted": true,
-          "source_p50_ms": 6.5,
-          "source_p95_ms": 7.04,
-          "target_p50_ms": 3987.06,
-          "target_p95_ms": 4082.2,
+          "source_p50_ms": 6.75,
+          "source_p95_ms": 7.48,
+          "target_p50_ms": 3958.74,
+          "target_p95_ms": 4202.1,
           "first_difference": null,
           "difference_kinds": {},
           "ranking_only": false,
@@ -1891,38 +6010,38 @@
             "F10"
           ],
           "source_ms_samples": [
-            6.17,
-            5.5,
-            39.23,
-            6.3,
-            8.7,
-            36.28,
-            8.23,
-            5.65,
-            37.23,
-            8.0,
-            8.48,
-            7.91,
-            5.83,
-            5.66,
-            5.62
+            6.5,
+            5.88,
+            43.42,
+            5.91,
+            8.46,
+            36.31,
+            9.44,
+            6.34,
+            42.62,
+            8.54,
+            9.35,
+            9.18,
+            6.36,
+            5.99,
+            5.95
           ],
           "target_ms_samples": [
-            5.81,
-            5.48,
-            30.7,
-            8.07,
-            7.5,
-            28.46,
-            7.86,
-            6.04,
-            28.13,
-            8.48,
-            7.54,
-            8.03,
-            5.35,
-            5.58,
-            5.2
+            6.02,
+            6.69,
+            41.26,
+            6.66,
+            7.98,
+            30.4,
+            9.27,
+            7.11,
+            29.65,
+            8.92,
+            8.22,
+            9.07,
+            5.8,
+            6.12,
+            5.32
           ],
           "target_timeouts": 0,
           "stages": [],
@@ -1933,10 +6052,10 @@
           "target_errors": 0,
           "source_errors": 0,
           "budget_exhausted": false,
-          "source_p50_ms": 7.91,
-          "source_p95_ms": 39.23,
-          "target_p50_ms": 7.54,
-          "target_p95_ms": 30.7,
+          "source_p50_ms": 8.46,
+          "source_p95_ms": 43.42,
+          "target_p50_ms": 7.98,
+          "target_p95_ms": 41.26,
           "first_difference": null,
           "difference_kinds": {},
           "ranking_only": false,
@@ -1950,28 +6069,28 @@
             "F1"
           ],
           "source_ms_samples": [
-            7.02,
+            6.68,
             6.62,
-            6.71,
-            6.51,
-            6.64,
+            6.7,
+            6.59,
+            6.7,
             6.46,
+            6.71,
+            6.43,
             6.62,
-            6.72,
-            6.62,
-            6.48
+            6.5
           ],
           "target_ms_samples": [
-            1.94,
-            1.67,
+            2.3,
+            1.7,
+            1.76,
             1.73,
-            1.64,
-            1.77,
-            1.57,
-            1.84,
-            1.64,
-            1.82,
-            1.55
+            1.81,
+            1.61,
+            1.76,
+            1.61,
+            1.65,
+            1.63
           ],
           "target_timeouts": 0,
           "stages": [
@@ -1988,9 +6107,9 @@
           "source_errors": 0,
           "budget_exhausted": false,
           "source_p50_ms": 6.62,
-          "source_p95_ms": 7.02,
+          "source_p95_ms": 6.71,
           "target_p50_ms": 1.73,
-          "target_p95_ms": 1.94,
+          "target_p95_ms": 2.3,
           "first_difference": null,
           "difference_kinds": {},
           "ranking_only": false,
@@ -2004,10 +6123,10 @@
             "F10"
           ],
           "source_ms_samples": [
-            1.32
+            1.57
           ],
           "target_ms_samples": [
-            3.26
+            3.38
           ],
           "target_timeouts": 0,
           "stages": [],
@@ -2018,10 +6137,10 @@
           "target_errors": 0,
           "source_errors": 0,
           "budget_exhausted": false,
-          "source_p50_ms": 1.32,
-          "source_p95_ms": 1.32,
-          "target_p50_ms": 3.26,
-          "target_p95_ms": 3.26,
+          "source_p50_ms": 1.57,
+          "source_p95_ms": 1.57,
+          "target_p50_ms": 3.38,
+          "target_p95_ms": 3.38,
           "first_difference": null,
           "difference_kinds": {},
           "ranking_only": false,
@@ -2035,10 +6154,10 @@
             "F10"
           ],
           "source_ms_samples": [
-            0.72
+            0.69
           ],
           "target_ms_samples": [
-            0.53
+            0.5
           ],
           "target_timeouts": 0,
           "stages": [],
@@ -2049,10 +6168,10 @@
           "target_errors": 0,
           "source_errors": 0,
           "budget_exhausted": false,
-          "source_p50_ms": 0.72,
-          "source_p95_ms": 0.72,
-          "target_p50_ms": 0.53,
-          "target_p95_ms": 0.53,
+          "source_p50_ms": 0.69,
+          "source_p95_ms": 0.69,
+          "target_p50_ms": 0.5,
+          "target_p95_ms": 0.5,
           "first_difference": null,
           "difference_kinds": {},
           "ranking_only": false,
@@ -2060,10 +6179,10 @@
         }
       ],
       "overall": {
-        "source_p50_ms": 0.44,
-        "source_p95_ms": 6.5,
-        "target_p50_ms": 0.62,
-        "target_p95_ms": 5.48,
+        "source_p50_ms": 0.48,
+        "source_p95_ms": 6.59,
+        "target_p50_ms": 0.7,
+        "target_p95_ms": 6.04,
         "compared_on_both": 384
       }
     },
@@ -2075,10 +6194,10 @@
       "source_errors": 0,
       "first_difference": null,
       "first_error": null,
-      "source_p50_ms": 1.21,
-      "source_p95_ms": 1.83,
-      "target_p50_ms": 0.6,
-      "target_p95_ms": 0.91,
+      "source_p50_ms": 1.43,
+      "source_p95_ms": 2.35,
+      "target_p50_ms": 0.73,
+      "target_p95_ms": 1.54,
       "by_feature": {
         "F10": {
           "equal": 297
@@ -2109,7 +6228,20 @@
   "features": {
     "F1": {
       "verdict": "equal",
-      "probes": [],
+      "probes": [
+        {
+          "probe_id": "F1.revenue_facet_full",
+          "verdict": "equal"
+        },
+        {
+          "probe_id": "F1.inventory_lookup_pipeline",
+          "verdict": "equal"
+        },
+        {
+          "probe_id": "F1.revenue_facet_largest_top5",
+          "verdict": "equal"
+        }
+      ],
       "replay": {
         "replayed": 17,
         "equal": 17,
@@ -2122,7 +6254,15 @@
       "verdict": "equal",
       "probes": [
         {
-          "probe_id": "T.window",
+          "probe_id": "F2.swf-running-total-seq",
+          "verdict": "equal"
+        },
+        {
+          "probe_id": "F2.swf-rolling-90d",
+          "verdict": "equal"
+        },
+        {
+          "probe_id": "F2.swf-prev-order-shift",
           "verdict": "equal"
         }
       ],
@@ -2138,7 +6278,15 @@
       "verdict": "equal",
       "probes": [
         {
-          "probe_id": "T.array_filters",
+          "probe_id": "F3.arrayfilter-refund-selected",
+          "verdict": "equal"
+        },
+        {
+          "probe_id": "F3.arrayfilter-refund-guard",
+          "verdict": "equal"
+        },
+        {
+          "probe_id": "F3.all-positional-reviewed",
           "verdict": "equal"
         }
       ],
@@ -2151,10 +6299,18 @@
       "schema_rejections": []
     },
     "F4": {
-      "verdict": "result_diff",
+      "verdict": "unsupported",
       "probes": [
         {
-          "probe_id": "T.txn_abort",
+          "probe_id": "F4.txn-abort-rollback",
+          "verdict": "result_diff"
+        },
+        {
+          "probe_id": "F4.txn-commit-atomic",
+          "verdict": "unsupported"
+        },
+        {
+          "probe_id": "F4.txn-isolation-uncommitted",
           "verdict": "result_diff"
         }
       ],
@@ -2170,7 +6326,15 @@
       "verdict": "unsupported",
       "probes": [
         {
-          "probe_id": "T.change_stream",
+          "probe_id": "F5.cs-filter-update-replace",
+          "verdict": "unsupported"
+        },
+        {
+          "probe_id": "F5.cs-fulldocument-lookup",
+          "verdict": "unsupported"
+        },
+        {
+          "probe_id": "F5.cs-event-per-change",
           "verdict": "unsupported"
         }
       ],
@@ -2186,8 +6350,16 @@
       "verdict": "unsupported",
       "probes": [
         {
-          "probe_id": "T.collation_unique",
+          "probe_id": "F6.ci-lookup",
+          "verdict": "result_diff"
+        },
+        {
+          "probe_id": "F6.ci-unique",
           "verdict": "unsupported"
+        },
+        {
+          "probe_id": "F6.ci-gating",
+          "verdict": "result_diff"
         }
       ],
       "replay": {
@@ -2205,11 +6377,43 @@
         }
       ]
     },
+    "F7": {
+      "verdict": "equal",
+      "probes": [
+        {
+          "probe_id": "F7.partial-unique-missing-exempt",
+          "verdict": "equal"
+        },
+        {
+          "probe_id": "F7.partial-unique-per-customer",
+          "verdict": "equal"
+        },
+        {
+          "probe_id": "F7.ttl-active-only-expiry",
+          "verdict": "equal"
+        }
+      ],
+      "replay": {
+        "replayed": 0,
+        "equal": 0,
+        "different": 0,
+        "errors": 0
+      },
+      "schema_rejections": []
+    },
     "F8": {
       "verdict": "result_diff",
       "probes": [
         {
-          "probe_id": "T.validator",
+          "probe_id": "F8.orders-required-fields",
+          "verdict": "result_diff"
+        },
+        {
+          "probe_id": "F8.orders-enum-total",
+          "verdict": "result_diff"
+        },
+        {
+          "probe_id": "F8.orders-types-update",
           "verdict": "result_diff"
         }
       ],
@@ -2225,7 +6429,15 @@
       "verdict": "ranking_diff",
       "probes": [
         {
-          "probe_id": "T.text_exclusion",
+          "probe_id": "F9.text_weighted_ranking",
+          "verdict": "equal"
+        },
+        {
+          "probe_id": "F9.text_exclusion_term",
+          "verdict": "equal"
+        },
+        {
+          "probe_id": "F9.text_search_active_ranked",
           "verdict": "equal"
         }
       ],
@@ -2241,7 +6453,11 @@
       "verdict": "equal",
       "probes": [
         {
-          "probe_id": "T.crud_control",
+          "probe_id": "F10.cart-upsert-fetch-convert-discard",
+          "verdict": "equal"
+        },
+        {
+          "probe_id": "F10.order-cas-history-find",
           "verdict": "equal"
         }
       ],
@@ -2252,7 +6468,23 @@
         "errors": 0
       },
       "schema_rejections": []
+    },
+    "X:graphLookup": {
+      "verdict": "equal",
+      "probes": [
+        {
+          "probe_id": "X:graphLookup.graphlookup-referral-chain",
+          "verdict": "equal"
+        }
+      ],
+      "replay": {
+        "replayed": 0,
+        "equal": 0,
+        "different": 0,
+        "errors": 0
+      },
+      "schema_rejections": []
     }
   },
-  "seconds": 34.4
+  "seconds": 107.3
 }

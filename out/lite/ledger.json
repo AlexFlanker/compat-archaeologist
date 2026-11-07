@@ -173,7 +173,7 @@
   "behaviors": [
     {
       "id": "B01",
-      "statement": "Listing orders for a customer or filtered by status returns at most 20 orders by default",
+      "statement": "Listing orders (for a customer or filtered by status) returns at most 20 orders by default.",
       "sources": [
         {
           "type": "code",
@@ -187,7 +187,7 @@
         }
       ],
       "status": "INFERRED",
-      "confidence": 0.336,
+      "confidence": 0.607,
       "confidence_basis": "subq-snap-1.1, single source",
       "independent_sources": 1
     }

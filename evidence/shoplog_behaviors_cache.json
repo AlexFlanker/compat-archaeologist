@@ -1,0 +1,389 @@
+{
+  "digest": "661296ce2cb443df4505da3c9fa66f3cdcb8ad86cae6ecd1948f829888b61560",
+  "model": "muse-spark-1.3",
+  "behaviors": [
+    {
+      "code_rule_numbers": [
+        1
+      ],
+      "invariant_ids": [],
+      "statement": "Cancelled orders are excluded from the revenue report (only orders with status not equal to cancelled count)"
+    },
+    {
+      "code_rule_numbers": [
+        2
+      ],
+      "invariant_ids": [
+        "INV-021",
+        "INV-022",
+        "INV-023",
+        "INV-024",
+        "INV-025"
+      ],
+      "statement": "Dollar totals stored as double were migrated to integer cents by multiplying by 100 and rounding to 0 decimals: subtotal, discount, shipping, total and refund_total are double before ~2018-01-01 and int from then on"
+    },
+    {
+      "code_rule_numbers": [
+        3
+      ],
+      "invariant_ids": [],
+      "statement": "Revenue report returns the 5 largest orders by total_cents"
+    },
+    {
+      "code_rule_numbers": [
+        4
+      ],
+      "invariant_ids": [],
+      "statement": "Customer timeline maintains a 90-day rolling spend total per customer ordered by placed_at"
+    },
+    {
+      "code_rule_numbers": [
+        5
+      ],
+      "invariant_ids": [],
+      "statement": "A SKU is low-stock when on_hand is less than the given threshold and low-stock SKUs are counted per category"
+    },
+    {
+      "code_rule_numbers": [
+        6
+      ],
+      "invariant_ids": [],
+      "statement": "A cart's lifetime is 24 hours after its last touch/update"
+    },
+    {
+      "code_rule_numbers": [
+        7
+      ],
+      "invariant_ids": [],
+      "statement": "Touching a cart marks it active and resets its expiry to 24 hours from now"
+    },
+    {
+      "code_rule_numbers": [
+        8
+      ],
+      "invariant_ids": [],
+      "statement": "Only the customer's cart with status active counts as the current active cart"
+    },
+    {
+      "code_rule_numbers": [
+        9
+      ],
+      "invariant_ids": [],
+      "statement": "A cart can only be discarded while it is still active; converted carts are not deleted by discard"
+    },
+    {
+      "code_rule_numbers": [
+        10
+      ],
+      "invariant_ids": [],
+      "statement": "Converting a cart marks it converted and records the order_id that fulfilled it"
+    },
+    {
+      "code_rule_numbers": [
+        11
+      ],
+      "invariant_ids": [],
+      "statement": "Storefront search returns at most 20 products by default"
+    },
+    {
+      "code_rule_numbers": [
+        12
+      ],
+      "invariant_ids": [],
+      "statement": "Autocomplete returns at most 8 name suggestions by default"
+    },
+    {
+      "code_rule_numbers": [
+        13
+      ],
+      "invariant_ids": [],
+      "statement": "Browsing products in a category returns at most 40 products by default"
+    },
+    {
+      "code_rule_numbers": [
+        14
+      ],
+      "invariant_ids": [],
+      "statement": "Storefront name/description/tags text matching tolerates at most 1 edit (fuzzy maxEdits 1)"
+    },
+    {
+      "code_rule_numbers": [
+        15
+      ],
+      "invariant_ids": [],
+      "statement": "Order items are assigned sequential line_id values starting at 1 (index + 1)"
+    },
+    {
+      "code_rule_numbers": [
+        16
+      ],
+      "invariant_ids": [],
+      "statement": "Each new order line starts with refunded amount 0"
+    },
+    {
+      "code_rule_numbers": [
+        17,
+        40
+      ],
+      "invariant_ids": [
+        "INV-001",
+        "INV-003",
+        "INV-014"
+      ],
+      "statement": "Every new order starts with refund_total of 0 and only orders whose status is delivered or partially_refunded can be refunded, so cancelled, shipped and delivered orders with no refund have refund_total = 0"
+    },
+    {
+      "code_rule_numbers": [
+        18
+      ],
+      "invariant_ids": [],
+      "statement": "Checkout fails with OutOfStock unless exactly 1 inventory document is updated per order line, meaning on_hand must cover the ordered qty"
+    },
+    {
+      "code_rule_numbers": [
+        19
+      ],
+      "invariant_ids": [],
+      "statement": "New customers start with 0 loyalty points"
+    },
+    {
+      "code_rule_numbers": [
+        20
+      ],
+      "invariant_ids": [],
+      "statement": "Only 2 operation types \u2014 update and replace \u2014 on inventory create inventory_events entries; inserts and deletes are ignored"
+    },
+    {
+      "code_rule_numbers": [
+        21
+      ],
+      "invariant_ids": [],
+      "statement": "Referral chain lookup follows referred_by links up to 3 levels deep by default"
+    },
+    {
+      "code_rule_numbers": [
+        22
+      ],
+      "invariant_ids": [],
+      "statement": "An order can move to paid only from 1 prior status: placed"
+    },
+    {
+      "code_rule_numbers": [
+        23
+      ],
+      "invariant_ids": [],
+      "statement": "An order can move to shipped only from 1 prior status: paid"
+    },
+    {
+      "code_rule_numbers": [
+        24
+      ],
+      "invariant_ids": [],
+      "statement": "An order can move to delivered only from 1 prior status: shipped"
+    },
+    {
+      "code_rule_numbers": [
+        25
+      ],
+      "invariant_ids": [],
+      "statement": "An order can be cancelled only from 2 prior statuses: placed or paid, never after shipped"
+    },
+    {
+      "code_rule_numbers": [
+        26
+      ],
+      "invariant_ids": [
+        "INV-002",
+        "INV-004",
+        "INV-005",
+        "INV-009",
+        "INV-010",
+        "INV-013",
+        "INV-015"
+      ],
+      "statement": "When an order is marked delivered, delivered_at must be set to the same transition time as updated_at, so delivered_at is present for delivered, partially_refunded and refunded orders and absent for placed, paid, shipped and cancelled orders"
+    },
+    {
+      "code_rule_numbers": [
+        27
+      ],
+      "invariant_ids": [],
+      "statement": "Every status change must append 1 history entry with the new status and timestamp while updating status"
+    },
+    {
+      "code_rule_numbers": [
+        28
+      ],
+      "invariant_ids": [],
+      "statement": "Customer order history returns at most 20 orders, newest placed_at first with _id tie-breaker"
+    },
+    {
+      "code_rule_numbers": [
+        29
+      ],
+      "invariant_ids": [],
+      "statement": "Search for orders containing a SKU returns at most 100 orders placed since the given date, newest first"
+    },
+    {
+      "code_rule_numbers": [
+        30
+      ],
+      "invariant_ids": [],
+      "statement": "Listing open orders by a status returns at most 50 orders, newest placed_at first"
+    },
+    {
+      "code_rule_numbers": [
+        31
+      ],
+      "invariant_ids": [
+        "INV-017",
+        "INV-018",
+        "INV-020"
+      ],
+      "statement": "Tier discount is bronze 0%, silver 5%, gold 10%, legacy_vip 15% off subtotal, so silver, gold and legacy_vip orders have discount > 0"
+    },
+    {
+      "code_rule_numbers": [
+        32
+      ],
+      "invariant_ids": [],
+      "statement": "Coupon code WELCOME10 is worth 1000 off merchandise"
+    },
+    {
+      "code_rule_numbers": [
+        33
+      ],
+      "invariant_ids": [
+        "INV-019"
+      ],
+      "statement": "legacy_vip tier cannot use coupons - any coupon is ignored for legacy_vip, so legacy_vip orders have coupon_code absent"
+    },
+    {
+      "code_rule_numbers": [
+        34
+      ],
+      "invariant_ids": [],
+      "statement": "Total discount (tier + coupon) is capped at subtotal so merchandise never goes negative"
+    },
+    {
+      "code_rule_numbers": [
+        35
+      ],
+      "invariant_ids": [
+        "INV-027",
+        "INV-028"
+      ],
+      "statement": "Discounted merchandise (subtotal - discount) of 7500 or more gets free shipping (shipping 0), otherwise shipping is 795 flat, corresponding to tax >= 637 vs shipping 795"
+    },
+    {
+      "code_rule_numbers": [
+        36
+      ],
+      "invariant_ids": [],
+      "statement": "Tax is 8.5% (850 bps) applied to discounted merchandise excluding shipping"
+    },
+    {
+      "code_rule_numbers": [
+        37
+      ],
+      "invariant_ids": [],
+      "statement": "Orders in the legacy_vip tier may be refunded up to 90 days after delivered_at"
+    },
+    {
+      "code_rule_numbers": [
+        38
+      ],
+      "invariant_ids": [],
+      "statement": "Orders in all other tiers may be refunded up to 30 days after delivered_at"
+    },
+    {
+      "code_rule_numbers": [
+        39
+      ],
+      "invariant_ids": [
+        "INV-029"
+      ],
+      "statement": "Items in the clearance category are final sale and are never eligible for refund, so clearance line items have refund_status=none"
+    },
+    {
+      "code_rule_numbers": [
+        41
+      ],
+      "invariant_ids": [],
+      "statement": "Only line items whose refund_status is none can be refunded; already refunded lines are excluded"
+    },
+    {
+      "code_rule_numbers": [
+        42
+      ],
+      "invariant_ids": [
+        "INV-008",
+        "INV-012"
+      ],
+      "statement": "After a refund the order status becomes partially_refunded if refundable lines remain, otherwise it becomes refunded, so partially_refunded and refunded orders have refund_total > 0"
+    },
+    {
+      "code_rule_numbers": [
+        43
+      ],
+      "invariant_ids": [],
+      "statement": "An order must include all 5 fields: customer_id, status, items, total and placed_at"
+    },
+    {
+      "code_rule_numbers": [
+        44
+      ],
+      "invariant_ids": [],
+      "statement": "Each order must contain at least 1 item"
+    },
+    {
+      "code_rule_numbers": [
+        45
+      ],
+      "invariant_ids": [],
+      "statement": "Order total must be 0 or greater"
+    },
+    {
+      "code_rule_numbers": [
+        46
+      ],
+      "invariant_ids": [],
+      "statement": "Order status must be one of 7 values: placed, paid, shipped, delivered, cancelled, partially_refunded, refunded"
+    },
+    {
+      "code_rule_numbers": [
+        47
+      ],
+      "invariant_ids": [],
+      "statement": "A customer can use the same coupon_code only once; orders without a coupon_code are exempt"
+    },
+    {
+      "code_rule_numbers": [
+        48
+      ],
+      "invariant_ids": [],
+      "statement": "Customer email addresses must be unique ignoring case (English collation strength 2)"
+    },
+    {
+      "code_rule_numbers": [
+        49
+      ],
+      "invariant_ids": [],
+      "statement": "Only carts with status active automatically expire at expires_at (expireAfterSeconds 0)"
+    },
+    {
+      "code_rule_numbers": [
+        50
+      ],
+      "invariant_ids": [],
+      "statement": "Product text search ranks name with weight 10, tags with weight 5 and description with weight 1"
+    },
+    {
+      "code_rule_numbers": [],
+      "invariant_ids": [
+        "INV-026"
+      ],
+      "statement": "Tax is absent before ~2021-01-01 and present as int from then on (placed_at)"
+    }
+  ]
+}

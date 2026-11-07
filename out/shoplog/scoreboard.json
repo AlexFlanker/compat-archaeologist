@@ -21,11 +21,11 @@
         },
         {
           "ref": "B31 (INV-017, INV-018, INV-020)",
-          "text": "Tier discount is bronze 0%, silver 5%, gold 10%, legacy_vip 15% off subtotal, so silver, gold and legacy_vip orders have discount > 0."
+          "text": "Tier discount is bronze 0%, silver 5%, gold 10%, legacy_vip 15% off subtotal, so silver, gold and legacy_vip orders have discount > 0"
         },
         {
           "ref": "B33 (INV-019, shoplog/pricing.py:13)",
-          "text": "legacy_vip tier cannot use coupons - any coupon is ignored for legacy_vip, so legacy_vip orders have coupon_code absent."
+          "text": "legacy_vip tier cannot use coupons - any coupon is ignored for legacy_vip, so legacy_vip orders have coupon_code absent"
         }
       ]
     },
@@ -57,7 +57,7 @@
         },
         {
           "ref": "B35 (INV-027, INV-028, shoplog/pricing.py:18)",
-          "text": "Discounted merchandise (subtotal - discount) of 7500 or more gets free shipping (shipping 0), otherwise shipping is 795 flat; shipping is 0 when subtotal - disc"
+          "text": "Discounted merchandise (subtotal - discount) of 7500 or more gets free shipping (shipping 0), otherwise shipping is 795 flat, corresponding to tax >= 637 vs shi"
         }
       ]
     },
@@ -75,11 +75,11 @@
         },
         {
           "ref": "B36 (shoplog/pricing.py:19)",
-          "text": "Tax is 8.5% (850 bps) applied to discounted merchandise excluding shipping."
+          "text": "Tax is 8.5% (850 bps) applied to discounted merchandise excluding shipping"
         },
         {
-          "ref": "B49 (INV-026)",
-          "text": "Tax was introduced around 2021-01-01: tax is absent before ~2021-01-01 and stored as int from then on."
+          "ref": "B50 (INV-026)",
+          "text": "Tax is absent before ~2021-01-01 and present as int from then on (placed_at)"
         }
       ]
     },
@@ -115,7 +115,7 @@
       "evidence": [
         {
           "ref": "B25 (shoplog/orders.py:11)",
-          "text": "An order can be cancelled only from 2 prior statuses: placed or paid, never after shipped."
+          "text": "An order can be cancelled only from 2 prior statuses: placed or paid, never after shipped"
         }
       ]
     },
@@ -129,11 +129,11 @@
       "evidence": [
         {
           "ref": "B37 (shoplog/refunds.py:7)",
-          "text": "Orders in the legacy_vip tier may be refunded up to 90 days after delivered_at."
+          "text": "Orders in the legacy_vip tier may be refunded up to 90 days after delivered_at"
         },
         {
           "ref": "B38 (shoplog/refunds.py:8)",
-          "text": "Orders in all other tiers may be refunded up to 30 days after delivered_at."
+          "text": "Orders in all other tiers may be refunded up to 30 days after delivered_at"
         }
       ]
     },
@@ -151,7 +151,7 @@
         },
         {
           "ref": "B39 (INV-029, shoplog/refunds.py:9)",
-          "text": "Items in the clearance category are final sale and are never eligible for refund, so clearance items have refund_status none."
+          "text": "Items in the clearance category are final sale and are never eligible for refund, so clearance line items have refund_status=none"
         }
       ]
     },
@@ -172,8 +172,8 @@
           "text": "[orders] status=refunded \u21d2 refund_total > 0"
         },
         {
-          "ref": "B17 (INV-001, INV-003, INV-008)",
-          "text": "Every new order starts with refund_total of 0 and only orders whose status is delivered or partially_refunded can be refunded; after a refund the order status b"
+          "ref": "B41 (INV-008, INV-012, shoplog/refunds.py:60)",
+          "text": "After a refund the order status becomes partially_refunded if refundable lines remain, otherwise it becomes refunded, so partially_refunded and refunded orders "
         }
       ]
     },
@@ -195,7 +195,7 @@
         },
         {
           "ref": "B06 (shoplog/carts.py:7)",
-          "text": "A cart's lifetime is 24 hours after its last touch/update."
+          "text": "A cart's lifetime is 24 hours after its last touch/update"
         }
       ]
     }

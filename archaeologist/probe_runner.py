@@ -237,8 +237,25 @@ def diff_probe(source: MongoClient, target: MongoClient, probe: dict) -> dict:
         result.update(verdict="probe_invalid", detail={"reason": gate_failure})
         return result
     classified = classify(source_run, target_run)
+    if classified["verdict"] == "result_diff" and _ranking_only(probe, source_run, target_run, classified.get("at_step")):
+        classified["verdict"] = "ranking_diff"
+        classified["note"] = "Same documents in a different order; the step sorts by a relevance score, which engines compute differently"
     result.update(verdict=classified.pop("verdict"), detail=classified)
     return result
+
+
+def _ranking_only(probe: dict, source_run: dict, target_run: dict, label: str | None) -> bool:
+    """A relevance-ranked read that returns the same documents in another order is a ranking difference."""
+    step = next((item for item in probe["steps"] if item.get("label") == label), None)
+    if not step or "$meta" not in step.get("command_ejson", ""):
+        return False
+    source = next((record for record in source_run["steps"] if record["label"] == label), {})
+    target = next((record for record in target_run["steps"] if record["label"] == label), {})
+    left, right = source.get("captured"), target.get("captured")
+    if not (isinstance(left, dict) and isinstance(right, dict) and isinstance(left.get("docs"), list) and isinstance(right.get("docs"), list)):
+        return False
+    ids = lambda docs: sorted(str(doc.get("_id")) for doc in docs if isinstance(doc, dict))  # noqa: E731
+    return ids(left["docs"]) == ids(right["docs"])
 
 
 def worst_verdict(verdicts: list[str]) -> str:

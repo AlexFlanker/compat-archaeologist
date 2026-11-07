@@ -1255,7 +1255,7 @@
   "behaviors": [
     {
       "id": "B01",
-      "statement": "Cancelled orders are excluded from the revenue report \u2014 only orders with status not equal to cancelled count.",
+      "statement": "Cancelled orders are excluded from the revenue report (only orders with status not equal to cancelled count)",
       "sources": [
         {
           "type": "code",
@@ -1264,13 +1264,13 @@
         }
       ],
       "status": "INFERRED",
-      "confidence": 0.757,
+      "confidence": 0.771,
       "confidence_basis": "subq-snap-1.1, single source",
       "independent_sources": 1
     },
     {
       "id": "B02",
-      "statement": "Dollar totals stored as double are converted to cents by multiplying by 100 and rounding to 0 decimals; orders subtotal, discount, shipping, total and refund_total are double before ~2018-01-01 and int from then on.",
+      "statement": "Dollar totals stored as double were migrated to integer cents by multiplying by 100 and rounding to 0 decimals: subtotal, discount, shipping, total and refund_total are double before ~2018-01-01 and int from then on",
       "sources": [
         {
           "type": "data",
@@ -1315,7 +1315,7 @@
     },
     {
       "id": "B03",
-      "statement": "Revenue report returns the 5 largest orders by total_cents.",
+      "statement": "Revenue report returns the 5 largest orders by total_cents",
       "sources": [
         {
           "type": "code",
@@ -1324,13 +1324,13 @@
         }
       ],
       "status": "INFERRED",
-      "confidence": 0.685,
+      "confidence": 0.794,
       "confidence_basis": "subq-snap-1.1, single source",
       "independent_sources": 1
     },
     {
       "id": "B04",
-      "statement": "Customer timeline maintains a 90-day rolling spend total per customer ordered by placed_at.",
+      "statement": "Customer timeline maintains a 90-day rolling spend total per customer ordered by placed_at",
       "sources": [
         {
           "type": "code",
@@ -1339,13 +1339,13 @@
         }
       ],
       "status": "INFERRED",
-      "confidence": 0.635,
+      "confidence": 0.676,
       "confidence_basis": "subq-snap-1.1, single source",
       "independent_sources": 1
     },
     {
       "id": "B05",
-      "statement": "A SKU is low-stock when on_hand is less than the given threshold and low-stock SKUs are counted per category.",
+      "statement": "A SKU is low-stock when on_hand is less than the given threshold and low-stock SKUs are counted per category",
       "sources": [
         {
           "type": "code",
@@ -1354,13 +1354,13 @@
         }
       ],
       "status": "INFERRED",
-      "confidence": 0.634,
+      "confidence": 0.838,
       "confidence_basis": "subq-snap-1.1, single source",
       "independent_sources": 1
     },
     {
       "id": "B06",
-      "statement": "A cart's lifetime is 24 hours after its last touch/update.",
+      "statement": "A cart's lifetime is 24 hours after its last touch/update",
       "sources": [
         {
           "type": "code",
@@ -1369,13 +1369,13 @@
         }
       ],
       "status": "INFERRED",
-      "confidence": 0.946,
+      "confidence": 0.975,
       "confidence_basis": "subq-snap-1.1, single source",
       "independent_sources": 1
     },
     {
       "id": "B07",
-      "statement": "Touching a cart marks it active and resets its expiry to 24 hours from now.",
+      "statement": "Touching a cart marks it active and resets its expiry to 24 hours from now",
       "sources": [
         {
           "type": "code",
@@ -1384,13 +1384,13 @@
         }
       ],
       "status": "INFERRED",
-      "confidence": 0.994,
+      "confidence": 0.995,
       "confidence_basis": "subq-snap-1.1, single source",
       "independent_sources": 1
     },
     {
       "id": "B08",
-      "statement": "Only the customer's cart with status active counts as the current active cart.",
+      "statement": "Only the customer's cart with status active counts as the current active cart",
       "sources": [
         {
           "type": "code",
@@ -1399,13 +1399,13 @@
         }
       ],
       "status": "INFERRED",
-      "confidence": 0.991,
+      "confidence": 0.999,
       "confidence_basis": "subq-snap-1.1, single source",
       "independent_sources": 1
     },
     {
       "id": "B09",
-      "statement": "A cart can only be discarded while it is still active; converted carts are not deleted by discard.",
+      "statement": "A cart can only be discarded while it is still active; converted carts are not deleted by discard",
       "sources": [
         {
           "type": "code",
@@ -1414,13 +1414,13 @@
         }
       ],
       "status": "INFERRED",
-      "confidence": 0.99,
+      "confidence": 0.957,
       "confidence_basis": "subq-snap-1.1, single source",
       "independent_sources": 1
     },
     {
       "id": "B10",
-      "statement": "Converting a cart marks it converted and records the order_id that fulfilled it.",
+      "statement": "Converting a cart marks it converted and records the order_id that fulfilled it",
       "sources": [
         {
           "type": "code",
@@ -1429,13 +1429,13 @@
         }
       ],
       "status": "INFERRED",
-      "confidence": 0.98,
+      "confidence": 0.997,
       "confidence_basis": "subq-snap-1.1, single source",
       "independent_sources": 1
     },
     {
       "id": "B11",
-      "statement": "Storefront search returns at most 20 products by default.",
+      "statement": "Storefront search returns at most 20 products by default",
       "sources": [
         {
           "type": "code",
@@ -1444,13 +1444,13 @@
         }
       ],
       "status": "INFERRED",
-      "confidence": 0.881,
+      "confidence": 0.947,
       "confidence_basis": "subq-snap-1.1, single source",
       "independent_sources": 1
     },
     {
       "id": "B12",
-      "statement": "Autocomplete returns at most 8 name suggestions by default.",
+      "statement": "Autocomplete returns at most 8 name suggestions by default",
       "sources": [
         {
           "type": "code",
@@ -1459,13 +1459,13 @@
         }
       ],
       "status": "INFERRED",
-      "confidence": 0.645,
+      "confidence": 0.816,
       "confidence_basis": "subq-snap-1.1, single source",
       "independent_sources": 1
     },
     {
       "id": "B13",
-      "statement": "Browsing products in a category returns at most 40 products by default.",
+      "statement": "Browsing products in a category returns at most 40 products by default",
       "sources": [
         {
           "type": "code",
@@ -1474,13 +1474,13 @@
         }
       ],
       "status": "INFERRED",
-      "confidence": 0.75,
+      "confidence": 0.485,
       "confidence_basis": "subq-snap-1.1, single source",
       "independent_sources": 1
     },
     {
       "id": "B14",
-      "statement": "Storefront name/description/tags text matching tolerates at most 1 edit (fuzzy maxEdits 1).",
+      "statement": "Storefront name/description/tags text matching tolerates at most 1 edit (fuzzy maxEdits 1)",
       "sources": [
         {
           "type": "code",
@@ -1489,13 +1489,13 @@
         }
       ],
       "status": "INFERRED",
-      "confidence": 0.908,
+      "confidence": 0.791,
       "confidence_basis": "subq-snap-1.1, single source",
       "independent_sources": 1
     },
     {
       "id": "B15",
-      "statement": "Order items are assigned sequential line_id values starting at 1 (index + 1).",
+      "statement": "Order items are assigned sequential line_id values starting at 1 (index + 1)",
       "sources": [
         {
           "type": "code",
@@ -1504,13 +1504,13 @@
         }
       ],
       "status": "INFERRED",
-      "confidence": 0.986,
+      "confidence": 0.975,
       "confidence_basis": "subq-snap-1.1, single source",
       "independent_sources": 1
     },
     {
       "id": "B16",
-      "statement": "Each new order line starts with refunded amount 0.",
+      "statement": "Each new order line starts with refunded amount 0",
       "sources": [
         {
           "type": "code",
@@ -1519,13 +1519,13 @@
         }
       ],
       "status": "INFERRED",
-      "confidence": 0.992,
+      "confidence": 0.994,
       "confidence_basis": "subq-snap-1.1, single source",
       "independent_sources": 1
     },
     {
       "id": "B17",
-      "statement": "Every new order starts with refund_total of 0 and only orders whose status is delivered or partially_refunded can be refunded; after a refund the order status becomes partially_refunded if refundable lines remain, otherwise it becomes refunded, so refund_total is 0 for cancelled, delivered and shipped orders and >0 for partially_refunded and refunded orders.",
+      "statement": "Every new order starts with refund_total of 0 and only orders whose status is delivered or partially_refunded can be refunded, so cancelled, shipped and delivered orders with no refund have refund_total = 0",
       "sources": [
         {
           "type": "data",
@@ -1538,18 +1538,6 @@
           "ref": "INV-003",
           "count": 21681,
           "detail": "status=delivered \u21d2 refund_total = 0 [orders], 0 counterexamples"
-        },
-        {
-          "type": "data",
-          "ref": "INV-008",
-          "count": 646,
-          "detail": "status=partially_refunded \u21d2 refund_total > 0 [orders], 0 counterexamples"
-        },
-        {
-          "type": "data",
-          "ref": "INV-012",
-          "count": 1145,
-          "detail": "status=refunded \u21d2 refund_total > 0 [orders], 0 counterexamples"
         },
         {
           "type": "data",
@@ -1566,11 +1554,6 @@
           "type": "code",
           "ref": "shoplog/refunds.py:10",
           "token": "delivered"
-        },
-        {
-          "type": "code",
-          "ref": "shoplog/refunds.py:60",
-          "token": "partially_refunded"
         }
       ],
       "status": "OBSERVED",
@@ -1580,7 +1563,7 @@
     },
     {
       "id": "B18",
-      "statement": "Checkout fails with OutOfStock unless exactly 1 inventory document is updated per order line, meaning on_hand must cover the ordered qty.",
+      "statement": "Checkout fails with OutOfStock unless exactly 1 inventory document is updated per order line, meaning on_hand must cover the ordered qty",
       "sources": [
         {
           "type": "code",
@@ -1595,7 +1578,7 @@
     },
     {
       "id": "B19",
-      "statement": "New customers start with 0 loyalty points.",
+      "statement": "New customers start with 0 loyalty points",
       "sources": [
         {
           "type": "code",
@@ -1604,13 +1587,13 @@
         }
       ],
       "status": "INFERRED",
-      "confidence": 0.889,
+      "confidence": 0.933,
       "confidence_basis": "subq-snap-1.1, single source",
       "independent_sources": 1
     },
     {
       "id": "B20",
-      "statement": "Only 2 operation types \u2014 update and replace \u2014 on inventory create inventory_events entries; inserts and deletes are ignored.",
+      "statement": "Only 2 operation types \u2014 update and replace \u2014 on inventory create inventory_events entries; inserts and deletes are ignored",
       "sources": [
         {
           "type": "code",
@@ -1619,13 +1602,13 @@
         }
       ],
       "status": "INFERRED",
-      "confidence": 0.889,
+      "confidence": 0.912,
       "confidence_basis": "subq-snap-1.1, single source",
       "independent_sources": 1
     },
     {
       "id": "B21",
-      "statement": "Referral chain lookup follows referred_by links up to 3 levels deep by default.",
+      "statement": "Referral chain lookup follows referred_by links up to 3 levels deep by default",
       "sources": [
         {
           "type": "code",
@@ -1634,13 +1617,13 @@
         }
       ],
       "status": "INFERRED",
-      "confidence": 0.023,
+      "confidence": 0.712,
       "confidence_basis": "subq-snap-1.1, single source",
       "independent_sources": 1
     },
     {
       "id": "B22",
-      "statement": "An order can move to paid only from 1 prior status: placed.",
+      "statement": "An order can move to paid only from 1 prior status: placed",
       "sources": [
         {
           "type": "code",
@@ -1649,13 +1632,13 @@
         }
       ],
       "status": "INFERRED",
-      "confidence": 0.998,
+      "confidence": 0.999,
       "confidence_basis": "subq-snap-1.1, single source",
       "independent_sources": 1
     },
     {
       "id": "B23",
-      "statement": "An order can move to shipped only from 1 prior status: paid.",
+      "statement": "An order can move to shipped only from 1 prior status: paid",
       "sources": [
         {
           "type": "code",
@@ -1664,13 +1647,13 @@
         }
       ],
       "status": "INFERRED",
-      "confidence": 0.998,
+      "confidence": 0.997,
       "confidence_basis": "subq-snap-1.1, single source",
       "independent_sources": 1
     },
     {
       "id": "B24",
-      "statement": "An order can move to delivered only from 1 prior status: shipped.",
+      "statement": "An order can move to delivered only from 1 prior status: shipped",
       "sources": [
         {
           "type": "code",
@@ -1679,13 +1662,13 @@
         }
       ],
       "status": "INFERRED",
-      "confidence": 0.998,
+      "confidence": 0.997,
       "confidence_basis": "subq-snap-1.1, single source",
       "independent_sources": 1
     },
     {
       "id": "B25",
-      "statement": "An order can be cancelled only from 2 prior statuses: placed or paid, never after shipped.",
+      "statement": "An order can be cancelled only from 2 prior statuses: placed or paid, never after shipped",
       "sources": [
         {
           "type": "code",
@@ -1694,13 +1677,13 @@
         }
       ],
       "status": "INFERRED",
-      "confidence": 0.999,
+      "confidence": 1.0,
       "confidence_basis": "subq-snap-1.1, single source",
       "independent_sources": 1
     },
     {
       "id": "B26",
-      "statement": "When an order is marked delivered, delivered_at must be set to the same transition time as updated_at, so delivered_at is present for delivered, partially_refunded and refunded orders and absent for placed, paid, shipped and cancelled orders.",
+      "statement": "When an order is marked delivered, delivered_at must be set to the same transition time as updated_at, so delivered_at is present for delivered, partially_refunded and refunded orders and absent for placed, paid, shipped and cancelled orders",
       "sources": [
         {
           "type": "data",
@@ -1757,7 +1740,7 @@
     },
     {
       "id": "B27",
-      "statement": "Every status change must append 1 history entry with the new status and timestamp while updating status.",
+      "statement": "Every status change must append 1 history entry with the new status and timestamp while updating status",
       "sources": [
         {
           "type": "code",
@@ -1772,7 +1755,7 @@
     },
     {
       "id": "B28",
-      "statement": "Customer order history returns at most 20 orders, newest placed_at first with _id tie-breaker.",
+      "statement": "Customer order history returns at most 20 orders, newest placed_at first with _id tie-breaker",
       "sources": [
         {
           "type": "code",
@@ -1781,13 +1764,13 @@
         }
       ],
       "status": "INFERRED",
-      "confidence": 0.997,
+      "confidence": 0.998,
       "confidence_basis": "subq-snap-1.1, single source",
       "independent_sources": 1
     },
     {
       "id": "B29",
-      "statement": "Search for orders containing a SKU returns at most 100 orders placed since the given date, newest first.",
+      "statement": "Search for orders containing a SKU returns at most 100 orders placed since the given date, newest first",
       "sources": [
         {
           "type": "code",
@@ -1796,13 +1779,13 @@
         }
       ],
       "status": "INFERRED",
-      "confidence": 0.952,
+      "confidence": 0.989,
       "confidence_basis": "subq-snap-1.1, single source",
       "independent_sources": 1
     },
     {
       "id": "B30",
-      "statement": "Listing open orders by a status returns at most 50 orders, newest placed_at first.",
+      "statement": "Listing open orders by a status returns at most 50 orders, newest placed_at first",
       "sources": [
         {
           "type": "code",
@@ -1811,13 +1794,13 @@
         }
       ],
       "status": "INFERRED",
-      "confidence": 0.98,
+      "confidence": 0.997,
       "confidence_basis": "subq-snap-1.1, single source",
       "independent_sources": 1
     },
     {
       "id": "B31",
-      "statement": "Tier discount is bronze 0%, silver 5%, gold 10%, legacy_vip 15% off subtotal, so silver, gold and legacy_vip orders have discount > 0.",
+      "statement": "Tier discount is bronze 0%, silver 5%, gold 10%, legacy_vip 15% off subtotal, so silver, gold and legacy_vip orders have discount > 0",
       "sources": [
         {
           "type": "data",
@@ -1850,7 +1833,7 @@
     },
     {
       "id": "B32",
-      "statement": "Coupon code WELCOME10 is worth 1000 off merchandise.",
+      "statement": "Coupon code WELCOME10 is worth 1000 off merchandise",
       "sources": [
         {
           "type": "code",
@@ -1859,13 +1842,13 @@
         }
       ],
       "status": "INFERRED",
-      "confidence": 0.926,
+      "confidence": 0.977,
       "confidence_basis": "subq-snap-1.1, single source",
       "independent_sources": 1
     },
     {
       "id": "B33",
-      "statement": "legacy_vip tier cannot use coupons - any coupon is ignored for legacy_vip, so legacy_vip orders have coupon_code absent.",
+      "statement": "legacy_vip tier cannot use coupons - any coupon is ignored for legacy_vip, so legacy_vip orders have coupon_code absent",
       "sources": [
         {
           "type": "data",
@@ -1886,7 +1869,7 @@
     },
     {
       "id": "B34",
-      "statement": "Total discount (tier + coupon) is capped at subtotal so merchandise never goes negative.",
+      "statement": "Total discount (tier + coupon) is capped at subtotal so merchandise never goes negative",
       "sources": [
         {
           "type": "code",
@@ -1895,13 +1878,13 @@
         }
       ],
       "status": "INFERRED",
-      "confidence": 0.996,
+      "confidence": 1.0,
       "confidence_basis": "subq-snap-1.1, single source",
       "independent_sources": 1
     },
     {
       "id": "B35",
-      "statement": "Discounted merchandise (subtotal - discount) of 7500 or more gets free shipping (shipping 0), otherwise shipping is 795 flat; shipping is 0 when subtotal - discount >= 7500 otherwise 795, equivalently shipping is 0 when tax >= 637 otherwise 795.",
+      "statement": "Discounted merchandise (subtotal - discount) of 7500 or more gets free shipping (shipping 0), otherwise shipping is 795 flat, corresponding to tax >= 637 vs shipping 795",
       "sources": [
         {
           "type": "data",
@@ -1928,7 +1911,7 @@
     },
     {
       "id": "B36",
-      "statement": "Tax is 8.5% (850 bps) applied to discounted merchandise excluding shipping.",
+      "statement": "Tax is 8.5% (850 bps) applied to discounted merchandise excluding shipping",
       "sources": [
         {
           "type": "code",
@@ -1943,7 +1926,7 @@
     },
     {
       "id": "B37",
-      "statement": "Orders in the legacy_vip tier may be refunded up to 90 days after delivered_at.",
+      "statement": "Orders in the legacy_vip tier may be refunded up to 90 days after delivered_at",
       "sources": [
         {
           "type": "code",
@@ -1952,13 +1935,13 @@
         }
       ],
       "status": "INFERRED",
-      "confidence": 0.989,
+      "confidence": 0.872,
       "confidence_basis": "subq-snap-1.1, single source",
       "independent_sources": 1
     },
     {
       "id": "B38",
-      "statement": "Orders in all other tiers may be refunded up to 30 days after delivered_at.",
+      "statement": "Orders in all other tiers may be refunded up to 30 days after delivered_at",
       "sources": [
         {
           "type": "code",
@@ -1967,13 +1950,13 @@
         }
       ],
       "status": "INFERRED",
-      "confidence": 0.993,
+      "confidence": 0.984,
       "confidence_basis": "subq-snap-1.1, single source",
       "independent_sources": 1
     },
     {
       "id": "B39",
-      "statement": "Items in the clearance category are final sale and are never eligible for refund, so clearance items have refund_status none.",
+      "statement": "Items in the clearance category are final sale and are never eligible for refund, so clearance line items have refund_status=none",
       "sources": [
         {
           "type": "data",
@@ -1994,7 +1977,7 @@
     },
     {
       "id": "B40",
-      "statement": "Only line items whose refund_status is none can be refunded; already refunded lines are excluded.",
+      "statement": "Only line items whose refund_status is none can be refunded; already refunded lines are excluded",
       "sources": [
         {
           "type": "code",
@@ -2003,13 +1986,40 @@
         }
       ],
       "status": "INFERRED",
-      "confidence": 0.981,
+      "confidence": 0.997,
       "confidence_basis": "subq-snap-1.1, single source",
       "independent_sources": 1
     },
     {
       "id": "B41",
-      "statement": "An order must include all 5 fields: customer_id, status, items, total and placed_at.",
+      "statement": "After a refund the order status becomes partially_refunded if refundable lines remain, otherwise it becomes refunded, so partially_refunded and refunded orders have refund_total > 0",
+      "sources": [
+        {
+          "type": "data",
+          "ref": "INV-008",
+          "count": 646,
+          "detail": "status=partially_refunded \u21d2 refund_total > 0 [orders], 0 counterexamples"
+        },
+        {
+          "type": "data",
+          "ref": "INV-012",
+          "count": 1145,
+          "detail": "status=refunded \u21d2 refund_total > 0 [orders], 0 counterexamples"
+        },
+        {
+          "type": "code",
+          "ref": "shoplog/refunds.py:60",
+          "token": "partially_refunded"
+        }
+      ],
+      "status": "OBSERVED",
+      "confidence": 0.9,
+      "confidence_basis": "2 independent sources agree",
+      "independent_sources": 2
+    },
+    {
+      "id": "B42",
+      "statement": "An order must include all 5 fields: customer_id, status, items, total and placed_at",
       "sources": [
         {
           "type": "code",
@@ -2023,28 +2033,13 @@
       "independent_sources": 1
     },
     {
-      "id": "B42",
-      "statement": "Each order must contain at least 1 item.",
+      "id": "B43",
+      "statement": "Each order must contain at least 1 item",
       "sources": [
         {
           "type": "code",
           "ref": "shoplog/schema.py:28",
           "token": "minItems"
-        }
-      ],
-      "status": "INFERRED",
-      "confidence": 0.998,
-      "confidence_basis": "subq-snap-1.1, single source",
-      "independent_sources": 1
-    },
-    {
-      "id": "B43",
-      "statement": "Order total must be 0 or greater.",
-      "sources": [
-        {
-          "type": "code",
-          "ref": "shoplog/schema.py:29",
-          "token": "minimum"
         }
       ],
       "status": "INFERRED",
@@ -2054,7 +2049,22 @@
     },
     {
       "id": "B44",
-      "statement": "Order status must be one of 7 values: placed, paid, shipped, delivered, cancelled, partially_refunded, refunded.",
+      "statement": "Order total must be 0 or greater",
+      "sources": [
+        {
+          "type": "code",
+          "ref": "shoplog/schema.py:29",
+          "token": "minimum"
+        }
+      ],
+      "status": "INFERRED",
+      "confidence": 0.998,
+      "confidence_basis": "subq-snap-1.1, single source",
+      "independent_sources": 1
+    },
+    {
+      "id": "B45",
+      "statement": "Order status must be one of 7 values: placed, paid, shipped, delivered, cancelled, partially_refunded, refunded",
       "sources": [
         {
           "type": "code",
@@ -2063,13 +2073,13 @@
         }
       ],
       "status": "INFERRED",
-      "confidence": 0.999,
+      "confidence": 0.972,
       "confidence_basis": "subq-snap-1.1, single source",
       "independent_sources": 1
     },
     {
-      "id": "B45",
-      "statement": "A customer can use the same coupon_code only once; orders without a coupon_code are exempt.",
+      "id": "B46",
+      "statement": "A customer can use the same coupon_code only once; orders without a coupon_code are exempt",
       "sources": [
         {
           "type": "code",
@@ -2078,13 +2088,13 @@
         }
       ],
       "status": "INFERRED",
-      "confidence": 0.99,
+      "confidence": 0.997,
       "confidence_basis": "subq-snap-1.1, single source",
       "independent_sources": 1
     },
     {
-      "id": "B46",
-      "statement": "Customer email addresses must be unique ignoring case (English collation strength 2).",
+      "id": "B47",
+      "statement": "Customer email addresses must be unique ignoring case (English collation strength 2)",
       "sources": [
         {
           "type": "code",
@@ -2093,13 +2103,13 @@
         }
       ],
       "status": "INFERRED",
-      "confidence": 0.996,
+      "confidence": 0.992,
       "confidence_basis": "subq-snap-1.1, single source",
       "independent_sources": 1
     },
     {
-      "id": "B47",
-      "statement": "Only carts with status active automatically expire at expires_at (expireAfterSeconds 0).",
+      "id": "B48",
+      "statement": "Only carts with status active automatically expire at expires_at (expireAfterSeconds 0)",
       "sources": [
         {
           "type": "code",
@@ -2113,8 +2123,8 @@
       "independent_sources": 1
     },
     {
-      "id": "B48",
-      "statement": "Product text search ranks name with weight 10, tags with weight 5 and description with weight 1.",
+      "id": "B49",
+      "statement": "Product text search ranks name with weight 10, tags with weight 5 and description with weight 1",
       "sources": [
         {
           "type": "code",
@@ -2123,13 +2133,13 @@
         }
       ],
       "status": "INFERRED",
-      "confidence": 0.961,
+      "confidence": 0.981,
       "confidence_basis": "subq-snap-1.1, single source",
       "independent_sources": 1
     },
     {
-      "id": "B49",
-      "statement": "Tax was introduced around 2021-01-01: tax is absent before ~2021-01-01 and stored as int from then on.",
+      "id": "B50",
+      "statement": "Tax is absent before ~2021-01-01 and present as int from then on (placed_at)",
       "sources": [
         {
           "type": "data",
@@ -2139,7 +2149,7 @@
         }
       ],
       "status": "OBSERVED",
-      "confidence": 0.988,
+      "confidence": 0.987,
       "confidence_basis": "subq-snap-1.1, single source",
       "independent_sources": 1
     }

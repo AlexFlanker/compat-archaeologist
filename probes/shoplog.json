@@ -1,0 +1,1697 @@
+[
+  {
+    "probe_id": "F1.revenue_facet_full",
+    "feature_id": "F1",
+    "title": "Revenue $lookup sub-pipeline plus $facet by_tier by_month largest",
+    "behavior": "revenue report joins orders to customers via $lookup let/pipeline + $unwind and returns by_tier, by_month and largest in one $facet; cancelled and out-of-range orders excluded, double totals converted to cents",
+    "steps": [
+      {
+        "capture": false,
+        "command_ejson": "{\"insert\":\"customers\",\"documents\":[{\"_id\":\"c1\",\"tier\":\"gold\"},{\"_id\":\"c2\",\"tier\":\"silver\"}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "insert_customers",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": false,
+        "command_ejson": "{\"insert\":\"orders\",\"documents\":[{\"_id\":\"o1\",\"customer_id\":\"c1\",\"placed_at\":{\"$date\":\"2024-01-05T00:00:00Z\"},\"status\":\"paid\",\"total\":{\"$numberDouble\":\"120.5\"}},{\"_id\":\"o2\",\"customer_id\":\"c2\",\"placed_at\":{\"$date\":\"2024-01-15T00:00:00Z\"},\"status\":\"paid\",\"total\":{\"$numberInt\":\"8000\"}},{\"_id\":\"o3\",\"customer_id\":\"c1\",\"placed_at\":{\"$date\":\"2024-01-20T00:00:00Z\"},\"status\":\"cancelled\",\"total\":{\"$numberDouble\":\"999.99\"}},{\"_id\":\"o4\",\"customer_id\":\"c1\",\"placed_at\":{\"$date\":\"2024-02-02T00:00:00Z\"},\"status\":\"paid\",\"total\":{\"$numberDouble\":\"10.0\"}}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "insert_orders",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": true,
+        "command_ejson": "{\"aggregate\":\"orders\",\"pipeline\":[{\"$match\":{\"placed_at\":{\"$gte\":{\"$date\":\"2024-01-01T00:00:00Z\"},\"$lt\":{\"$date\":\"2024-02-01T00:00:00Z\"}},\"status\":{\"$ne\":\"cancelled\"}}},{\"$addFields\":{\"total_cents\":{\"$cond\":[{\"$eq\":[{\"$type\":\"$total\"},\"double\"]},{\"$round\":[{\"$multiply\":[\"$total\",100]},0]},\"$total\"]}}},{\"$lookup\":{\"from\":\"customers\",\"let\":{\"cid\":\"$customer_id\"},\"pipeline\":[{\"$match\":{\"$expr\":{\"$eq\":[\"$_id\",\"$$cid\"]}}},{\"$project\":{\"tier\":1,\"_id\":0}}],\"as\":\"customer\"}},{\"$unwind\":\"$customer\"},{\"$facet\":{\"by_tier\":[{\"$group\":{\"_id\":\"$customer.tier\",\"revenue\":{\"$sum\":\"$total_cents\"},\"orders\":{\"$sum\":1}}},{\"$sort\":{\"_id\":1}}],\"by_month\":[{\"$group\":{\"_id\":{\"$dateToString\":{\"format\":\"%Y-%m\",\"date\":\"$placed_at\"}},\"revenue\":{\"$sum\":\"$total_cents\"}}},{\"$sort\":{\"_id\":1}}],\"largest\":[{\"$sort\":{\"total_cents\":-1,\"_id\":1}},{\"$limit\":5},{\"$project\":{\"total_cents\":1,\"tier\":\"$customer.tier\"}}]}}],\"cursor\":{}}",
+        "expect_ejson": "{\"docs\":[{\"by_tier\":[{\"_id\":\"gold\",\"revenue\":12050,\"orders\":1},{\"_id\":\"silver\",\"revenue\":8000,\"orders\":1}],\"by_month\":[{\"_id\":\"2024-01\",\"revenue\":20050}],\"largest\":[{\"_id\":\"o1\",\"total_cents\":12050,\"tier\":\"gold\"},{\"_id\":\"o2\",\"total_cents\":8000,\"tier\":\"silver\"}]}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "revenue_facet",
+        "op": "command",
+        "unordered": false
+      }
+    ],
+    "generation": {
+      "attempts": 1,
+      "model": "muse-spark-1.3"
+    },
+    "status": "valid"
+  },
+  {
+    "probe_id": "F1.inventory_lookup_pipeline",
+    "feature_id": "F1",
+    "title": "Lookup with localField plus pipeline filter and group",
+    "behavior": "products join inventory via $lookup with localField/foreignField plus pipeline $expr $lt filter, then $match stock.0 $exists and $group by category with $sort",
+    "steps": [
+      {
+        "capture": false,
+        "command_ejson": "{\"insert\":\"products\",\"documents\":[{\"_id\":\"p1\",\"category\":\"books\"},{\"_id\":\"p2\",\"category\":\"books\"},{\"_id\":\"p3\",\"category\":\"toys\"}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "insert_products",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": false,
+        "command_ejson": "{\"insert\":\"inventory\",\"documents\":[{\"_id\":\"p1\",\"on_hand\":50},{\"_id\":\"p2\",\"on_hand\":500},{\"_id\":\"p3\",\"on_hand\":150}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "insert_inventory",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": true,
+        "command_ejson": "{\"aggregate\":\"products\",\"pipeline\":[{\"$lookup\":{\"from\":\"inventory\",\"localField\":\"_id\",\"foreignField\":\"_id\",\"pipeline\":[{\"$match\":{\"$expr\":{\"$lt\":[\"$on_hand\",200]}}}],\"as\":\"stock\"}},{\"$match\":{\"stock.0\":{\"$exists\":true}}},{\"$group\":{\"_id\":\"$category\",\"skus\":{\"$sum\":1}}},{\"$sort\":{\"skus\":-1,\"_id\":1}}],\"cursor\":{}}",
+        "expect_ejson": "{\"docs\":[{\"_id\":\"books\",\"skus\":1},{\"_id\":\"toys\",\"skus\":1}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "lookup_pipeline_group",
+        "op": "command",
+        "unordered": false
+      }
+    ],
+    "generation": {
+      "attempts": 1,
+      "model": "muse-spark-1.3"
+    },
+    "status": "valid"
+  },
+  {
+    "probe_id": "F1.revenue_facet_largest_top5",
+    "feature_id": "F1",
+    "title": "Facet largest top-5 with lookup tier",
+    "behavior": "revenue largest facet returns 5 largest orders sorted by total_cents desc with tier from $lookup sub-pipeline, exercising $sort $limit $project inside $facet and double-to-cents conversion",
+    "steps": [
+      {
+        "capture": false,
+        "command_ejson": "{\"insert\":\"customers\",\"documents\":[{\"_id\":\"c1\",\"tier\":\"gold\"},{\"_id\":\"c2\",\"tier\":\"silver\"}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "insert_customers",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": false,
+        "command_ejson": "{\"insert\":\"orders\",\"documents\":[{\"_id\":\"o1\",\"customer_id\":\"c1\",\"placed_at\":{\"$date\":\"2024-01-03T00:00:00Z\"},\"status\":\"paid\",\"total\":{\"$numberDouble\":\"10.0\"}},{\"_id\":\"o2\",\"customer_id\":\"c2\",\"placed_at\":{\"$date\":\"2024-01-05T00:00:00Z\"},\"status\":\"paid\",\"total\":{\"$numberInt\":\"2000\"}},{\"_id\":\"o3\",\"customer_id\":\"c1\",\"placed_at\":{\"$date\":\"2024-01-07T00:00:00Z\"},\"status\":\"paid\",\"total\":{\"$numberDouble\":\"30.75\"}},{\"_id\":\"o4\",\"customer_id\":\"c1\",\"placed_at\":{\"$date\":\"2024-01-09T00:00:00Z\"},\"status\":\"paid\",\"total\":{\"$numberInt\":\"500\"}},{\"_id\":\"o5\",\"customer_id\":\"c2\",\"placed_at\":{\"$date\":\"2024-01-11T00:00:00Z\"},\"status\":\"paid\",\"total\":{\"$numberDouble\":\"99.99\"}},{\"_id\":\"o6\",\"customer_id\":\"c1\",\"placed_at\":{\"$date\":\"2024-01-13T00:00:00Z\"},\"status\":\"paid\",\"total\":{\"$numberInt\":\"7000\"}}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "insert_orders",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": true,
+        "command_ejson": "{\"aggregate\":\"orders\",\"pipeline\":[{\"$match\":{\"placed_at\":{\"$gte\":{\"$date\":\"2024-01-01T00:00:00Z\"},\"$lt\":{\"$date\":\"2024-02-01T00:00:00Z\"}},\"status\":{\"$ne\":\"cancelled\"}}},{\"$addFields\":{\"total_cents\":{\"$cond\":[{\"$eq\":[{\"$type\":\"$total\"},\"double\"]},{\"$round\":[{\"$multiply\":[\"$total\",100]},0]},\"$total\"]}}},{\"$lookup\":{\"from\":\"customers\",\"let\":{\"cid\":\"$customer_id\"},\"pipeline\":[{\"$match\":{\"$expr\":{\"$eq\":[\"$_id\",\"$$cid\"]}}},{\"$project\":{\"tier\":1,\"_id\":0}}],\"as\":\"customer\"}},{\"$unwind\":\"$customer\"},{\"$facet\":{\"largest\":[{\"$sort\":{\"total_cents\":-1,\"_id\":1}},{\"$limit\":5},{\"$project\":{\"total_cents\":1,\"tier\":\"$customer.tier\"}}]}}],\"cursor\":{}}",
+        "expect_ejson": "{\"docs\":[{\"largest\":[{\"_id\":\"o5\",\"total_cents\":9999,\"tier\":\"silver\"},{\"_id\":\"o6\",\"total_cents\":7000,\"tier\":\"gold\"},{\"_id\":\"o3\",\"total_cents\":3075,\"tier\":\"gold\"},{\"_id\":\"o2\",\"total_cents\":2000,\"tier\":\"silver\"},{\"_id\":\"o1\",\"total_cents\":1000,\"tier\":\"gold\"}]}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "facet_largest_top5",
+        "op": "command",
+        "unordered": false
+      }
+    ],
+    "generation": {
+      "attempts": 1,
+      "model": "muse-spark-1.3"
+    },
+    "status": "valid"
+  },
+  {
+    "probe_id": "F2.swf-running-total-seq",
+    "feature_id": "F2",
+    "title": "Running total and sequence via $setWindowFields",
+    "behavior": "Customer timeline running_total with documents unbounded to current and order_seq with $documentNumber partitioned by customer_id ordered by placed_at; cancelled and other-customer docs must be excluded by $match",
+    "steps": [
+      {
+        "capture": false,
+        "command_ejson": "{\"insert\":\"orders\",\"documents\":[{\"_id\":1,\"customer_id\":\"C000507\",\"status\":\"paid\",\"total\":{\"$numberInt\":\"1000\"},\"placed_at\":{\"$date\":\"2026-01-10T00:00:00Z\"}},{\"_id\":3,\"customer_id\":\"C000507\",\"status\":\"paid\",\"total\":{\"$numberInt\":\"1500\"},\"placed_at\":{\"$date\":\"2026-03-20T00:00:00Z\"}},{\"_id\":2,\"customer_id\":\"C000507\",\"status\":\"paid\",\"total\":{\"$numberInt\":\"2000\"},\"placed_at\":{\"$date\":\"2026-02-15T00:00:00Z\"}},{\"_id\":4,\"customer_id\":\"C000507\",\"status\":\"cancelled\",\"total\":{\"$numberInt\":\"9999\"},\"placed_at\":{\"$date\":\"2026-02-01T00:00:00Z\"}},{\"_id\":5,\"customer_id\":\"C999999\",\"status\":\"paid\",\"total\":{\"$numberInt\":\"5000\"},\"placed_at\":{\"$date\":\"2026-01-05T00:00:00Z\"}}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "seed-orders",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": true,
+        "command_ejson": "{\"aggregate\":\"orders\",\"pipeline\":[{\"$match\":{\"customer_id\":\"C000507\",\"status\":{\"$ne\":\"cancelled\"}}},{\"$addFields\":{\"total_cents\":{\"$cond\":[{\"$eq\":[{\"$type\":\"$total\"},\"double\"]},{\"$round\":[{\"$multiply\":[\"$total\",100]},0]},\"$total\"]}}},{\"$setWindowFields\":{\"partitionBy\":\"$customer_id\",\"sortBy\":{\"placed_at\":1},\"output\":{\"running_total\":{\"$sum\":\"$total_cents\",\"window\":{\"documents\":[\"unbounded\",\"current\"]}},\"order_seq\":{\"$documentNumber\":{}}}}},{\"$sort\":{\"placed_at\":1}},{\"$project\":{\"placed_at\":1,\"total_cents\":1,\"running_total\":1,\"order_seq\":1}}],\"cursor\":{}}",
+        "expect_ejson": "{\"docs\":[{\"_id\":1,\"placed_at\":{\"$date\":\"2026-01-10T00:00:00Z\"},\"total_cents\":1000,\"running_total\":1000,\"order_seq\":1},{\"_id\":2,\"placed_at\":{\"$date\":\"2026-02-15T00:00:00Z\"},\"total_cents\":2000,\"running_total\":3000,\"order_seq\":2},{\"_id\":3,\"placed_at\":{\"$date\":\"2026-03-20T00:00:00Z\"},\"total_cents\":1500,\"running_total\":4500,\"order_seq\":3}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "running-total-seq",
+        "op": "command",
+        "unordered": false
+      }
+    ],
+    "generation": {
+      "attempts": 1,
+      "model": "muse-spark-1.3"
+    },
+    "status": "valid"
+  },
+  {
+    "probe_id": "F2.swf-rolling-90d",
+    "feature_id": "F2",
+    "title": "90-day rolling sum via range window",
+    "behavior": "Customer timeline 90-day rolling sum with $sum range [-90,current] unit day partitioned by customer ordered by placed_at; includes double total conversion via $cond $type $round",
+    "steps": [
+      {
+        "capture": false,
+        "command_ejson": "{\"insert\":\"orders\",\"documents\":[{\"_id\":1,\"customer_id\":\"C000507\",\"status\":\"paid\",\"total\":{\"$numberInt\":\"1000\"},\"placed_at\":{\"$date\":\"2026-01-01T00:00:00Z\"}},{\"_id\":2,\"customer_id\":\"C000507\",\"status\":\"paid\",\"total\":{\"$numberDouble\":\"20.5\"},\"placed_at\":{\"$date\":\"2026-02-01T00:00:00Z\"}},{\"_id\":3,\"customer_id\":\"C000507\",\"status\":\"paid\",\"total\":{\"$numberInt\":\"1500\"},\"placed_at\":{\"$date\":\"2026-05-15T00:00:00Z\"}},{\"_id\":4,\"customer_id\":\"C000507\",\"status\":\"cancelled\",\"total\":{\"$numberInt\":\"9999\"},\"placed_at\":{\"$date\":\"2026-02-15T00:00:00Z\"}},{\"_id\":5,\"customer_id\":\"C999999\",\"status\":\"paid\",\"total\":{\"$numberInt\":\"5000\"},\"placed_at\":{\"$date\":\"2026-01-15T00:00:00Z\"}}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "seed-orders",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": true,
+        "command_ejson": "{\"aggregate\":\"orders\",\"pipeline\":[{\"$match\":{\"customer_id\":\"C000507\",\"status\":{\"$ne\":\"cancelled\"}}},{\"$addFields\":{\"total_cents\":{\"$cond\":[{\"$eq\":[{\"$type\":\"$total\"},\"double\"]},{\"$round\":[{\"$multiply\":[\"$total\",100]},0]},\"$total\"]}}},{\"$setWindowFields\":{\"partitionBy\":\"$customer_id\",\"sortBy\":{\"placed_at\":1},\"output\":{\"rolling_90d\":{\"$sum\":\"$total_cents\",\"window\":{\"range\":[-90,\"current\"],\"unit\":\"day\"}}}}},{\"$sort\":{\"placed_at\":1}},{\"$project\":{\"placed_at\":1,\"total_cents\":1,\"rolling_90d\":1}}],\"cursor\":{}}",
+        "expect_ejson": "{\"docs\":[{\"_id\":1,\"placed_at\":{\"$date\":\"2026-01-01T00:00:00Z\"},\"total_cents\":1000,\"rolling_90d\":1000},{\"_id\":2,\"placed_at\":{\"$date\":\"2026-02-01T00:00:00Z\"},\"total_cents\":2050,\"rolling_90d\":3050},{\"_id\":3,\"placed_at\":{\"$date\":\"2026-05-15T00:00:00Z\"},\"total_cents\":1500,\"rolling_90d\":1500}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "rolling-90d",
+        "op": "command",
+        "unordered": false
+      }
+    ],
+    "generation": {
+      "attempts": 1,
+      "model": "muse-spark-1.3"
+    },
+    "status": "valid"
+  },
+  {
+    "probe_id": "F2.swf-prev-order-shift",
+    "feature_id": "F2",
+    "title": "Previous order date via $shift",
+    "behavior": "Customer timeline previous order date with $shift by -1 partitioned by customer ordered by placed_at; first order must yield null",
+    "steps": [
+      {
+        "capture": false,
+        "command_ejson": "{\"insert\":\"orders\",\"documents\":[{\"_id\":1,\"customer_id\":\"C000507\",\"status\":\"paid\",\"total\":{\"$numberInt\":\"1000\"},\"placed_at\":{\"$date\":\"2026-01-10T00:00:00Z\"}},{\"_id\":3,\"customer_id\":\"C000507\",\"status\":\"paid\",\"total\":{\"$numberInt\":\"1500\"},\"placed_at\":{\"$date\":\"2026-03-20T00:00:00Z\"}},{\"_id\":2,\"customer_id\":\"C000507\",\"status\":\"paid\",\"total\":{\"$numberInt\":\"2000\"},\"placed_at\":{\"$date\":\"2026-02-15T00:00:00Z\"}},{\"_id\":4,\"customer_id\":\"C000507\",\"status\":\"cancelled\",\"total\":{\"$numberInt\":\"9999\"},\"placed_at\":{\"$date\":\"2026-02-01T00:00:00Z\"}},{\"_id\":5,\"customer_id\":\"C999999\",\"status\":\"paid\",\"total\":{\"$numberInt\":\"5000\"},\"placed_at\":{\"$date\":\"2026-01-05T00:00:00Z\"}}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "seed-orders",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": true,
+        "command_ejson": "{\"aggregate\":\"orders\",\"pipeline\":[{\"$match\":{\"customer_id\":\"C000507\",\"status\":{\"$ne\":\"cancelled\"}}},{\"$addFields\":{\"total_cents\":{\"$cond\":[{\"$eq\":[{\"$type\":\"$total\"},\"double\"]},{\"$round\":[{\"$multiply\":[\"$total\",100]},0]},\"$total\"]}}},{\"$setWindowFields\":{\"partitionBy\":\"$customer_id\",\"sortBy\":{\"placed_at\":1},\"output\":{\"previous_order_at\":{\"$shift\":{\"output\":\"$placed_at\",\"by\":-1}}}}},{\"$sort\":{\"placed_at\":1}},{\"$project\":{\"placed_at\":1,\"total_cents\":1,\"previous_order_at\":1}}],\"cursor\":{}}",
+        "expect_ejson": "{\"docs\":[{\"_id\":1,\"placed_at\":{\"$date\":\"2026-01-10T00:00:00Z\"},\"total_cents\":1000,\"previous_order_at\":null},{\"_id\":2,\"placed_at\":{\"$date\":\"2026-02-15T00:00:00Z\"},\"total_cents\":2000,\"previous_order_at\":{\"$date\":\"2026-01-10T00:00:00Z\"}},{\"_id\":3,\"placed_at\":{\"$date\":\"2026-03-20T00:00:00Z\"},\"total_cents\":1500,\"previous_order_at\":{\"$date\":\"2026-02-15T00:00:00Z\"}}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "prev-order-shift",
+        "op": "command",
+        "unordered": false
+      }
+    ],
+    "generation": {
+      "attempts": 1,
+      "model": "muse-spark-1.3"
+    },
+    "status": "valid"
+  },
+  {
+    "probe_id": "F3.arrayfilter-refund-selected",
+    "feature_id": "F3",
+    "title": "Filtered positional refund targets only requested lines",
+    "behavior": "mark only the requested order lines as refunded with a filtered positional update guarded by line_id list and refund_status none",
+    "steps": [
+      {
+        "capture": false,
+        "command_ejson": "{\"insert\":\"orders\",\"documents\":[{\"_id\":\"O00001995\",\"status\":\"delivered\",\"refund_total\":0,\"updated_at\":{\"$date\":\"2026-11-01T00:00:00Z\"},\"items\":[{\"line_id\":1,\"refund_status\":\"none\"},{\"line_id\":2,\"refund_status\":\"none\"},{\"line_id\":3,\"refund_status\":\"none\"}]}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "seed-order",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": false,
+        "command_ejson": "{\"update\":\"orders\",\"updates\":[{\"q\":{\"_id\":\"O00001995\",\"status\":{\"$in\":[\"delivered\",\"partially_refunded\"]}},\"u\":{\"$set\":{\"items.$[line].refund_status\":\"refunded\",\"items.$[line].refunded_at\":{\"$date\":\"2026-11-02T00:00:00Z\"},\"updated_at\":{\"$date\":\"2026-11-02T00:00:00Z\"}},\"$inc\":{\"refund_total\":64800}},\"arrayFilters\":[{\"line.line_id\":{\"$in\":[1,2]},\"line.refund_status\":\"none\"}],\"multi\":false,\"upsert\":false}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "refund-selected-lines",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": true,
+        "command_ejson": "{\"find\":\"orders\",\"filter\":{\"_id\":\"O00001995\"}}",
+        "expect_ejson": "{\"docs\":[{\"_id\":\"O00001995\",\"status\":\"delivered\",\"refund_total\":64800,\"updated_at\":{\"$date\":\"2026-11-02T00:00:00Z\"},\"items\":[{\"line_id\":1,\"refund_status\":\"refunded\",\"refunded_at\":{\"$date\":\"2026-11-02T00:00:00Z\"}},{\"line_id\":2,\"refund_status\":\"refunded\",\"refunded_at\":{\"$date\":\"2026-11-02T00:00:00Z\"}},{\"line_id\":3,\"refund_status\":\"none\"}]}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "verify-only-targeted-refunded",
+        "op": "command",
+        "unordered": true
+      }
+    ],
+    "generation": {
+      "attempts": 1,
+      "model": "muse-spark-1.3"
+    },
+    "status": "valid"
+  },
+  {
+    "probe_id": "F3.arrayfilter-refund-guard",
+    "feature_id": "F3",
+    "title": "Filtered positional guard skips already-refunded lines",
+    "behavior": "filtered positional guard on refund_status none prevents re-refunding an already refunded line",
+    "steps": [
+      {
+        "capture": false,
+        "command_ejson": "{\"insert\":\"orders\",\"documents\":[{\"_id\":\"O00001995\",\"status\":\"partially_refunded\",\"refund_total\":10000,\"updated_at\":{\"$date\":\"2026-11-01T00:00:00Z\"},\"items\":[{\"line_id\":1,\"refund_status\":\"none\"},{\"line_id\":2,\"refund_status\":\"refunded\",\"refunded_at\":{\"$date\":\"2026-10-20T00:00:00Z\"}},{\"line_id\":3,\"refund_status\":\"none\"}]}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "seed-mixed-states",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": false,
+        "command_ejson": "{\"update\":\"orders\",\"updates\":[{\"q\":{\"_id\":\"O00001995\",\"status\":{\"$in\":[\"delivered\",\"partially_refunded\"]}},\"u\":{\"$set\":{\"items.$[line].refund_status\":\"refunded\",\"items.$[line].refunded_at\":{\"$date\":\"2026-11-02T00:00:00Z\"},\"updated_at\":{\"$date\":\"2026-11-02T00:00:00Z\"}},\"$inc\":{\"refund_total\":64800}},\"arrayFilters\":[{\"line.line_id\":{\"$in\":[1,2]},\"line.refund_status\":\"none\"}],\"multi\":false,\"upsert\":false}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "refund-with-guard",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": true,
+        "command_ejson": "{\"find\":\"orders\",\"filter\":{\"_id\":\"O00001995\"}}",
+        "expect_ejson": "{\"docs\":[{\"_id\":\"O00001995\",\"status\":\"partially_refunded\",\"refund_total\":74800,\"updated_at\":{\"$date\":\"2026-11-02T00:00:00Z\"},\"items\":[{\"line_id\":1,\"refund_status\":\"refunded\",\"refunded_at\":{\"$date\":\"2026-11-02T00:00:00Z\"}},{\"line_id\":2,\"refund_status\":\"refunded\",\"refunded_at\":{\"$date\":\"2026-10-20T00:00:00Z\"}},{\"line_id\":3,\"refund_status\":\"none\"}]}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "verify-guard-preserved",
+        "op": "command",
+        "unordered": true
+      }
+    ],
+    "generation": {
+      "attempts": 1,
+      "model": "muse-spark-1.3"
+    },
+    "status": "valid"
+  },
+  {
+    "probe_id": "F3.all-positional-reviewed",
+    "feature_id": "F3",
+    "title": "All-positional marks every line reviewed",
+    "behavior": "mark every order line as reviewed in a single update using the all-positional $[] operator",
+    "steps": [
+      {
+        "capture": false,
+        "command_ejson": "{\"insert\":\"orders\",\"documents\":[{\"_id\":\"O00001473\",\"status\":\"delivered\",\"items\":[{\"line_id\":1,\"sku\":\"A\"},{\"line_id\":2,\"sku\":\"B\"},{\"line_id\":3,\"sku\":\"C\"}]}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "seed-order",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": false,
+        "command_ejson": "{\"update\":\"orders\",\"updates\":[{\"q\":{\"_id\":\"O00001473\"},\"u\":{\"$set\":{\"items.$[].reviewed_by\":\"qa-bot\"}},\"multi\":false,\"upsert\":false}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "mark-all-reviewed",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": true,
+        "command_ejson": "{\"find\":\"orders\",\"filter\":{\"_id\":\"O00001473\"}}",
+        "expect_ejson": "{\"docs\":[{\"_id\":\"O00001473\",\"status\":\"delivered\",\"items\":[{\"line_id\":1,\"sku\":\"A\",\"reviewed_by\":\"qa-bot\"},{\"line_id\":2,\"sku\":\"B\",\"reviewed_by\":\"qa-bot\"},{\"line_id\":3,\"sku\":\"C\",\"reviewed_by\":\"qa-bot\"}]}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "verify-all-reviewed",
+        "op": "command",
+        "unordered": true
+      }
+    ],
+    "generation": {
+      "attempts": 1,
+      "model": "muse-spark-1.3"
+    },
+    "status": "valid"
+  },
+  {
+    "probe_id": "F4.txn-abort-rollback",
+    "feature_id": "F4",
+    "title": "Abort rolls back multi-line reservations and order",
+    "behavior": "checkout must atomically reserve inventory for all lines, insert the order, and convert the cart in one transaction, rolling back all reservations if any line is out of stock or the order insert fails",
+    "steps": [
+      {
+        "capture": false,
+        "command_ejson": "{\"insert\":\"inv\",\"documents\":[{\"_id\":1,\"sku\":\"A\",\"stock\":10},{\"_id\":2,\"sku\":\"B\",\"stock\":5}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "seed-inv",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": false,
+        "expect_error": false,
+        "in_txn": false,
+        "label": "start",
+        "op": "txn_start",
+        "unordered": false
+      },
+      {
+        "capture": false,
+        "command_ejson": "{\"update\":\"inv\",\"updates\":[{\"q\":{\"_id\":1},\"u\":{\"$inc\":{\"stock\":-2}},\"upsert\":false},{\"q\":{\"_id\":2},\"u\":{\"$inc\":{\"stock\":-1}},\"upsert\":false}]}",
+        "expect_error": false,
+        "in_txn": true,
+        "label": "reserve-in-txn",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": false,
+        "command_ejson": "{\"insert\":\"orders\",\"ordered\":true,\"documents\":[{\"_id\":100,\"lines\":[{\"sku\":\"A\",\"qty\":2},{\"sku\":\"B\",\"qty\":1}],\"status\":\"pending\"}]}",
+        "expect_error": false,
+        "in_txn": true,
+        "label": "insert-order-in-txn",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": false,
+        "expect_error": false,
+        "in_txn": false,
+        "label": "abort",
+        "op": "txn_abort",
+        "unordered": false
+      },
+      {
+        "capture": true,
+        "command_ejson": "{\"find\":\"inv\",\"filter\":{},\"sort\":{\"_id\":1}}",
+        "expect_ejson": "{\"docs\":[{\"_id\":1,\"sku\":\"A\",\"stock\":10},{\"_id\":2,\"sku\":\"B\",\"stock\":5}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "check-inv-rolled-back",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": true,
+        "command_ejson": "{\"find\":\"orders\",\"filter\":{},\"sort\":{\"_id\":1}}",
+        "expect_ejson": "{\"docs\":[]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "check-orders-rolled-back",
+        "op": "command",
+        "unordered": false
+      }
+    ],
+    "generation": {
+      "attempts": 1,
+      "model": "muse-spark-1.3"
+    },
+    "status": "valid"
+  },
+  {
+    "probe_id": "F4.txn-commit-atomic",
+    "feature_id": "F4",
+    "title": "Commit atomically persists reservations order and cart",
+    "behavior": "checkout must atomically reserve inventory for all lines, insert the order, and convert the cart in one transaction, persisting all three only on commit",
+    "steps": [
+      {
+        "capture": false,
+        "command_ejson": "{\"insert\":\"inv\",\"documents\":[{\"_id\":1,\"sku\":\"A\",\"stock\":10},{\"_id\":2,\"sku\":\"B\",\"stock\":5}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "seed-inv",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": false,
+        "command_ejson": "{\"insert\":\"carts\",\"documents\":[{\"_id\":7,\"user\":\"u1\",\"status\":\"open\",\"items\":[{\"sku\":\"A\",\"qty\":2}]}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "seed-cart",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": false,
+        "expect_error": false,
+        "in_txn": false,
+        "label": "start",
+        "op": "txn_start",
+        "unordered": false
+      },
+      {
+        "capture": false,
+        "command_ejson": "{\"update\":\"inv\",\"updates\":[{\"q\":{\"_id\":1},\"u\":{\"$inc\":{\"stock\":-2}},\"upsert\":false},{\"q\":{\"_id\":2},\"u\":{\"$inc\":{\"stock\":-1}},\"upsert\":false}]}",
+        "expect_error": false,
+        "in_txn": true,
+        "label": "reserve-in-txn",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": false,
+        "command_ejson": "{\"insert\":\"orders\",\"ordered\":true,\"documents\":[{\"_id\":101,\"lines\":[{\"sku\":\"A\",\"qty\":2},{\"sku\":\"B\",\"qty\":1}],\"status\":\"pending\"}]}",
+        "expect_error": false,
+        "in_txn": true,
+        "label": "insert-order-in-txn",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": false,
+        "command_ejson": "{\"update\":\"carts\",\"updates\":[{\"q\":{\"_id\":7},\"u\":{\"$set\":{\"status\":\"ordered\"}},\"upsert\":false}]}",
+        "expect_error": false,
+        "in_txn": true,
+        "label": "convert-cart-in-txn",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": false,
+        "expect_error": false,
+        "in_txn": false,
+        "label": "commit",
+        "op": "txn_commit",
+        "unordered": false
+      },
+      {
+        "capture": true,
+        "command_ejson": "{\"find\":\"inv\",\"filter\":{},\"sort\":{\"_id\":1}}",
+        "expect_ejson": "{\"docs\":[{\"_id\":1,\"sku\":\"A\",\"stock\":8},{\"_id\":2,\"sku\":\"B\",\"stock\":4}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "check-inv-committed",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": true,
+        "command_ejson": "{\"find\":\"orders\",\"filter\":{},\"sort\":{\"_id\":1}}",
+        "expect_ejson": "{\"docs\":[{\"_id\":101,\"lines\":[{\"sku\":\"A\",\"qty\":2},{\"sku\":\"B\",\"qty\":1}],\"status\":\"pending\"}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "check-order-committed",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": true,
+        "command_ejson": "{\"find\":\"carts\",\"filter\":{},\"sort\":{\"_id\":1}}",
+        "expect_ejson": "{\"docs\":[{\"_id\":7,\"user\":\"u1\",\"status\":\"ordered\",\"items\":[{\"sku\":\"A\",\"qty\":2}]}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "check-cart-committed",
+        "op": "command",
+        "unordered": false
+      }
+    ],
+    "generation": {
+      "attempts": 1,
+      "model": "muse-spark-1.3"
+    },
+    "status": "valid"
+  },
+  {
+    "probe_id": "F4.txn-isolation-uncommitted",
+    "feature_id": "F4",
+    "title": "Uncommitted reservation invisible outside transaction",
+    "behavior": "uncommitted checkout reservation must not be visible outside the transaction but must be visible inside, and abort must restore the original stock",
+    "steps": [
+      {
+        "capture": false,
+        "command_ejson": "{\"insert\":\"inv\",\"documents\":[{\"_id\":1,\"sku\":\"A\",\"stock\":10}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "seed-inv",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": false,
+        "expect_error": false,
+        "in_txn": false,
+        "label": "start",
+        "op": "txn_start",
+        "unordered": false
+      },
+      {
+        "capture": false,
+        "command_ejson": "{\"update\":\"inv\",\"updates\":[{\"q\":{\"_id\":1},\"u\":{\"$inc\":{\"stock\":-2}},\"upsert\":false}]}",
+        "expect_error": false,
+        "in_txn": true,
+        "label": "reserve-in-txn",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": true,
+        "command_ejson": "{\"find\":\"inv\",\"filter\":{\"_id\":1}}",
+        "expect_ejson": "{\"docs\":[{\"_id\":1,\"sku\":\"A\",\"stock\":10}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "read-outside-sees-old",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": true,
+        "command_ejson": "{\"find\":\"inv\",\"filter\":{\"_id\":1}}",
+        "expect_ejson": "{\"docs\":[{\"_id\":1,\"sku\":\"A\",\"stock\":8}]}",
+        "expect_error": false,
+        "in_txn": true,
+        "label": "read-inside-sees-new",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": false,
+        "expect_error": false,
+        "in_txn": false,
+        "label": "abort",
+        "op": "txn_abort",
+        "unordered": false
+      },
+      {
+        "capture": true,
+        "command_ejson": "{\"find\":\"inv\",\"filter\":{\"_id\":1}}",
+        "expect_ejson": "{\"docs\":[{\"_id\":1,\"sku\":\"A\",\"stock\":10}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "read-after-abort",
+        "op": "command",
+        "unordered": false
+      }
+    ],
+    "generation": {
+      "attempts": 1,
+      "model": "muse-spark-1.3"
+    },
+    "status": "valid"
+  },
+  {
+    "probe_id": "F5.cs-filter-update-replace",
+    "feature_id": "F5",
+    "title": "Change stream filtered to update and replace only",
+    "behavior": "Change stream with $match filter to update/replace only delivers updates and replaces while suppressing inserts",
+    "steps": [
+      {
+        "capture": false,
+        "collection": "inventory",
+        "command_ejson": "{\"insert\":\"inventory\",\"documents\":[{\"_id\":1,\"sku\":\"a\",\"qty\":10},{\"_id\":2,\"sku\":\"b\",\"qty\":5}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "seed",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": false,
+        "collection": "inventory",
+        "expect_error": false,
+        "full_document": "updateLookup",
+        "in_txn": false,
+        "label": "open-filtered",
+        "op": "watch_open",
+        "pipeline_ejson": "[{\"$match\":{\"operationType\":{\"$in\":[\"update\",\"replace\"]}}}]",
+        "unordered": false
+      },
+      {
+        "capture": false,
+        "collection": "inventory",
+        "command_ejson": "{\"update\":\"inventory\",\"updates\":[{\"q\":{\"_id\":1},\"u\":{\"$set\":{\"qty\":9}},\"multi\":false,\"upsert\":false}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "update-one",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": false,
+        "collection": "inventory",
+        "command_ejson": "{\"insert\":\"inventory\",\"documents\":[{\"_id\":3,\"sku\":\"c\",\"qty\":7}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "insert-filtered-out",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": false,
+        "collection": "inventory",
+        "command_ejson": "{\"update\":\"inventory\",\"updates\":[{\"q\":{\"_id\":2},\"u\":{\"sku\":\"b\",\"qty\":4},\"multi\":false,\"upsert\":false}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "replace-one",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": true,
+        "collection": "inventory",
+        "expect_ejson": "[{\"operationType\":\"update\",\"ns\":{\"coll\":\"inventory\"},\"documentKey\":{\"_id\":1},\"fullDocument\":{\"_id\":1,\"sku\":\"a\",\"qty\":9},\"updateDescription\":{\"updatedFields\":{\"qty\":9},\"removedFields\":[],\"truncatedArrays\":[]}},{\"operationType\":\"replace\",\"ns\":{\"coll\":\"inventory\"},\"documentKey\":{\"_id\":2},\"fullDocument\":{\"_id\":2,\"sku\":\"b\",\"qty\":4}}]",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "poll-two-events",
+        "max_events": 2,
+        "op": "watch_next",
+        "timeout_ms": 5000,
+        "unordered": false
+      },
+      {
+        "capture": false,
+        "collection": "inventory",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "close",
+        "op": "watch_close",
+        "unordered": false
+      }
+    ],
+    "generation": {
+      "attempts": 2,
+      "model": "muse-spark-1.3"
+    },
+    "status": "valid"
+  },
+  {
+    "probe_id": "F5.cs-fulldocument-lookup",
+    "feature_id": "F5",
+    "title": "Change stream fullDocument updateLookup on update",
+    "behavior": "Change stream with fullDocument updateLookup returns the post-update document for update operations",
+    "steps": [
+      {
+        "capture": false,
+        "collection": "inventory",
+        "command_ejson": "{\"insert\":\"inventory\",\"documents\":[{\"_id\":10,\"sku\":\"a\",\"qty\":10}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "seed",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": false,
+        "collection": "inventory",
+        "expect_error": false,
+        "full_document": "updateLookup",
+        "in_txn": false,
+        "label": "open-lookup",
+        "op": "watch_open",
+        "pipeline_ejson": "[{\"$match\":{\"operationType\":{\"$in\":[\"update\",\"replace\"]}}}]",
+        "unordered": false
+      },
+      {
+        "capture": false,
+        "collection": "inventory",
+        "command_ejson": "{\"update\":\"inventory\",\"updates\":[{\"q\":{\"_id\":10},\"u\":{\"$set\":{\"qty\":9}},\"multi\":false,\"upsert\":false}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "update-qty",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": true,
+        "collection": "inventory",
+        "expect_ejson": "[{\"operationType\":\"update\",\"documentKey\":{\"_id\":10},\"fullDocument\":{\"_id\":10,\"sku\":\"a\",\"qty\":9},\"updateDescription\":{\"updatedFields\":{\"qty\":9},\"removedFields\":[],\"truncatedArrays\":[]},\"ns\":{\"coll\":\"inventory\"}}]",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "poll-fullDocument",
+        "max_events": 1,
+        "op": "watch_next",
+        "timeout_ms": 5000,
+        "unordered": false
+      },
+      {
+        "capture": false,
+        "collection": "inventory",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "close",
+        "op": "watch_close",
+        "unordered": false
+      }
+    ],
+    "generation": {
+      "attempts": 2,
+      "model": "muse-spark-1.3"
+    },
+    "status": "valid"
+  },
+  {
+    "probe_id": "F5.cs-event-per-change",
+    "feature_id": "F5",
+    "title": "Change stream one event per change with non-blocking poll",
+    "behavior": "Change stream with non-blocking polling emits one event per update in order without loss and empty poll returns promptly",
+    "steps": [
+      {
+        "capture": false,
+        "collection": "inventory",
+        "command_ejson": "{\"insert\":\"inventory\",\"documents\":[{\"_id\":10,\"sku\":\"a\",\"qty\":100}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "seed",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": false,
+        "collection": "inventory",
+        "expect_error": false,
+        "full_document": "updateLookup",
+        "in_txn": false,
+        "label": "open-filtered",
+        "op": "watch_open",
+        "pipeline_ejson": "[{\"$match\":{\"operationType\":{\"$in\":[\"update\",\"replace\"]}}}]",
+        "unordered": false
+      },
+      {
+        "capture": false,
+        "collection": "inventory",
+        "command_ejson": "{\"insert\":\"inventory\",\"documents\":[{\"_id\":11,\"sku\":\"b\",\"qty\":50}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "insert-filtered",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": false,
+        "collection": "inventory",
+        "command_ejson": "{\"update\":\"inventory\",\"updates\":[{\"q\":{\"_id\":10},\"u\":{\"sku\":\"a\",\"qty\":90},\"multi\":false,\"upsert\":false}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "replace-first",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": false,
+        "collection": "inventory",
+        "command_ejson": "{\"update\":\"inventory\",\"updates\":[{\"q\":{\"_id\":10},\"u\":{\"sku\":\"a\",\"qty\":80},\"multi\":false,\"upsert\":false}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "replace-second",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": true,
+        "collection": "inventory",
+        "expect_ejson": "[{\"operationType\":\"replace\",\"ns\":{\"coll\":\"inventory\"},\"documentKey\":{\"_id\":10},\"fullDocument\":{\"_id\":10,\"sku\":\"a\",\"qty\":90}},{\"operationType\":\"replace\",\"ns\":{\"coll\":\"inventory\"},\"documentKey\":{\"_id\":10},\"fullDocument\":{\"_id\":10,\"sku\":\"a\",\"qty\":80}}]",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "poll-two-changes",
+        "max_events": 2,
+        "op": "watch_next",
+        "timeout_ms": 5000,
+        "unordered": false
+      },
+      {
+        "capture": true,
+        "collection": "inventory",
+        "expect_ejson": "[]",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "poll-empty-nonblocking",
+        "max_events": 1,
+        "op": "watch_next",
+        "timeout_ms": 500,
+        "unordered": false
+      },
+      {
+        "capture": false,
+        "collection": "inventory",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "close",
+        "op": "watch_close",
+        "unordered": false
+      }
+    ],
+    "generation": {
+      "attempts": 2,
+      "model": "muse-spark-1.3"
+    },
+    "status": "valid"
+  },
+  {
+    "probe_id": "F6.ci-lookup",
+    "feature_id": "F6",
+    "title": "Case-insensitive email lookup with collation",
+    "behavior": "customer lookup by email must match case-insensitively using collation strength 2",
+    "steps": [
+      {
+        "capture": false,
+        "command_ejson": "{\"insert\": \"customers\", \"documents\": [{\"_id\": 1, \"email\": \"User4841@example.com\", \"name\": \"Alice\"}, {\"_id\": 2, \"email\": \"other@example.com\", \"name\": \"Bob\"}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "insert-seed",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": true,
+        "command_ejson": "{\"find\": \"customers\", \"filter\": {\"email\": \"USER4841@EXAMPLE.COM\"}, \"limit\": 1, \"singleBatch\": true, \"collation\": {\"locale\": \"en\", \"strength\": 2}}",
+        "expect_ejson": "{\"docs\": [{\"_id\": 1, \"email\": \"User4841@example.com\", \"name\": \"Alice\"}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "find-upper-with-collation",
+        "op": "command",
+        "unordered": true
+      },
+      {
+        "capture": true,
+        "command_ejson": "{\"find\": \"customers\", \"filter\": {\"email\": \"user4841@example.com\"}, \"limit\": 1, \"singleBatch\": true, \"collation\": {\"locale\": \"en\", \"strength\": 2}}",
+        "expect_ejson": "{\"docs\": [{\"_id\": 1, \"email\": \"User4841@example.com\", \"name\": \"Alice\"}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "find-lower-with-collation",
+        "op": "command",
+        "unordered": true
+      }
+    ],
+    "generation": {
+      "attempts": 1,
+      "model": "muse-spark-1.3"
+    },
+    "status": "valid"
+  },
+  {
+    "probe_id": "F6.ci-unique",
+    "feature_id": "F6",
+    "title": "Case-insensitive unique email via collation index",
+    "behavior": "customer email uniqueness is case-insensitive via collation index locale en strength 2",
+    "steps": [
+      {
+        "capture": false,
+        "command_ejson": "{\"createIndexes\": \"customers\", \"indexes\": [{\"key\": {\"email\": 1}, \"name\": \"email_ci_unique\", \"unique\": true, \"collation\": {\"locale\": \"en\", \"strength\": 2}}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "create-ci-unique-index",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": false,
+        "command_ejson": "{\"insert\": \"customers\", \"documents\": [{\"_id\": 1, \"email\": \"User@example.com\"}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "insert-base",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": false,
+        "command_ejson": "{\"insert\": \"customers\", \"documents\": [{\"_id\": 2, \"email\": \"USER@EXAMPLE.COM\"}]}",
+        "expect_error": true,
+        "expect_error_code": 11000,
+        "in_txn": false,
+        "label": "insert-case-variant-duplicate",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": false,
+        "command_ejson": "{\"insert\": \"customers\", \"documents\": [{\"_id\": 3, \"email\": \"Other@example.com\"}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "insert-distinct-allowed",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": true,
+        "command_ejson": "{\"find\": \"customers\", \"filter\": {}, \"sort\": {\"_id\": 1}}",
+        "expect_ejson": "{\"docs\": [{\"_id\": 1, \"email\": \"User@example.com\"}, {\"_id\": 3, \"email\": \"Other@example.com\"}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "read-all-after-unique-check",
+        "op": "command",
+        "unordered": false
+      }
+    ],
+    "generation": {
+      "attempts": 1,
+      "model": "muse-spark-1.3"
+    },
+    "status": "valid"
+  },
+  {
+    "probe_id": "F6.ci-gating",
+    "feature_id": "F6",
+    "title": "Collation controls case sensitivity of email match",
+    "behavior": "email match without collation is case-sensitive and with collation strength 2 is case-insensitive",
+    "steps": [
+      {
+        "capture": false,
+        "command_ejson": "{\"insert\": \"customers\", \"documents\": [{\"_id\": 1, \"email\": \"MixedCase@Example.COM\"}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "insert-seed",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": true,
+        "command_ejson": "{\"find\": \"customers\", \"filter\": {\"email\": \"mixedcase@example.com\"}}",
+        "expect_ejson": "{\"docs\": []}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "find-without-collation-no-match",
+        "op": "command",
+        "unordered": true
+      },
+      {
+        "capture": true,
+        "command_ejson": "{\"find\": \"customers\", \"filter\": {\"email\": \"mixedcase@example.com\"}, \"collation\": {\"locale\": \"en\", \"strength\": 2}}",
+        "expect_ejson": "{\"docs\": [{\"_id\": 1, \"email\": \"MixedCase@Example.COM\"}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "find-with-collation-matches",
+        "op": "command",
+        "unordered": true
+      }
+    ],
+    "generation": {
+      "attempts": 1,
+      "model": "muse-spark-1.3"
+    },
+    "status": "valid"
+  },
+  {
+    "probe_id": "F7.partial-unique-missing-exempt",
+    "feature_id": "F7",
+    "title": "Partial unique allows missing coupon but rejects duplicate per customer",
+    "behavior": "coupon_code uniqueness per customer is enforced only when coupon_code exists via partial unique index",
+    "steps": [
+      {
+        "capture": false,
+        "command_ejson": "{\"createIndexes\":\"orders\",\"indexes\":[{\"key\":{\"customer_id\":1,\"coupon_code\":1},\"name\":\"coupon_once_per_customer\",\"unique\":true,\"partialFilterExpression\":{\"coupon_code\":{\"$exists\":true}}}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "create-partial-unique-index",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": false,
+        "command_ejson": "{\"insert\":\"orders\",\"documents\":[{\"_id\":1,\"customer_id\":\"custA\",\"coupon_code\":\"SAVE10\"}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "insert-first-coupon",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": false,
+        "command_ejson": "{\"insert\":\"orders\",\"documents\":[{\"_id\":2,\"customer_id\":\"custA\",\"coupon_code\":\"SAVE10\"}]}",
+        "expect_error": true,
+        "expect_error_code": 11000,
+        "in_txn": false,
+        "label": "insert-duplicate-same-customer-coupon",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": false,
+        "command_ejson": "{\"insert\":\"orders\",\"documents\":[{\"_id\":3,\"customer_id\":\"custA\"}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "insert-no-coupon-first",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": false,
+        "command_ejson": "{\"insert\":\"orders\",\"documents\":[{\"_id\":4,\"customer_id\":\"custA\"}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "insert-no-coupon-second",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": true,
+        "command_ejson": "{\"find\":\"orders\",\"filter\":{},\"sort\":{\"_id\":1}}",
+        "expect_ejson": "{\"docs\":[{\"_id\":1,\"customer_id\":\"custA\",\"coupon_code\":\"SAVE10\"},{\"_id\":3,\"customer_id\":\"custA\"},{\"_id\":4,\"customer_id\":\"custA\"}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "verify-missing-exempt-duplicate-rejected",
+        "op": "command",
+        "unordered": false
+      }
+    ],
+    "generation": {
+      "attempts": 1,
+      "model": "muse-spark-1.3"
+    },
+    "status": "valid"
+  },
+  {
+    "probe_id": "F7.partial-unique-per-customer",
+    "feature_id": "F7",
+    "title": "Partial unique coupon allows same code for different customers",
+    "behavior": "coupon_code uniqueness is per customer, same coupon_code for different customers is allowed",
+    "steps": [
+      {
+        "capture": false,
+        "command_ejson": "{\"createIndexes\":\"orders\",\"indexes\":[{\"key\":{\"customer_id\":1,\"coupon_code\":1},\"name\":\"coupon_once_per_customer\",\"unique\":true,\"partialFilterExpression\":{\"coupon_code\":{\"$exists\":true}}}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "create-partial-unique-index",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": false,
+        "command_ejson": "{\"insert\":\"orders\",\"documents\":[{\"_id\":1,\"customer_id\":\"custA\",\"coupon_code\":\"SAVE10\"}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "insert-custA-coupon",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": false,
+        "command_ejson": "{\"insert\":\"orders\",\"documents\":[{\"_id\":2,\"customer_id\":\"custB\",\"coupon_code\":\"SAVE10\"}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "insert-custB-same-coupon",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": false,
+        "command_ejson": "{\"insert\":\"orders\",\"documents\":[{\"_id\":3,\"customer_id\":\"custA\",\"coupon_code\":\"SAVE10\"}]}",
+        "expect_error": true,
+        "expect_error_code": 11000,
+        "in_txn": false,
+        "label": "insert-duplicate-same-customer",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": true,
+        "command_ejson": "{\"find\":\"orders\",\"filter\":{},\"sort\":{\"_id\":1}}",
+        "expect_ejson": "{\"docs\":[{\"_id\":1,\"customer_id\":\"custA\",\"coupon_code\":\"SAVE10\"},{\"_id\":2,\"customer_id\":\"custB\",\"coupon_code\":\"SAVE10\"}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "verify-per-customer-uniqueness",
+        "op": "command",
+        "unordered": false
+      }
+    ],
+    "generation": {
+      "attempts": 1,
+      "model": "muse-spark-1.3"
+    },
+    "status": "valid"
+  },
+  {
+    "probe_id": "F7.ttl-active-only-expiry",
+    "feature_id": "F7",
+    "title": "TTL expires only active carts at expires_at",
+    "behavior": "active carts auto-delete at expires_at via TTL index limited to status active",
+    "steps": [
+      {
+        "capture": false,
+        "command_ejson": "{\"createIndexes\":\"carts\",\"indexes\":[{\"key\":{\"expires_at\":1},\"name\":\"active_cart_expiry\",\"expireAfterSeconds\":0,\"partialFilterExpression\":{\"status\":\"active\"}}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "create-partial-ttl-index",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": false,
+        "command_ejson": "{\"insert\":\"carts\",\"documents\":[{\"_id\":1,\"status\":\"active\",\"expires_at\":{\"$date\":\"2026-01-01T00:00:00Z\"}}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "insert-active-expired-cart",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": false,
+        "command_ejson": "{\"insert\":\"carts\",\"documents\":[{\"_id\":2,\"status\":\"completed\",\"expires_at\":{\"$date\":\"2026-01-01T00:00:00Z\"}}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "insert-inactive-expired-cart",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": false,
+        "expect_error": false,
+        "in_txn": false,
+        "label": "wait-for-ttl",
+        "op": "wait_ttl",
+        "seconds": 72,
+        "unordered": false
+      },
+      {
+        "capture": true,
+        "command_ejson": "{\"find\":\"carts\",\"filter\":{},\"sort\":{\"_id\":1}}",
+        "expect_ejson": "{\"docs\":[{\"_id\":2,\"status\":\"completed\",\"expires_at\":{\"$date\":\"2026-01-01T00:00:00Z\"}}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "verify-only-active-expired",
+        "op": "command",
+        "unordered": false
+      }
+    ],
+    "generation": {
+      "attempts": 1,
+      "model": "muse-spark-1.3"
+    },
+    "status": "valid"
+  },
+  {
+    "probe_id": "F8.orders-required-fields",
+    "feature_id": "F8",
+    "title": "$jsonSchema requires customer_id, status, items, total and placed_at on orders",
+    "behavior": "orders enforces $jsonSchema with required customer_id, status, items, total, placed_at at level moderate; inserts missing a required field fail with 121 and only valid docs persist",
+    "steps": [
+      {
+        "capture": false,
+        "command_ejson": "{\"create\":\"orders\",\"validator\":{\"$jsonSchema\":{\"bsonType\":\"object\",\"required\":[\"customer_id\",\"status\",\"items\",\"total\",\"placed_at\"],\"properties\":{\"customer_id\":{\"bsonType\":\"string\"},\"status\":{\"enum\":[\"pending\",\"paid\",\"shipped\",\"cancelled\"]},\"items\":{\"bsonType\":\"array\",\"minItems\":1},\"total\":{\"bsonType\":[\"double\",\"decimal\",\"int\",\"long\"],\"minimum\":0},\"placed_at\":{\"bsonType\":\"date\"}}}},\"validationLevel\":\"moderate\",\"validationAction\":\"error\"}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "create orders with validator",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": false,
+        "command_ejson": "{\"insert\":\"orders\",\"documents\":[{\"_id\":1,\"customer_id\":\"c123\",\"status\":\"pending\",\"items\":[{\"sku\":\"a1\",\"qty\":2}],\"total\":49.99,\"placed_at\":{\"$date\":\"2026-01-01T00:00:00Z\"}}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "insert valid order",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": false,
+        "command_ejson": "{\"insert\":\"orders\",\"documents\":[{\"_id\":2,\"status\":\"pending\",\"items\":[{\"sku\":\"a1\",\"qty\":2}],\"total\":19.99,\"placed_at\":{\"$date\":\"2026-01-01T00:00:00Z\"}}]}",
+        "expect_error": true,
+        "expect_error_code": 121,
+        "in_txn": false,
+        "label": "insert missing customer_id fails",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": false,
+        "command_ejson": "{\"insert\":\"orders\",\"documents\":[{\"_id\":3,\"customer_id\":\"c123\",\"status\":\"pending\",\"items\":[{\"sku\":\"a1\",\"qty\":2}],\"placed_at\":{\"$date\":\"2026-01-01T00:00:00Z\"}}]}",
+        "expect_error": true,
+        "expect_error_code": 121,
+        "in_txn": false,
+        "label": "insert missing total fails",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": true,
+        "command_ejson": "{\"find\":\"orders\",\"filter\":{},\"sort\":{\"_id\":1}}",
+        "expect_ejson": "{\"docs\":[{\"_id\":1,\"customer_id\":\"c123\",\"status\":\"pending\",\"items\":[{\"sku\":\"a1\",\"qty\":2}],\"total\":49.99,\"placed_at\":{\"$date\":\"2026-01-01T00:00:00Z\"}}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "read back orders",
+        "op": "command",
+        "unordered": false
+      }
+    ],
+    "generation": {
+      "attempts": 1,
+      "model": "muse-spark-1.3"
+    },
+    "status": "valid"
+  },
+  {
+    "probe_id": "F8.orders-enum-total",
+    "feature_id": "F8",
+    "title": "$jsonSchema enum and minimum on orders status and total",
+    "behavior": "orders $jsonSchema restricts status to pending/paid/shipped/cancelled and total to >=0; violating inserts fail with 121 and only valid doc persists",
+    "steps": [
+      {
+        "capture": false,
+        "command_ejson": "{\"create\":\"orders\",\"validator\":{\"$jsonSchema\":{\"bsonType\":\"object\",\"required\":[\"customer_id\",\"status\",\"items\",\"total\",\"placed_at\"],\"properties\":{\"customer_id\":{\"bsonType\":\"string\"},\"status\":{\"enum\":[\"pending\",\"paid\",\"shipped\",\"cancelled\"]},\"items\":{\"bsonType\":\"array\",\"minItems\":1},\"total\":{\"bsonType\":[\"double\",\"decimal\",\"int\",\"long\"],\"minimum\":0},\"placed_at\":{\"bsonType\":\"date\"}}}},\"validationLevel\":\"moderate\",\"validationAction\":\"error\"}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "create orders with validator",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": false,
+        "command_ejson": "{\"insert\":\"orders\",\"documents\":[{\"_id\":20,\"customer_id\":\"c020\",\"status\":\"pending\",\"items\":[{\"sku\":\"a1\",\"qty\":1}],\"total\":49.99,\"placed_at\":{\"$date\":\"2026-02-01T00:00:00Z\"}}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "insert valid order",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": false,
+        "command_ejson": "{\"insert\":\"orders\",\"documents\":[{\"_id\":21,\"customer_id\":\"c021\",\"status\":\"archived\",\"items\":[{\"sku\":\"a1\",\"qty\":1}],\"total\":10,\"placed_at\":{\"$date\":\"2026-02-01T00:00:00Z\"}}]}",
+        "expect_error": true,
+        "expect_error_code": 121,
+        "in_txn": false,
+        "label": "insert bad status fails",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": false,
+        "command_ejson": "{\"insert\":\"orders\",\"documents\":[{\"_id\":22,\"customer_id\":\"c022\",\"status\":\"paid\",\"items\":[{\"sku\":\"a1\",\"qty\":1}],\"total\":-5,\"placed_at\":{\"$date\":\"2026-02-01T00:00:00Z\"}}]}",
+        "expect_error": true,
+        "expect_error_code": 121,
+        "in_txn": false,
+        "label": "insert negative total fails",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": true,
+        "command_ejson": "{\"find\":\"orders\",\"filter\":{},\"sort\":{\"_id\":1}}",
+        "expect_ejson": "{\"docs\":[{\"_id\":20,\"customer_id\":\"c020\",\"status\":\"pending\",\"items\":[{\"sku\":\"a1\",\"qty\":1}],\"total\":49.99,\"placed_at\":{\"$date\":\"2026-02-01T00:00:00Z\"}}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "read back orders",
+        "op": "command",
+        "unordered": false
+      }
+    ],
+    "generation": {
+      "attempts": 1,
+      "model": "muse-spark-1.3"
+    },
+    "status": "valid"
+  },
+  {
+    "probe_id": "F8.orders-types-update",
+    "feature_id": "F8",
+    "title": "$jsonSchema bsonType on items and placed_at plus update validation on orders",
+    "behavior": "orders $jsonSchema requires items as array and placed_at as date and validates updates to valid docs; violating inserts and updates fail with 121 while valid update succeeds",
+    "steps": [
+      {
+        "capture": false,
+        "command_ejson": "{\"create\":\"orders\",\"validator\":{\"$jsonSchema\":{\"bsonType\":\"object\",\"required\":[\"customer_id\",\"status\",\"items\",\"total\",\"placed_at\"],\"properties\":{\"customer_id\":{\"bsonType\":\"string\"},\"status\":{\"enum\":[\"pending\",\"paid\",\"shipped\",\"cancelled\"]},\"items\":{\"bsonType\":\"array\",\"minItems\":1},\"total\":{\"bsonType\":[\"double\",\"decimal\",\"int\",\"long\"],\"minimum\":0},\"placed_at\":{\"bsonType\":\"date\"}}}},\"validationLevel\":\"moderate\",\"validationAction\":\"error\"}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "create orders with validator",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": false,
+        "command_ejson": "{\"insert\":\"orders\",\"documents\":[{\"_id\":30,\"customer_id\":\"c030\",\"status\":\"pending\",\"items\":[{\"sku\":\"a1\",\"qty\":2}],\"total\":49.99,\"placed_at\":{\"$date\":\"2026-03-01T00:00:00Z\"}}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "insert valid order",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": false,
+        "command_ejson": "{\"insert\":\"orders\",\"documents\":[{\"_id\":31,\"customer_id\":\"c031\",\"status\":\"pending\",\"items\":{\"sku\":\"a1\"},\"total\":10,\"placed_at\":{\"$date\":\"2026-03-01T00:00:00Z\"}}]}",
+        "expect_error": true,
+        "expect_error_code": 121,
+        "in_txn": false,
+        "label": "insert items not array fails",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": false,
+        "command_ejson": "{\"insert\":\"orders\",\"documents\":[{\"_id\":32,\"customer_id\":\"c032\",\"status\":\"pending\",\"items\":[{\"sku\":\"a1\",\"qty\":1}],\"total\":10,\"placed_at\":\"2026-03-01\"}]}",
+        "expect_error": true,
+        "expect_error_code": 121,
+        "in_txn": false,
+        "label": "insert placed_at string fails",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": false,
+        "command_ejson": "{\"update\":\"orders\",\"updates\":[{\"q\":{\"_id\":30},\"u\":{\"$set\":{\"total\":-5}},\"multi\":false,\"upsert\":false}]}",
+        "expect_error": true,
+        "expect_error_code": 121,
+        "in_txn": false,
+        "label": "invalid update total fails",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": false,
+        "command_ejson": "{\"update\":\"orders\",\"updates\":[{\"q\":{\"_id\":30},\"u\":{\"$set\":{\"status\":\"shipped\"}},\"multi\":false,\"upsert\":false}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "valid update status succeeds",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": true,
+        "command_ejson": "{\"find\":\"orders\",\"filter\":{},\"sort\":{\"_id\":1}}",
+        "expect_ejson": "{\"docs\":[{\"_id\":30,\"customer_id\":\"c030\",\"status\":\"shipped\",\"items\":[{\"sku\":\"a1\",\"qty\":2}],\"total\":49.99,\"placed_at\":{\"$date\":\"2026-03-01T00:00:00Z\"}}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "read back orders",
+        "op": "command",
+        "unordered": false
+      }
+    ],
+    "generation": {
+      "attempts": 1,
+      "model": "muse-spark-1.3"
+    },
+    "status": "valid"
+  },
+  {
+    "probe_id": "F9.text_weighted_ranking",
+    "feature_id": "F9",
+    "title": "Text search weighted ranking with active filter",
+    "behavior": "Active product keyword search uses $text with weighted text index (name:10, tags:5, description:1) and $meta textScore ranking; higher-weight field matches must rank first and inactive products must be filtered.",
+    "steps": [
+      {
+        "capture": false,
+        "command_ejson": "{\"createIndexes\":\"products\",\"indexes\":[{\"key\":{\"name\":\"text\",\"description\":\"text\",\"tags\":\"text\"},\"name\":\"product_search\",\"weights\":{\"name\":10,\"tags\":5,\"description\":1}}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "create-text-index",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": false,
+        "command_ejson": "{\"insert\":\"products\",\"documents\":[{\"_id\":1,\"active\":true,\"category\":\"jackets\",\"description\":\"premium warm winter coat\",\"name\":\"basic jacket\",\"price\":69,\"tags\":[\"outerwear\",\"casual\"]},{\"_id\":2,\"active\":true,\"category\":\"jackets\",\"description\":\"warm winter coat everyday\",\"name\":\"basic jacket\",\"price\":79,\"tags\":[\"premium\",\"casual\"]},{\"_id\":3,\"active\":true,\"category\":\"jackets\",\"description\":\"warm winter coat everyday\",\"name\":\"premium jacket\",\"price\":99,\"tags\":[\"outerwear\",\"casual\"]},{\"_id\":4,\"active\":false,\"category\":\"jackets\",\"description\":\"warm winter coat everyday\",\"name\":\"premium jacket\",\"price\":99,\"tags\":[\"outerwear\",\"casual\"]}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "seed-products",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": true,
+        "command_ejson": "{\"find\":\"products\",\"filter\":{\"$text\":{\"$search\":\"premium\"},\"active\":true},\"projection\":{\"category\":1,\"name\":1,\"price\":1},\"sort\":{\"score\":{\"$meta\":\"textScore\"},\"_id\":1},\"limit\":20}",
+        "expect_ejson": "{\"docs\":[{\"_id\":3,\"category\":\"jackets\",\"name\":\"premium jacket\",\"price\":99},{\"_id\":2,\"category\":\"jackets\",\"name\":\"basic jacket\",\"price\":79},{\"_id\":1,\"category\":\"jackets\",\"name\":\"basic jacket\",\"price\":69}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "search-premium-ranked",
+        "op": "command",
+        "unordered": false
+      }
+    ],
+    "generation": {
+      "attempts": 3,
+      "model": "muse-spark-1.3"
+    },
+    "status": "valid"
+  },
+  {
+    "probe_id": "F9.text_exclusion_term",
+    "feature_id": "F9",
+    "title": "Text search exclusion term with active filter",
+    "behavior": "Product search supports $text exclusion terms (e.g. premium -jacket) combined with active:true filter and textScore sort; excluded-term documents must not match.",
+    "steps": [
+      {
+        "capture": false,
+        "command_ejson": "{\"createIndexes\":\"products\",\"indexes\":[{\"key\":{\"name\":\"text\",\"description\":\"text\",\"tags\":\"text\"},\"name\":\"product_search\",\"weights\":{\"description\":1,\"name\":10,\"tags\":5}}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "create-text-index",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": false,
+        "command_ejson": "{\"insert\":\"products\",\"documents\":[{\"_id\":1,\"active\":true,\"category\":\"jackets\",\"description\":\"warm winter coat\",\"name\":\"premium jacket\",\"price\":99,\"tags\":[\"outerwear\"]},{\"_id\":2,\"active\":true,\"category\":\"boots\",\"description\":\"warm winter boots\",\"name\":\"premium boots\",\"price\":89,\"tags\":[\"footwear\"]},{\"_id\":3,\"active\":true,\"category\":\"tees\",\"description\":\"cotton tee\",\"name\":\"basic tee\",\"price\":19,\"tags\":[\"sale\"]},{\"_id\":4,\"active\":false,\"category\":\"boots\",\"description\":\"warm winter boots\",\"name\":\"premium boots\",\"price\":89,\"tags\":[\"footwear\"]}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "seed-products",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": true,
+        "command_ejson": "{\"find\":\"products\",\"filter\":{\"$text\":{\"$search\":\"premium -jacket\"},\"active\":true},\"sort\":{\"score\":{\"$meta\":\"textScore\"},\"_id\":1},\"projection\":{\"category\":1,\"name\":1,\"price\":1},\"limit\":20}",
+        "expect_ejson": "{\"docs\":[{\"_id\":2,\"category\":\"boots\",\"name\":\"premium boots\",\"price\":89}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "search-exclusion",
+        "op": "command",
+        "unordered": false
+      }
+    ],
+    "generation": {
+      "attempts": 2,
+      "model": "muse-spark-1.3"
+    },
+    "status": "valid"
+  },
+  {
+    "probe_id": "F9.text_search_active_ranked",
+    "feature_id": "F9",
+    "title": "Text search active products ranked by textScore",
+    "behavior": "Keyword product search uses $text index over name, description and tags with weights and returns only active products sorted by textScore ranking.",
+    "steps": [
+      {
+        "capture": false,
+        "command_ejson": "{\"createIndexes\":\"products\",\"indexes\":[{\"key\":{\"description\":\"text\",\"name\":\"text\",\"tags\":\"text\"},\"name\":\"product_search\",\"weights\":{\"description\":1,\"name\":10,\"tags\":5}}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "create-text-index",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": false,
+        "command_ejson": "{\"insert\":\"products\",\"documents\":[{\"_id\":1,\"active\":true,\"category\":\"jackets\",\"description\":\"warm winter coat\",\"name\":\"premium jacket\",\"price\":99,\"tags\":[\"outerwear\"]},{\"_id\":2,\"active\":true,\"category\":\"jackets\",\"description\":\"premium warm winter coat\",\"name\":\"leather jacket\",\"price\":99,\"tags\":[\"outerwear\"]},{\"_id\":3,\"active\":true,\"category\":\"boots\",\"description\":\"warm winter boots\",\"name\":\"leather boots\",\"price\":89,\"tags\":[\"footwear\"]},{\"_id\":4,\"active\":false,\"category\":\"jackets\",\"description\":\"warm winter coat\",\"name\":\"premium jacket\",\"price\":99,\"tags\":[\"outerwear\"]}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "seed-products",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": true,
+        "command_ejson": "{\"find\":\"products\",\"filter\":{\"$text\":{\"$search\":\"premium\"},\"active\":true},\"limit\":20,\"projection\":{\"category\":1,\"name\":1,\"price\":1},\"sort\":{\"_id\":1,\"score\":{\"$meta\":\"textScore\"}}}",
+        "expect_ejson": "{\"docs\":[{\"_id\":1,\"category\":\"jackets\",\"name\":\"premium jacket\",\"price\":99},{\"_id\":2,\"category\":\"jackets\",\"name\":\"leather jacket\",\"price\":99}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "search-premium-active-ranked",
+        "op": "command",
+        "unordered": false
+      }
+    ],
+    "generation": {
+      "attempts": 3,
+      "model": "muse-spark-1.3"
+    },
+    "status": "valid"
+  },
+  {
+    "probe_id": "F10.cart-upsert-fetch-convert-discard",
+    "feature_id": "F10",
+    "title": "Cart upsert fetch convert conditional delete",
+    "behavior": "Touching a cart must upsert by _id marking active, fetching uses find by customer_id+status, converting updates status/order_id by _id, discarding deletes only when still active",
+    "steps": [
+      {
+        "capture": false,
+        "command_ejson": "{\"update\":\"carts\",\"updates\":[{\"q\":{\"_id\":\"cart1\"},\"u\":{\"$set\":{\"customer_id\":\"custA\",\"status\":\"active\"}},\"upsert\":true,\"multi\":false}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "touch-upsert",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": true,
+        "command_ejson": "{\"find\":\"carts\",\"filter\":{\"customer_id\":\"custA\",\"status\":\"active\"}}",
+        "expect_ejson": "{\"docs\":[{\"_id\":\"cart1\",\"customer_id\":\"custA\",\"status\":\"active\"}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "fetch-by-customer-status",
+        "op": "command",
+        "unordered": true
+      },
+      {
+        "capture": false,
+        "command_ejson": "{\"update\":\"carts\",\"updates\":[{\"q\":{\"_id\":\"cart1\"},\"u\":{\"$set\":{\"order_id\":\"O1\",\"status\":\"converted\"}},\"upsert\":false,\"multi\":false}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "convert-cart",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": true,
+        "command_ejson": "{\"find\":\"carts\",\"filter\":{\"_id\":\"cart1\"}}",
+        "expect_ejson": "{\"docs\":[{\"_id\":\"cart1\",\"customer_id\":\"custA\",\"order_id\":\"O1\",\"status\":\"converted\"}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "fetch-converted",
+        "op": "command",
+        "unordered": true
+      },
+      {
+        "capture": false,
+        "command_ejson": "{\"delete\":\"carts\",\"deletes\":[{\"q\":{\"_id\":\"cart1\",\"status\":\"active\"},\"limit\":1}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "discard-active-only-miss",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": true,
+        "command_ejson": "{\"find\":\"carts\",\"filter\":{\"_id\":\"cart1\"}}",
+        "expect_ejson": "{\"docs\":[{\"_id\":\"cart1\",\"customer_id\":\"custA\",\"order_id\":\"O1\",\"status\":\"converted\"}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "verify-still-present",
+        "op": "command",
+        "unordered": true
+      }
+    ],
+    "generation": {
+      "attempts": 1,
+      "model": "muse-spark-1.3"
+    },
+    "status": "valid"
+  },
+  {
+    "probe_id": "F10.order-cas-history-find",
+    "feature_id": "F10",
+    "title": "Order compare-and-set with history and filtered finds",
+    "behavior": "Order status must compare-and-set on _id+status $in while $set status/updated_at and $push history with no modification on stale prior set, history uses find by customer_id with projection sort limit, open orders uses find by status with sort limit and count",
+    "steps": [
+      {
+        "capture": false,
+        "command_ejson": "{\"insert\":\"orders\",\"documents\":[{\"_id\":\"O10\",\"customer_id\":\"custB\",\"history\":[],\"placed_at\":{\"$date\":\"2026-01-01T00:00:00Z\"},\"status\":\"placed\"},{\"_id\":\"O11\",\"customer_id\":\"custB\",\"history\":[],\"placed_at\":{\"$date\":\"2026-01-02T00:00:00Z\"},\"status\":\"placed\"}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "insert-orders",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": false,
+        "command_ejson": "{\"update\":\"orders\",\"updates\":[{\"q\":{\"_id\":\"O10\",\"status\":{\"$in\":[\"placed\"]}},\"u\":{\"$push\":{\"history\":\"paid\"},\"$set\":{\"status\":\"paid\",\"updated_at\":{\"$date\":\"2026-01-10T00:00:00Z\"}}},\"upsert\":false,\"multi\":false}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "cas-success",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": true,
+        "command_ejson": "{\"find\":\"orders\",\"filter\":{\"_id\":\"O10\"}}",
+        "expect_ejson": "{\"docs\":[{\"_id\":\"O10\",\"customer_id\":\"custB\",\"history\":[\"paid\"],\"placed_at\":{\"$date\":\"2026-01-01T00:00:00Z\"},\"status\":\"paid\",\"updated_at\":{\"$date\":\"2026-01-10T00:00:00Z\"}}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "verify-paid",
+        "op": "command",
+        "unordered": true
+      },
+      {
+        "capture": false,
+        "command_ejson": "{\"update\":\"orders\",\"updates\":[{\"q\":{\"_id\":\"O10\",\"status\":{\"$in\":[\"placed\"]}},\"u\":{\"$set\":{\"status\":\"shipped\"}},\"upsert\":false,\"multi\":false}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "cas-stale-noop",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": true,
+        "command_ejson": "{\"find\":\"orders\",\"filter\":{\"_id\":\"O10\"}}",
+        "expect_ejson": "{\"docs\":[{\"_id\":\"O10\",\"customer_id\":\"custB\",\"history\":[\"paid\"],\"placed_at\":{\"$date\":\"2026-01-01T00:00:00Z\"},\"status\":\"paid\",\"updated_at\":{\"$date\":\"2026-01-10T00:00:00Z\"}}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "verify-still-paid",
+        "op": "command",
+        "unordered": true
+      },
+      {
+        "capture": true,
+        "command_ejson": "{\"find\":\"orders\",\"filter\":{\"customer_id\":\"custB\"},\"limit\":2,\"projection\":{\"_id\":1,\"status\":1},\"sort\":{\"placed_at\":-1,\"_id\":1}}",
+        "expect_ejson": "{\"docs\":[{\"_id\":\"O11\",\"status\":\"placed\"},{\"_id\":\"O10\",\"status\":\"paid\"}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "history-by-customer",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": true,
+        "command_ejson": "{\"find\":\"orders\",\"filter\":{\"status\":\"placed\"},\"limit\":10,\"projection\":{\"_id\":1,\"status\":1},\"sort\":{\"placed_at\":-1,\"_id\":1}}",
+        "expect_ejson": "{\"docs\":[{\"_id\":\"O11\",\"status\":\"placed\"}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "open-by-status",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": true,
+        "command_ejson": "{\"count\":\"orders\",\"query\":{\"customer_id\":\"custB\"}}",
+        "expect_ejson": "{\"n\":2}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "count-by-customer",
+        "op": "command",
+        "unordered": false
+      }
+    ],
+    "generation": {
+      "attempts": 2,
+      "model": "muse-spark-1.3"
+    },
+    "status": "valid"
+  },
+  {
+    "probe_id": "X:graphLookup.graphlookup-referral-chain",
+    "feature_id": "X:graphLookup",
+    "title": "Referral chain via $graphLookup with depth tracking",
+    "behavior": "referral chain report recursively follows referred_by to _id in customers and collects ancestors as referrers with depth tracking",
+    "steps": [
+      {
+        "capture": false,
+        "command_ejson": "{\"insert\": \"customers\", \"documents\": [{\"_id\": \"alice\", \"referred_by\": null}, {\"_id\": \"bob\", \"referred_by\": \"alice\"}, {\"_id\": \"carol\", \"referred_by\": \"bob\"}, {\"_id\": \"dave\", \"referred_by\": \"carol\"}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "seed customers chain",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": true,
+        "command_ejson": "{\"aggregate\": \"customers\", \"pipeline\": [{\"$match\": {\"_id\": \"dave\"}}, {\"$graphLookup\": {\"from\": \"customers\", \"startWith\": \"$referred_by\", \"connectFromField\": \"referred_by\", \"connectToField\": \"_id\", \"as\": \"referrers\", \"depthField\": \"depth\"}}, {\"$unwind\": \"$referrers\"}, {\"$sort\": {\"referrers.depth\": 1}}, {\"$project\": {\"_id\": 0, \"ancestor\": \"$referrers._id\", \"depth\": \"$referrers.depth\"}}], \"cursor\": {}}",
+        "expect_ejson": "{\"docs\": [{\"ancestor\": \"carol\", \"depth\": 0}, {\"ancestor\": \"bob\", \"depth\": 1}, {\"ancestor\": \"alice\", \"depth\": 2}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "graphLookup ancestors with depth",
+        "op": "command",
+        "unordered": false
+      }
+    ],
+    "generation": {
+      "attempts": 1,
+      "model": "muse-spark-1.3"
+    },
+    "status": "valid"
+  }
+]

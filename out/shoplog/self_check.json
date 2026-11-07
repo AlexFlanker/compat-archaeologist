@@ -1,8 +1,8 @@
 {
-  "run_id": "20261107T204200Z-self",
+  "run_id": "20261107T220754Z-self",
   "profile": "shoplog",
   "self_check": true,
-  "probe_origin": "handwritten_fixture",
+  "probe_origin": "muse",
   "engines": {
     "source": {
       "reported_version": "8.0.34",
@@ -17,48 +17,1720 @@
   },
   "probes": [
     {
-      "probe_id": "T.array_filters",
-      "feature_id": "F3",
-      "title": "arrayFilters updates only matching elements",
-      "behavior": "Only the elements selected by the filter change",
+      "probe_id": "F1.revenue_facet_full",
+      "feature_id": "F1",
+      "title": "Revenue $lookup sub-pipeline plus $facet by_tier by_month largest",
+      "behavior": "revenue report joins orders to customers via $lookup let/pipeline + $unwind and returns by_tier, by_month and largest in one $facet; cancelled and out-of-range orders excluded, double totals converted to cents",
       "source": {
         "outcome": "completed",
         "steps": [
           {
-            "label": "seed",
+            "label": "insert_customers",
             "op": "command",
-            "ms": 11.54,
+            "ms": 41.89,
             "status": "ok"
           },
           {
-            "label": "update",
+            "label": "insert_orders",
             "op": "command",
-            "ms": 3.78,
+            "ms": 26.87,
             "status": "ok"
           },
           {
-            "label": "read",
+            "label": "revenue_facet",
             "op": "command",
-            "ms": 0.77,
+            "ms": 0.82,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "by_month": [
+                    {
+                      "_id": "2024-01",
+                      "revenue": 20050
+                    }
+                  ],
+                  "by_tier": [
+                    {
+                      "_id": "gold",
+                      "orders": 1,
+                      "revenue": 12050
+                    },
+                    {
+                      "_id": "silver",
+                      "orders": 1,
+                      "revenue": 8000
+                    }
+                  ],
+                  "largest": [
+                    {
+                      "_id": "o1",
+                      "tier": "gold",
+                      "total_cents": 12050
+                    },
+                    {
+                      "_id": "o2",
+                      "tier": "silver",
+                      "total_cents": 8000
+                    }
+                  ]
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "by_month": [
+                    {
+                      "_id": null,
+                      "revenue": "double"
+                    }
+                  ],
+                  "by_tier": [
+                    {
+                      "_id": null,
+                      "orders": "int",
+                      "revenue": "double"
+                    },
+                    {
+                      "_id": null,
+                      "orders": "int",
+                      "revenue": "int"
+                    }
+                  ],
+                  "largest": [
+                    {
+                      "_id": null,
+                      "tier": null,
+                      "total_cents": "double"
+                    },
+                    {
+                      "_id": null,
+                      "tier": null,
+                      "total_cents": "int"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ],
+        "seconds": 0.08
+      },
+      "target": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "insert_customers",
+            "op": "command",
+            "ms": 37.37,
+            "status": "ok"
+          },
+          {
+            "label": "insert_orders",
+            "op": "command",
+            "ms": 21.36,
+            "status": "ok"
+          },
+          {
+            "label": "revenue_facet",
+            "op": "command",
+            "ms": 1.57,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "by_month": [
+                    {
+                      "_id": "2024-01",
+                      "revenue": 20050
+                    }
+                  ],
+                  "by_tier": [
+                    {
+                      "_id": "gold",
+                      "orders": 1,
+                      "revenue": 12050
+                    },
+                    {
+                      "_id": "silver",
+                      "orders": 1,
+                      "revenue": 8000
+                    }
+                  ],
+                  "largest": [
+                    {
+                      "_id": "o1",
+                      "tier": "gold",
+                      "total_cents": 12050
+                    },
+                    {
+                      "_id": "o2",
+                      "tier": "silver",
+                      "total_cents": 8000
+                    }
+                  ]
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "by_month": [
+                    {
+                      "_id": null,
+                      "revenue": "double"
+                    }
+                  ],
+                  "by_tier": [
+                    {
+                      "_id": null,
+                      "orders": "int",
+                      "revenue": "double"
+                    },
+                    {
+                      "_id": null,
+                      "orders": "int",
+                      "revenue": "int"
+                    }
+                  ],
+                  "largest": [
+                    {
+                      "_id": null,
+                      "tier": null,
+                      "total_cents": "double"
+                    },
+                    {
+                      "_id": null,
+                      "tier": null,
+                      "total_cents": "int"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ],
+        "seconds": 0.07
+      },
+      "verdict": "equal",
+      "detail": {}
+    },
+    {
+      "probe_id": "F1.inventory_lookup_pipeline",
+      "feature_id": "F1",
+      "title": "Lookup with localField plus pipeline filter and group",
+      "behavior": "products join inventory via $lookup with localField/foreignField plus pipeline $expr $lt filter, then $match stock.0 $exists and $group by category with $sort",
+      "source": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "insert_products",
+            "op": "command",
+            "ms": 44.55,
+            "status": "ok"
+          },
+          {
+            "label": "insert_inventory",
+            "op": "command",
+            "ms": 22.53,
+            "status": "ok"
+          },
+          {
+            "label": "lookup_pipeline_group",
+            "op": "command",
+            "ms": 0.86,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": "books",
+                  "skus": 1
+                },
+                {
+                  "_id": "toys",
+                  "skus": 1
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": null,
+                  "skus": "int"
+                },
+                {
+                  "_id": null,
+                  "skus": "int"
+                }
+              ]
+            }
+          }
+        ],
+        "seconds": 0.078
+      },
+      "target": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "insert_products",
+            "op": "command",
+            "ms": 22.53,
+            "status": "ok"
+          },
+          {
+            "label": "insert_inventory",
+            "op": "command",
+            "ms": 11.13,
+            "status": "ok"
+          },
+          {
+            "label": "lookup_pipeline_group",
+            "op": "command",
+            "ms": 1.21,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": "books",
+                  "skus": 1
+                },
+                {
+                  "_id": "toys",
+                  "skus": 1
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": null,
+                  "skus": "int"
+                },
+                {
+                  "_id": null,
+                  "skus": "int"
+                }
+              ]
+            }
+          }
+        ],
+        "seconds": 0.061
+      },
+      "verdict": "equal",
+      "detail": {}
+    },
+    {
+      "probe_id": "F1.revenue_facet_largest_top5",
+      "feature_id": "F1",
+      "title": "Facet largest top-5 with lookup tier",
+      "behavior": "revenue largest facet returns 5 largest orders sorted by total_cents desc with tier from $lookup sub-pipeline, exercising $sort $limit $project inside $facet and double-to-cents conversion",
+      "source": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "insert_customers",
+            "op": "command",
+            "ms": 37.9,
+            "status": "ok"
+          },
+          {
+            "label": "insert_orders",
+            "op": "command",
+            "ms": 21.81,
+            "status": "ok"
+          },
+          {
+            "label": "facet_largest_top5",
+            "op": "command",
+            "ms": 1.69,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "largest": [
+                    {
+                      "_id": "o5",
+                      "tier": "silver",
+                      "total_cents": 9999
+                    },
+                    {
+                      "_id": "o6",
+                      "tier": "gold",
+                      "total_cents": 7000
+                    },
+                    {
+                      "_id": "o3",
+                      "tier": "gold",
+                      "total_cents": 3075
+                    },
+                    {
+                      "_id": "o2",
+                      "tier": "silver",
+                      "total_cents": 2000
+                    },
+                    {
+                      "_id": "o1",
+                      "tier": "gold",
+                      "total_cents": 1000
+                    }
+                  ]
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "largest": [
+                    {
+                      "_id": null,
+                      "tier": null,
+                      "total_cents": "double"
+                    },
+                    {
+                      "_id": null,
+                      "tier": null,
+                      "total_cents": "int"
+                    },
+                    {
+                      "_id": null,
+                      "tier": null,
+                      "total_cents": "double"
+                    },
+                    {
+                      "_id": null,
+                      "tier": null,
+                      "total_cents": "int"
+                    },
+                    {
+                      "_id": null,
+                      "tier": null,
+                      "total_cents": "double"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ],
+        "seconds": 0.071
+      },
+      "target": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "insert_customers",
+            "op": "command",
+            "ms": 26.95,
+            "status": "ok"
+          },
+          {
+            "label": "insert_orders",
+            "op": "command",
+            "ms": 10.58,
+            "status": "ok"
+          },
+          {
+            "label": "facet_largest_top5",
+            "op": "command",
+            "ms": 1.57,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "largest": [
+                    {
+                      "_id": "o5",
+                      "tier": "silver",
+                      "total_cents": 9999
+                    },
+                    {
+                      "_id": "o6",
+                      "tier": "gold",
+                      "total_cents": 7000
+                    },
+                    {
+                      "_id": "o3",
+                      "tier": "gold",
+                      "total_cents": 3075
+                    },
+                    {
+                      "_id": "o2",
+                      "tier": "silver",
+                      "total_cents": 2000
+                    },
+                    {
+                      "_id": "o1",
+                      "tier": "gold",
+                      "total_cents": 1000
+                    }
+                  ]
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "largest": [
+                    {
+                      "_id": null,
+                      "tier": null,
+                      "total_cents": "double"
+                    },
+                    {
+                      "_id": null,
+                      "tier": null,
+                      "total_cents": "int"
+                    },
+                    {
+                      "_id": null,
+                      "tier": null,
+                      "total_cents": "double"
+                    },
+                    {
+                      "_id": null,
+                      "tier": null,
+                      "total_cents": "int"
+                    },
+                    {
+                      "_id": null,
+                      "tier": null,
+                      "total_cents": "double"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ],
+        "seconds": 0.06
+      },
+      "verdict": "equal",
+      "detail": {}
+    },
+    {
+      "probe_id": "F2.swf-running-total-seq",
+      "feature_id": "F2",
+      "title": "Running total and sequence via $setWindowFields",
+      "behavior": "Customer timeline running_total with documents unbounded to current and order_seq with $documentNumber partitioned by customer_id ordered by placed_at; cancelled and other-customer docs must be excluded by $match",
+      "source": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "seed-orders",
+            "op": "command",
+            "ms": 37.35,
+            "status": "ok"
+          },
+          {
+            "label": "running-total-seq",
+            "op": "command",
+            "ms": 0.93,
             "status": "ok",
             "captured": {
               "docs": [
                 {
                   "_id": 1,
+                  "order_seq": 1,
+                  "placed_at": "2026-01-10T00:00:00.000+00:00",
+                  "running_total": 1000,
+                  "total_cents": 1000
+                },
+                {
+                  "_id": 2,
+                  "order_seq": 2,
+                  "placed_at": "2026-02-15T00:00:00.000+00:00",
+                  "running_total": 3000,
+                  "total_cents": 2000
+                },
+                {
+                  "_id": 3,
+                  "order_seq": 3,
+                  "placed_at": "2026-03-20T00:00:00.000+00:00",
+                  "running_total": 4500,
+                  "total_cents": 1500
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": "int",
+                  "order_seq": "int",
+                  "placed_at": null,
+                  "running_total": "int",
+                  "total_cents": "int"
+                },
+                {
+                  "_id": "int",
+                  "order_seq": "int",
+                  "placed_at": null,
+                  "running_total": "int",
+                  "total_cents": "int"
+                },
+                {
+                  "_id": "int",
+                  "order_seq": "int",
+                  "placed_at": null,
+                  "running_total": "int",
+                  "total_cents": "int"
+                }
+              ]
+            }
+          }
+        ],
+        "seconds": 0.06
+      },
+      "target": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "seed-orders",
+            "op": "command",
+            "ms": 44.32,
+            "status": "ok"
+          },
+          {
+            "label": "running-total-seq",
+            "op": "command",
+            "ms": 0.96,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": 1,
+                  "order_seq": 1,
+                  "placed_at": "2026-01-10T00:00:00.000+00:00",
+                  "running_total": 1000,
+                  "total_cents": 1000
+                },
+                {
+                  "_id": 2,
+                  "order_seq": 2,
+                  "placed_at": "2026-02-15T00:00:00.000+00:00",
+                  "running_total": 3000,
+                  "total_cents": 2000
+                },
+                {
+                  "_id": 3,
+                  "order_seq": 3,
+                  "placed_at": "2026-03-20T00:00:00.000+00:00",
+                  "running_total": 4500,
+                  "total_cents": 1500
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": "int",
+                  "order_seq": "int",
+                  "placed_at": null,
+                  "running_total": "int",
+                  "total_cents": "int"
+                },
+                {
+                  "_id": "int",
+                  "order_seq": "int",
+                  "placed_at": null,
+                  "running_total": "int",
+                  "total_cents": "int"
+                },
+                {
+                  "_id": "int",
+                  "order_seq": "int",
+                  "placed_at": null,
+                  "running_total": "int",
+                  "total_cents": "int"
+                }
+              ]
+            }
+          }
+        ],
+        "seconds": 0.066
+      },
+      "verdict": "equal",
+      "detail": {}
+    },
+    {
+      "probe_id": "F2.swf-rolling-90d",
+      "feature_id": "F2",
+      "title": "90-day rolling sum via range window",
+      "behavior": "Customer timeline 90-day rolling sum with $sum range [-90,current] unit day partitioned by customer ordered by placed_at; includes double total conversion via $cond $type $round",
+      "source": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "seed-orders",
+            "op": "command",
+            "ms": 61.28,
+            "status": "ok"
+          },
+          {
+            "label": "rolling-90d",
+            "op": "command",
+            "ms": 0.5,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": 1,
+                  "placed_at": "2026-01-01T00:00:00.000+00:00",
+                  "rolling_90d": 1000,
+                  "total_cents": 1000
+                },
+                {
+                  "_id": 2,
+                  "placed_at": "2026-02-01T00:00:00.000+00:00",
+                  "rolling_90d": 3050,
+                  "total_cents": 2050
+                },
+                {
+                  "_id": 3,
+                  "placed_at": "2026-05-15T00:00:00.000+00:00",
+                  "rolling_90d": 1500,
+                  "total_cents": 1500
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": "int",
+                  "placed_at": null,
+                  "rolling_90d": "int",
+                  "total_cents": "int"
+                },
+                {
+                  "_id": "int",
+                  "placed_at": null,
+                  "rolling_90d": "double",
+                  "total_cents": "double"
+                },
+                {
+                  "_id": "int",
+                  "placed_at": null,
+                  "rolling_90d": "int",
+                  "total_cents": "int"
+                }
+              ]
+            }
+          }
+        ],
+        "seconds": 0.069
+      },
+      "target": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "seed-orders",
+            "op": "command",
+            "ms": 38.83,
+            "status": "ok"
+          },
+          {
+            "label": "rolling-90d",
+            "op": "command",
+            "ms": 0.82,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": 1,
+                  "placed_at": "2026-01-01T00:00:00.000+00:00",
+                  "rolling_90d": 1000,
+                  "total_cents": 1000
+                },
+                {
+                  "_id": 2,
+                  "placed_at": "2026-02-01T00:00:00.000+00:00",
+                  "rolling_90d": 3050,
+                  "total_cents": 2050
+                },
+                {
+                  "_id": 3,
+                  "placed_at": "2026-05-15T00:00:00.000+00:00",
+                  "rolling_90d": 1500,
+                  "total_cents": 1500
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": "int",
+                  "placed_at": null,
+                  "rolling_90d": "int",
+                  "total_cents": "int"
+                },
+                {
+                  "_id": "int",
+                  "placed_at": null,
+                  "rolling_90d": "double",
+                  "total_cents": "double"
+                },
+                {
+                  "_id": "int",
+                  "placed_at": null,
+                  "rolling_90d": "int",
+                  "total_cents": "int"
+                }
+              ]
+            }
+          }
+        ],
+        "seconds": 0.061
+      },
+      "verdict": "equal",
+      "detail": {}
+    },
+    {
+      "probe_id": "F2.swf-prev-order-shift",
+      "feature_id": "F2",
+      "title": "Previous order date via $shift",
+      "behavior": "Customer timeline previous order date with $shift by -1 partitioned by customer ordered by placed_at; first order must yield null",
+      "source": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "seed-orders",
+            "op": "command",
+            "ms": 26.19,
+            "status": "ok"
+          },
+          {
+            "label": "prev-order-shift",
+            "op": "command",
+            "ms": 1.01,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": 1,
+                  "placed_at": "2026-01-10T00:00:00.000+00:00",
+                  "previous_order_at": null,
+                  "total_cents": 1000
+                },
+                {
+                  "_id": 2,
+                  "placed_at": "2026-02-15T00:00:00.000+00:00",
+                  "previous_order_at": "2026-01-10T00:00:00.000+00:00",
+                  "total_cents": 2000
+                },
+                {
+                  "_id": 3,
+                  "placed_at": "2026-03-20T00:00:00.000+00:00",
+                  "previous_order_at": "2026-02-15T00:00:00.000+00:00",
+                  "total_cents": 1500
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": "int",
+                  "placed_at": null,
+                  "previous_order_at": null,
+                  "total_cents": "int"
+                },
+                {
+                  "_id": "int",
+                  "placed_at": null,
+                  "previous_order_at": null,
+                  "total_cents": "int"
+                },
+                {
+                  "_id": "int",
+                  "placed_at": null,
+                  "previous_order_at": null,
+                  "total_cents": "int"
+                }
+              ]
+            }
+          }
+        ],
+        "seconds": 0.038
+      },
+      "target": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "seed-orders",
+            "op": "command",
+            "ms": 45.29,
+            "status": "ok"
+          },
+          {
+            "label": "prev-order-shift",
+            "op": "command",
+            "ms": 0.79,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": 1,
+                  "placed_at": "2026-01-10T00:00:00.000+00:00",
+                  "previous_order_at": null,
+                  "total_cents": 1000
+                },
+                {
+                  "_id": 2,
+                  "placed_at": "2026-02-15T00:00:00.000+00:00",
+                  "previous_order_at": "2026-01-10T00:00:00.000+00:00",
+                  "total_cents": 2000
+                },
+                {
+                  "_id": 3,
+                  "placed_at": "2026-03-20T00:00:00.000+00:00",
+                  "previous_order_at": "2026-02-15T00:00:00.000+00:00",
+                  "total_cents": 1500
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": "int",
+                  "placed_at": null,
+                  "previous_order_at": null,
+                  "total_cents": "int"
+                },
+                {
+                  "_id": "int",
+                  "placed_at": null,
+                  "previous_order_at": null,
+                  "total_cents": "int"
+                },
+                {
+                  "_id": "int",
+                  "placed_at": null,
+                  "previous_order_at": null,
+                  "total_cents": "int"
+                }
+              ]
+            }
+          }
+        ],
+        "seconds": 0.067
+      },
+      "verdict": "equal",
+      "detail": {}
+    },
+    {
+      "probe_id": "F3.arrayfilter-refund-selected",
+      "feature_id": "F3",
+      "title": "Filtered positional refund targets only requested lines",
+      "behavior": "mark only the requested order lines as refunded with a filtered positional update guarded by line_id list and refund_status none",
+      "source": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "seed-order",
+            "op": "command",
+            "ms": 21.63,
+            "status": "ok"
+          },
+          {
+            "label": "refund-selected-lines",
+            "op": "command",
+            "ms": 7.21,
+            "status": "ok"
+          },
+          {
+            "label": "verify-only-targeted-refunded",
+            "op": "command",
+            "ms": 1.03,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": "O00001995",
                   "items": [
                     {
-                      "id": 1,
-                      "s": "refunded"
+                      "line_id": 1,
+                      "refund_status": "refunded",
+                      "refunded_at": "2026-11-02T00:00:00.000+00:00"
                     },
                     {
-                      "id": 2,
-                      "s": "none"
+                      "line_id": 2,
+                      "refund_status": "refunded",
+                      "refunded_at": "2026-11-02T00:00:00.000+00:00"
                     },
                     {
-                      "id": 3,
-                      "s": "done"
+                      "line_id": 3,
+                      "refund_status": "none"
                     }
-                  ]
+                  ],
+                  "refund_total": 64800,
+                  "status": "delivered",
+                  "updated_at": "2026-11-02T00:00:00.000+00:00"
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": null,
+                  "items": [
+                    {
+                      "line_id": "int",
+                      "refund_status": null,
+                      "refunded_at": null
+                    },
+                    {
+                      "line_id": "int",
+                      "refund_status": null,
+                      "refunded_at": null
+                    },
+                    {
+                      "line_id": "int",
+                      "refund_status": null
+                    }
+                  ],
+                  "refund_total": "int",
+                  "status": null,
+                  "updated_at": null
+                }
+              ]
+            }
+          }
+        ],
+        "seconds": 0.049
+      },
+      "target": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "seed-order",
+            "op": "command",
+            "ms": 22.84,
+            "status": "ok"
+          },
+          {
+            "label": "refund-selected-lines",
+            "op": "command",
+            "ms": 7.03,
+            "status": "ok"
+          },
+          {
+            "label": "verify-only-targeted-refunded",
+            "op": "command",
+            "ms": 1.41,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": "O00001995",
+                  "items": [
+                    {
+                      "line_id": 1,
+                      "refund_status": "refunded",
+                      "refunded_at": "2026-11-02T00:00:00.000+00:00"
+                    },
+                    {
+                      "line_id": 2,
+                      "refund_status": "refunded",
+                      "refunded_at": "2026-11-02T00:00:00.000+00:00"
+                    },
+                    {
+                      "line_id": 3,
+                      "refund_status": "none"
+                    }
+                  ],
+                  "refund_total": 64800,
+                  "status": "delivered",
+                  "updated_at": "2026-11-02T00:00:00.000+00:00"
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": null,
+                  "items": [
+                    {
+                      "line_id": "int",
+                      "refund_status": null,
+                      "refunded_at": null
+                    },
+                    {
+                      "line_id": "int",
+                      "refund_status": null,
+                      "refunded_at": null
+                    },
+                    {
+                      "line_id": "int",
+                      "refund_status": null
+                    }
+                  ],
+                  "refund_total": "int",
+                  "status": null,
+                  "updated_at": null
+                }
+              ]
+            }
+          }
+        ],
+        "seconds": 0.05
+      },
+      "verdict": "equal",
+      "detail": {}
+    },
+    {
+      "probe_id": "F3.arrayfilter-refund-guard",
+      "feature_id": "F3",
+      "title": "Filtered positional guard skips already-refunded lines",
+      "behavior": "filtered positional guard on refund_status none prevents re-refunding an already refunded line",
+      "source": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "seed-mixed-states",
+            "op": "command",
+            "ms": 22.5,
+            "status": "ok"
+          },
+          {
+            "label": "refund-with-guard",
+            "op": "command",
+            "ms": 7.91,
+            "status": "ok"
+          },
+          {
+            "label": "verify-guard-preserved",
+            "op": "command",
+            "ms": 0.8,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": "O00001995",
+                  "items": [
+                    {
+                      "line_id": 1,
+                      "refund_status": "refunded",
+                      "refunded_at": "2026-11-02T00:00:00.000+00:00"
+                    },
+                    {
+                      "line_id": 2,
+                      "refund_status": "refunded",
+                      "refunded_at": "2026-10-20T00:00:00.000+00:00"
+                    },
+                    {
+                      "line_id": 3,
+                      "refund_status": "none"
+                    }
+                  ],
+                  "refund_total": 74800,
+                  "status": "partially_refunded",
+                  "updated_at": "2026-11-02T00:00:00.000+00:00"
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": null,
+                  "items": [
+                    {
+                      "line_id": "int",
+                      "refund_status": null,
+                      "refunded_at": null
+                    },
+                    {
+                      "line_id": "int",
+                      "refund_status": null,
+                      "refunded_at": null
+                    },
+                    {
+                      "line_id": "int",
+                      "refund_status": null
+                    }
+                  ],
+                  "refund_total": "int",
+                  "status": null,
+                  "updated_at": null
+                }
+              ]
+            }
+          }
+        ],
+        "seconds": 0.05
+      },
+      "target": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "seed-mixed-states",
+            "op": "command",
+            "ms": 22.01,
+            "status": "ok"
+          },
+          {
+            "label": "refund-with-guard",
+            "op": "command",
+            "ms": 6.71,
+            "status": "ok"
+          },
+          {
+            "label": "verify-guard-preserved",
+            "op": "command",
+            "ms": 0.74,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": "O00001995",
+                  "items": [
+                    {
+                      "line_id": 1,
+                      "refund_status": "refunded",
+                      "refunded_at": "2026-11-02T00:00:00.000+00:00"
+                    },
+                    {
+                      "line_id": 2,
+                      "refund_status": "refunded",
+                      "refunded_at": "2026-10-20T00:00:00.000+00:00"
+                    },
+                    {
+                      "line_id": 3,
+                      "refund_status": "none"
+                    }
+                  ],
+                  "refund_total": 74800,
+                  "status": "partially_refunded",
+                  "updated_at": "2026-11-02T00:00:00.000+00:00"
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": null,
+                  "items": [
+                    {
+                      "line_id": "int",
+                      "refund_status": null,
+                      "refunded_at": null
+                    },
+                    {
+                      "line_id": "int",
+                      "refund_status": null,
+                      "refunded_at": null
+                    },
+                    {
+                      "line_id": "int",
+                      "refund_status": null
+                    }
+                  ],
+                  "refund_total": "int",
+                  "status": null,
+                  "updated_at": null
+                }
+              ]
+            }
+          }
+        ],
+        "seconds": 0.05
+      },
+      "verdict": "equal",
+      "detail": {}
+    },
+    {
+      "probe_id": "F3.all-positional-reviewed",
+      "feature_id": "F3",
+      "title": "All-positional marks every line reviewed",
+      "behavior": "mark every order line as reviewed in a single update using the all-positional $[] operator",
+      "source": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "seed-order",
+            "op": "command",
+            "ms": 26.26,
+            "status": "ok"
+          },
+          {
+            "label": "mark-all-reviewed",
+            "op": "command",
+            "ms": 1.29,
+            "status": "ok"
+          },
+          {
+            "label": "verify-all-reviewed",
+            "op": "command",
+            "ms": 1.02,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": "O00001473",
+                  "items": [
+                    {
+                      "line_id": 1,
+                      "reviewed_by": "qa-bot",
+                      "sku": "A"
+                    },
+                    {
+                      "line_id": 2,
+                      "reviewed_by": "qa-bot",
+                      "sku": "B"
+                    },
+                    {
+                      "line_id": 3,
+                      "reviewed_by": "qa-bot",
+                      "sku": "C"
+                    }
+                  ],
+                  "status": "delivered"
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": null,
+                  "items": [
+                    {
+                      "line_id": "int",
+                      "reviewed_by": null,
+                      "sku": null
+                    },
+                    {
+                      "line_id": "int",
+                      "reviewed_by": null,
+                      "sku": null
+                    },
+                    {
+                      "line_id": "int",
+                      "reviewed_by": null,
+                      "sku": null
+                    }
+                  ],
+                  "status": null
+                }
+              ]
+            }
+          }
+        ],
+        "seconds": 0.048
+      },
+      "target": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "seed-order",
+            "op": "command",
+            "ms": 27.87,
+            "status": "ok"
+          },
+          {
+            "label": "mark-all-reviewed",
+            "op": "command",
+            "ms": 18.62,
+            "status": "ok"
+          },
+          {
+            "label": "verify-all-reviewed",
+            "op": "command",
+            "ms": 1.81,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": "O00001473",
+                  "items": [
+                    {
+                      "line_id": 1,
+                      "reviewed_by": "qa-bot",
+                      "sku": "A"
+                    },
+                    {
+                      "line_id": 2,
+                      "reviewed_by": "qa-bot",
+                      "sku": "B"
+                    },
+                    {
+                      "line_id": 3,
+                      "reviewed_by": "qa-bot",
+                      "sku": "C"
+                    }
+                  ],
+                  "status": "delivered"
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": null,
+                  "items": [
+                    {
+                      "line_id": "int",
+                      "reviewed_by": null,
+                      "sku": null
+                    },
+                    {
+                      "line_id": "int",
+                      "reviewed_by": null,
+                      "sku": null
+                    },
+                    {
+                      "line_id": "int",
+                      "reviewed_by": null,
+                      "sku": null
+                    }
+                  ],
+                  "status": null
+                }
+              ]
+            }
+          }
+        ],
+        "seconds": 0.062
+      },
+      "verdict": "equal",
+      "detail": {}
+    },
+    {
+      "probe_id": "F4.txn-abort-rollback",
+      "feature_id": "F4",
+      "title": "Abort rolls back multi-line reservations and order",
+      "behavior": "checkout must atomically reserve inventory for all lines, insert the order, and convert the cart in one transaction, rolling back all reservations if any line is out of stock or the order insert fails",
+      "source": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "seed-inv",
+            "op": "command",
+            "ms": 10.77,
+            "status": "ok"
+          },
+          {
+            "label": "start",
+            "op": "txn_start",
+            "ms": 0.01,
+            "status": "ok"
+          },
+          {
+            "label": "reserve-in-txn",
+            "op": "command",
+            "ms": 0.87,
+            "status": "ok"
+          },
+          {
+            "label": "insert-order-in-txn",
+            "op": "command",
+            "ms": 11.48,
+            "status": "ok"
+          },
+          {
+            "label": "abort",
+            "op": "txn_abort",
+            "ms": 8.29,
+            "status": "ok"
+          },
+          {
+            "label": "check-inv-rolled-back",
+            "op": "command",
+            "ms": 1.26,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": 1,
+                  "sku": "A",
+                  "stock": 10
+                },
+                {
+                  "_id": 2,
+                  "sku": "B",
+                  "stock": 5
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": "int",
+                  "sku": null,
+                  "stock": "int"
+                },
+                {
+                  "_id": "int",
+                  "sku": null,
+                  "stock": "int"
+                }
+              ]
+            }
+          },
+          {
+            "label": "check-orders-rolled-back",
+            "op": "command",
+            "ms": 0.98,
+            "status": "ok",
+            "captured": {
+              "docs": []
+            },
+            "capture": true,
+            "types": {
+              "docs": []
+            }
+          }
+        ],
+        "seconds": 0.054
+      },
+      "target": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "seed-inv",
+            "op": "command",
+            "ms": 9.17,
+            "status": "ok"
+          },
+          {
+            "label": "start",
+            "op": "txn_start",
+            "ms": 0.01,
+            "status": "ok"
+          },
+          {
+            "label": "reserve-in-txn",
+            "op": "command",
+            "ms": 1.49,
+            "status": "ok"
+          },
+          {
+            "label": "insert-order-in-txn",
+            "op": "command",
+            "ms": 13.44,
+            "status": "ok"
+          },
+          {
+            "label": "abort",
+            "op": "txn_abort",
+            "ms": 4.84,
+            "status": "ok"
+          },
+          {
+            "label": "check-inv-rolled-back",
+            "op": "command",
+            "ms": 1.35,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": 1,
+                  "sku": "A",
+                  "stock": 10
+                },
+                {
+                  "_id": 2,
+                  "sku": "B",
+                  "stock": 5
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": "int",
+                  "sku": null,
+                  "stock": "int"
+                },
+                {
+                  "_id": "int",
+                  "sku": null,
+                  "stock": "int"
+                }
+              ]
+            }
+          },
+          {
+            "label": "check-orders-rolled-back",
+            "op": "command",
+            "ms": 0.9,
+            "status": "ok",
+            "captured": {
+              "docs": []
+            },
+            "capture": true,
+            "types": {
+              "docs": []
+            }
+          }
+        ],
+        "seconds": 0.053
+      },
+      "verdict": "equal",
+      "detail": {}
+    },
+    {
+      "probe_id": "F4.txn-commit-atomic",
+      "feature_id": "F4",
+      "title": "Commit atomically persists reservations order and cart",
+      "behavior": "checkout must atomically reserve inventory for all lines, insert the order, and convert the cart in one transaction, persisting all three only on commit",
+      "source": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "seed-inv",
+            "op": "command",
+            "ms": 19.45,
+            "status": "ok"
+          },
+          {
+            "label": "seed-cart",
+            "op": "command",
+            "ms": 15.16,
+            "status": "ok"
+          },
+          {
+            "label": "start",
+            "op": "txn_start",
+            "ms": 0.01,
+            "status": "ok"
+          },
+          {
+            "label": "reserve-in-txn",
+            "op": "command",
+            "ms": 0.76,
+            "status": "ok"
+          },
+          {
+            "label": "insert-order-in-txn",
+            "op": "command",
+            "ms": 10.78,
+            "status": "ok"
+          },
+          {
+            "label": "convert-cart-in-txn",
+            "op": "command",
+            "ms": 0.27,
+            "status": "ok"
+          },
+          {
+            "label": "commit",
+            "op": "txn_commit",
+            "ms": 6.79,
+            "status": "ok"
+          },
+          {
+            "label": "check-inv-committed",
+            "op": "command",
+            "ms": 1.03,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": 1,
+                  "sku": "A",
+                  "stock": 8
+                },
+                {
+                  "_id": 2,
+                  "sku": "B",
+                  "stock": 4
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": "int",
+                  "sku": null,
+                  "stock": "int"
+                },
+                {
+                  "_id": "int",
+                  "sku": null,
+                  "stock": "int"
+                }
+              ]
+            }
+          },
+          {
+            "label": "check-order-committed",
+            "op": "command",
+            "ms": 0.72,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": 101,
+                  "lines": [
+                    {
+                      "qty": 2,
+                      "sku": "A"
+                    },
+                    {
+                      "qty": 1,
+                      "sku": "B"
+                    }
+                  ],
+                  "status": "pending"
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": "int",
+                  "lines": [
+                    {
+                      "qty": "int",
+                      "sku": null
+                    },
+                    {
+                      "qty": "int",
+                      "sku": null
+                    }
+                  ],
+                  "status": null
+                }
+              ]
+            }
+          },
+          {
+            "label": "check-cart-committed",
+            "op": "command",
+            "ms": 0.61,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": 7,
+                  "items": [
+                    {
+                      "qty": 2,
+                      "sku": "A"
+                    }
+                  ],
+                  "status": "ordered",
+                  "user": "u1"
                 }
               ]
             },
@@ -69,18 +1741,1968 @@
                   "_id": "int",
                   "items": [
                     {
-                      "id": "int",
-                      "s": null
-                    },
-                    {
-                      "id": "int",
-                      "s": null
-                    },
-                    {
-                      "id": "int",
-                      "s": null
+                      "qty": "int",
+                      "sku": null
                     }
-                  ]
+                  ],
+                  "status": null,
+                  "user": null
+                }
+              ]
+            }
+          }
+        ],
+        "seconds": 0.071
+      },
+      "target": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "seed-inv",
+            "op": "command",
+            "ms": 19.54,
+            "status": "ok"
+          },
+          {
+            "label": "seed-cart",
+            "op": "command",
+            "ms": 13.47,
+            "status": "ok"
+          },
+          {
+            "label": "start",
+            "op": "txn_start",
+            "ms": 0.01,
+            "status": "ok"
+          },
+          {
+            "label": "reserve-in-txn",
+            "op": "command",
+            "ms": 0.72,
+            "status": "ok"
+          },
+          {
+            "label": "insert-order-in-txn",
+            "op": "command",
+            "ms": 10.0,
+            "status": "ok"
+          },
+          {
+            "label": "convert-cart-in-txn",
+            "op": "command",
+            "ms": 1.38,
+            "status": "ok"
+          },
+          {
+            "label": "commit",
+            "op": "txn_commit",
+            "ms": 7.12,
+            "status": "ok"
+          },
+          {
+            "label": "check-inv-committed",
+            "op": "command",
+            "ms": 1.48,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": 1,
+                  "sku": "A",
+                  "stock": 8
+                },
+                {
+                  "_id": 2,
+                  "sku": "B",
+                  "stock": 4
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": "int",
+                  "sku": null,
+                  "stock": "int"
+                },
+                {
+                  "_id": "int",
+                  "sku": null,
+                  "stock": "int"
+                }
+              ]
+            }
+          },
+          {
+            "label": "check-order-committed",
+            "op": "command",
+            "ms": 0.78,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": 101,
+                  "lines": [
+                    {
+                      "qty": 2,
+                      "sku": "A"
+                    },
+                    {
+                      "qty": 1,
+                      "sku": "B"
+                    }
+                  ],
+                  "status": "pending"
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": "int",
+                  "lines": [
+                    {
+                      "qty": "int",
+                      "sku": null
+                    },
+                    {
+                      "qty": "int",
+                      "sku": null
+                    }
+                  ],
+                  "status": null
+                }
+              ]
+            }
+          },
+          {
+            "label": "check-cart-committed",
+            "op": "command",
+            "ms": 0.36,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": 7,
+                  "items": [
+                    {
+                      "qty": 2,
+                      "sku": "A"
+                    }
+                  ],
+                  "status": "ordered",
+                  "user": "u1"
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": "int",
+                  "items": [
+                    {
+                      "qty": "int",
+                      "sku": null
+                    }
+                  ],
+                  "status": null,
+                  "user": null
+                }
+              ]
+            }
+          }
+        ],
+        "seconds": 0.071
+      },
+      "verdict": "equal",
+      "detail": {}
+    },
+    {
+      "probe_id": "F4.txn-isolation-uncommitted",
+      "feature_id": "F4",
+      "title": "Uncommitted reservation invisible outside transaction",
+      "behavior": "uncommitted checkout reservation must not be visible outside the transaction but must be visible inside, and abort must restore the original stock",
+      "source": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "seed-inv",
+            "op": "command",
+            "ms": 18.91,
+            "status": "ok"
+          },
+          {
+            "label": "start",
+            "op": "txn_start",
+            "ms": 0.02,
+            "status": "ok"
+          },
+          {
+            "label": "reserve-in-txn",
+            "op": "command",
+            "ms": 0.87,
+            "status": "ok"
+          },
+          {
+            "label": "read-outside-sees-old",
+            "op": "command",
+            "ms": 1.25,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": 1,
+                  "sku": "A",
+                  "stock": 10
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": "int",
+                  "sku": null,
+                  "stock": "int"
+                }
+              ]
+            }
+          },
+          {
+            "label": "read-inside-sees-new",
+            "op": "command",
+            "ms": 0.98,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": 1,
+                  "sku": "A",
+                  "stock": 8
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": "int",
+                  "sku": null,
+                  "stock": "int"
+                }
+              ]
+            }
+          },
+          {
+            "label": "abort",
+            "op": "txn_abort",
+            "ms": 11.12,
+            "status": "ok"
+          },
+          {
+            "label": "read-after-abort",
+            "op": "command",
+            "ms": 0.62,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": 1,
+                  "sku": "A",
+                  "stock": 10
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": "int",
+                  "sku": null,
+                  "stock": "int"
+                }
+              ]
+            }
+          }
+        ],
+        "seconds": 0.044
+      },
+      "target": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "seed-inv",
+            "op": "command",
+            "ms": 19.59,
+            "status": "ok"
+          },
+          {
+            "label": "start",
+            "op": "txn_start",
+            "ms": 0.01,
+            "status": "ok"
+          },
+          {
+            "label": "reserve-in-txn",
+            "op": "command",
+            "ms": 1.12,
+            "status": "ok"
+          },
+          {
+            "label": "read-outside-sees-old",
+            "op": "command",
+            "ms": 0.51,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": 1,
+                  "sku": "A",
+                  "stock": 10
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": "int",
+                  "sku": null,
+                  "stock": "int"
+                }
+              ]
+            }
+          },
+          {
+            "label": "read-inside-sees-new",
+            "op": "command",
+            "ms": 1.44,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": 1,
+                  "sku": "A",
+                  "stock": 8
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": "int",
+                  "sku": null,
+                  "stock": "int"
+                }
+              ]
+            }
+          },
+          {
+            "label": "abort",
+            "op": "txn_abort",
+            "ms": 11.11,
+            "status": "ok"
+          },
+          {
+            "label": "read-after-abort",
+            "op": "command",
+            "ms": 0.78,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": 1,
+                  "sku": "A",
+                  "stock": 10
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": "int",
+                  "sku": null,
+                  "stock": "int"
+                }
+              ]
+            }
+          }
+        ],
+        "seconds": 0.044
+      },
+      "verdict": "equal",
+      "detail": {}
+    },
+    {
+      "probe_id": "F5.cs-filter-update-replace",
+      "feature_id": "F5",
+      "title": "Change stream filtered to update and replace only",
+      "behavior": "Change stream with $match filter to update/replace only delivers updates and replaces while suppressing inserts",
+      "source": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "seed",
+            "op": "command",
+            "ms": 13.01,
+            "status": "ok"
+          },
+          {
+            "label": "open-filtered",
+            "op": "watch_open",
+            "ms": 1.17,
+            "status": "ok"
+          },
+          {
+            "label": "update-one",
+            "op": "command",
+            "ms": 7.95,
+            "status": "ok"
+          },
+          {
+            "label": "insert-filtered-out",
+            "op": "command",
+            "ms": 7.58,
+            "status": "ok"
+          },
+          {
+            "label": "replace-one",
+            "op": "command",
+            "ms": 1.29,
+            "status": "ok"
+          },
+          {
+            "label": "poll-two-events",
+            "op": "watch_next",
+            "ms": 1.5,
+            "status": "ok",
+            "captured": [
+              {
+                "documentKey": {
+                  "_id": 1
+                },
+                "fullDocument": {
+                  "_id": 1,
+                  "qty": 9,
+                  "sku": "a"
+                },
+                "ns": {
+                  "coll": "inventory"
+                },
+                "operationType": "update",
+                "updateDescription": {
+                  "removedFields": [],
+                  "truncatedArrays": [],
+                  "updatedFields": {
+                    "qty": 9
+                  }
+                }
+              },
+              {
+                "documentKey": {
+                  "_id": 2
+                },
+                "fullDocument": {
+                  "_id": 2,
+                  "qty": 4,
+                  "sku": "b"
+                },
+                "ns": {
+                  "coll": "inventory"
+                },
+                "operationType": "replace"
+              }
+            ],
+            "capture": true,
+            "types": [
+              {
+                "documentKey": {
+                  "_id": "int"
+                },
+                "fullDocument": {
+                  "_id": "int",
+                  "qty": "int",
+                  "sku": null
+                },
+                "ns": {
+                  "coll": null
+                },
+                "operationType": null,
+                "updateDescription": {
+                  "removedFields": [],
+                  "truncatedArrays": [],
+                  "updatedFields": {
+                    "qty": "int"
+                  }
+                }
+              },
+              {
+                "documentKey": {
+                  "_id": "int"
+                },
+                "fullDocument": {
+                  "_id": "int",
+                  "qty": "int",
+                  "sku": null
+                },
+                "ns": {
+                  "coll": null
+                },
+                "operationType": null
+              }
+            ]
+          },
+          {
+            "label": "close",
+            "op": "watch_close",
+            "ms": 1.13,
+            "status": "ok"
+          }
+        ],
+        "seconds": 0.051
+      },
+      "target": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "seed",
+            "op": "command",
+            "ms": 20.71,
+            "status": "ok"
+          },
+          {
+            "label": "open-filtered",
+            "op": "watch_open",
+            "ms": 0.94,
+            "status": "ok"
+          },
+          {
+            "label": "update-one",
+            "op": "command",
+            "ms": 9.41,
+            "status": "ok"
+          },
+          {
+            "label": "insert-filtered-out",
+            "op": "command",
+            "ms": 16.06,
+            "status": "ok"
+          },
+          {
+            "label": "replace-one",
+            "op": "command",
+            "ms": 2.39,
+            "status": "ok"
+          },
+          {
+            "label": "poll-two-events",
+            "op": "watch_next",
+            "ms": 1.89,
+            "status": "ok",
+            "captured": [
+              {
+                "documentKey": {
+                  "_id": 1
+                },
+                "fullDocument": {
+                  "_id": 1,
+                  "qty": 9,
+                  "sku": "a"
+                },
+                "ns": {
+                  "coll": "inventory"
+                },
+                "operationType": "update",
+                "updateDescription": {
+                  "removedFields": [],
+                  "truncatedArrays": [],
+                  "updatedFields": {
+                    "qty": 9
+                  }
+                }
+              },
+              {
+                "documentKey": {
+                  "_id": 2
+                },
+                "fullDocument": {
+                  "_id": 2,
+                  "qty": 4,
+                  "sku": "b"
+                },
+                "ns": {
+                  "coll": "inventory"
+                },
+                "operationType": "replace"
+              }
+            ],
+            "capture": true,
+            "types": [
+              {
+                "documentKey": {
+                  "_id": "int"
+                },
+                "fullDocument": {
+                  "_id": "int",
+                  "qty": "int",
+                  "sku": null
+                },
+                "ns": {
+                  "coll": null
+                },
+                "operationType": null,
+                "updateDescription": {
+                  "removedFields": [],
+                  "truncatedArrays": [],
+                  "updatedFields": {
+                    "qty": "int"
+                  }
+                }
+              },
+              {
+                "documentKey": {
+                  "_id": "int"
+                },
+                "fullDocument": {
+                  "_id": "int",
+                  "qty": "int",
+                  "sku": null
+                },
+                "ns": {
+                  "coll": null
+                },
+                "operationType": null
+              }
+            ]
+          },
+          {
+            "label": "close",
+            "op": "watch_close",
+            "ms": 1.1,
+            "status": "ok"
+          }
+        ],
+        "seconds": 0.069
+      },
+      "verdict": "equal",
+      "detail": {}
+    },
+    {
+      "probe_id": "F5.cs-fulldocument-lookup",
+      "feature_id": "F5",
+      "title": "Change stream fullDocument updateLookup on update",
+      "behavior": "Change stream with fullDocument updateLookup returns the post-update document for update operations",
+      "source": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "seed",
+            "op": "command",
+            "ms": 11.23,
+            "status": "ok"
+          },
+          {
+            "label": "open-lookup",
+            "op": "watch_open",
+            "ms": 1.07,
+            "status": "ok"
+          },
+          {
+            "label": "update-qty",
+            "op": "command",
+            "ms": 7.71,
+            "status": "ok"
+          },
+          {
+            "label": "poll-fullDocument",
+            "op": "watch_next",
+            "ms": 1.84,
+            "status": "ok",
+            "captured": [
+              {
+                "documentKey": {
+                  "_id": 10
+                },
+                "fullDocument": {
+                  "_id": 10,
+                  "qty": 9,
+                  "sku": "a"
+                },
+                "ns": {
+                  "coll": "inventory"
+                },
+                "operationType": "update",
+                "updateDescription": {
+                  "removedFields": [],
+                  "truncatedArrays": [],
+                  "updatedFields": {
+                    "qty": 9
+                  }
+                }
+              }
+            ],
+            "capture": true,
+            "types": [
+              {
+                "documentKey": {
+                  "_id": "int"
+                },
+                "fullDocument": {
+                  "_id": "int",
+                  "qty": "int",
+                  "sku": null
+                },
+                "ns": {
+                  "coll": null
+                },
+                "operationType": null,
+                "updateDescription": {
+                  "removedFields": [],
+                  "truncatedArrays": [],
+                  "updatedFields": {
+                    "qty": "int"
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "label": "close",
+            "op": "watch_close",
+            "ms": 0.77,
+            "status": "ok"
+          }
+        ],
+        "seconds": 0.039
+      },
+      "target": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "seed",
+            "op": "command",
+            "ms": 10.71,
+            "status": "ok"
+          },
+          {
+            "label": "open-lookup",
+            "op": "watch_open",
+            "ms": 1.0,
+            "status": "ok"
+          },
+          {
+            "label": "update-qty",
+            "op": "command",
+            "ms": 8.42,
+            "status": "ok"
+          },
+          {
+            "label": "poll-fullDocument",
+            "op": "watch_next",
+            "ms": 1.44,
+            "status": "ok",
+            "captured": [
+              {
+                "documentKey": {
+                  "_id": 10
+                },
+                "fullDocument": {
+                  "_id": 10,
+                  "qty": 9,
+                  "sku": "a"
+                },
+                "ns": {
+                  "coll": "inventory"
+                },
+                "operationType": "update",
+                "updateDescription": {
+                  "removedFields": [],
+                  "truncatedArrays": [],
+                  "updatedFields": {
+                    "qty": 9
+                  }
+                }
+              }
+            ],
+            "capture": true,
+            "types": [
+              {
+                "documentKey": {
+                  "_id": "int"
+                },
+                "fullDocument": {
+                  "_id": "int",
+                  "qty": "int",
+                  "sku": null
+                },
+                "ns": {
+                  "coll": null
+                },
+                "operationType": null,
+                "updateDescription": {
+                  "removedFields": [],
+                  "truncatedArrays": [],
+                  "updatedFields": {
+                    "qty": "int"
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "label": "close",
+            "op": "watch_close",
+            "ms": 0.63,
+            "status": "ok"
+          }
+        ],
+        "seconds": 0.04
+      },
+      "verdict": "equal",
+      "detail": {}
+    },
+    {
+      "probe_id": "F5.cs-event-per-change",
+      "feature_id": "F5",
+      "title": "Change stream one event per change with non-blocking poll",
+      "behavior": "Change stream with non-blocking polling emits one event per update in order without loss and empty poll returns promptly",
+      "source": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "seed",
+            "op": "command",
+            "ms": 10.01,
+            "status": "ok"
+          },
+          {
+            "label": "open-filtered",
+            "op": "watch_open",
+            "ms": 1.52,
+            "status": "ok"
+          },
+          {
+            "label": "insert-filtered",
+            "op": "command",
+            "ms": 15.76,
+            "status": "ok"
+          },
+          {
+            "label": "replace-first",
+            "op": "command",
+            "ms": 2.82,
+            "status": "ok"
+          },
+          {
+            "label": "replace-second",
+            "op": "command",
+            "ms": 1.43,
+            "status": "ok"
+          },
+          {
+            "label": "poll-two-changes",
+            "op": "watch_next",
+            "ms": 0.77,
+            "status": "ok",
+            "captured": [
+              {
+                "documentKey": {
+                  "_id": 10
+                },
+                "fullDocument": {
+                  "_id": 10,
+                  "qty": 90,
+                  "sku": "a"
+                },
+                "ns": {
+                  "coll": "inventory"
+                },
+                "operationType": "replace"
+              },
+              {
+                "documentKey": {
+                  "_id": 10
+                },
+                "fullDocument": {
+                  "_id": 10,
+                  "qty": 80,
+                  "sku": "a"
+                },
+                "ns": {
+                  "coll": "inventory"
+                },
+                "operationType": "replace"
+              }
+            ],
+            "capture": true,
+            "types": [
+              {
+                "documentKey": {
+                  "_id": "int"
+                },
+                "fullDocument": {
+                  "_id": "int",
+                  "qty": "int",
+                  "sku": null
+                },
+                "ns": {
+                  "coll": null
+                },
+                "operationType": null
+              },
+              {
+                "documentKey": {
+                  "_id": "int"
+                },
+                "fullDocument": {
+                  "_id": "int",
+                  "qty": "int",
+                  "sku": null
+                },
+                "ns": {
+                  "coll": null
+                },
+                "operationType": null
+              }
+            ]
+          },
+          {
+            "label": "poll-empty-nonblocking",
+            "op": "watch_next",
+            "ms": 610.24,
+            "status": "ok",
+            "captured": [],
+            "capture": true,
+            "types": []
+          },
+          {
+            "label": "close",
+            "op": "watch_close",
+            "ms": 1.79,
+            "status": "ok"
+          }
+        ],
+        "seconds": 0.668
+      },
+      "target": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "seed",
+            "op": "command",
+            "ms": 9.35,
+            "status": "ok"
+          },
+          {
+            "label": "open-filtered",
+            "op": "watch_open",
+            "ms": 1.17,
+            "status": "ok"
+          },
+          {
+            "label": "insert-filtered",
+            "op": "command",
+            "ms": 16.2,
+            "status": "ok"
+          },
+          {
+            "label": "replace-first",
+            "op": "command",
+            "ms": 1.57,
+            "status": "ok"
+          },
+          {
+            "label": "replace-second",
+            "op": "command",
+            "ms": 2.15,
+            "status": "ok"
+          },
+          {
+            "label": "poll-two-changes",
+            "op": "watch_next",
+            "ms": 1.33,
+            "status": "ok",
+            "captured": [
+              {
+                "documentKey": {
+                  "_id": 10
+                },
+                "fullDocument": {
+                  "_id": 10,
+                  "qty": 90,
+                  "sku": "a"
+                },
+                "ns": {
+                  "coll": "inventory"
+                },
+                "operationType": "replace"
+              },
+              {
+                "documentKey": {
+                  "_id": 10
+                },
+                "fullDocument": {
+                  "_id": 10,
+                  "qty": 80,
+                  "sku": "a"
+                },
+                "ns": {
+                  "coll": "inventory"
+                },
+                "operationType": "replace"
+              }
+            ],
+            "capture": true,
+            "types": [
+              {
+                "documentKey": {
+                  "_id": "int"
+                },
+                "fullDocument": {
+                  "_id": "int",
+                  "qty": "int",
+                  "sku": null
+                },
+                "ns": {
+                  "coll": null
+                },
+                "operationType": null
+              },
+              {
+                "documentKey": {
+                  "_id": "int"
+                },
+                "fullDocument": {
+                  "_id": "int",
+                  "qty": "int",
+                  "sku": null
+                },
+                "ns": {
+                  "coll": null
+                },
+                "operationType": null
+              }
+            ]
+          },
+          {
+            "label": "poll-empty-nonblocking",
+            "op": "watch_next",
+            "ms": 609.69,
+            "status": "ok",
+            "captured": [],
+            "capture": true,
+            "types": []
+          },
+          {
+            "label": "close",
+            "op": "watch_close",
+            "ms": 1.96,
+            "status": "ok"
+          }
+        ],
+        "seconds": 0.668
+      },
+      "verdict": "equal",
+      "detail": {}
+    },
+    {
+      "probe_id": "F6.ci-lookup",
+      "feature_id": "F6",
+      "title": "Case-insensitive email lookup with collation",
+      "behavior": "customer lookup by email must match case-insensitively using collation strength 2",
+      "source": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "insert-seed",
+            "op": "command",
+            "ms": 16.92,
+            "status": "ok"
+          },
+          {
+            "label": "find-upper-with-collation",
+            "op": "command",
+            "ms": 0.48,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": 1,
+                  "email": "User4841@example.com",
+                  "name": "Alice"
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": "int",
+                  "email": null,
+                  "name": null
+                }
+              ]
+            }
+          },
+          {
+            "label": "find-lower-with-collation",
+            "op": "command",
+            "ms": 1.74,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": 1,
+                  "email": "User4841@example.com",
+                  "name": "Alice"
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": "int",
+                  "email": null,
+                  "name": null
+                }
+              ]
+            }
+          }
+        ],
+        "seconds": 0.022
+      },
+      "target": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "insert-seed",
+            "op": "command",
+            "ms": 18.52,
+            "status": "ok"
+          },
+          {
+            "label": "find-upper-with-collation",
+            "op": "command",
+            "ms": 0.54,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": 1,
+                  "email": "User4841@example.com",
+                  "name": "Alice"
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": "int",
+                  "email": null,
+                  "name": null
+                }
+              ]
+            }
+          },
+          {
+            "label": "find-lower-with-collation",
+            "op": "command",
+            "ms": 0.82,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": 1,
+                  "email": "User4841@example.com",
+                  "name": "Alice"
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": "int",
+                  "email": null,
+                  "name": null
+                }
+              ]
+            }
+          }
+        ],
+        "seconds": 0.021
+      },
+      "verdict": "equal",
+      "detail": {}
+    },
+    {
+      "probe_id": "F6.ci-unique",
+      "feature_id": "F6",
+      "title": "Case-insensitive unique email via collation index",
+      "behavior": "customer email uniqueness is case-insensitive via collation index locale en strength 2",
+      "source": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "create-ci-unique-index",
+            "op": "command",
+            "ms": 18.2,
+            "status": "ok"
+          },
+          {
+            "label": "insert-base",
+            "op": "command",
+            "ms": 1.82,
+            "status": "ok"
+          },
+          {
+            "label": "insert-case-variant-duplicate",
+            "op": "command",
+            "ms": 1.95,
+            "status": "ok",
+            "captured": {
+              "error_code": 11000
+            },
+            "capture": true,
+            "message": "write error"
+          },
+          {
+            "label": "insert-distinct-allowed",
+            "op": "command",
+            "ms": 8.94,
+            "status": "ok"
+          },
+          {
+            "label": "read-all-after-unique-check",
+            "op": "command",
+            "ms": 0.36,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": 1,
+                  "email": "User@example.com"
+                },
+                {
+                  "_id": 3,
+                  "email": "Other@example.com"
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": "int",
+                  "email": null
+                },
+                {
+                  "_id": "int",
+                  "email": null
+                }
+              ]
+            }
+          }
+        ],
+        "seconds": 0.049
+      },
+      "target": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "create-ci-unique-index",
+            "op": "command",
+            "ms": 17.46,
+            "status": "ok"
+          },
+          {
+            "label": "insert-base",
+            "op": "command",
+            "ms": 1.78,
+            "status": "ok"
+          },
+          {
+            "label": "insert-case-variant-duplicate",
+            "op": "command",
+            "ms": 0.69,
+            "status": "ok",
+            "captured": {
+              "error_code": 11000
+            },
+            "capture": true,
+            "message": "write error"
+          },
+          {
+            "label": "insert-distinct-allowed",
+            "op": "command",
+            "ms": 1.51,
+            "status": "ok"
+          },
+          {
+            "label": "read-all-after-unique-check",
+            "op": "command",
+            "ms": 0.95,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": 1,
+                  "email": "User@example.com"
+                },
+                {
+                  "_id": 3,
+                  "email": "Other@example.com"
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": "int",
+                  "email": null
+                },
+                {
+                  "_id": "int",
+                  "email": null
+                }
+              ]
+            }
+          }
+        ],
+        "seconds": 0.041
+      },
+      "verdict": "equal",
+      "detail": {}
+    },
+    {
+      "probe_id": "F6.ci-gating",
+      "feature_id": "F6",
+      "title": "Collation controls case sensitivity of email match",
+      "behavior": "email match without collation is case-sensitive and with collation strength 2 is case-insensitive",
+      "source": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "insert-seed",
+            "op": "command",
+            "ms": 17.47,
+            "status": "ok"
+          },
+          {
+            "label": "find-without-collation-no-match",
+            "op": "command",
+            "ms": 0.48,
+            "status": "ok",
+            "captured": {
+              "docs": []
+            },
+            "capture": true,
+            "types": {
+              "docs": []
+            }
+          },
+          {
+            "label": "find-with-collation-matches",
+            "op": "command",
+            "ms": 0.32,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": 1,
+                  "email": "MixedCase@Example.COM"
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": "int",
+                  "email": null
+                }
+              ]
+            }
+          }
+        ],
+        "seconds": 0.033
+      },
+      "target": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "insert-seed",
+            "op": "command",
+            "ms": 17.03,
+            "status": "ok"
+          },
+          {
+            "label": "find-without-collation-no-match",
+            "op": "command",
+            "ms": 0.62,
+            "status": "ok",
+            "captured": {
+              "docs": []
+            },
+            "capture": true,
+            "types": {
+              "docs": []
+            }
+          },
+          {
+            "label": "find-with-collation-matches",
+            "op": "command",
+            "ms": 0.33,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": 1,
+                  "email": "MixedCase@Example.COM"
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": "int",
+                  "email": null
+                }
+              ]
+            }
+          }
+        ],
+        "seconds": 0.033
+      },
+      "verdict": "equal",
+      "detail": {}
+    },
+    {
+      "probe_id": "F7.partial-unique-missing-exempt",
+      "feature_id": "F7",
+      "title": "Partial unique allows missing coupon but rejects duplicate per customer",
+      "behavior": "coupon_code uniqueness per customer is enforced only when coupon_code exists via partial unique index",
+      "source": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "create-partial-unique-index",
+            "op": "command",
+            "ms": 19.67,
+            "status": "ok"
+          },
+          {
+            "label": "insert-first-coupon",
+            "op": "command",
+            "ms": 10.54,
+            "status": "ok"
+          },
+          {
+            "label": "insert-duplicate-same-customer-coupon",
+            "op": "command",
+            "ms": 2.13,
+            "status": "ok",
+            "captured": {
+              "error_code": 11000
+            },
+            "capture": true,
+            "message": "write error"
+          },
+          {
+            "label": "insert-no-coupon-first",
+            "op": "command",
+            "ms": 1.36,
+            "status": "ok"
+          },
+          {
+            "label": "insert-no-coupon-second",
+            "op": "command",
+            "ms": 6.43,
+            "status": "ok"
+          },
+          {
+            "label": "verify-missing-exempt-duplicate-rejected",
+            "op": "command",
+            "ms": 0.43,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": 1,
+                  "coupon_code": "SAVE10",
+                  "customer_id": "custA"
+                },
+                {
+                  "_id": 3,
+                  "customer_id": "custA"
+                },
+                {
+                  "_id": 4,
+                  "customer_id": "custA"
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": "int",
+                  "coupon_code": null,
+                  "customer_id": null
+                },
+                {
+                  "_id": "int",
+                  "customer_id": null
+                },
+                {
+                  "_id": "int",
+                  "customer_id": null
+                }
+              ]
+            }
+          }
+        ],
+        "seconds": 0.048
+      },
+      "target": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "create-partial-unique-index",
+            "op": "command",
+            "ms": 19.14,
+            "status": "ok"
+          },
+          {
+            "label": "insert-first-coupon",
+            "op": "command",
+            "ms": 12.36,
+            "status": "ok"
+          },
+          {
+            "label": "insert-duplicate-same-customer-coupon",
+            "op": "command",
+            "ms": 1.25,
+            "status": "ok",
+            "captured": {
+              "error_code": 11000
+            },
+            "capture": true,
+            "message": "write error"
+          },
+          {
+            "label": "insert-no-coupon-first",
+            "op": "command",
+            "ms": 7.08,
+            "status": "ok"
+          },
+          {
+            "label": "insert-no-coupon-second",
+            "op": "command",
+            "ms": 6.74,
+            "status": "ok"
+          },
+          {
+            "label": "verify-missing-exempt-duplicate-rejected",
+            "op": "command",
+            "ms": 0.53,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": 1,
+                  "coupon_code": "SAVE10",
+                  "customer_id": "custA"
+                },
+                {
+                  "_id": 3,
+                  "customer_id": "custA"
+                },
+                {
+                  "_id": 4,
+                  "customer_id": "custA"
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": "int",
+                  "coupon_code": null,
+                  "customer_id": null
+                },
+                {
+                  "_id": "int",
+                  "customer_id": null
+                },
+                {
+                  "_id": "int",
+                  "customer_id": null
+                }
+              ]
+            }
+          }
+        ],
+        "seconds": 0.049
+      },
+      "verdict": "equal",
+      "detail": {}
+    },
+    {
+      "probe_id": "F7.partial-unique-per-customer",
+      "feature_id": "F7",
+      "title": "Partial unique coupon allows same code for different customers",
+      "behavior": "coupon_code uniqueness is per customer, same coupon_code for different customers is allowed",
+      "source": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "create-partial-unique-index",
+            "op": "command",
+            "ms": 17.73,
+            "status": "ok"
+          },
+          {
+            "label": "insert-custA-coupon",
+            "op": "command",
+            "ms": 6.22,
+            "status": "ok"
+          },
+          {
+            "label": "insert-custB-same-coupon",
+            "op": "command",
+            "ms": 5.52,
+            "status": "ok"
+          },
+          {
+            "label": "insert-duplicate-same-customer",
+            "op": "command",
+            "ms": 7.66,
+            "status": "ok",
+            "captured": {
+              "error_code": 11000
+            },
+            "capture": true,
+            "message": "write error"
+          },
+          {
+            "label": "verify-per-customer-uniqueness",
+            "op": "command",
+            "ms": 0.42,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": 1,
+                  "coupon_code": "SAVE10",
+                  "customer_id": "custA"
+                },
+                {
+                  "_id": 2,
+                  "coupon_code": "SAVE10",
+                  "customer_id": "custB"
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": "int",
+                  "coupon_code": null,
+                  "customer_id": null
+                },
+                {
+                  "_id": "int",
+                  "coupon_code": null,
+                  "customer_id": null
+                }
+              ]
+            }
+          }
+        ],
+        "seconds": 0.04
+      },
+      "target": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "create-partial-unique-index",
+            "op": "command",
+            "ms": 15.95,
+            "status": "ok"
+          },
+          {
+            "label": "insert-custA-coupon",
+            "op": "command",
+            "ms": 1.55,
+            "status": "ok"
+          },
+          {
+            "label": "insert-custB-same-coupon",
+            "op": "command",
+            "ms": 6.48,
+            "status": "ok"
+          },
+          {
+            "label": "insert-duplicate-same-customer",
+            "op": "command",
+            "ms": 5.48,
+            "status": "ok",
+            "captured": {
+              "error_code": 11000
+            },
+            "capture": true,
+            "message": "write error"
+          },
+          {
+            "label": "verify-per-customer-uniqueness",
+            "op": "command",
+            "ms": 0.41,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": 1,
+                  "coupon_code": "SAVE10",
+                  "customer_id": "custA"
+                },
+                {
+                  "_id": 2,
+                  "coupon_code": "SAVE10",
+                  "customer_id": "custB"
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": "int",
+                  "coupon_code": null,
+                  "customer_id": null
+                },
+                {
+                  "_id": "int",
+                  "coupon_code": null,
+                  "customer_id": null
+                }
+              ]
+            }
+          }
+        ],
+        "seconds": 0.032
+      },
+      "verdict": "equal",
+      "detail": {}
+    },
+    {
+      "probe_id": "F7.ttl-active-only-expiry",
+      "feature_id": "F7",
+      "title": "TTL expires only active carts at expires_at",
+      "behavior": "active carts auto-delete at expires_at via TTL index limited to status active",
+      "source": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "create-partial-ttl-index",
+            "op": "command",
+            "ms": 13.26,
+            "status": "ok"
+          },
+          {
+            "label": "insert-active-expired-cart",
+            "op": "command",
+            "ms": 4.85,
+            "status": "ok"
+          },
+          {
+            "label": "insert-inactive-expired-cart",
+            "op": "command",
+            "ms": 7.62,
+            "status": "ok"
+          },
+          {
+            "label": "wait-for-ttl",
+            "op": "wait_ttl",
+            "ms": 72004.18,
+            "status": "ok"
+          },
+          {
+            "label": "verify-only-active-expired",
+            "op": "command",
+            "ms": 2.23,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": 2,
+                  "expires_at": "2026-01-01T00:00:00.000+00:00",
+                  "status": "completed"
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": "int",
+                  "expires_at": null,
+                  "status": null
+                }
+              ]
+            }
+          }
+        ],
+        "seconds": 72.076
+      },
+      "target": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "create-partial-ttl-index",
+            "op": "command",
+            "ms": 12.67,
+            "status": "ok"
+          },
+          {
+            "label": "insert-active-expired-cart",
+            "op": "command",
+            "ms": 4.79,
+            "status": "ok"
+          },
+          {
+            "label": "insert-inactive-expired-cart",
+            "op": "command",
+            "ms": 2.94,
+            "status": "ok"
+          },
+          {
+            "label": "wait-for-ttl",
+            "op": "wait_ttl",
+            "ms": 72002.84,
+            "status": "ok"
+          },
+          {
+            "label": "verify-only-active-expired",
+            "op": "command",
+            "ms": 3.08,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": 2,
+                  "expires_at": "2026-01-01T00:00:00.000+00:00",
+                  "status": "completed"
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": "int",
+                  "expires_at": null,
+                  "status": null
+                }
+              ]
+            }
+          }
+        ],
+        "seconds": 72.076
+      },
+      "verdict": "equal",
+      "detail": {}
+    },
+    {
+      "probe_id": "F8.orders-required-fields",
+      "feature_id": "F8",
+      "title": "$jsonSchema requires customer_id, status, items, total and placed_at on orders",
+      "behavior": "orders enforces $jsonSchema with required customer_id, status, items, total, placed_at at level moderate; inserts missing a required field fail with 121 and only valid docs persist",
+      "source": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "create orders with validator",
+            "op": "command",
+            "ms": 7.86,
+            "status": "ok"
+          },
+          {
+            "label": "insert valid order",
+            "op": "command",
+            "ms": 5.55,
+            "status": "ok"
+          },
+          {
+            "label": "insert missing customer_id fails",
+            "op": "command",
+            "ms": 2.14,
+            "status": "ok",
+            "captured": {
+              "error_code": 121
+            },
+            "capture": true,
+            "message": "write error"
+          },
+          {
+            "label": "insert missing total fails",
+            "op": "command",
+            "ms": 1.28,
+            "status": "ok",
+            "captured": {
+              "error_code": 121
+            },
+            "capture": true,
+            "message": "write error"
+          },
+          {
+            "label": "read back orders",
+            "op": "command",
+            "ms": 0.88,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": 1,
+                  "customer_id": "c123",
+                  "items": [
+                    {
+                      "qty": 2,
+                      "sku": "a1"
+                    }
+                  ],
+                  "placed_at": "2026-01-01T00:00:00.000+00:00",
+                  "status": "pending",
+                  "total": 49.99
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": "int",
+                  "customer_id": null,
+                  "items": [
+                    {
+                      "qty": "int",
+                      "sku": null
+                    }
+                  ],
+                  "placed_at": null,
+                  "status": null,
+                  "total": "double"
                 }
               ]
             }
@@ -92,347 +3714,638 @@
         "outcome": "completed",
         "steps": [
           {
-            "label": "seed",
+            "label": "create orders with validator",
             "op": "command",
-            "ms": 39.98,
+            "ms": 10.15,
             "status": "ok"
           },
           {
-            "label": "update",
+            "label": "insert valid order",
             "op": "command",
-            "ms": 10.16,
+            "ms": 4.2,
             "status": "ok"
           },
           {
-            "label": "read",
+            "label": "insert missing customer_id fails",
             "op": "command",
-            "ms": 1.37,
+            "ms": 1.11,
             "status": "ok",
             "captured": {
-              "docs": [
-                {
-                  "_id": 1,
-                  "items": [
-                    {
-                      "id": 1,
-                      "s": "refunded"
-                    },
-                    {
-                      "id": 2,
-                      "s": "none"
-                    },
-                    {
-                      "id": 3,
-                      "s": "done"
-                    }
-                  ]
-                }
-              ]
-            },
-            "capture": true,
-            "types": {
-              "docs": [
-                {
-                  "_id": "int",
-                  "items": [
-                    {
-                      "id": "int",
-                      "s": null
-                    },
-                    {
-                      "id": "int",
-                      "s": null
-                    },
-                    {
-                      "id": "int",
-                      "s": null
-                    }
-                  ]
-                }
-              ]
-            }
-          }
-        ],
-        "seconds": 0.055
-      },
-      "verdict": "equal",
-      "detail": {}
-    },
-    {
-      "probe_id": "T.txn_abort",
-      "feature_id": "F4",
-      "title": "Aborted transaction leaves no trace",
-      "behavior": "A write inside an aborted transaction is rolled back",
-      "source": {
-        "outcome": "completed",
-        "steps": [
-          {
-            "label": "create",
-            "op": "command",
-            "ms": 40.56,
-            "status": "ok"
-          },
-          {
-            "label": "seed",
-            "op": "command",
-            "ms": 7.6,
-            "status": "ok"
-          },
-          {
-            "label": "begin",
-            "op": "txn_start",
-            "ms": 0.01,
-            "status": "ok"
-          },
-          {
-            "label": "decrement",
-            "op": "command",
-            "ms": 1.0,
-            "status": "ok"
-          },
-          {
-            "label": "abort",
-            "op": "txn_abort",
-            "ms": 2.53,
-            "status": "ok"
-          },
-          {
-            "label": "read",
-            "op": "command",
-            "ms": 1.79,
-            "status": "ok",
-            "captured": {
-              "docs": [
-                {
-                  "_id": 1,
-                  "n": 10
-                }
-              ]
-            },
-            "capture": true,
-            "types": {
-              "docs": [
-                {
-                  "_id": "int",
-                  "n": "int"
-                }
-              ]
-            }
-          }
-        ],
-        "seconds": 0.057
-      },
-      "target": {
-        "outcome": "completed",
-        "steps": [
-          {
-            "label": "create",
-            "op": "command",
-            "ms": 40.34,
-            "status": "ok"
-          },
-          {
-            "label": "seed",
-            "op": "command",
-            "ms": 2.19,
-            "status": "ok"
-          },
-          {
-            "label": "begin",
-            "op": "txn_start",
-            "ms": 0.01,
-            "status": "ok"
-          },
-          {
-            "label": "decrement",
-            "op": "command",
-            "ms": 0.69,
-            "status": "ok"
-          },
-          {
-            "label": "abort",
-            "op": "txn_abort",
-            "ms": 8.69,
-            "status": "ok"
-          },
-          {
-            "label": "read",
-            "op": "command",
-            "ms": 1.78,
-            "status": "ok",
-            "captured": {
-              "docs": [
-                {
-                  "_id": 1,
-                  "n": 10
-                }
-              ]
-            },
-            "capture": true,
-            "types": {
-              "docs": [
-                {
-                  "_id": "int",
-                  "n": "int"
-                }
-              ]
-            }
-          }
-        ],
-        "seconds": 0.057
-      },
-      "verdict": "equal",
-      "detail": {}
-    },
-    {
-      "probe_id": "T.collation_unique",
-      "feature_id": "F6",
-      "title": "Case-insensitive unique index rejects a case variant",
-      "behavior": "Two emails differing only by case collide",
-      "source": {
-        "outcome": "completed",
-        "steps": [
-          {
-            "label": "index",
-            "op": "command",
-            "ms": 10.46,
-            "status": "ok"
-          },
-          {
-            "label": "first",
-            "op": "command",
-            "ms": 1.84,
-            "status": "ok"
-          },
-          {
-            "label": "variant",
-            "op": "command",
-            "ms": 2.68,
-            "status": "ok",
-            "captured": {
-              "error_code": 11000
+              "error_code": 121
             },
             "capture": true,
             "message": "write error"
-          }
-        ],
-        "seconds": 0.029
-      },
-      "target": {
-        "outcome": "completed",
-        "steps": [
-          {
-            "label": "index",
-            "op": "command",
-            "ms": 42.83,
-            "status": "ok"
           },
           {
-            "label": "first",
+            "label": "insert missing total fails",
             "op": "command",
-            "ms": 7.09,
-            "status": "ok"
-          },
-          {
-            "label": "variant",
-            "op": "command",
-            "ms": 3.57,
+            "ms": 1.49,
             "status": "ok",
             "captured": {
-              "error_code": 11000
+              "error_code": 121
             },
             "capture": true,
             "message": "write error"
+          },
+          {
+            "label": "read back orders",
+            "op": "command",
+            "ms": 0.92,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": 1,
+                  "customer_id": "c123",
+                  "items": [
+                    {
+                      "qty": 2,
+                      "sku": "a1"
+                    }
+                  ],
+                  "placed_at": "2026-01-01T00:00:00.000+00:00",
+                  "status": "pending",
+                  "total": 49.99
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": "int",
+                  "customer_id": null,
+                  "items": [
+                    {
+                      "qty": "int",
+                      "sku": null
+                    }
+                  ],
+                  "placed_at": null,
+                  "status": null,
+                  "total": "double"
+                }
+              ]
+            }
           }
         ],
-        "seconds": 0.058
+        "seconds": 0.035
       },
       "verdict": "equal",
       "detail": {}
     },
     {
-      "probe_id": "T.validator",
+      "probe_id": "F8.orders-enum-total",
       "feature_id": "F8",
-      "title": "$jsonSchema validator rejects a bad document",
-      "behavior": "An insert violating the schema is refused",
+      "title": "$jsonSchema enum and minimum on orders status and total",
+      "behavior": "orders $jsonSchema restricts status to pending/paid/shipped/cancelled and total to >=0; violating inserts fail with 121 and only valid doc persists",
       "source": {
         "outcome": "completed",
         "steps": [
           {
-            "label": "create",
+            "label": "create orders with validator",
             "op": "command",
-            "ms": 43.56,
+            "ms": 9.35,
             "status": "ok"
           },
           {
-            "label": "bad",
+            "label": "insert valid order",
             "op": "command",
-            "ms": 7.94,
+            "ms": 2.09,
+            "status": "ok"
+          },
+          {
+            "label": "insert bad status fails",
+            "op": "command",
+            "ms": 0.82,
             "status": "ok",
             "captured": {
               "error_code": 121
             },
             "capture": true,
             "message": "write error"
+          },
+          {
+            "label": "insert negative total fails",
+            "op": "command",
+            "ms": 2.77,
+            "status": "ok",
+            "captured": {
+              "error_code": 121
+            },
+            "capture": true,
+            "message": "write error"
+          },
+          {
+            "label": "read back orders",
+            "op": "command",
+            "ms": 0.36,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": 20,
+                  "customer_id": "c020",
+                  "items": [
+                    {
+                      "qty": 1,
+                      "sku": "a1"
+                    }
+                  ],
+                  "placed_at": "2026-02-01T00:00:00.000+00:00",
+                  "status": "pending",
+                  "total": 49.99
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": "int",
+                  "customer_id": null,
+                  "items": [
+                    {
+                      "qty": "int",
+                      "sku": null
+                    }
+                  ],
+                  "placed_at": null,
+                  "status": null,
+                  "total": "double"
+                }
+              ]
+            }
           }
         ],
-        "seconds": 0.056
+        "seconds": 0.031
       },
       "target": {
         "outcome": "completed",
         "steps": [
           {
-            "label": "create",
+            "label": "create orders with validator",
             "op": "command",
-            "ms": 43.85,
+            "ms": 6.71,
             "status": "ok"
           },
           {
-            "label": "bad",
+            "label": "insert valid order",
             "op": "command",
-            "ms": 7.97,
+            "ms": 1.73,
+            "status": "ok"
+          },
+          {
+            "label": "insert bad status fails",
+            "op": "command",
+            "ms": 1.49,
             "status": "ok",
             "captured": {
               "error_code": 121
             },
             "capture": true,
             "message": "write error"
+          },
+          {
+            "label": "insert negative total fails",
+            "op": "command",
+            "ms": 2.39,
+            "status": "ok",
+            "captured": {
+              "error_code": 121
+            },
+            "capture": true,
+            "message": "write error"
+          },
+          {
+            "label": "read back orders",
+            "op": "command",
+            "ms": 0.35,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": 20,
+                  "customer_id": "c020",
+                  "items": [
+                    {
+                      "qty": 1,
+                      "sku": "a1"
+                    }
+                  ],
+                  "placed_at": "2026-02-01T00:00:00.000+00:00",
+                  "status": "pending",
+                  "total": 49.99
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": "int",
+                  "customer_id": null,
+                  "items": [
+                    {
+                      "qty": "int",
+                      "sku": null
+                    }
+                  ],
+                  "placed_at": null,
+                  "status": null,
+                  "total": "double"
+                }
+              ]
+            }
           }
         ],
-        "seconds": 0.056
+        "seconds": 0.028
       },
       "verdict": "equal",
       "detail": {}
     },
     {
-      "probe_id": "T.text_exclusion",
-      "feature_id": "F9",
-      "title": "$text honors exclusion terms",
-      "behavior": "A term prefixed with a minus removes matching documents",
+      "probe_id": "F8.orders-types-update",
+      "feature_id": "F8",
+      "title": "$jsonSchema bsonType on items and placed_at plus update validation on orders",
+      "behavior": "orders $jsonSchema requires items as array and placed_at as date and validates updates to valid docs; violating inserts and updates fail with 121 while valid update succeeds",
       "source": {
         "outcome": "completed",
         "steps": [
           {
-            "label": "index",
+            "label": "create orders with validator",
             "op": "command",
-            "ms": 42.41,
+            "ms": 16.97,
             "status": "ok"
           },
           {
-            "label": "seed",
+            "label": "insert valid order",
             "op": "command",
-            "ms": 7.16,
+            "ms": 1.59,
             "status": "ok"
           },
           {
-            "label": "search",
+            "label": "insert items not array fails",
+            "op": "command",
+            "ms": 0.62,
+            "status": "ok",
+            "captured": {
+              "error_code": 121
+            },
+            "capture": true,
+            "message": "write error"
+          },
+          {
+            "label": "insert placed_at string fails",
+            "op": "command",
+            "ms": 16.69,
+            "status": "ok",
+            "captured": {
+              "error_code": 121
+            },
+            "capture": true,
+            "message": "write error"
+          },
+          {
+            "label": "invalid update total fails",
+            "op": "command",
+            "ms": 3.38,
+            "status": "ok",
+            "captured": {
+              "error_code": 121
+            },
+            "capture": true,
+            "message": "write error"
+          },
+          {
+            "label": "valid update status succeeds",
+            "op": "command",
+            "ms": 1.6,
+            "status": "ok"
+          },
+          {
+            "label": "read back orders",
+            "op": "command",
+            "ms": 0.48,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": 30,
+                  "customer_id": "c030",
+                  "items": [
+                    {
+                      "qty": 2,
+                      "sku": "a1"
+                    }
+                  ],
+                  "placed_at": "2026-03-01T00:00:00.000+00:00",
+                  "status": "shipped",
+                  "total": 49.99
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": "int",
+                  "customer_id": null,
+                  "items": [
+                    {
+                      "qty": "int",
+                      "sku": null
+                    }
+                  ],
+                  "placed_at": null,
+                  "status": null,
+                  "total": "double"
+                }
+              ]
+            }
+          }
+        ],
+        "seconds": 0.048
+      },
+      "target": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "create orders with validator",
+            "op": "command",
+            "ms": 17.07,
+            "status": "ok"
+          },
+          {
+            "label": "insert valid order",
+            "op": "command",
+            "ms": 1.19,
+            "status": "ok"
+          },
+          {
+            "label": "insert items not array fails",
+            "op": "command",
+            "ms": 1.47,
+            "status": "ok",
+            "captured": {
+              "error_code": 121
+            },
+            "capture": true,
+            "message": "write error"
+          },
+          {
+            "label": "insert placed_at string fails",
+            "op": "command",
+            "ms": 16.58,
+            "status": "ok",
+            "captured": {
+              "error_code": 121
+            },
+            "capture": true,
+            "message": "write error"
+          },
+          {
+            "label": "invalid update total fails",
+            "op": "command",
+            "ms": 3.37,
+            "status": "ok",
+            "captured": {
+              "error_code": 121
+            },
+            "capture": true,
+            "message": "write error"
+          },
+          {
+            "label": "valid update status succeeds",
+            "op": "command",
+            "ms": 1.6,
+            "status": "ok"
+          },
+          {
+            "label": "read back orders",
+            "op": "command",
+            "ms": 0.49,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": 30,
+                  "customer_id": "c030",
+                  "items": [
+                    {
+                      "qty": 2,
+                      "sku": "a1"
+                    }
+                  ],
+                  "placed_at": "2026-03-01T00:00:00.000+00:00",
+                  "status": "shipped",
+                  "total": 49.99
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": "int",
+                  "customer_id": null,
+                  "items": [
+                    {
+                      "qty": "int",
+                      "sku": null
+                    }
+                  ],
+                  "placed_at": null,
+                  "status": null,
+                  "total": "double"
+                }
+              ]
+            }
+          }
+        ],
+        "seconds": 0.048
+      },
+      "verdict": "equal",
+      "detail": {}
+    },
+    {
+      "probe_id": "F9.text_weighted_ranking",
+      "feature_id": "F9",
+      "title": "Text search weighted ranking with active filter",
+      "behavior": "Active product keyword search uses $text with weighted text index (name:10, tags:5, description:1) and $meta textScore ranking; higher-weight field matches must rank first and inactive products must be filtered.",
+      "source": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "create-text-index",
+            "op": "command",
+            "ms": 15.09,
+            "status": "ok"
+          },
+          {
+            "label": "seed-products",
+            "op": "command",
+            "ms": 1.59,
+            "status": "ok"
+          },
+          {
+            "label": "search-premium-ranked",
+            "op": "command",
+            "ms": 0.94,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": 3,
+                  "category": "jackets",
+                  "name": "premium jacket",
+                  "price": 99
+                },
+                {
+                  "_id": 2,
+                  "category": "jackets",
+                  "name": "basic jacket",
+                  "price": 79
+                },
+                {
+                  "_id": 1,
+                  "category": "jackets",
+                  "name": "basic jacket",
+                  "price": 69
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": "int",
+                  "category": null,
+                  "name": null,
+                  "price": "int"
+                },
+                {
+                  "_id": "int",
+                  "category": null,
+                  "name": null,
+                  "price": "int"
+                },
+                {
+                  "_id": "int",
+                  "category": null,
+                  "name": null,
+                  "price": "int"
+                }
+              ]
+            }
+          }
+        ],
+        "seconds": 0.037
+      },
+      "target": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "create-text-index",
+            "op": "command",
+            "ms": 14.98,
+            "status": "ok"
+          },
+          {
+            "label": "seed-products",
+            "op": "command",
+            "ms": 1.11,
+            "status": "ok"
+          },
+          {
+            "label": "search-premium-ranked",
+            "op": "command",
+            "ms": 0.88,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": 3,
+                  "category": "jackets",
+                  "name": "premium jacket",
+                  "price": 99
+                },
+                {
+                  "_id": 2,
+                  "category": "jackets",
+                  "name": "basic jacket",
+                  "price": 79
+                },
+                {
+                  "_id": 1,
+                  "category": "jackets",
+                  "name": "basic jacket",
+                  "price": 69
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": "int",
+                  "category": null,
+                  "name": null,
+                  "price": "int"
+                },
+                {
+                  "_id": "int",
+                  "category": null,
+                  "name": null,
+                  "price": "int"
+                },
+                {
+                  "_id": "int",
+                  "category": null,
+                  "name": null,
+                  "price": "int"
+                }
+              ]
+            }
+          }
+        ],
+        "seconds": 0.037
+      },
+      "verdict": "equal",
+      "detail": {}
+    },
+    {
+      "probe_id": "F9.text_exclusion_term",
+      "feature_id": "F9",
+      "title": "Text search exclusion term with active filter",
+      "behavior": "Product search supports $text exclusion terms (e.g. premium -jacket) combined with active:true filter and textScore sort; excluded-term documents must not match.",
+      "source": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "create-text-index",
+            "op": "command",
+            "ms": 20.94,
+            "status": "ok"
+          },
+          {
+            "label": "seed-products",
+            "op": "command",
+            "ms": 1.24,
+            "status": "ok"
+          },
+          {
+            "label": "search-exclusion",
             "op": "command",
             "ms": 0.75,
             "status": "ok",
             "captured": {
               "docs": [
                 {
-                  "_id": 1
+                  "_id": 2,
+                  "category": "boots",
+                  "name": "premium boots",
+                  "price": 89
                 }
               ]
             },
@@ -440,38 +4353,44 @@
             "types": {
               "docs": [
                 {
-                  "_id": "int"
+                  "_id": "int",
+                  "category": null,
+                  "name": null,
+                  "price": "int"
                 }
               ]
             }
           }
         ],
-        "seconds": 0.054
+        "seconds": 0.031
       },
       "target": {
         "outcome": "completed",
         "steps": [
           {
-            "label": "index",
+            "label": "create-text-index",
             "op": "command",
-            "ms": 39.61,
+            "ms": 21.31,
             "status": "ok"
           },
           {
-            "label": "seed",
+            "label": "seed-products",
             "op": "command",
-            "ms": 7.46,
+            "ms": 2.32,
             "status": "ok"
           },
           {
-            "label": "search",
+            "label": "search-exclusion",
             "op": "command",
-            "ms": 0.6,
+            "ms": 0.4,
             "status": "ok",
             "captured": {
               "docs": [
                 {
-                  "_id": 1
+                  "_id": 2,
+                  "category": "boots",
+                  "name": "premium boots",
+                  "price": 89
                 }
               ]
             },
@@ -479,49 +4398,58 @@
             "types": {
               "docs": [
                 {
-                  "_id": "int"
+                  "_id": "int",
+                  "category": null,
+                  "name": null,
+                  "price": "int"
                 }
               ]
             }
           }
         ],
-        "seconds": 0.051
+        "seconds": 0.032
       },
       "verdict": "equal",
       "detail": {}
     },
     {
-      "probe_id": "T.window",
-      "feature_id": "F2",
-      "title": "$setWindowFields computes a running total",
-      "behavior": "A running sum accumulates per partition in sort order",
+      "probe_id": "F9.text_search_active_ranked",
+      "feature_id": "F9",
+      "title": "Text search active products ranked by textScore",
+      "behavior": "Keyword product search uses $text index over name, description and tags with weights and returns only active products sorted by textScore ranking.",
       "source": {
         "outcome": "completed",
         "steps": [
           {
-            "label": "seed",
+            "label": "create-text-index",
             "op": "command",
-            "ms": 46.2,
+            "ms": 19.79,
             "status": "ok"
           },
           {
-            "label": "window",
+            "label": "seed-products",
             "op": "command",
-            "ms": 1.24,
+            "ms": 1.64,
+            "status": "ok"
+          },
+          {
+            "label": "search-premium-active-ranked",
+            "op": "command",
+            "ms": 0.45,
             "status": "ok",
             "captured": {
               "docs": [
                 {
                   "_id": 1,
-                  "run": 10
+                  "category": "jackets",
+                  "name": "premium jacket",
+                  "price": 99
                 },
                 {
                   "_id": 2,
-                  "run": 15
-                },
-                {
-                  "_id": 3,
-                  "run": 7
+                  "category": "jackets",
+                  "name": "leather jacket",
+                  "price": 99
                 }
               ]
             },
@@ -530,49 +4458,55 @@
               "docs": [
                 {
                   "_id": "int",
-                  "run": "int"
+                  "category": null,
+                  "name": null,
+                  "price": "int"
                 },
                 {
                   "_id": "int",
-                  "run": "int"
-                },
-                {
-                  "_id": "int",
-                  "run": "int"
+                  "category": null,
+                  "name": null,
+                  "price": "int"
                 }
               ]
             }
           }
         ],
-        "seconds": 0.058
+        "seconds": 0.028
       },
       "target": {
         "outcome": "completed",
         "steps": [
           {
-            "label": "seed",
+            "label": "create-text-index",
             "op": "command",
-            "ms": 46.3,
+            "ms": 21.02,
             "status": "ok"
           },
           {
-            "label": "window",
+            "label": "seed-products",
             "op": "command",
-            "ms": 1.48,
+            "ms": 1.85,
+            "status": "ok"
+          },
+          {
+            "label": "search-premium-active-ranked",
+            "op": "command",
+            "ms": 0.5,
             "status": "ok",
             "captured": {
               "docs": [
                 {
                   "_id": 1,
-                  "run": 10
+                  "category": "jackets",
+                  "name": "premium jacket",
+                  "price": 99
                 },
                 {
                   "_id": 2,
-                  "run": 15
-                },
-                {
-                  "_id": 3,
-                  "run": 7
+                  "category": "jackets",
+                  "name": "leather jacket",
+                  "price": 99
                 }
               ]
             },
@@ -581,77 +4515,50 @@
               "docs": [
                 {
                   "_id": "int",
-                  "run": "int"
+                  "category": null,
+                  "name": null,
+                  "price": "int"
                 },
                 {
                   "_id": "int",
-                  "run": "int"
-                },
-                {
-                  "_id": "int",
-                  "run": "int"
+                  "category": null,
+                  "name": null,
+                  "price": "int"
                 }
               ]
             }
           }
         ],
-        "seconds": 0.059
+        "seconds": 0.031
       },
       "verdict": "equal",
       "detail": {}
     },
     {
-      "probe_id": "T.crud_control",
+      "probe_id": "F10.cart-upsert-fetch-convert-discard",
       "feature_id": "F10",
-      "title": "Plain find, update and delete by _id",
-      "behavior": "Basic CRUD round trip",
+      "title": "Cart upsert fetch convert conditional delete",
+      "behavior": "Touching a cart must upsert by _id marking active, fetching uses find by customer_id+status, converting updates status/order_id by _id, discarding deletes only when still active",
       "source": {
         "outcome": "completed",
         "steps": [
           {
-            "label": "seed",
+            "label": "touch-upsert",
             "op": "command",
-            "ms": 14.0,
+            "ms": 7.56,
             "status": "ok"
           },
           {
-            "label": "update",
+            "label": "fetch-by-customer-status",
             "op": "command",
-            "ms": 1.26,
-            "status": "ok",
-            "captured": {
-              "n": 1,
-              "nModified": 1
-            },
-            "capture": true,
-            "types": {
-              "n": "int",
-              "nModified": "int"
-            }
-          },
-          {
-            "label": "delete",
-            "op": "command",
-            "ms": 1.37,
-            "status": "ok",
-            "captured": {
-              "n": 1
-            },
-            "capture": true,
-            "types": {
-              "n": "int"
-            }
-          },
-          {
-            "label": "read",
-            "op": "command",
-            "ms": 0.39,
+            "ms": 0.4,
             "status": "ok",
             "captured": {
               "docs": [
                 {
-                  "_id": "a",
-                  "s": "paid"
+                  "_id": "cart1",
+                  "customer_id": "custA",
+                  "status": "active"
                 }
               ]
             },
@@ -660,61 +4567,30 @@
               "docs": [
                 {
                   "_id": null,
-                  "s": null
+                  "customer_id": null,
+                  "status": null
                 }
               ]
             }
-          }
-        ],
-        "seconds": 0.122
-      },
-      "target": {
-        "outcome": "completed",
-        "steps": [
+          },
           {
-            "label": "seed",
+            "label": "convert-cart",
             "op": "command",
-            "ms": 13.87,
+            "ms": 7.12,
             "status": "ok"
           },
           {
-            "label": "update",
-            "op": "command",
-            "ms": 1.23,
-            "status": "ok",
-            "captured": {
-              "n": 1,
-              "nModified": 1
-            },
-            "capture": true,
-            "types": {
-              "n": "int",
-              "nModified": "int"
-            }
-          },
-          {
-            "label": "delete",
-            "op": "command",
-            "ms": 1.87,
-            "status": "ok",
-            "captured": {
-              "n": 1
-            },
-            "capture": true,
-            "types": {
-              "n": "int"
-            }
-          },
-          {
-            "label": "read",
+            "label": "fetch-converted",
             "op": "command",
             "ms": 0.32,
             "status": "ok",
             "captured": {
               "docs": [
                 {
-                  "_id": "a",
-                  "s": "paid"
+                  "_id": "cart1",
+                  "customer_id": "custA",
+                  "order_id": "O1",
+                  "status": "converted"
                 }
               ]
             },
@@ -723,183 +4599,591 @@
               "docs": [
                 {
                   "_id": null,
-                  "s": null
+                  "customer_id": null,
+                  "order_id": null,
+                  "status": null
+                }
+              ]
+            }
+          },
+          {
+            "label": "discard-active-only-miss",
+            "op": "command",
+            "ms": 4.76,
+            "status": "ok"
+          },
+          {
+            "label": "verify-still-present",
+            "op": "command",
+            "ms": 0.43,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": "cart1",
+                  "customer_id": "custA",
+                  "order_id": "O1",
+                  "status": "converted"
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": null,
+                  "customer_id": null,
+                  "order_id": null,
+                  "status": null
                 }
               ]
             }
           }
         ],
-        "seconds": 0.122
-      },
-      "verdict": "equal",
-      "detail": {}
-    },
-    {
-      "probe_id": "T.change_stream",
-      "feature_id": "F5",
-      "title": "A change stream delivers an update with the full document",
-      "behavior": "A watcher sees the update and the post-image via updateLookup",
-      "source": {
-        "outcome": "completed",
-        "steps": [
-          {
-            "label": "seed",
-            "op": "command",
-            "ms": 13.47,
-            "status": "ok"
-          },
-          {
-            "label": "open",
-            "op": "watch_open",
-            "ms": 1.17,
-            "status": "ok"
-          },
-          {
-            "label": "update",
-            "op": "command",
-            "ms": 1.9,
-            "status": "ok"
-          },
-          {
-            "label": "next",
-            "op": "watch_next",
-            "ms": 0.49,
-            "status": "ok",
-            "captured": [
-              {
-                "documentKey": {
-                  "_id": 1
-                },
-                "fullDocument": {
-                  "_id": 1,
-                  "n": 9
-                },
-                "ns": {
-                  "coll": "i"
-                },
-                "operationType": "update",
-                "updateDescription": {
-                  "removedFields": [],
-                  "truncatedArrays": [],
-                  "updatedFields": {
-                    "n": 9
-                  }
-                }
-              }
-            ],
-            "capture": true,
-            "types": [
-              {
-                "documentKey": {
-                  "_id": "int"
-                },
-                "fullDocument": {
-                  "_id": "int",
-                  "n": "int"
-                },
-                "ns": {
-                  "coll": null
-                },
-                "operationType": null,
-                "updateDescription": {
-                  "removedFields": [],
-                  "truncatedArrays": [],
-                  "updatedFields": {
-                    "n": "int"
-                  }
-                }
-              }
-            ]
-          },
-          {
-            "label": "close",
-            "op": "watch_close",
-            "ms": 0.82,
-            "status": "ok"
-          }
-        ],
-        "seconds": 0.121
+        "seconds": 0.024
       },
       "target": {
         "outcome": "completed",
         "steps": [
           {
-            "label": "seed",
+            "label": "touch-upsert",
             "op": "command",
-            "ms": 13.47,
+            "ms": 8.49,
             "status": "ok"
           },
           {
-            "label": "open",
-            "op": "watch_open",
-            "ms": 1.44,
-            "status": "ok"
-          },
-          {
-            "label": "update",
+            "label": "fetch-by-customer-status",
             "op": "command",
-            "ms": 1.64,
-            "status": "ok"
-          },
-          {
-            "label": "next",
-            "op": "watch_next",
-            "ms": 0.71,
+            "ms": 0.64,
             "status": "ok",
-            "captured": [
-              {
-                "documentKey": {
-                  "_id": 1
-                },
-                "fullDocument": {
-                  "_id": 1,
-                  "n": 9
-                },
-                "ns": {
-                  "coll": "i"
-                },
-                "operationType": "update",
-                "updateDescription": {
-                  "removedFields": [],
-                  "truncatedArrays": [],
-                  "updatedFields": {
-                    "n": 9
-                  }
+            "captured": {
+              "docs": [
+                {
+                  "_id": "cart1",
+                  "customer_id": "custA",
+                  "status": "active"
                 }
-              }
-            ],
+              ]
+            },
             "capture": true,
-            "types": [
-              {
-                "documentKey": {
-                  "_id": "int"
-                },
-                "fullDocument": {
-                  "_id": "int",
-                  "n": "int"
-                },
-                "ns": {
-                  "coll": null
-                },
-                "operationType": null,
-                "updateDescription": {
-                  "removedFields": [],
-                  "truncatedArrays": [],
-                  "updatedFields": {
-                    "n": "int"
-                  }
+            "types": {
+              "docs": [
+                {
+                  "_id": null,
+                  "customer_id": null,
+                  "status": null
                 }
-              }
-            ]
+              ]
+            }
           },
           {
-            "label": "close",
-            "op": "watch_close",
-            "ms": 0.67,
+            "label": "convert-cart",
+            "op": "command",
+            "ms": 6.23,
             "status": "ok"
+          },
+          {
+            "label": "fetch-converted",
+            "op": "command",
+            "ms": 0.64,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": "cart1",
+                  "customer_id": "custA",
+                  "order_id": "O1",
+                  "status": "converted"
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": null,
+                  "customer_id": null,
+                  "order_id": null,
+                  "status": null
+                }
+              ]
+            }
+          },
+          {
+            "label": "discard-active-only-miss",
+            "op": "command",
+            "ms": 4.8,
+            "status": "ok"
+          },
+          {
+            "label": "verify-still-present",
+            "op": "command",
+            "ms": 0.78,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": "cart1",
+                  "customer_id": "custA",
+                  "order_id": "O1",
+                  "status": "converted"
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": null,
+                  "customer_id": null,
+                  "order_id": null,
+                  "status": null
+                }
+              ]
+            }
           }
         ],
-        "seconds": 0.121
+        "seconds": 0.025
+      },
+      "verdict": "equal",
+      "detail": {}
+    },
+    {
+      "probe_id": "F10.order-cas-history-find",
+      "feature_id": "F10",
+      "title": "Order compare-and-set with history and filtered finds",
+      "behavior": "Order status must compare-and-set on _id+status $in while $set status/updated_at and $push history with no modification on stale prior set, history uses find by customer_id with projection sort limit, open orders uses find by status with sort limit and count",
+      "source": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "insert-orders",
+            "op": "command",
+            "ms": 7.73,
+            "status": "ok"
+          },
+          {
+            "label": "cas-success",
+            "op": "command",
+            "ms": 5.46,
+            "status": "ok"
+          },
+          {
+            "label": "verify-paid",
+            "op": "command",
+            "ms": 0.97,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": "O10",
+                  "customer_id": "custB",
+                  "history": [
+                    "paid"
+                  ],
+                  "placed_at": "2026-01-01T00:00:00.000+00:00",
+                  "status": "paid",
+                  "updated_at": "2026-01-10T00:00:00.000+00:00"
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": null,
+                  "customer_id": null,
+                  "history": [
+                    null
+                  ],
+                  "placed_at": null,
+                  "status": null,
+                  "updated_at": null
+                }
+              ]
+            }
+          },
+          {
+            "label": "cas-stale-noop",
+            "op": "command",
+            "ms": 1.41,
+            "status": "ok"
+          },
+          {
+            "label": "verify-still-paid",
+            "op": "command",
+            "ms": 0.27,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": "O10",
+                  "customer_id": "custB",
+                  "history": [
+                    "paid"
+                  ],
+                  "placed_at": "2026-01-01T00:00:00.000+00:00",
+                  "status": "paid",
+                  "updated_at": "2026-01-10T00:00:00.000+00:00"
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": null,
+                  "customer_id": null,
+                  "history": [
+                    null
+                  ],
+                  "placed_at": null,
+                  "status": null,
+                  "updated_at": null
+                }
+              ]
+            }
+          },
+          {
+            "label": "history-by-customer",
+            "op": "command",
+            "ms": 0.29,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": "O11",
+                  "status": "placed"
+                },
+                {
+                  "_id": "O10",
+                  "status": "paid"
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": null,
+                  "status": null
+                },
+                {
+                  "_id": null,
+                  "status": null
+                }
+              ]
+            }
+          },
+          {
+            "label": "open-by-status",
+            "op": "command",
+            "ms": 0.28,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": "O11",
+                  "status": "placed"
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": null,
+                  "status": null
+                }
+              ]
+            }
+          },
+          {
+            "label": "count-by-customer",
+            "op": "command",
+            "ms": 0.28,
+            "status": "ok",
+            "captured": {
+              "n": 2
+            },
+            "capture": true,
+            "types": {
+              "n": "int"
+            }
+          }
+        ],
+        "seconds": 0.119
+      },
+      "target": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "insert-orders",
+            "op": "command",
+            "ms": 7.65,
+            "status": "ok"
+          },
+          {
+            "label": "cas-success",
+            "op": "command",
+            "ms": 5.16,
+            "status": "ok"
+          },
+          {
+            "label": "verify-paid",
+            "op": "command",
+            "ms": 0.34,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": "O10",
+                  "customer_id": "custB",
+                  "history": [
+                    "paid"
+                  ],
+                  "placed_at": "2026-01-01T00:00:00.000+00:00",
+                  "status": "paid",
+                  "updated_at": "2026-01-10T00:00:00.000+00:00"
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": null,
+                  "customer_id": null,
+                  "history": [
+                    null
+                  ],
+                  "placed_at": null,
+                  "status": null,
+                  "updated_at": null
+                }
+              ]
+            }
+          },
+          {
+            "label": "cas-stale-noop",
+            "op": "command",
+            "ms": 0.7,
+            "status": "ok"
+          },
+          {
+            "label": "verify-still-paid",
+            "op": "command",
+            "ms": 0.61,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": "O10",
+                  "customer_id": "custB",
+                  "history": [
+                    "paid"
+                  ],
+                  "placed_at": "2026-01-01T00:00:00.000+00:00",
+                  "status": "paid",
+                  "updated_at": "2026-01-10T00:00:00.000+00:00"
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": null,
+                  "customer_id": null,
+                  "history": [
+                    null
+                  ],
+                  "placed_at": null,
+                  "status": null,
+                  "updated_at": null
+                }
+              ]
+            }
+          },
+          {
+            "label": "history-by-customer",
+            "op": "command",
+            "ms": 0.34,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": "O11",
+                  "status": "placed"
+                },
+                {
+                  "_id": "O10",
+                  "status": "paid"
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": null,
+                  "status": null
+                },
+                {
+                  "_id": null,
+                  "status": null
+                }
+              ]
+            }
+          },
+          {
+            "label": "open-by-status",
+            "op": "command",
+            "ms": 0.34,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": "O11",
+                  "status": "placed"
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": null,
+                  "status": null
+                }
+              ]
+            }
+          },
+          {
+            "label": "count-by-customer",
+            "op": "command",
+            "ms": 0.31,
+            "status": "ok",
+            "captured": {
+              "n": 2
+            },
+            "capture": true,
+            "types": {
+              "n": "int"
+            }
+          }
+        ],
+        "seconds": 0.017
+      },
+      "verdict": "equal",
+      "detail": {}
+    },
+    {
+      "probe_id": "X:graphLookup.graphlookup-referral-chain",
+      "feature_id": "X:graphLookup",
+      "title": "Referral chain via $graphLookup with depth tracking",
+      "behavior": "referral chain report recursively follows referred_by to _id in customers and collects ancestors as referrers with depth tracking",
+      "source": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "seed customers chain",
+            "op": "command",
+            "ms": 5.78,
+            "status": "ok"
+          },
+          {
+            "label": "graphLookup ancestors with depth",
+            "op": "command",
+            "ms": 0.6,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "ancestor": "carol",
+                  "depth": 0
+                },
+                {
+                  "ancestor": "bob",
+                  "depth": 1
+                },
+                {
+                  "ancestor": "alice",
+                  "depth": 2
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "ancestor": null,
+                  "depth": "int"
+                },
+                {
+                  "ancestor": null,
+                  "depth": "int"
+                },
+                {
+                  "ancestor": null,
+                  "depth": "int"
+                }
+              ]
+            }
+          }
+        ],
+        "seconds": 0.009
+      },
+      "target": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "seed customers chain",
+            "op": "command",
+            "ms": 6.24,
+            "status": "ok"
+          },
+          {
+            "label": "graphLookup ancestors with depth",
+            "op": "command",
+            "ms": 0.49,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "ancestor": "carol",
+                  "depth": 0
+                },
+                {
+                  "ancestor": "bob",
+                  "depth": 1
+                },
+                {
+                  "ancestor": "alice",
+                  "depth": 2
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "ancestor": null,
+                  "depth": "int"
+                },
+                {
+                  "ancestor": null,
+                  "depth": "int"
+                },
+                {
+                  "ancestor": null,
+                  "depth": "int"
+                }
+              ]
+            }
+          }
+        ],
+        "seconds": 0.009
       },
       "verdict": "equal",
       "detail": {}
@@ -911,9 +5195,95 @@
         {
           "shape_id": "S4b871cdf",
           "collection": "orders",
+          "path": "online",
           "features": [
             "F10"
           ],
+          "source_ms_samples": [
+            1.48,
+            0.66,
+            0.76,
+            0.5,
+            0.75,
+            0.52,
+            0.54,
+            0.67,
+            0.56,
+            0.37,
+            0.42,
+            0.66,
+            0.66,
+            0.41,
+            0.43,
+            0.66,
+            0.95,
+            0.39,
+            0.56,
+            0.32,
+            0.34,
+            0.29,
+            0.33,
+            0.36,
+            0.31,
+            0.28,
+            0.31,
+            0.28,
+            0.28,
+            0.29,
+            0.31,
+            0.27,
+            0.3,
+            0.32,
+            0.32,
+            0.38,
+            0.29,
+            0.29,
+            0.32,
+            0.31
+          ],
+          "target_ms_samples": [
+            0.77,
+            0.76,
+            0.57,
+            0.73,
+            1.22,
+            0.74,
+            0.45,
+            0.51,
+            0.41,
+            0.47,
+            0.45,
+            0.61,
+            0.54,
+            0.42,
+            0.38,
+            0.57,
+            0.42,
+            0.41,
+            0.38,
+            0.41,
+            0.36,
+            0.32,
+            0.29,
+            0.33,
+            0.29,
+            0.31,
+            0.29,
+            0.28,
+            0.28,
+            0.28,
+            0.28,
+            0.31,
+            0.31,
+            0.54,
+            0.29,
+            0.32,
+            0.29,
+            0.3,
+            0.3,
+            0.38
+          ],
+          "target_timeouts": 0,
           "stages": [],
           "replayed": 40,
           "in_log": 270,
@@ -922,10 +5292,10 @@
           "target_errors": 0,
           "source_errors": 0,
           "budget_exhausted": false,
-          "source_p50_ms": 0.28,
-          "source_p95_ms": 0.43,
-          "target_p50_ms": 0.28,
-          "target_p95_ms": 0.39,
+          "source_p50_ms": 0.37,
+          "source_p95_ms": 0.95,
+          "target_p50_ms": 0.38,
+          "target_p95_ms": 0.77,
           "first_difference": null,
           "difference_kinds": {},
           "ranking_only": false,
@@ -934,9 +5304,95 @@
         {
           "shape_id": "Sb98d4c91",
           "collection": "customers",
+          "path": "online",
           "features": [
             "F6"
           ],
+          "source_ms_samples": [
+            0.29,
+            0.27,
+            0.33,
+            0.31,
+            0.32,
+            0.3,
+            0.34,
+            0.29,
+            0.33,
+            0.31,
+            0.31,
+            0.32,
+            0.31,
+            0.3,
+            0.32,
+            0.3,
+            0.35,
+            0.3,
+            0.29,
+            0.31,
+            0.31,
+            0.28,
+            0.33,
+            0.3,
+            0.32,
+            0.3,
+            0.31,
+            0.33,
+            0.33,
+            0.3,
+            0.34,
+            0.3,
+            0.3,
+            0.3,
+            0.3,
+            0.32,
+            0.34,
+            0.32,
+            0.36,
+            0.33
+          ],
+          "target_ms_samples": [
+            0.28,
+            0.31,
+            0.3,
+            0.4,
+            0.29,
+            0.34,
+            0.3,
+            0.31,
+            0.3,
+            0.34,
+            0.3,
+            0.32,
+            0.29,
+            0.34,
+            0.32,
+            0.31,
+            0.31,
+            0.31,
+            0.28,
+            0.3,
+            0.3,
+            0.29,
+            0.33,
+            0.32,
+            0.45,
+            0.32,
+            0.32,
+            0.28,
+            0.3,
+            0.32,
+            0.32,
+            0.34,
+            0.29,
+            0.28,
+            0.32,
+            0.33,
+            0.33,
+            0.31,
+            0.33,
+            0.31
+          ],
+          "target_timeouts": 0,
           "stages": [],
           "replayed": 40,
           "in_log": 110,
@@ -945,10 +5401,10 @@
           "target_errors": 0,
           "source_errors": 0,
           "budget_exhausted": false,
-          "source_p50_ms": 0.26,
-          "source_p95_ms": 0.28,
-          "target_p50_ms": 0.26,
-          "target_p95_ms": 0.29,
+          "source_p50_ms": 0.31,
+          "source_p95_ms": 0.35,
+          "target_p50_ms": 0.31,
+          "target_p95_ms": 0.4,
           "first_difference": null,
           "difference_kinds": {},
           "ranking_only": false,
@@ -957,9 +5413,95 @@
         {
           "shape_id": "Se780f2b8",
           "collection": "products",
+          "path": "online",
           "features": [
             "F9"
           ],
+          "source_ms_samples": [
+            0.49,
+            0.69,
+            0.69,
+            0.65,
+            0.79,
+            0.39,
+            0.6,
+            0.65,
+            0.45,
+            0.61,
+            0.45,
+            0.41,
+            0.43,
+            0.39,
+            0.58,
+            0.36,
+            0.4,
+            0.56,
+            0.35,
+            0.4,
+            0.41,
+            0.42,
+            0.38,
+            0.57,
+            0.39,
+            0.53,
+            0.56,
+            0.55,
+            0.54,
+            0.38,
+            0.54,
+            0.53,
+            0.37,
+            0.53,
+            0.38,
+            0.64,
+            0.55,
+            0.38,
+            0.44,
+            0.42
+          ],
+          "target_ms_samples": [
+            0.5,
+            0.75,
+            0.7,
+            1.59,
+            0.62,
+            0.41,
+            0.65,
+            0.62,
+            0.41,
+            0.6,
+            0.43,
+            0.44,
+            0.39,
+            0.38,
+            0.59,
+            0.44,
+            0.39,
+            0.56,
+            0.36,
+            0.41,
+            0.45,
+            0.46,
+            0.38,
+            0.54,
+            0.39,
+            0.56,
+            0.53,
+            0.54,
+            0.55,
+            0.36,
+            0.53,
+            0.54,
+            0.4,
+            0.61,
+            0.4,
+            0.54,
+            0.55,
+            0.39,
+            0.44,
+            0.38
+          ],
+          "target_timeouts": 0,
           "stages": [],
           "replayed": 40,
           "in_log": 100,
@@ -968,10 +5510,10 @@
           "target_errors": 0,
           "source_errors": 0,
           "budget_exhausted": false,
-          "source_p50_ms": 0.42,
-          "source_p95_ms": 0.57,
-          "target_p50_ms": 0.4,
-          "target_p95_ms": 0.56,
+          "source_p50_ms": 0.49,
+          "source_p95_ms": 0.69,
+          "target_p50_ms": 0.5,
+          "target_p95_ms": 0.75,
           "first_difference": null,
           "difference_kinds": {},
           "ranking_only": false,
@@ -980,9 +5522,95 @@
         {
           "shape_id": "Sf0f8b779",
           "collection": "orders",
+          "path": "online",
           "features": [
             "F10"
           ],
+          "source_ms_samples": [
+            0.31,
+            0.3,
+            0.39,
+            0.31,
+            0.42,
+            0.31,
+            0.55,
+            0.31,
+            0.39,
+            0.29,
+            0.38,
+            0.31,
+            0.34,
+            0.29,
+            0.38,
+            0.29,
+            0.36,
+            0.29,
+            0.39,
+            0.3,
+            0.37,
+            0.28,
+            0.39,
+            0.3,
+            0.38,
+            0.28,
+            0.39,
+            0.3,
+            0.36,
+            0.29,
+            0.36,
+            0.31,
+            0.35,
+            0.33,
+            0.38,
+            0.31,
+            0.36,
+            0.27,
+            0.84,
+            0.28
+          ],
+          "target_ms_samples": [
+            0.29,
+            0.41,
+            0.3,
+            0.36,
+            0.28,
+            0.43,
+            0.31,
+            0.44,
+            0.31,
+            0.41,
+            0.28,
+            0.36,
+            0.28,
+            0.34,
+            0.28,
+            0.41,
+            0.28,
+            0.39,
+            0.3,
+            0.36,
+            0.29,
+            0.35,
+            0.29,
+            0.32,
+            0.29,
+            0.35,
+            0.32,
+            0.36,
+            0.28,
+            0.32,
+            0.3,
+            0.36,
+            0.32,
+            0.47,
+            0.27,
+            0.42,
+            0.28,
+            0.4,
+            0.29,
+            0.62
+          ],
+          "target_timeouts": 0,
           "stages": [],
           "replayed": 40,
           "in_log": 100,
@@ -991,10 +5619,10 @@
           "target_errors": 0,
           "source_errors": 0,
           "budget_exhausted": false,
-          "source_p50_ms": 0.3,
-          "source_p95_ms": 0.65,
-          "target_p50_ms": 0.31,
-          "target_p95_ms": 0.84,
+          "source_p50_ms": 0.33,
+          "source_p95_ms": 0.55,
+          "target_p50_ms": 0.32,
+          "target_p95_ms": 0.47,
           "first_difference": null,
           "difference_kinds": {},
           "ranking_only": false,
@@ -1003,9 +5631,95 @@
         {
           "shape_id": "Sb578dda4",
           "collection": "carts",
+          "path": "online",
           "features": [
             "F10"
           ],
+          "source_ms_samples": [
+            0.28,
+            0.3,
+            0.28,
+            0.28,
+            0.28,
+            0.26,
+            0.28,
+            0.27,
+            0.27,
+            0.29,
+            0.31,
+            0.3,
+            0.26,
+            0.25,
+            0.26,
+            0.25,
+            0.27,
+            0.24,
+            0.25,
+            0.25,
+            0.28,
+            0.26,
+            0.26,
+            0.25,
+            0.26,
+            0.27,
+            0.25,
+            0.29,
+            0.24,
+            0.25,
+            0.26,
+            0.33,
+            0.24,
+            0.27,
+            0.25,
+            0.26,
+            0.23,
+            0.25,
+            0.28,
+            0.26
+          ],
+          "target_ms_samples": [
+            0.28,
+            0.28,
+            0.28,
+            0.29,
+            0.25,
+            0.25,
+            0.26,
+            0.26,
+            0.27,
+            0.27,
+            0.28,
+            0.3,
+            0.27,
+            0.26,
+            0.27,
+            0.27,
+            0.27,
+            0.25,
+            0.27,
+            0.26,
+            0.26,
+            0.26,
+            0.29,
+            0.24,
+            0.26,
+            0.26,
+            0.25,
+            0.26,
+            0.25,
+            0.23,
+            0.28,
+            0.26,
+            0.24,
+            0.24,
+            0.25,
+            0.32,
+            0.24,
+            0.25,
+            0.25,
+            0.26
+          ],
+          "target_timeouts": 0,
           "stages": [],
           "replayed": 40,
           "in_log": 70,
@@ -1015,8 +5729,8 @@
           "source_errors": 0,
           "budget_exhausted": false,
           "source_p50_ms": 0.26,
-          "source_p95_ms": 0.29,
-          "target_p50_ms": 0.27,
+          "source_p95_ms": 0.31,
+          "target_p50_ms": 0.26,
           "target_p95_ms": 0.3,
           "first_difference": null,
           "difference_kinds": {},
@@ -1026,9 +5740,95 @@
         {
           "shape_id": "Sac78c80d",
           "collection": "orders",
+          "path": "online",
           "features": [
             "F2"
           ],
+          "source_ms_samples": [
+            0.41,
+            0.39,
+            0.48,
+            0.44,
+            0.46,
+            0.35,
+            0.37,
+            0.4,
+            0.58,
+            0.4,
+            0.54,
+            0.34,
+            0.46,
+            0.4,
+            0.44,
+            0.36,
+            0.51,
+            0.32,
+            0.39,
+            0.36,
+            0.42,
+            0.35,
+            0.45,
+            0.33,
+            0.44,
+            0.37,
+            0.43,
+            0.32,
+            0.42,
+            0.34,
+            0.61,
+            0.33,
+            0.42,
+            0.34,
+            0.5,
+            0.37,
+            0.35,
+            0.4,
+            0.42,
+            0.34
+          ],
+          "target_ms_samples": [
+            0.41,
+            0.39,
+            0.34,
+            0.47,
+            0.35,
+            0.45,
+            0.4,
+            1.14,
+            0.43,
+            0.48,
+            0.38,
+            0.39,
+            0.36,
+            0.51,
+            0.38,
+            0.49,
+            0.39,
+            0.37,
+            0.35,
+            0.47,
+            0.32,
+            0.41,
+            0.34,
+            0.41,
+            0.35,
+            0.44,
+            0.35,
+            0.4,
+            0.35,
+            0.41,
+            0.41,
+            0.4,
+            0.34,
+            0.46,
+            0.39,
+            0.46,
+            0.37,
+            0.49,
+            0.37,
+            0.37
+          ],
+          "target_timeouts": 0,
           "stages": [
             "$match",
             "$addFields",
@@ -1042,10 +5842,10 @@
           "target_errors": 0,
           "source_errors": 0,
           "budget_exhausted": false,
-          "source_p50_ms": 0.36,
-          "source_p95_ms": 0.4,
-          "target_p50_ms": 0.36,
-          "target_p95_ms": 0.42,
+          "source_p50_ms": 0.4,
+          "source_p95_ms": 0.58,
+          "target_p50_ms": 0.4,
+          "target_p95_ms": 0.51,
           "first_difference": null,
           "difference_kinds": {},
           "ranking_only": false,
@@ -1054,22 +5854,108 @@
         {
           "shape_id": "S04aefdf6",
           "collection": "orders",
+          "path": "online",
           "features": [],
+          "source_ms_samples": [
+            0.38,
+            0.32,
+            0.36,
+            0.34,
+            0.35,
+            0.32,
+            0.37,
+            0.38,
+            0.34,
+            0.34,
+            0.35,
+            0.34,
+            0.32,
+            0.33,
+            0.36,
+            0.34,
+            0.32,
+            0.32,
+            0.33,
+            0.33,
+            0.32,
+            0.38,
+            0.34,
+            0.32,
+            0.33,
+            0.32,
+            0.33,
+            0.34,
+            0.33,
+            0.31,
+            0.31,
+            0.3,
+            0.32,
+            0.31,
+            0.33,
+            0.33,
+            0.33,
+            0.31,
+            0.32,
+            0.32
+          ],
+          "target_ms_samples": [
+            0.34,
+            0.32,
+            0.33,
+            0.36,
+            0.32,
+            0.34,
+            0.34,
+            0.35,
+            0.35,
+            0.34,
+            0.31,
+            0.33,
+            0.33,
+            0.35,
+            0.34,
+            0.32,
+            0.3,
+            0.35,
+            0.33,
+            0.32,
+            0.31,
+            0.31,
+            0.35,
+            0.34,
+            0.33,
+            0.33,
+            0.34,
+            0.32,
+            0.32,
+            0.32,
+            0.32,
+            0.32,
+            0.31,
+            0.32,
+            0.31,
+            0.39,
+            0.3,
+            0.29,
+            0.33,
+            0.36
+          ],
+          "target_timeouts": 0,
           "stages": [
             "$match",
             "$group"
           ],
           "replayed": 40,
-          "in_log": 45,
+          "in_log": 46,
           "equal": 40,
           "different": 0,
           "target_errors": 0,
           "source_errors": 0,
           "budget_exhausted": false,
-          "source_p50_ms": 0.32,
-          "source_p95_ms": 0.35,
-          "target_p50_ms": 0.32,
-          "target_p95_ms": 0.43,
+          "source_p50_ms": 0.33,
+          "source_p95_ms": 0.38,
+          "target_p50_ms": 0.33,
+          "target_p95_ms": 0.36,
           "first_difference": null,
           "difference_kinds": {},
           "ranking_only": false,
@@ -1078,9 +5964,95 @@
         {
           "shape_id": "Safd4d86d",
           "collection": "orders",
+          "path": "online",
           "features": [
             "F10"
           ],
+          "source_ms_samples": [
+            0.53,
+            0.58,
+            1.89,
+            1.0,
+            0.84,
+            0.5,
+            0.67,
+            0.54,
+            0.95,
+            0.52,
+            0.83,
+            0.57,
+            0.52,
+            0.72,
+            0.59,
+            0.5,
+            0.56,
+            0.81,
+            0.56,
+            0.51,
+            0.56,
+            0.79,
+            0.62,
+            0.69,
+            0.92,
+            0.58,
+            0.68,
+            0.59,
+            0.65,
+            0.89,
+            0.79,
+            0.98,
+            0.69,
+            0.57,
+            0.69,
+            0.87,
+            0.77,
+            0.87,
+            0.83,
+            0.94
+          ],
+          "target_ms_samples": [
+            0.58,
+            0.97,
+            0.85,
+            0.75,
+            0.54,
+            0.56,
+            0.48,
+            0.52,
+            0.73,
+            0.57,
+            0.77,
+            0.57,
+            0.54,
+            0.79,
+            0.52,
+            0.62,
+            0.52,
+            0.8,
+            0.53,
+            0.53,
+            0.54,
+            0.87,
+            0.67,
+            0.54,
+            0.59,
+            0.84,
+            0.57,
+            0.66,
+            0.62,
+            1.0,
+            0.59,
+            1.22,
+            0.62,
+            0.62,
+            0.66,
+            0.99,
+            0.86,
+            0.87,
+            0.86,
+            0.86
+          ],
+          "target_timeouts": 0,
           "stages": [],
           "replayed": 40,
           "in_log": 40,
@@ -1089,10 +6061,10 @@
           "target_errors": 0,
           "source_errors": 0,
           "budget_exhausted": false,
-          "source_p50_ms": 0.73,
-          "source_p95_ms": 1.01,
-          "target_p50_ms": 0.65,
-          "target_p95_ms": 0.97,
+          "source_p50_ms": 0.69,
+          "source_p95_ms": 1.0,
+          "target_p50_ms": 0.62,
+          "target_p95_ms": 1.0,
           "first_difference": null,
           "difference_kinds": {},
           "ranking_only": false,
@@ -1101,9 +6073,75 @@
         {
           "shape_id": "S7338d59e",
           "collection": "products",
+          "path": "online",
           "features": [
             "F10"
           ],
+          "source_ms_samples": [
+            0.41,
+            0.6,
+            0.97,
+            1.11,
+            0.44,
+            0.42,
+            0.46,
+            0.4,
+            0.37,
+            0.42,
+            0.42,
+            0.41,
+            0.42,
+            0.36,
+            0.38,
+            0.87,
+            1.42,
+            0.37,
+            0.41,
+            0.4,
+            0.41,
+            0.41,
+            0.42,
+            0.39,
+            0.41,
+            0.36,
+            0.38,
+            0.4,
+            0.39,
+            0.39
+          ],
+          "target_ms_samples": [
+            0.43,
+            0.58,
+            0.93,
+            0.47,
+            0.45,
+            0.43,
+            0.43,
+            0.43,
+            0.42,
+            0.39,
+            0.43,
+            0.44,
+            0.36,
+            0.37,
+            0.39,
+            0.44,
+            0.58,
+            0.4,
+            0.4,
+            0.41,
+            0.37,
+            0.45,
+            0.39,
+            0.4,
+            0.41,
+            0.4,
+            0.38,
+            0.42,
+            0.39,
+            0.4
+          ],
+          "target_timeouts": 0,
           "stages": [],
           "replayed": 30,
           "in_log": 30,
@@ -1112,10 +6150,10 @@
           "target_errors": 0,
           "source_errors": 0,
           "budget_exhausted": false,
-          "source_p50_ms": 0.43,
-          "source_p95_ms": 0.46,
-          "target_p50_ms": 0.43,
-          "target_p95_ms": 0.91,
+          "source_p50_ms": 0.41,
+          "source_p95_ms": 1.11,
+          "target_p50_ms": 0.42,
+          "target_p95_ms": 0.58,
           "first_difference": null,
           "difference_kinds": {},
           "ranking_only": false,
@@ -1124,9 +6162,55 @@
         {
           "shape_id": "S78e856b9",
           "collection": "orders",
+          "path": "reporting",
           "features": [
             "F1"
           ],
+          "source_ms_samples": [
+            5.62,
+            5.4,
+            5.81,
+            5.55,
+            5.79,
+            5.16,
+            4.96,
+            5.04,
+            5.11,
+            5.3,
+            6.17,
+            5.34,
+            6.07,
+            5.87,
+            5.85,
+            5.54,
+            5.69,
+            5.51,
+            6.44,
+            5.26
+          ],
+          "target_ms_samples": [
+            5.32,
+            5.94,
+            5.45,
+            5.94,
+            5.5,
+            5.76,
+            4.72,
+            5.42,
+            5.06,
+            5.98,
+            5.74,
+            5.52,
+            5.39,
+            6.25,
+            5.86,
+            5.52,
+            5.28,
+            5.64,
+            5.7,
+            5.61
+          ],
+          "target_timeouts": 0,
           "stages": [
             "$match",
             "$addFields",
@@ -1141,10 +6225,69 @@
           "target_errors": 0,
           "source_errors": 0,
           "budget_exhausted": false,
-          "source_p50_ms": 5.45,
-          "source_p95_ms": 6.67,
-          "target_p50_ms": 5.46,
-          "target_p95_ms": 5.97,
+          "source_p50_ms": 5.55,
+          "source_p95_ms": 6.44,
+          "target_p50_ms": 5.61,
+          "target_p95_ms": 6.25,
+          "first_difference": null,
+          "difference_kinds": {},
+          "ranking_only": false,
+          "first_error": null
+        },
+        {
+          "shape_id": "Sba60fea1",
+          "collection": "orders",
+          "path": "online",
+          "features": [
+            "F10"
+          ],
+          "source_ms_samples": [
+            5.29,
+            5.33,
+            38.02,
+            5.31,
+            8.1,
+            34.94,
+            7.9,
+            5.27,
+            35.47,
+            7.42,
+            7.57,
+            7.03,
+            5.19,
+            5.53,
+            5.54
+          ],
+          "target_ms_samples": [
+            5.08,
+            5.17,
+            35.13,
+            5.51,
+            7.94,
+            35.63,
+            7.51,
+            5.18,
+            35.86,
+            7.76,
+            7.15,
+            7.33,
+            5.17,
+            5.16,
+            5.24
+          ],
+          "target_timeouts": 0,
+          "stages": [],
+          "replayed": 15,
+          "in_log": 15,
+          "equal": 15,
+          "different": 0,
+          "target_errors": 0,
+          "source_errors": 0,
+          "budget_exhausted": false,
+          "source_p50_ms": 7.03,
+          "source_p95_ms": 38.02,
+          "target_p50_ms": 7.15,
+          "target_p95_ms": 35.86,
           "first_difference": null,
           "difference_kinds": {},
           "ranking_only": false,
@@ -1153,9 +6296,35 @@
         {
           "shape_id": "S8d6c2ea8",
           "collection": "products",
+          "path": "reporting",
           "features": [
             "F1"
           ],
+          "source_ms_samples": [
+            6.29,
+            6.83,
+            6.48,
+            6.42,
+            6.45,
+            6.71,
+            6.32,
+            6.5,
+            7.2,
+            6.26
+          ],
+          "target_ms_samples": [
+            6.67,
+            6.7,
+            6.59,
+            6.48,
+            6.34,
+            6.49,
+            6.41,
+            6.42,
+            6.54,
+            6.33
+          ],
+          "target_timeouts": 0,
           "stages": [
             "$lookup",
             "$match",
@@ -1169,10 +6338,10 @@
           "target_errors": 0,
           "source_errors": 0,
           "budget_exhausted": false,
-          "source_p50_ms": 6.46,
-          "source_p95_ms": 6.63,
-          "target_p50_ms": 6.34,
-          "target_p95_ms": 6.57,
+          "source_p50_ms": 6.48,
+          "source_p95_ms": 7.2,
+          "target_p50_ms": 6.49,
+          "target_p95_ms": 6.7,
           "first_difference": null,
           "difference_kinds": {},
           "ranking_only": false,
@@ -1181,9 +6350,17 @@
         {
           "shape_id": "S181542d4",
           "collection": "orders",
+          "path": "online",
           "features": [
             "F10"
           ],
+          "source_ms_samples": [
+            1.41
+          ],
+          "target_ms_samples": [
+            1.54
+          ],
+          "target_timeouts": 0,
           "stages": [],
           "replayed": 1,
           "in_log": 1,
@@ -1192,10 +6369,10 @@
           "target_errors": 0,
           "source_errors": 0,
           "budget_exhausted": false,
-          "source_p50_ms": 1.51,
-          "source_p95_ms": 1.51,
-          "target_p50_ms": 1.46,
-          "target_p95_ms": 1.46,
+          "source_p50_ms": 1.41,
+          "source_p95_ms": 1.41,
+          "target_p50_ms": 1.54,
+          "target_p95_ms": 1.54,
           "first_difference": null,
           "difference_kinds": {},
           "ranking_only": false,
@@ -1204,9 +6381,17 @@
         {
           "shape_id": "Se8433e70",
           "collection": "orders",
+          "path": "online",
           "features": [
             "F10"
           ],
+          "source_ms_samples": [
+            0.87
+          ],
+          "target_ms_samples": [
+            0.74
+          ],
+          "target_timeouts": 0,
           "stages": [],
           "replayed": 1,
           "in_log": 1,
@@ -1215,10 +6400,10 @@
           "target_errors": 0,
           "source_errors": 0,
           "budget_exhausted": false,
-          "source_p50_ms": 0.71,
-          "source_p95_ms": 0.71,
-          "target_p50_ms": 0.7,
-          "target_p95_ms": 0.7,
+          "source_p50_ms": 0.87,
+          "source_p95_ms": 0.87,
+          "target_p50_ms": 0.74,
+          "target_p95_ms": 0.74,
           "first_difference": null,
           "difference_kinds": {},
           "ranking_only": false,
@@ -1226,49 +6411,62 @@
         }
       ],
       "overall": {
-        "source_p50_ms": 0.34,
-        "source_p95_ms": 5.45,
-        "target_p50_ms": 0.34,
-        "target_p95_ms": 5.46,
-        "compared_on_both": 382
+        "source_p50_ms": 0.38,
+        "source_p95_ms": 6.17,
+        "target_p50_ms": 0.39,
+        "target_p95_ms": 5.98,
+        "compared_on_both": 397
       }
     },
     "writes": {
-      "replayed": 350,
-      "equal": 350,
+      "replayed": 353,
+      "equal": 353,
       "different": 0,
       "target_errors": 0,
       "source_errors": 0,
       "first_difference": null,
       "first_error": null,
-      "source_p50_ms": 0.93,
-      "source_p95_ms": 1.89,
-      "target_p50_ms": 0.88,
-      "target_p95_ms": 1.77,
+      "source_p50_ms": 0.77,
+      "source_p95_ms": 1.85,
+      "target_p50_ms": 0.91,
+      "target_p95_ms": 1.8,
       "by_feature": {
         "F10": {
-          "equal": 295
+          "equal": 297
         },
         "F3": {
-          "equal": 55
+          "equal": 56
         }
       },
       "final_state_differences": {}
     },
     "excluded": {
-      "sync worker bookkeeping": 189,
+      "sync worker bookkeeping": 205,
       "inside a transaction (covered by probes)": 60,
-      "change stream (covered by probes)": 51,
+      "change stream (covered by probes)": 57,
       "insert: the profiler doesn't keep the documents": 5,
       "cursor maintenance": 1
     },
-    "in_log": 1513
+    "in_log": 1554
   },
   "schema_rejections": [],
   "features": {
     "F1": {
       "verdict": "equal",
-      "probes": [],
+      "probes": [
+        {
+          "probe_id": "F1.revenue_facet_full",
+          "verdict": "equal"
+        },
+        {
+          "probe_id": "F1.inventory_lookup_pipeline",
+          "verdict": "equal"
+        },
+        {
+          "probe_id": "F1.revenue_facet_largest_top5",
+          "verdict": "equal"
+        }
+      ],
       "replay": {
         "replayed": 30,
         "equal": 30,
@@ -1281,7 +6479,15 @@
       "verdict": "equal",
       "probes": [
         {
-          "probe_id": "T.window",
+          "probe_id": "F2.swf-running-total-seq",
+          "verdict": "equal"
+        },
+        {
+          "probe_id": "F2.swf-rolling-90d",
+          "verdict": "equal"
+        },
+        {
+          "probe_id": "F2.swf-prev-order-shift",
           "verdict": "equal"
         }
       ],
@@ -1297,13 +6503,21 @@
       "verdict": "equal",
       "probes": [
         {
-          "probe_id": "T.array_filters",
+          "probe_id": "F3.arrayfilter-refund-selected",
+          "verdict": "equal"
+        },
+        {
+          "probe_id": "F3.arrayfilter-refund-guard",
+          "verdict": "equal"
+        },
+        {
+          "probe_id": "F3.all-positional-reviewed",
           "verdict": "equal"
         }
       ],
       "replay": {
-        "replayed": 55,
-        "equal": 55,
+        "replayed": 56,
+        "equal": 56,
         "different": 0,
         "errors": 0
       },
@@ -1313,7 +6527,15 @@
       "verdict": "equal",
       "probes": [
         {
-          "probe_id": "T.txn_abort",
+          "probe_id": "F4.txn-abort-rollback",
+          "verdict": "equal"
+        },
+        {
+          "probe_id": "F4.txn-commit-atomic",
+          "verdict": "equal"
+        },
+        {
+          "probe_id": "F4.txn-isolation-uncommitted",
           "verdict": "equal"
         }
       ],
@@ -1329,7 +6551,15 @@
       "verdict": "equal",
       "probes": [
         {
-          "probe_id": "T.change_stream",
+          "probe_id": "F5.cs-filter-update-replace",
+          "verdict": "equal"
+        },
+        {
+          "probe_id": "F5.cs-fulldocument-lookup",
+          "verdict": "equal"
+        },
+        {
+          "probe_id": "F5.cs-event-per-change",
           "verdict": "equal"
         }
       ],
@@ -1345,7 +6575,15 @@
       "verdict": "equal",
       "probes": [
         {
-          "probe_id": "T.collation_unique",
+          "probe_id": "F6.ci-lookup",
+          "verdict": "equal"
+        },
+        {
+          "probe_id": "F6.ci-unique",
+          "verdict": "equal"
+        },
+        {
+          "probe_id": "F6.ci-gating",
           "verdict": "equal"
         }
       ],
@@ -1357,11 +6595,43 @@
       },
       "schema_rejections": []
     },
+    "F7": {
+      "verdict": "equal",
+      "probes": [
+        {
+          "probe_id": "F7.partial-unique-missing-exempt",
+          "verdict": "equal"
+        },
+        {
+          "probe_id": "F7.partial-unique-per-customer",
+          "verdict": "equal"
+        },
+        {
+          "probe_id": "F7.ttl-active-only-expiry",
+          "verdict": "equal"
+        }
+      ],
+      "replay": {
+        "replayed": 0,
+        "equal": 0,
+        "different": 0,
+        "errors": 0
+      },
+      "schema_rejections": []
+    },
     "F8": {
       "verdict": "equal",
       "probes": [
         {
-          "probe_id": "T.validator",
+          "probe_id": "F8.orders-required-fields",
+          "verdict": "equal"
+        },
+        {
+          "probe_id": "F8.orders-enum-total",
+          "verdict": "equal"
+        },
+        {
+          "probe_id": "F8.orders-types-update",
           "verdict": "equal"
         }
       ],
@@ -1377,7 +6647,15 @@
       "verdict": "equal",
       "probes": [
         {
-          "probe_id": "T.text_exclusion",
+          "probe_id": "F9.text_weighted_ranking",
+          "verdict": "equal"
+        },
+        {
+          "probe_id": "F9.text_exclusion_term",
+          "verdict": "equal"
+        },
+        {
+          "probe_id": "F9.text_search_active_ranked",
           "verdict": "equal"
         }
       ],
@@ -1393,18 +6671,38 @@
       "verdict": "equal",
       "probes": [
         {
-          "probe_id": "T.crud_control",
+          "probe_id": "F10.cart-upsert-fetch-convert-discard",
+          "verdict": "equal"
+        },
+        {
+          "probe_id": "F10.order-cas-history-find",
           "verdict": "equal"
         }
       ],
       "replay": {
-        "replayed": 487,
-        "equal": 487,
+        "replayed": 504,
+        "equal": 504,
+        "different": 0,
+        "errors": 0
+      },
+      "schema_rejections": []
+    },
+    "X:graphLookup": {
+      "verdict": "equal",
+      "probes": [
+        {
+          "probe_id": "X:graphLookup.graphlookup-referral-chain",
+          "verdict": "equal"
+        }
+      ],
+      "replay": {
+        "replayed": 0,
+        "equal": 0,
         "different": 0,
         "errors": 0
       },
       "schema_rejections": []
     }
   },
-  "seconds": 2.5
+  "seconds": 75.0
 }

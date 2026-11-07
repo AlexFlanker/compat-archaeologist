@@ -340,7 +340,11 @@
     }
   },
   "subq": {
-    "available": false,
-    "reason": "SUBQ_API_KEY is not set"
+    "available": true,
+    "model": "subq-snap-1.1",
+    "probabilities": {
+      "FerretDB": 0.9362964034080505,
+      "AWS DocumentDB": 0.5043326616287231
+    }
   }
 }

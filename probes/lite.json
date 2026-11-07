@@ -1,0 +1,134 @@
+[
+  {
+    "probe_id": "F10.orders-crud-by-id",
+    "feature_id": "F10",
+    "title": "Plain CRUD by _id with status update",
+    "behavior": "Insert then find_one by _id, update status and updated_at by _id and verify, delete by _id and verify gone",
+    "steps": [
+      {
+        "capture": false,
+        "command_ejson": "{\"insert\":\"orders\",\"ordered\":true,\"documents\":[{\"_id\":\"O00003113\",\"customer_id\":\"C000441\",\"status\":\"created\",\"updated_at\":{\"$date\":\"2026-10-01T00:00:00Z\"}},{\"_id\":\"O00000317\",\"customer_id\":\"C000441\",\"status\":\"created\",\"updated_at\":{\"$date\":\"2026-10-01T00:00:00Z\"}},{\"_id\":\"O00000939\",\"customer_id\":\"C000999\",\"status\":\"delivered\",\"updated_at\":{\"$date\":\"2026-10-01T00:00:00Z\"}}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "insert-seed",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": true,
+        "command_ejson": "{\"find\":\"orders\",\"filter\":{\"_id\":\"O00003113\"},\"limit\":1,\"singleBatch\":true}",
+        "expect_ejson": "{\"docs\":[{\"_id\":\"O00003113\",\"customer_id\":\"C000441\",\"status\":\"created\",\"updated_at\":{\"$date\":\"2026-10-01T00:00:00Z\"}}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "find-by-id",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": false,
+        "command_ejson": "{\"update\":\"orders\",\"ordered\":true,\"updates\":[{\"q\":{\"_id\":\"O00000317\"},\"u\":{\"$set\":{\"status\":\"paid\",\"updated_at\":{\"$date\":\"2026-11-01T00:00:00Z\"}}},\"multi\":false,\"upsert\":false}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "update-status",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": true,
+        "command_ejson": "{\"find\":\"orders\",\"filter\":{\"_id\":\"O00000317\"},\"limit\":1,\"singleBatch\":true}",
+        "expect_ejson": "{\"docs\":[{\"_id\":\"O00000317\",\"customer_id\":\"C000441\",\"status\":\"paid\",\"updated_at\":{\"$date\":\"2026-11-01T00:00:00Z\"}}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "verify-update",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": false,
+        "command_ejson": "{\"delete\":\"orders\",\"ordered\":true,\"deletes\":[{\"q\":{\"_id\":\"O00000939\"},\"limit\":1}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "delete-by-id",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": true,
+        "command_ejson": "{\"find\":\"orders\",\"filter\":{\"_id\":\"O00000939\"},\"limit\":1,\"singleBatch\":true}",
+        "expect_ejson": "{\"docs\":[]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "verify-deleted",
+        "op": "command",
+        "unordered": false
+      }
+    ],
+    "generation": {
+      "attempts": 1,
+      "model": "muse-spark-1.3"
+    },
+    "status": "valid"
+  },
+  {
+    "probe_id": "F10.orders-filter-sort-count",
+    "feature_id": "F10",
+    "title": "Filter by customer and status with sort limit and count",
+    "behavior": "Lists orders for customer_id sorted by _id with limit, lists orders for status sorted by _id with limit, counts orders by status",
+    "steps": [
+      {
+        "capture": false,
+        "command_ejson": "{\"insert\":\"orders\",\"ordered\":true,\"documents\":[{\"_id\":\"O00000001\",\"customer_id\":\"C000441\",\"status\":\"delivered\"},{\"_id\":\"O00000002\",\"customer_id\":\"C000441\",\"status\":\"paid\"},{\"_id\":\"O00000003\",\"customer_id\":\"C000999\",\"status\":\"delivered\"},{\"_id\":\"O00000004\",\"customer_id\":\"C000441\",\"status\":\"delivered\"}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "insert-seed",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": true,
+        "command_ejson": "{\"find\":\"orders\",\"filter\":{\"customer_id\":\"C000441\"},\"sort\":{\"_id\":1},\"limit\":20}",
+        "expect_ejson": "{\"docs\":[{\"_id\":\"O00000001\",\"customer_id\":\"C000441\",\"status\":\"delivered\"},{\"_id\":\"O00000002\",\"customer_id\":\"C000441\",\"status\":\"paid\"},{\"_id\":\"O00000004\",\"customer_id\":\"C000441\",\"status\":\"delivered\"}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "find-by-customer",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": true,
+        "command_ejson": "{\"find\":\"orders\",\"filter\":{\"status\":\"delivered\"},\"sort\":{\"_id\":1},\"limit\":20}",
+        "expect_ejson": "{\"docs\":[{\"_id\":\"O00000001\",\"customer_id\":\"C000441\",\"status\":\"delivered\"},{\"_id\":\"O00000003\",\"customer_id\":\"C000999\",\"status\":\"delivered\"},{\"_id\":\"O00000004\",\"customer_id\":\"C000441\",\"status\":\"delivered\"}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "find-by-status",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": true,
+        "command_ejson": "{\"count\":\"orders\",\"query\":{\"status\":\"delivered\"}}",
+        "expect_ejson": "{\"n\":3}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "count-delivered",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": true,
+        "command_ejson": "{\"count\":\"orders\",\"query\":{\"status\":\"paid\"}}",
+        "expect_ejson": "{\"n\":1}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "count-paid",
+        "op": "command",
+        "unordered": false
+      }
+    ],
+    "generation": {
+      "attempts": 1,
+      "model": "muse-spark-1.3"
+    },
+    "status": "valid"
+  }
+]

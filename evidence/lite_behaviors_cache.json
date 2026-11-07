@@ -1,0 +1,14 @@
+{
+  "digest": "9fd6dfe35bb14d3ed6c8bc5f88062324b345cb0522c9bd603f7a8de90966e998",
+  "model": "muse-spark-1.3",
+  "behaviors": [
+    {
+      "code_rule_numbers": [
+        1,
+        2
+      ],
+      "invariant_ids": [],
+      "statement": "Listing orders (for a customer or filtered by status) returns at most 20 orders by default."
+    }
+  ]
+}

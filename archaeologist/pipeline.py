@@ -141,7 +141,8 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--profile", choices=sorted(PROFILES), default="shoplog")
     parser.add_argument("--refresh-probes", action="store_true", help="Generate probes with Muse even if cached ones exist")
-    parser.add_argument("--no-live-code", action="store_true", help="Use saved code findings instead of calling Muse")
+    parser.add_argument("--live", action="store_true", help="Call Muse again for code evidence and reconciliation instead of using saved results")
+    parser.add_argument("--no-live-code", action="store_true", help=argparse.SUPPRESS)
     parser.add_argument("--with-self-check", action="store_true", help="Run MongoDB against itself first")
     parser.add_argument("--with-upgrade", action="store_true", help="Also run against the older target version (docker compose --profile upgrade)")
     arguments = parser.parse_args()
@@ -165,7 +166,7 @@ def main() -> int:
     console.print(f"  query log: {summary['total_entries']:,} operations in {len(summary['shapes'])} shapes; stages {list(summary['stages'])}")
 
     _step("2. Usage-Spec Ledger")
-    ledger = ledger_module.run(profile, refresh_code=not arguments.no_live_code)
+    ledger = ledger_module.run(profile, refresh_code=arguments.live)
     console.print(f"  code evidence from: [bold]{ledger['code_evidence_source']}[/]; citations dropped: {ledger['citations_dropped']}")
     console.print(_ledger_table(ledger))
     observed = sum(1 for behavior in ledger["behaviors"] if behavior["status"] == "OBSERVED")
