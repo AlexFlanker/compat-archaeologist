@@ -1,0 +1,47 @@
+# Source and target run side by side on one machine with identical limits,
+# so latency numbers compare engines rather than networks.
+# Ports bind to 127.0.0.1 only: the local MongoDB has no password.
+#
+# FerretDB's eval image bundles Postgres and FerretDB in one container, so its
+# limit covers both processes. The memo states this next to the latency table.
+
+services:
+  mongo:
+    image: mongo:8.0
+    container_name: ca-mongo
+    # Transactions and change streams need a replica set, even with one node.
+    command: ["mongod", "--replSet", "rs0", "--bind_ip_all"]
+    ports:
+      - "127.0.0.1:27017:27017"
+    cpus: "2.0"
+    mem_limit: 4g
+    volumes:
+      - mongo_data:/data/db
+    healthcheck:
+      # Initiates the replica set on first boot, then reports health.
+      test:
+        - CMD
+        - mongosh
+        - --quiet
+        - --eval
+        - "try { rs.status().ok } catch (e) { rs.initiate({_id: 'rs0', members: [{_id: 0, host: '127.0.0.1:27017'}]}).ok }"
+      interval: 5s
+      timeout: 10s
+      retries: 30
+
+  ferretdb:
+    image: ghcr.io/ferretdb/ferretdb-eval:2.7.0
+    container_name: ca-ferretdb
+    environment:
+      POSTGRES_USER: ${FERRETDB_USER:-ca_local}
+      POSTGRES_PASSWORD: ${FERRETDB_PASSWORD:-local-only-not-a-secret}
+    ports:
+      - "127.0.0.1:27018:27017"
+    cpus: "2.0"
+    mem_limit: 4g
+    volumes:
+      - ferretdb_data:/var/lib/postgresql/data
+
+volumes:
+  mongo_data:
+  ferretdb_data:

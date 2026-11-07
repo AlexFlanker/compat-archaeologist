@@ -1,0 +1,17 @@
+# Secrets never enter git. Only .env.example is committed.
+.env
+.env.*
+!.env.example
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Local data
+data/raw/
+logs/*.raw
+
+# OS
+.DS_Store
