@@ -6,7 +6,7 @@ Snapshot: 2026-11-07, 1:10 PM PT. Deadline is 5:00 PM: feature freeze 4:15, subm
 
 A TB-scale production app moved from MongoDB Atlas to a "MongoDB-compatible" service to cut the bill and consolidate cloud spend. A managed full-load + CDC tool did the migration. The CDC missed events, and unique, TTL and validator constraints never came across; nobody noticed until after cutover. Aggregations slowed down or timed out, features driven by change streams broke, and I/O billing, scale-ups and extra services followed. A later major-version upgrade of the target didn't help much. They're still on it, paying more. The CTO never had a 12-month TCO, real-workload performance evidence, or a risk and reversibility assessment. **Compat Archaeologist** is an agent pipeline that does the homework that team skipped. It rebuilds how an app *really* uses MongoDB from evidence (data, query log, code, Atlas Performance Advisor). Then it tests every item on MongoDB and on a compatible engine side by side, and writes a cost-backed decision memo. The same pipeline tells a simple CRUD app "migration is fine". That's the fairness check, and it already works.
 
-Read these first, in order:
+Start with [docs/DEMO_GUIDE.md](DEMO_GUIDE.md) (architecture, demo loop, official callbacks). Then read these, in order:
 1. [README.md](../README.md): what it does and what it found
 2. [out/shoplog/memo.md](../out/shoplog/memo.md) and [out/lite/memo.md](../out/lite/memo.md): the two decision memos (the output judges see)
 3. [docs/RULES.md](RULES.md): ShopLog's fictional business rules (yours to own)
