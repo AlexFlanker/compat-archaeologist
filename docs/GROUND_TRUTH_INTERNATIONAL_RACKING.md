@@ -9,7 +9,7 @@
 
 > **Locked decisions — Final (explicitly accepted by the human, 2026-11-07).**
 > Settled by the human; recorded here so the generator and scoring stay unambiguous.
-> 1. **Final company:** International Racking is the demo business. An earlier draft company (NorthPeak) was parked and is not in this repo.
+> 1. **Role in the project:** International Racking is a **second, optional dataset**, used to show that the archaeology carries over to an app the pipeline has never seen. The main demo is ShopLog (see the [README](../README.md)). This dataset isn't wired into the pipeline yet. An earlier draft company (NorthPeak) was parked and is not in this repo.
 > 2. **Plain language:** the team does not know manufacturing/logistics deeply. Presenter-facing pitch and Q&A wording stays plain; avoid trade jargon the presenter cannot defend live.
 > 3. **Generator defaults:** (a) free-freight line is checked against the stored **list price**; (b) `tier` is `null` unless distributor (`"D"`), `customer_type` and `tier` must never disagree; (c) generator guarantees **~600 Luxembourg orders** so the R5 pattern has zero-exception weight; (d) San Francisco orders are **invoiced in EUR** from Antwerp — add no currency field.
 > Status: Final. Changes to this section need a new explicit decision.
@@ -289,7 +289,9 @@ These keep the demo numbers consistent. Update the pitch lines once the real dat
 
 ---
 
-## Demo plan (3 minutes)
+## Demo plan (3 minutes), if this dataset becomes a demo
+
+> **Status: not built.** The pipeline can't run this plan yet. It has no loader for this dataset, no adapter for the shell-text query log, and no hypothesis → business-question replay → overturn loop. Don't present any of this as working. The live demo uses ShopLog.
 
 **Show live:**
 1. **R8 (warm-up):** the agent finds the distributor discount and cites the file and line.
