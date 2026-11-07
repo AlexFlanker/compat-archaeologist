@@ -1,0 +1,71 @@
+# Every number the cost model uses. Prices cite public sources. Everything else is a labeled
+# assumption about a fictional company, so change it to fit a real one.
+as_of: "2026-11-07"
+horizon_months: 12
+hours_per_month: 730
+
+deployment:
+  clusters: 4 # Fictional: production, analytics, EU, staging.
+  nodes_per_cluster: 3
+  dataset_gb_per_cluster: 80 # Fits inside M40's included storage, so no overage rate is needed.
+  average_iops_per_cluster: 200
+
+pricing:
+  atlas_m40:
+    per_hour: 1.04
+    specification: "4 vCPU, 16 GB RAM, 80 GB storage included"
+    url: https://www.mongodb.com/pricing
+    # MongoDB's sources disagree on what the hourly figure covers, and the answer changes the
+    # baseline threefold. The pricing page says M10 "starts at $56.94/month", which is its hourly
+    # rate with no multiplier, and an M10 has at least 3 nodes. The billing docs say the cluster
+    # cost applies to "each data-bearing node". Base case follows the first; memos also show the second.
+    basis: covers_default_cluster
+    alternative_basis: per_node
+    basis_urls:
+      - https://www.mongodb.com/pricing
+      - https://www.mongodb.com/docs/atlas/billing/cluster-configuration-costs/
+  documentdb_r6g_large:
+    specification: "2 vCPU, 16 GiB RAM (RAM-matched to M40; half the vCPUs, which favors migrating)"
+    url: https://pricing.us-east-1.amazonaws.com/offers/v1.0/aws/AmazonDocDB/current/us-east-1/index.json
+    standard:
+      per_hour: 0.26315
+      storage_per_gb_month: 0.10
+      per_million_io: 0.20
+    io_optimized:
+      per_hour: 0.289465
+      storage_per_gb_month: 0.30
+  ec2_r6g_large:
+    per_hour: 0.1008
+    specification: "2 vCPU, 16 GiB RAM"
+    url: https://instances.vantage.sh/aws/ec2/r6g.large
+  ebs_gp3:
+    per_gb_month: 0.08
+    note: "Not confirmed for us-east-1. AWS's EBS page uses this figure in a worked example without naming a region."
+    url: https://aws.amazon.com/ebs/pricing/
+
+people:
+  engineer_cost_per_hour: 120
+
+# One-time effort for any migration, however compatible: data copy, cutover, regression testing.
+migration_baseline_hours: { low: 24, base: 40, high: 80 }
+
+# Running FerretDB and Postgres yourself, per cluster, compared with a managed service.
+self_managed_ops_hours_per_month_per_cluster: { low: 1, base: 2, high: 4 }
+
+# Chance per year that a gap causes an incident even after the planned rewrite.
+risk:
+  incident_cost: { low: 5000, base: 15000, high: 50000 }
+  residual_incident_probability:
+    silent: 0.5 # Accepted without error but wrong. Hard to detect, so it lingers.
+    loud: 0.1 # Fails visibly, so it gets fixed.
+    performance: 0.25
+    documented_conflict: 0.1
+
+# The decision rule. Fixed before any Muse-generated probe ran, and shared by every workload.
+# If a workload's result is inconvenient, the demo changes rather than these thresholds.
+decision:
+  blocking_verdicts: [unsupported, error, result_diff, timeout]
+  minimum_confidence_to_block: 0.7
+  performance_regression:
+    minimum_ratio: 2.0
+    minimum_added_ms: 50 # A slowdown under this is invisible to users, whatever the ratio.
