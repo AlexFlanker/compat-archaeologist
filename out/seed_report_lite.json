@@ -1,0 +1,96 @@
+{
+  "source": [
+    {
+      "database": "lite",
+      "inserted": {
+        "orders": 10000
+      },
+      "seconds": 0.1,
+      "schema": [
+        {
+          "step": "orders.customer",
+          "ok": true
+        },
+        {
+          "step": "orders.status",
+          "ok": true
+        }
+      ],
+      "insert_errors": []
+    },
+    {
+      "database": "lite_wl",
+      "inserted": {
+        "orders": 10000
+      },
+      "seconds": 0.1,
+      "schema": [
+        {
+          "step": "orders.customer",
+          "ok": true
+        },
+        {
+          "step": "orders.status",
+          "ok": true
+        }
+      ],
+      "insert_errors": []
+    },
+    {
+      "database": "lite_fx",
+      "inserted": {
+        "orders": 1000
+      },
+      "seconds": 0.0,
+      "schema": [
+        {
+          "step": "orders.customer",
+          "ok": true
+        },
+        {
+          "step": "orders.status",
+          "ok": true
+        }
+      ],
+      "insert_errors": []
+    }
+  ],
+  "target": [
+    {
+      "database": "lite",
+      "inserted": {
+        "orders": 10000
+      },
+      "seconds": 0.4,
+      "schema": [
+        {
+          "step": "orders.customer",
+          "ok": true
+        },
+        {
+          "step": "orders.status",
+          "ok": true
+        }
+      ],
+      "insert_errors": []
+    },
+    {
+      "database": "lite_fx",
+      "inserted": {
+        "orders": 1000
+      },
+      "seconds": 0.0,
+      "schema": [
+        {
+          "step": "orders.customer",
+          "ok": true
+        },
+        {
+          "step": "orders.status",
+          "ok": true
+        }
+      ],
+      "insert_errors": []
+    }
+  ]
+}

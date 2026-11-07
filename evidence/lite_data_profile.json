@@ -1,0 +1,65 @@
+{
+  "profile": "lite",
+  "collections": {
+    "orders": {
+      "documents": 10000,
+      "sampled": 10000,
+      "fields": {
+        "_id": {
+          "types": {
+            "string": 10000
+          },
+          "missing_rate": 0.0
+        },
+        "customer_id": {
+          "types": {
+            "string": 10000
+          },
+          "missing_rate": 0.0
+        },
+        "placed_at": {
+          "types": {
+            "date": 10000
+          },
+          "missing_rate": 0.0
+        },
+        "status": {
+          "types": {
+            "string": 10000
+          },
+          "missing_rate": 0.0
+        },
+        "total": {
+          "types": {
+            "int": 10000
+          },
+          "missing_rate": 0.0
+        }
+      },
+      "references": [],
+      "options": {},
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          }
+        },
+        {
+          "name": "customer_id_1",
+          "key": {
+            "customer_id": 1
+          }
+        },
+        {
+          "name": "status_1",
+          "key": {
+            "status": 1
+          }
+        }
+      ]
+    }
+  },
+  "invariants": [],
+  "feature_signals": {}
+}

@@ -1,0 +1,797 @@
+{
+  "profile": "shoplog",
+  "collections": {
+    "products": {
+      "documents": 500,
+      "sampled": 500,
+      "fields": {
+        "_id": {
+          "types": {
+            "string": 500
+          },
+          "missing_rate": 0.0
+        },
+        "active": {
+          "types": {
+            "bool": 500
+          },
+          "missing_rate": 0.0
+        },
+        "category": {
+          "types": {
+            "string": 500
+          },
+          "missing_rate": 0.0
+        },
+        "description": {
+          "types": {
+            "string": 500
+          },
+          "missing_rate": 0.0
+        },
+        "name": {
+          "types": {
+            "string": 500
+          },
+          "missing_rate": 0.0
+        },
+        "price": {
+          "types": {
+            "int": 500
+          },
+          "missing_rate": 0.0
+        },
+        "tags": {
+          "types": {
+            "array": 500
+          },
+          "missing_rate": 0.0
+        }
+      },
+      "references": [],
+      "options": {},
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          }
+        },
+        {
+          "name": "product_search",
+          "key": {
+            "_fts": "text",
+            "_ftsx": 1
+          },
+          "weights": {
+            "description": 1,
+            "name": 10,
+            "tags": 5
+          }
+        },
+        {
+          "name": "category_1",
+          "key": {
+            "category": 1
+          }
+        }
+      ]
+    },
+    "carts": {
+      "documents": 2000,
+      "sampled": 2000,
+      "fields": {
+        "_id": {
+          "types": {
+            "string": 2000
+          },
+          "missing_rate": 0.0
+        },
+        "customer_id": {
+          "types": {
+            "string": 2000
+          },
+          "missing_rate": 0.0
+        },
+        "expires_at": {
+          "types": {
+            "date": 2000
+          },
+          "missing_rate": 0.0
+        },
+        "items": {
+          "types": {
+            "array": 2000
+          },
+          "missing_rate": 0.0
+        },
+        "status": {
+          "types": {
+            "string": 2000
+          },
+          "missing_rate": 0.0
+        },
+        "updated_at": {
+          "types": {
+            "date": 2000
+          },
+          "missing_rate": 0.0
+        },
+        "items[]": {
+          "element_fields": {
+            "qty": {
+              "types": {
+                "int": 2000
+              },
+              "missing_rate": 0.0
+            },
+            "sku": {
+              "types": {
+                "string": 2000
+              },
+              "missing_rate": 0.0
+            }
+          }
+        }
+      },
+      "references": [
+        {
+          "field": "customer_id",
+          "references": "customers",
+          "coverage": 1.0
+        }
+      ],
+      "options": {},
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          }
+        },
+        {
+          "name": "active_cart_expiry",
+          "key": {
+            "expires_at": 1
+          },
+          "partialFilterExpression": {
+            "status": "active"
+          },
+          "expireAfterSeconds": 0
+        },
+        {
+          "name": "customer_id_1",
+          "key": {
+            "customer_id": 1
+          }
+        }
+      ]
+    },
+    "customers": {
+      "documents": 5000,
+      "sampled": 5000,
+      "fields": {
+        "_id": {
+          "types": {
+            "string": 5000
+          },
+          "missing_rate": 0.0
+        },
+        "email": {
+          "types": {
+            "string": 5000
+          },
+          "missing_rate": 0.0
+        },
+        "loyalty_points": {
+          "types": {
+            "int": 5000
+          },
+          "missing_rate": 0.0
+        },
+        "name": {
+          "types": {
+            "string": 5000
+          },
+          "missing_rate": 0.0
+        },
+        "signup_date": {
+          "types": {
+            "date": 5000
+          },
+          "missing_rate": 0.0
+        },
+        "tier": {
+          "types": {
+            "string": 5000
+          },
+          "missing_rate": 0.0
+        }
+      },
+      "references": [],
+      "options": {},
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          }
+        },
+        {
+          "name": "email_ci_unique",
+          "key": {
+            "email": 1
+          },
+          "unique": true,
+          "collation": {
+            "locale": "en",
+            "caseLevel": false,
+            "caseFirst": "off",
+            "strength": 2,
+            "numericOrdering": false,
+            "alternate": "non-ignorable",
+            "maxVariable": "punct",
+            "normalization": false,
+            "backwards": false,
+            "version": "57.1"
+          }
+        }
+      ]
+    },
+    "orders": {
+      "documents": 50000,
+      "sampled": 25000,
+      "fields": {
+        "_id": {
+          "types": {
+            "string": 25000
+          },
+          "missing_rate": 0.0
+        },
+        "coupon_code": {
+          "types": {
+            "string": 990
+          },
+          "missing_rate": 0.9604
+        },
+        "customer_id": {
+          "types": {
+            "string": 25000
+          },
+          "missing_rate": 0.0
+        },
+        "delivered_at": {
+          "types": {
+            "date": 23472
+          },
+          "missing_rate": 0.0611
+        },
+        "discount": {
+          "types": {
+            "int": 20924,
+            "double": 4076
+          },
+          "missing_rate": 0.0
+        },
+        "history": {
+          "types": {
+            "array": 25000
+          },
+          "missing_rate": 0.0
+        },
+        "items": {
+          "types": {
+            "array": 25000
+          },
+          "missing_rate": 0.0
+        },
+        "placed_at": {
+          "types": {
+            "date": 25000
+          },
+          "missing_rate": 0.0
+        },
+        "refund_total": {
+          "types": {
+            "int": 20924,
+            "double": 4076
+          },
+          "missing_rate": 0.0
+        },
+        "shipping": {
+          "types": {
+            "int": 20924,
+            "double": 4076
+          },
+          "missing_rate": 0.0
+        },
+        "status": {
+          "types": {
+            "string": 25000
+          },
+          "missing_rate": 0.0
+        },
+        "subtotal": {
+          "types": {
+            "int": 20924,
+            "double": 4076
+          },
+          "missing_rate": 0.0
+        },
+        "tax": {
+          "types": {
+            "int": 14794
+          },
+          "missing_rate": 0.4082
+        },
+        "total": {
+          "types": {
+            "int": 20924,
+            "double": 4076
+          },
+          "missing_rate": 0.0
+        },
+        "updated_at": {
+          "types": {
+            "date": 25000
+          },
+          "missing_rate": 0.0
+        },
+        "items[]": {
+          "element_fields": {
+            "category": {
+              "types": {
+                "string": 62481
+              },
+              "missing_rate": 0.0
+            },
+            "line_id": {
+              "types": {
+                "int": 62481
+              },
+              "missing_rate": 0.0
+            },
+            "line_total": {
+              "types": {
+                "int": 52314,
+                "double": 10167
+              },
+              "missing_rate": 0.0
+            },
+            "qty": {
+              "types": {
+                "int": 62481
+              },
+              "missing_rate": 0.0
+            },
+            "refund_status": {
+              "types": {
+                "string": 62481
+              },
+              "missing_rate": 0.0
+            },
+            "refunded": {
+              "types": {
+                "int": 62481
+              },
+              "missing_rate": 0.0
+            },
+            "sku": {
+              "types": {
+                "string": 62481
+              },
+              "missing_rate": 0.0
+            },
+            "unit_price": {
+              "types": {
+                "int": 52314,
+                "double": 10167
+              },
+              "missing_rate": 0.0
+            }
+          }
+        },
+        "history[]": {
+          "element_fields": {
+            "at": {
+              "types": {
+                "date": 98893
+              },
+              "missing_rate": 0.0
+            },
+            "status": {
+              "types": {
+                "string": 98893
+              },
+              "missing_rate": 0.0
+            }
+          }
+        }
+      },
+      "references": [
+        {
+          "field": "customer_id",
+          "references": "customers",
+          "coverage": 1.0
+        }
+      ],
+      "options": {
+        "validator": {
+          "$jsonSchema": {
+            "bsonType": "object",
+            "required": [
+              "customer_id",
+              "status",
+              "items",
+              "total",
+              "placed_at"
+            ],
+            "properties": {
+              "customer_id": {
+                "bsonType": "string"
+              },
+              "status": {
+                "enum": [
+                  "placed",
+                  "paid",
+                  "shipped",
+                  "delivered",
+                  "cancelled",
+                  "partially_refunded",
+                  "refunded"
+                ]
+              },
+              "items": {
+                "bsonType": "array",
+                "minItems": 1
+              },
+              "total": {
+                "bsonType": [
+                  "int",
+                  "long",
+                  "double"
+                ],
+                "minimum": 0
+              },
+              "placed_at": {
+                "bsonType": "date"
+              }
+            }
+          }
+        },
+        "validationLevel": "moderate",
+        "validationAction": "error"
+      },
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          }
+        },
+        {
+          "name": "customer_id_1_placed_at_-1",
+          "key": {
+            "customer_id": 1,
+            "placed_at": -1
+          }
+        },
+        {
+          "name": "status_1_placed_at_-1",
+          "key": {
+            "status": 1,
+            "placed_at": -1
+          }
+        },
+        {
+          "name": "placed_at_1",
+          "key": {
+            "placed_at": 1
+          }
+        },
+        {
+          "name": "coupon_once_per_customer",
+          "key": {
+            "customer_id": 1,
+            "coupon_code": 1
+          },
+          "unique": true,
+          "partialFilterExpression": {
+            "coupon_code": {
+              "$exists": true
+            }
+          }
+        }
+      ]
+    },
+    "inventory": {
+      "documents": 500,
+      "sampled": 500,
+      "fields": {
+        "_id": {
+          "types": {
+            "string": 500
+          },
+          "missing_rate": 0.0
+        },
+        "on_hand": {
+          "types": {
+            "int": 500
+          },
+          "missing_rate": 0.0
+        },
+        "reserved": {
+          "types": {
+            "int": 500
+          },
+          "missing_rate": 0.0
+        },
+        "updated_at": {
+          "types": {
+            "date": 500
+          },
+          "missing_rate": 0.0
+        }
+      },
+      "references": [],
+      "options": {},
+      "indexes": [
+        {
+          "name": "_id_",
+          "key": {
+            "_id": 1
+          }
+        }
+      ]
+    }
+  },
+  "invariants": [
+    {
+      "scope": "orders",
+      "rule": "status=cancelled \u21d2 refund_total = 0",
+      "support": 1231,
+      "counterexamples": 0,
+      "id": "INV-001"
+    },
+    {
+      "scope": "orders",
+      "rule": "status=cancelled \u21d2 delivered_at is absent",
+      "support": 1231,
+      "counterexamples": 0,
+      "id": "INV-002"
+    },
+    {
+      "scope": "orders",
+      "rule": "status=delivered \u21d2 refund_total = 0",
+      "support": 21681,
+      "counterexamples": 0,
+      "id": "INV-003"
+    },
+    {
+      "scope": "orders",
+      "rule": "status=delivered \u21d2 delivered_at is present",
+      "support": 21681,
+      "counterexamples": 0,
+      "id": "INV-004"
+    },
+    {
+      "scope": "orders",
+      "rule": "status=paid \u21d2 delivered_at is absent",
+      "support": 43,
+      "counterexamples": 0,
+      "id": "INV-005"
+    },
+    {
+      "scope": "orders",
+      "rule": "status=paid \u21d2 tax is present",
+      "support": 43,
+      "counterexamples": 0,
+      "id": "INV-006"
+    },
+    {
+      "scope": "orders",
+      "rule": "status=partially_refunded \u21d2 shipping = 0",
+      "support": 646,
+      "counterexamples": 0,
+      "id": "INV-007"
+    },
+    {
+      "scope": "orders",
+      "rule": "status=partially_refunded \u21d2 refund_total > 0",
+      "support": 646,
+      "counterexamples": 0,
+      "id": "INV-008"
+    },
+    {
+      "scope": "orders",
+      "rule": "status=partially_refunded \u21d2 delivered_at is present",
+      "support": 646,
+      "counterexamples": 0,
+      "id": "INV-009"
+    },
+    {
+      "scope": "orders",
+      "rule": "status=placed \u21d2 delivered_at is absent",
+      "support": 48,
+      "counterexamples": 0,
+      "id": "INV-010"
+    },
+    {
+      "scope": "orders",
+      "rule": "status=placed \u21d2 tax is present",
+      "support": 48,
+      "counterexamples": 0,
+      "id": "INV-011"
+    },
+    {
+      "scope": "orders",
+      "rule": "status=refunded \u21d2 refund_total > 0",
+      "support": 1145,
+      "counterexamples": 0,
+      "id": "INV-012"
+    },
+    {
+      "scope": "orders",
+      "rule": "status=refunded \u21d2 delivered_at is present",
+      "support": 1145,
+      "counterexamples": 0,
+      "id": "INV-013"
+    },
+    {
+      "scope": "orders",
+      "rule": "status=shipped \u21d2 refund_total = 0",
+      "support": 206,
+      "counterexamples": 0,
+      "id": "INV-014"
+    },
+    {
+      "scope": "orders",
+      "rule": "status=shipped \u21d2 delivered_at is absent",
+      "support": 206,
+      "counterexamples": 0,
+      "id": "INV-015"
+    },
+    {
+      "scope": "orders",
+      "rule": "status=shipped \u21d2 tax is present",
+      "support": 206,
+      "counterexamples": 0,
+      "id": "INV-016"
+    },
+    {
+      "scope": "orders",
+      "rule": "customers.tier=gold \u21d2 discount > 0",
+      "support": 3004,
+      "counterexamples": 0,
+      "id": "INV-017"
+    },
+    {
+      "scope": "orders",
+      "rule": "customers.tier=legacy_vip \u21d2 discount > 0",
+      "support": 681,
+      "counterexamples": 0,
+      "id": "INV-018"
+    },
+    {
+      "scope": "orders",
+      "rule": "customers.tier=legacy_vip \u21d2 coupon_code is absent",
+      "support": 681,
+      "counterexamples": 0,
+      "id": "INV-019"
+    },
+    {
+      "scope": "orders",
+      "rule": "customers.tier=silver \u21d2 discount > 0",
+      "support": 6209,
+      "counterexamples": 0,
+      "id": "INV-020"
+    },
+    {
+      "scope": "orders",
+      "rule": "subtotal is double before ~2018-01-01 and int from then on (placed_at)",
+      "support": 25000,
+      "counterexamples": 0,
+      "id": "INV-021"
+    },
+    {
+      "scope": "orders",
+      "rule": "discount is double before ~2018-01-01 and int from then on (placed_at)",
+      "support": 25000,
+      "counterexamples": 0,
+      "id": "INV-022"
+    },
+    {
+      "scope": "orders",
+      "rule": "shipping is double before ~2018-01-01 and int from then on (placed_at)",
+      "support": 25000,
+      "counterexamples": 0,
+      "id": "INV-023"
+    },
+    {
+      "scope": "orders",
+      "rule": "total is double before ~2018-01-01 and int from then on (placed_at)",
+      "support": 25000,
+      "counterexamples": 0,
+      "id": "INV-024"
+    },
+    {
+      "scope": "orders",
+      "rule": "refund_total is double before ~2018-01-01 and int from then on (placed_at)",
+      "support": 25000,
+      "counterexamples": 0,
+      "id": "INV-025"
+    },
+    {
+      "scope": "orders",
+      "rule": "tax is absent before ~2021-01-01 and int from then on (placed_at)",
+      "support": 25000,
+      "counterexamples": 0,
+      "id": "INV-026"
+    },
+    {
+      "scope": "orders",
+      "rule": "shipping=0 when tax \u2265 637, otherwise shipping=795",
+      "support": 14794,
+      "counterexamples": 0,
+      "id": "INV-027"
+    },
+    {
+      "scope": "orders",
+      "rule": "shipping=0 when subtotal - discount \u2265 7500, otherwise shipping=795",
+      "support": 20924,
+      "counterexamples": 0,
+      "id": "INV-028"
+    },
+    {
+      "scope": "orders.items[]",
+      "rule": "category=clearance \u21d2 refund_status=none",
+      "support": 8399,
+      "counterexamples": 0,
+      "id": "INV-029"
+    }
+  ],
+  "feature_signals": {
+    "F9": [
+      {
+        "ref": "catalog:products.product_search",
+        "detail": "products.product_search is a text index with weights SON([('description', 1), ('name', 10), ('tags', 5)])"
+      }
+    ],
+    "F7": [
+      {
+        "ref": "catalog:carts.active_cart_expiry",
+        "detail": "carts.active_cart_expiry is partial on SON([('status', 'active')])"
+      },
+      {
+        "ref": "catalog:carts.active_cart_expiry",
+        "detail": "carts.active_cart_expiry is TTL, expireAfterSeconds=0"
+      },
+      {
+        "ref": "catalog:orders.coupon_once_per_customer",
+        "detail": "orders.coupon_once_per_customer is partial on SON([('coupon_code', SON([('$exists', True)]))])"
+      }
+    ],
+    "F6": [
+      {
+        "ref": "catalog:customers.email_ci_unique",
+        "detail": "customers.email_ci_unique uses collation locale=en strength=2, unique=True"
+      },
+      {
+        "ref": "data:customers.email",
+        "detail": "customers.email stores mixed case, yet no two values collide when case is ignored (5000 sampled)"
+      }
+    ],
+    "F8": [
+      {
+        "ref": "catalog:orders",
+        "detail": "orders has a $jsonSchema validator (level=moderate)"
+      }
+    ],
+    "F3": [
+      {
+        "ref": "data:orders.items",
+        "detail": "920 sampled orders have elements of items in different states, so updates must target individual elements"
+      }
+    ]
+  }
+}

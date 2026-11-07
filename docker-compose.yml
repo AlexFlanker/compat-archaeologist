@@ -14,7 +14,7 @@ services:
     ports:
       - "127.0.0.1:27017:27017"
     cpus: "2.0"
-    mem_limit: 4g
+    mem_limit: 3g
     volumes:
       - mongo_data:/data/db
     healthcheck:
@@ -38,7 +38,7 @@ services:
     ports:
       - "127.0.0.1:27018:27017"
     cpus: "2.0"
-    mem_limit: 4g
+    mem_limit: 3g
     volumes:
       - ferretdb_data:/var/lib/postgresql/data
 

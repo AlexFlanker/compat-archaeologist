@@ -1,0 +1,149 @@
+{
+  "total_entries": 640,
+  "by_op": {
+    "query": 500,
+    "update": 60,
+    "insert": 40,
+    "command": 30,
+    "remove": 10
+  },
+  "operators": {
+    "$set": 60,
+    "$match": 30,
+    "$group": 30,
+    "$sum": 30
+  },
+  "stages": {
+    "$match": 30,
+    "$group": 30
+  },
+  "features": {
+    "F10": {
+      "ops": 610,
+      "shapes": [
+        "S003befd8",
+        "S4b871cdf",
+        "S6629c94b",
+        "Scd0d89a3",
+        "Sd87f0769",
+        "Sec57bc2f"
+      ]
+    }
+  },
+  "index_usage": {
+    "orders: EXPRESS_IXSCAN { _id: 1 }": 300,
+    "orders: IXSCAN { customer_id: 1 }": 150,
+    "orders: EXPRESS_IXSCAN { _id: 1 },EXPRESS_UPDATE": 60,
+    "orders: IXSCAN { _id: 1 }": 50,
+    "orders: EXPRESS_IXSCAN { _id: 1 },EXPRESS_DELETE": 10
+  },
+  "fields_written": {
+    "orders.status": 60,
+    "orders.updated_at": 60
+  },
+  "rejected_inserts": {},
+  "shapes": [
+    {
+      "id": "S4b871cdf",
+      "shape": "{\"cmd\": {\"filter\": {\"_id\": \"?\"}, \"find\": \"?\", \"limit\": \"?\", \"singleBatch\": \"?\"}, \"coll\": \"orders\", \"op\": \"query\"}",
+      "count": 300,
+      "collection": "orders",
+      "op": "query",
+      "features": [
+        "F10"
+      ],
+      "operators": [],
+      "p50_ms": 0,
+      "p95_ms": 0,
+      "plan": "EXPRESS_IXSCAN { _id: 1 }"
+    },
+    {
+      "id": "S003befd8",
+      "shape": "{\"cmd\": {\"filter\": {\"customer_id\": \"?\"}, \"find\": \"?\", \"limit\": \"?\", \"sort\": {\"_id\": \"?\"}}, \"coll\": \"orders\", \"op\": \"query\"}",
+      "count": 150,
+      "collection": "orders",
+      "op": "query",
+      "features": [
+        "F10"
+      ],
+      "operators": [],
+      "p50_ms": 0,
+      "p95_ms": 0,
+      "plan": "IXSCAN { customer_id: 1 }"
+    },
+    {
+      "id": "Sec57bc2f",
+      "shape": "{\"cmd\": {\"multi\": \"?\", \"q\": {\"_id\": \"?\"}, \"u\": {\"$set\": {\"status\": \"?\", \"updated_at\": \"?\"}}, \"upsert\": \"?\"}, \"coll\": \"orders\", \"op\": \"update\"}",
+      "count": 60,
+      "collection": "orders",
+      "op": "update",
+      "features": [
+        "F10"
+      ],
+      "operators": [
+        "$set"
+      ],
+      "p50_ms": 0,
+      "p95_ms": 0,
+      "plan": "EXPRESS_IXSCAN { _id: 1 },EXPRESS_UPDATE"
+    },
+    {
+      "id": "S6629c94b",
+      "shape": "{\"cmd\": {\"filter\": {\"status\": \"?\"}, \"find\": \"?\", \"limit\": \"?\", \"sort\": {\"_id\": \"?\"}}, \"coll\": \"orders\", \"op\": \"query\"}",
+      "count": 50,
+      "collection": "orders",
+      "op": "query",
+      "features": [
+        "F10"
+      ],
+      "operators": [],
+      "p50_ms": 0,
+      "p95_ms": 0,
+      "plan": "IXSCAN { _id: 1 }"
+    },
+    {
+      "id": "Scd0d89a3",
+      "shape": "{\"cmd\": {\"insert\": \"?\", \"ordered\": \"?\"}, \"coll\": \"orders\", \"op\": \"insert\"}",
+      "count": 40,
+      "collection": "orders",
+      "op": "insert",
+      "features": [
+        "F10"
+      ],
+      "operators": [],
+      "p50_ms": 0,
+      "p95_ms": 1,
+      "plan": null
+    },
+    {
+      "id": "S70f34912",
+      "shape": "{\"cmd\": {\"aggregate\": \"?\", \"cursor\": {}, \"pipeline\": [{\"$match\": {\"status\": \"?\"}}, {\"$group\": {\"_id\": \"?\", \"n\": {\"$sum\": \"?\"}}}]}, \"coll\": \"orders\", \"op\": \"command\"}",
+      "count": 30,
+      "collection": "orders",
+      "op": "command",
+      "features": [],
+      "operators": [
+        "$group",
+        "$match",
+        "$sum"
+      ],
+      "p50_ms": 0,
+      "p95_ms": 0,
+      "plan": "COUNT_SCAN { status: 1 }"
+    },
+    {
+      "id": "Sd87f0769",
+      "shape": "{\"cmd\": {\"limit\": \"?\", \"q\": {\"_id\": \"?\"}}, \"coll\": \"orders\", \"op\": \"remove\"}",
+      "count": 10,
+      "collection": "orders",
+      "op": "remove",
+      "features": [
+        "F10"
+      ],
+      "operators": [],
+      "p50_ms": 0,
+      "p95_ms": 0,
+      "plan": "EXPRESS_IXSCAN { _id: 1 },EXPRESS_DELETE"
+    }
+  ]
+}

@@ -1,0 +1,643 @@
+{
+  "total_entries": 1513,
+  "by_op": {
+    "query": 723,
+    "update": 444,
+    "insert": 159,
+    "command": 136,
+    "getmore": 51
+  },
+  "operators": {
+    "$set": 330,
+    "$sum": 235,
+    "$meta": 200,
+    "$inc": 179,
+    "$match": 165,
+    "$gte": 135,
+    "$in": 117,
+    "$text": 100,
+    "$search": 100,
+    "$eq": 100,
+    "$project": 100,
+    "$group": 95,
+    "$ne": 80,
+    "$addFields": 80,
+    "$cond": 80,
+    "$type": 80,
+    "$round": 80,
+    "$multiply": 80,
+    "$push": 71,
+    "$sort": 70,
+    "$setWindowFields": 60,
+    "$documentNumber": 60,
+    "$shift": 60,
+    "$elemMatch": 45,
+    "$nin": 45,
+    "$lt": 30,
+    "$lookup": 30,
+    "$expr": 30,
+    "$unwind": 20,
+    "$facet": 20,
+    "$dateToString": 20,
+    "$limit": 20,
+    "$exists": 10,
+    "$lte": 2
+  },
+  "stages": {
+    "$match": 186,
+    "$addFields": 80,
+    "$setWindowFields": 60,
+    "$project": 60,
+    "$group": 55,
+    "$changeStream": 51,
+    "$lookup": 30,
+    "$unwind": 20,
+    "$facet": 20,
+    "$sort": 10
+  },
+  "features": {
+    "F1": {
+      "ops": 30,
+      "shapes": [
+        "S78e856b9",
+        "S8d6c2ea8"
+      ]
+    },
+    "F10": {
+      "ops": 1001,
+      "shapes": [
+        "S10aa717d",
+        "S181542d4",
+        "S38ca7604",
+        "S3a146702",
+        "S4b871cdf",
+        "S7338d59e",
+        "S7b64f960",
+        "S983dbabe",
+        "S9c200f14",
+        "S9e335eb1",
+        "Safd4d86d",
+        "Saffac773",
+        "Sb578dda4",
+        "Sc2ae67e8",
+        "Scd0d89a3",
+        "Se2098373",
+        "Se8433e70",
+        "Sf0f8b779"
+      ]
+    },
+    "F2": {
+      "ops": 60,
+      "shapes": [
+        "Sac78c80d"
+      ]
+    },
+    "F3": {
+      "ops": 55,
+      "shapes": [
+        "Sdfb00aac",
+        "Se06fc905"
+      ]
+    },
+    "F4": {
+      "ops": 60,
+      "shapes": [
+        "Scd0d89a3"
+      ]
+    },
+    "F5": {
+      "ops": 51,
+      "shapes": [
+        "Sf05e5fb0"
+      ]
+    },
+    "F6": {
+      "ops": 110,
+      "shapes": [
+        "Sb98d4c91"
+      ]
+    },
+    "F9": {
+      "ops": 100,
+      "shapes": [
+        "Se780f2b8"
+      ]
+    }
+  },
+  "index_usage": {
+    "orders: EXPRESS_IXSCAN { _id: 1 }": 270,
+    "orders: IXSCAN { customer_id: 1, placed_at: -1 }": 160,
+    "orders: IXSCAN { _id: 1 }": 117,
+    "inventory: IXSCAN { _id: 1 }": 114,
+    "customers: EXPRESS_IXSCAN { email: 1 }": 110,
+    "products: IXSCAN { _fts: \"text\", _ftsx: 1 }, IXSCAN { _fts: \"text\", _ftsx: 1 }": 88,
+    "carts: IXSCAN { customer_id: 1 }": 70,
+    "orders: IXSCAN { status: 1, placed_at: -1 }": 61,
+    "orders: EXPRESS_IXSCAN { _id: 1 },EXPRESS_UPDATE": 55,
+    "products: IXSCAN { category: 1 }": 30,
+    "carts: EXPRESS_IXSCAN { _id: 1 },EXPRESS_UPDATE": 20,
+    "customers: EXPRESS_IXSCAN { _id: 1 },EXPRESS_UPDATE": 20,
+    "products: IXSCAN { _fts: \"text\", _ftsx: 1 }": 12
+  },
+  "fields_written": {
+    "inventory.on_hand": 114,
+    "inventory.reserved": 114,
+    "inventory.updated_at": 114,
+    "sync_state._data": 94,
+    "carts.status": 90,
+    "carts.updated_at": 90,
+    "orders.status": 71,
+    "orders.updated_at": 71,
+    "orders.history": 71,
+    "carts.customer_id": 70,
+    "carts.items": 70,
+    "carts.expires_at": 70,
+    "orders.items.$[line].refund_status": 45,
+    "orders.items.$[line].refunded_at": 45,
+    "orders.refund_total": 45,
+    "carts.order_id": 20,
+    "customers.loyalty_points": 20,
+    "orders.delivered_at": 13,
+    "orders.items.$[].reviewed_by": 10
+  },
+  "rejected_inserts": {
+    "orders": 5
+  },
+  "shapes": [
+    {
+      "id": "S4b871cdf",
+      "shape": "{\"cmd\": {\"filter\": {\"_id\": \"?\"}, \"find\": \"?\", \"limit\": \"?\", \"singleBatch\": \"?\"}, \"coll\": \"orders\", \"op\": \"query\"}",
+      "count": 270,
+      "collection": "orders",
+      "op": "query",
+      "features": [
+        "F10"
+      ],
+      "operators": [],
+      "p50_ms": 0,
+      "p95_ms": 0,
+      "plan": "EXPRESS_IXSCAN { _id: 1 }"
+    },
+    {
+      "id": "S9e335eb1",
+      "shape": "{\"cmd\": {\"multi\": \"?\", \"q\": {\"_id\": \"?\", \"on_hand\": {\"$gte\": \"?\"}}, \"u\": {\"$inc\": {\"on_hand\": \"?\", \"reserved\": \"?\"}, \"$set\": {\"updated_at\": \"?\"}}, \"upsert\": \"?\"}, \"coll\": \"inventory\", \"op\": \"update\"}",
+      "count": 114,
+      "collection": "inventory",
+      "op": "update",
+      "features": [
+        "F10"
+      ],
+      "operators": [
+        "$gte",
+        "$inc",
+        "$set"
+      ],
+      "p50_ms": 0,
+      "p95_ms": 0,
+      "plan": "IXSCAN { _id: 1 }"
+    },
+    {
+      "id": "Sb98d4c91",
+      "shape": "{\"cmd\": {\"collation\": {\"locale\": \"?\", \"strength\": \"?\"}, \"filter\": {\"email\": \"?\"}, \"find\": \"?\", \"limit\": \"?\", \"singleBatch\": \"?\"}, \"coll\": \"customers\", \"op\": \"query\"}",
+      "count": 110,
+      "collection": "customers",
+      "op": "query",
+      "features": [
+        "F6"
+      ],
+      "operators": [],
+      "p50_ms": 0,
+      "p95_ms": 0,
+      "plan": "EXPRESS_IXSCAN { email: 1 }"
+    },
+    {
+      "id": "Se780f2b8",
+      "shape": "{\"cmd\": {\"filter\": {\"$text\": {\"$search\": \"?\"}, \"active\": \"?\"}, \"find\": \"?\", \"limit\": \"?\", \"projection\": {\"category\": \"?\", \"name\": \"?\", \"price\": \"?\", \"score\": {\"$meta\": \"?\"}}, \"sort\": {\"_id\": \"?\", \"score\": {\"$meta\": \"?\"}}}, \"coll\": \"products\", \"op\": \"query\"}",
+      "count": 100,
+      "collection": "products",
+      "op": "query",
+      "features": [
+        "F9"
+      ],
+      "operators": [
+        "$meta",
+        "$search",
+        "$text"
+      ],
+      "p50_ms": 0,
+      "p95_ms": 0,
+      "plan": "IXSCAN { _fts: \"text\", _ftsx: 1 }, IXSCAN { _fts: \"text\", _ftsx: 1 }"
+    },
+    {
+      "id": "Sf0f8b779",
+      "shape": "{\"cmd\": {\"filter\": {\"customer_id\": \"?\"}, \"find\": \"?\", \"limit\": \"?\", \"projection\": {\"placed_at\": \"?\", \"status\": \"?\", \"total\": \"?\"}, \"sort\": {\"_id\": \"?\", \"placed_at\": \"?\"}}, \"coll\": \"orders\", \"op\": \"query\"}",
+      "count": 100,
+      "collection": "orders",
+      "op": "query",
+      "features": [
+        "F10"
+      ],
+      "operators": [],
+      "p50_ms": 0,
+      "p95_ms": 0,
+      "plan": "IXSCAN { customer_id: 1, placed_at: -1 }"
+    },
+    {
+      "id": "S38ca7604",
+      "shape": "{\"cmd\": {\"insert\": \"?\", \"ordered\": \"?\"}, \"coll\": \"inventory_events\", \"op\": \"insert\"}",
+      "count": 94,
+      "collection": "inventory_events",
+      "op": "insert",
+      "features": [
+        "F10"
+      ],
+      "operators": [],
+      "p50_ms": 0,
+      "p95_ms": 1,
+      "plan": null
+    },
+    {
+      "id": "S3a146702",
+      "shape": "{\"cmd\": {\"multi\": \"?\", \"q\": {\"_id\": \"?\"}, \"u\": {\"_id\": \"?\", \"token\": {\"_data\": \"?\"}}, \"upsert\": \"?\"}, \"coll\": \"sync_state\", \"op\": \"update\"}",
+      "count": 94,
+      "collection": "sync_state",
+      "op": "update",
+      "features": [
+        "F10"
+      ],
+      "operators": [],
+      "p50_ms": 0,
+      "p95_ms": 0,
+      "plan": "IDHACK"
+    },
+    {
+      "id": "Saffac773",
+      "shape": "{\"cmd\": {\"multi\": \"?\", \"q\": {\"_id\": \"?\"}, \"u\": {\"$set\": {\"customer_id\": \"?\", \"expires_at\": \"?\", \"items\": [{\"qty\": \"?\", \"sku\": \"?\"}], \"status\": \"?\", \"updated_at\": \"?\"}}, \"upsert\": \"?\"}, \"coll\": \"carts\", \"op\": \"update\"}",
+      "count": 70,
+      "collection": "carts",
+      "op": "update",
+      "features": [
+        "F10"
+      ],
+      "operators": [
+        "$set"
+      ],
+      "p50_ms": 0,
+      "p95_ms": 0,
+      "plan": "IDHACK"
+    },
+    {
+      "id": "Sb578dda4",
+      "shape": "{\"cmd\": {\"filter\": {\"customer_id\": \"?\", \"status\": \"?\"}, \"find\": \"?\", \"limit\": \"?\", \"singleBatch\": \"?\"}, \"coll\": \"carts\", \"op\": \"query\"}",
+      "count": 70,
+      "collection": "carts",
+      "op": "query",
+      "features": [
+        "F10"
+      ],
+      "operators": [],
+      "p50_ms": 0,
+      "p95_ms": 0,
+      "plan": "IXSCAN { customer_id: 1 }"
+    },
+    {
+      "id": "Scd0d89a3",
+      "shape": "{\"cmd\": {\"insert\": \"?\", \"ordered\": \"?\"}, \"coll\": \"orders\", \"op\": \"insert\"}",
+      "count": 65,
+      "collection": "orders",
+      "op": "insert",
+      "features": [
+        "F4"
+      ],
+      "operators": [],
+      "p50_ms": 0,
+      "p95_ms": 0,
+      "plan": null
+    },
+    {
+      "id": "Sac78c80d",
+      "shape": "{\"cmd\": {\"aggregate\": \"?\", \"cursor\": {}, \"pipeline\": [{\"$match\": {\"customer_id\": \"?\", \"status\": {\"$ne\": \"?\"}}}, {\"$addFields\": {\"total_cents\": {\"$cond\": [{\"$eq\": [{\"$type\": \"?\"}, \"?\"]}, {\"$round\": [{\"$multiply\": [\"?\"]}, \"?\"]}, \"?\"]}}}, {\"$setWindowFields\": {\"output\": {\"order_seq\": {\"$documentNumber\": {}}, \"previous_order_at\": {\"$shift\": {\"by\": \"?\", \"output\": \"?\"}}, \"rolling_90d\": {\"$sum\": \"?\", \"window\": {\"range\": [\"?\"], \"unit\": \"?\"}}, \"running_total\": {\"$sum\": \"?\", \"window\": {\"documents\": [\"?\"]}}}, \"partitionBy\": \"?\", \"sortBy\": {\"placed_at\": \"?\"}}}, {\"$project\": {\"order_seq\": \"?\", \"placed_at\": \"?\", \"previous_order_at\": \"?\", \"rolling_90d\": \"?\", \"running_total\": \"?\", \"total_cents\": \"?\"}}]}, \"coll\": \"orders\", \"op\": \"command\"}",
+      "count": 60,
+      "collection": "orders",
+      "op": "command",
+      "features": [
+        "F2"
+      ],
+      "operators": [
+        "$addFields",
+        "$cond",
+        "$documentNumber",
+        "$eq",
+        "$match",
+        "$multiply",
+        "$ne",
+        "$project",
+        "$round",
+        "$setWindowFields",
+        "$shift",
+        "$sum",
+        "$type"
+      ],
+      "p50_ms": 0,
+      "p95_ms": 0,
+      "plan": "IXSCAN { customer_id: 1, placed_at: -1 }"
+    },
+    {
+      "id": "Sf05e5fb0",
+      "shape": "{\"cmd\": {\"getMore\": \"?\", \"of\": [{\"$changeStream\": {\"fullDocument\": \"?\"}}, {\"$match\": {\"operationType\": {\"$in\": [\"?\"]}}}]}, \"coll\": \"inventory\", \"op\": \"getmore\"}",
+      "count": 51,
+      "collection": "inventory",
+      "op": "getmore",
+      "features": [
+        "F5"
+      ],
+      "operators": [],
+      "p50_ms": 0,
+      "p95_ms": 0,
+      "plan": "COLLSCAN"
+    },
+    {
+      "id": "Sdfb00aac",
+      "shape": "{\"cmd\": {\"arrayFilters\": [{\"line.line_id\": {\"$in\": [\"?\"]}, \"line.refund_status\": \"?\"}], \"multi\": \"?\", \"q\": {\"_id\": \"?\", \"status\": {\"$in\": [\"?\"]}}, \"u\": {\"$inc\": {\"refund_total\": \"?\"}, \"$set\": {\"items.$[line].refund_status\": \"?\", \"items.$[line].refunded_at\": \"?\", \"updated_at\": \"?\"}}, \"upsert\": \"?\"}, \"coll\": \"orders\", \"op\": \"update\"}",
+      "count": 45,
+      "collection": "orders",
+      "op": "update",
+      "features": [
+        "F3"
+      ],
+      "operators": [
+        "$in",
+        "$inc",
+        "$set"
+      ],
+      "p50_ms": 0,
+      "p95_ms": 0,
+      "plan": "IXSCAN { _id: 1 }"
+    },
+    {
+      "id": "S04aefdf6",
+      "shape": "{\"cmd\": {\"aggregate\": \"?\", \"cursor\": {}, \"pipeline\": [{\"$match\": {\"_id\": \"?\", \"items\": {\"$elemMatch\": {\"category\": {\"$nin\": [\"?\"]}, \"refund_status\": \"?\"}}}}, {\"$group\": {\"_id\": \"?\", \"n\": {\"$sum\": \"?\"}}}]}, \"coll\": \"orders\", \"op\": \"command\"}",
+      "count": 45,
+      "collection": "orders",
+      "op": "command",
+      "features": [],
+      "operators": [
+        "$elemMatch",
+        "$group",
+        "$match",
+        "$nin",
+        "$sum"
+      ],
+      "p50_ms": 0,
+      "p95_ms": 0,
+      "plan": "IXSCAN { _id: 1 }"
+    },
+    {
+      "id": "S983dbabe",
+      "shape": "{\"cmd\": {\"multi\": \"?\", \"q\": {\"_id\": \"?\"}, \"u\": {\"$push\": {\"history\": {\"at\": \"?\", \"status\": \"?\"}}, \"$set\": {\"status\": \"?\"}}, \"upsert\": \"?\"}, \"coll\": \"orders\", \"op\": \"update\"}",
+      "count": 45,
+      "collection": "orders",
+      "op": "update",
+      "features": [
+        "F10"
+      ],
+      "operators": [
+        "$push",
+        "$set"
+      ],
+      "p50_ms": 0,
+      "p95_ms": 0,
+      "plan": "EXPRESS_IXSCAN { _id: 1 },EXPRESS_UPDATE"
+    },
+    {
+      "id": "Safd4d86d",
+      "shape": "{\"cmd\": {\"filter\": {\"status\": \"?\"}, \"find\": \"?\", \"limit\": \"?\", \"sort\": {\"_id\": \"?\", \"placed_at\": \"?\"}}, \"coll\": \"orders\", \"op\": \"query\"}",
+      "count": 40,
+      "collection": "orders",
+      "op": "query",
+      "features": [
+        "F10"
+      ],
+      "operators": [],
+      "p50_ms": 0,
+      "p95_ms": 0,
+      "plan": "IXSCAN { status: 1, placed_at: -1 }"
+    },
+    {
+      "id": "S7338d59e",
+      "shape": "{\"cmd\": {\"filter\": {\"active\": \"?\", \"category\": \"?\"}, \"find\": \"?\", \"limit\": \"?\", \"sort\": {\"_id\": \"?\"}}, \"coll\": \"products\", \"op\": \"query\"}",
+      "count": 30,
+      "collection": "products",
+      "op": "query",
+      "features": [
+        "F10"
+      ],
+      "operators": [],
+      "p50_ms": 0,
+      "p95_ms": 0,
+      "plan": "IXSCAN { category: 1 }"
+    },
+    {
+      "id": "S78e856b9",
+      "shape": "{\"cmd\": {\"aggregate\": \"?\", \"cursor\": {}, \"pipeline\": [{\"$match\": {\"placed_at\": {\"$gte\": \"?\", \"$lt\": \"?\"}, \"status\": {\"$ne\": \"?\"}}}, {\"$addFields\": {\"total_cents\": {\"$cond\": [{\"$eq\": [{\"$type\": \"?\"}, \"?\"]}, {\"$round\": [{\"$multiply\": [\"?\"]}, \"?\"]}, \"?\"]}}}, {\"$lookup\": {\"as\": \"?\", \"from\": \"?\", \"let\": {\"cid\": \"?\"}, \"pipeline\": [{\"$match\": {\"$expr\": {\"$eq\": [\"?\"]}}}, {\"$project\": {\"_id\": \"?\", \"tier\": \"?\"}}]}}, {\"$unwind\": \"?\"}, {\"$facet\": {\"by_month\": [{\"$group\": {\"_id\": {\"$dateToString\": {\"date\": \"?\", \"format\": \"?\"}}, \"revenue\": {\"$sum\": \"?\"}}}, {\"$sort\": {\"_id\": \"?\"}}], \"by_tier\": [{\"$group\": {\"_id\": \"?\", \"orders\": {\"$sum\": \"?\"}, \"revenue\": {\"$sum\": \"?\"}}}, {\"$sort\": {\"_id\": \"?\"}}], \"largest\": [{\"$sort\": {\"_id\": \"?\", \"total_cents\": \"?\"}}, {\"$limit\": \"?\"}, {\"$project\": {\"tier\": \"?\", \"total_cents\": \"?\"}}]}}]}, \"coll\": \"orders\", \"op\": \"command\"}",
+      "count": 20,
+      "collection": "orders",
+      "op": "command",
+      "features": [
+        "F1"
+      ],
+      "operators": [
+        "$addFields",
+        "$cond",
+        "$dateToString",
+        "$eq",
+        "$expr",
+        "$facet",
+        "$group",
+        "$gte",
+        "$limit",
+        "$lookup",
+        "$lt",
+        "$match",
+        "$multiply",
+        "$ne",
+        "$project",
+        "$round",
+        "$sort",
+        "$sum",
+        "$type",
+        "$unwind"
+      ],
+      "p50_ms": 5,
+      "p95_ms": 7,
+      "plan": "IXSCAN { status: 1, placed_at: -1 }"
+    },
+    {
+      "id": "Sc2ae67e8",
+      "shape": "{\"cmd\": {\"multi\": \"?\", \"q\": {\"_id\": \"?\"}, \"u\": {\"$set\": {\"order_id\": \"?\", \"status\": \"?\", \"updated_at\": \"?\"}}, \"upsert\": \"?\"}, \"coll\": \"carts\", \"op\": \"update\"}",
+      "count": 20,
+      "collection": "carts",
+      "op": "update",
+      "features": [
+        "F10"
+      ],
+      "operators": [
+        "$set"
+      ],
+      "p50_ms": 0,
+      "p95_ms": 0,
+      "plan": "EXPRESS_IXSCAN { _id: 1 },EXPRESS_UPDATE"
+    },
+    {
+      "id": "Se2098373",
+      "shape": "{\"cmd\": {\"multi\": \"?\", \"q\": {\"_id\": \"?\"}, \"u\": {\"$inc\": {\"loyalty_points\": \"?\"}}, \"upsert\": \"?\"}, \"coll\": \"customers\", \"op\": \"update\"}",
+      "count": 20,
+      "collection": "customers",
+      "op": "update",
+      "features": [
+        "F10"
+      ],
+      "operators": [
+        "$inc"
+      ],
+      "p50_ms": 0,
+      "p95_ms": 0,
+      "plan": "EXPRESS_IXSCAN { _id: 1 },EXPRESS_UPDATE"
+    },
+    {
+      "id": "S9c200f14",
+      "shape": "{\"cmd\": {\"multi\": \"?\", \"q\": {\"_id\": \"?\", \"status\": {\"$in\": [\"?\"]}}, \"u\": {\"$push\": {\"history\": {\"at\": \"?\", \"status\": \"?\"}}, \"$set\": {\"status\": \"?\", \"updated_at\": \"?\"}}, \"upsert\": \"?\"}, \"coll\": \"orders\", \"op\": \"update\"}",
+      "count": 13,
+      "collection": "orders",
+      "op": "update",
+      "features": [
+        "F10"
+      ],
+      "operators": [
+        "$in",
+        "$push",
+        "$set"
+      ],
+      "p50_ms": 0,
+      "p95_ms": 0,
+      "plan": "IXSCAN { _id: 1 }"
+    },
+    {
+      "id": "S7b64f960",
+      "shape": "{\"cmd\": {\"multi\": \"?\", \"q\": {\"_id\": \"?\", \"status\": {\"$in\": [\"?\"]}}, \"u\": {\"$push\": {\"history\": {\"at\": \"?\", \"status\": \"?\"}}, \"$set\": {\"delivered_at\": \"?\", \"status\": \"?\", \"updated_at\": \"?\"}}, \"upsert\": \"?\"}, \"coll\": \"orders\", \"op\": \"update\"}",
+      "count": 13,
+      "collection": "orders",
+      "op": "update",
+      "features": [
+        "F10"
+      ],
+      "operators": [
+        "$in",
+        "$push",
+        "$set"
+      ],
+      "p50_ms": 0,
+      "p95_ms": 0,
+      "plan": "IXSCAN { _id: 1 }"
+    },
+    {
+      "id": "Se06fc905",
+      "shape": "{\"cmd\": {\"multi\": \"?\", \"q\": {\"_id\": \"?\"}, \"u\": {\"$set\": {\"items.$[].reviewed_by\": \"?\"}}, \"upsert\": \"?\"}, \"coll\": \"orders\", \"op\": \"update\"}",
+      "count": 10,
+      "collection": "orders",
+      "op": "update",
+      "features": [
+        "F3"
+      ],
+      "operators": [
+        "$set"
+      ],
+      "p50_ms": 0,
+      "p95_ms": 0,
+      "plan": "EXPRESS_IXSCAN { _id: 1 },EXPRESS_UPDATE"
+    },
+    {
+      "id": "S8d6c2ea8",
+      "shape": "{\"cmd\": {\"aggregate\": \"?\", \"cursor\": {}, \"pipeline\": [{\"$lookup\": {\"as\": \"?\", \"foreignField\": \"?\", \"from\": \"?\", \"localField\": \"?\", \"pipeline\": [{\"$match\": {\"$expr\": {\"$lt\": [\"?\"]}}}]}}, {\"$match\": {\"stock.0\": {\"$exists\": \"?\"}}}, {\"$group\": {\"_id\": \"?\", \"skus\": {\"$sum\": \"?\"}}}, {\"$sort\": {\"_id\": \"?\", \"skus\": \"?\"}}]}, \"coll\": \"products\", \"op\": \"command\"}",
+      "count": 10,
+      "collection": "products",
+      "op": "command",
+      "features": [
+        "F1"
+      ],
+      "operators": [
+        "$exists",
+        "$expr",
+        "$group",
+        "$lookup",
+        "$lt",
+        "$match",
+        "$sort",
+        "$sum"
+      ],
+      "p50_ms": 6,
+      "p95_ms": 8,
+      "plan": "COLLSCAN"
+    },
+    {
+      "id": "S181542d4",
+      "shape": "{\"cmd\": {\"filter\": {\"_id\": {\"$lte\": \"?\"}, \"delivered_at\": {\"$gte\": \"?\"}, \"status\": \"?\"}, \"find\": \"?\", \"projection\": {\"_id\": \"?\", \"customer_id\": \"?\", \"items.line_id\": \"?\"}, \"sort\": {\"_id\": \"?\"}}, \"coll\": \"orders\", \"op\": \"query\"}",
+      "count": 1,
+      "collection": "orders",
+      "op": "query",
+      "features": [
+        "F10"
+      ],
+      "operators": [
+        "$gte",
+        "$lte"
+      ],
+      "p50_ms": 11,
+      "p95_ms": 11,
+      "plan": "IXSCAN { _id: 1 }"
+    },
+    {
+      "id": "Se8433e70",
+      "shape": "{\"cmd\": {\"filter\": {\"_id\": {\"$lte\": \"?\"}, \"status\": {\"$in\": [\"?\"]}}, \"find\": \"?\", \"projection\": {\"_id\": \"?\", \"status\": \"?\"}, \"sort\": {\"_id\": \"?\"}}, \"coll\": \"orders\", \"op\": \"query\"}",
+      "count": 1,
+      "collection": "orders",
+      "op": "query",
+      "features": [
+        "F10"
+      ],
+      "operators": [
+        "$in",
+        "$lte"
+      ],
+      "p50_ms": 1,
+      "p95_ms": 1,
+      "plan": "IXSCAN { status: 1, placed_at: -1 }"
+    },
+    {
+      "id": "S10aa717d",
+      "shape": "{\"cmd\": {\"filter\": {\"_id\": \"?\"}, \"find\": \"?\", \"limit\": \"?\", \"singleBatch\": \"?\"}, \"coll\": \"sync_state\", \"op\": \"query\"}",
+      "count": 1,
+      "collection": "sync_state",
+      "op": "query",
+      "features": [
+        "F10"
+      ],
+      "operators": [],
+      "p50_ms": 0,
+      "p95_ms": 0,
+      "plan": "EOF"
+    },
+    {
+      "id": "S2989c176",
+      "shape": "{\"cmd\": {\"cursors\": [\"?\"], \"killCursors\": \"?\"}, \"coll\": \"inventory\", \"op\": \"command\"}",
+      "count": 1,
+      "collection": "inventory",
+      "op": "command",
+      "features": [],
+      "operators": [],
+      "p50_ms": 0,
+      "p95_ms": 0,
+      "plan": null
+    }
+  ]
+}

@@ -1,0 +1,280 @@
+{
+  "source": [
+    {
+      "database": "shoplog",
+      "inserted": {
+        "customers": 5000,
+        "products": 500,
+        "inventory": 500,
+        "orders": 50000,
+        "carts": 2000
+      },
+      "seconds": 1.3,
+      "schema": [
+        {
+          "step": "orders.validator",
+          "ok": true
+        },
+        {
+          "step": "orders.customer_placed",
+          "ok": true
+        },
+        {
+          "step": "orders.status_placed",
+          "ok": true
+        },
+        {
+          "step": "orders.placed_at",
+          "ok": true
+        },
+        {
+          "step": "orders.coupon_once",
+          "ok": true
+        },
+        {
+          "step": "customers.email_ci",
+          "ok": true
+        },
+        {
+          "step": "carts.expiry",
+          "ok": true
+        },
+        {
+          "step": "carts.customer",
+          "ok": true
+        },
+        {
+          "step": "products.search",
+          "ok": true
+        },
+        {
+          "step": "products.category",
+          "ok": true
+        }
+      ],
+      "insert_errors": []
+    },
+    {
+      "database": "shoplog_wl",
+      "inserted": {
+        "customers": 5000,
+        "products": 500,
+        "inventory": 500,
+        "orders": 50000,
+        "carts": 2000
+      },
+      "seconds": 1.3,
+      "schema": [
+        {
+          "step": "orders.validator",
+          "ok": true
+        },
+        {
+          "step": "orders.customer_placed",
+          "ok": true
+        },
+        {
+          "step": "orders.status_placed",
+          "ok": true
+        },
+        {
+          "step": "orders.placed_at",
+          "ok": true
+        },
+        {
+          "step": "orders.coupon_once",
+          "ok": true
+        },
+        {
+          "step": "customers.email_ci",
+          "ok": true
+        },
+        {
+          "step": "carts.expiry",
+          "ok": true
+        },
+        {
+          "step": "carts.customer",
+          "ok": true
+        },
+        {
+          "step": "products.search",
+          "ok": true
+        },
+        {
+          "step": "products.category",
+          "ok": true
+        }
+      ],
+      "insert_errors": []
+    },
+    {
+      "database": "shoplog_fx",
+      "inserted": {
+        "customers": 5000,
+        "products": 500,
+        "inventory": 500,
+        "orders": 2000,
+        "carts": 2000
+      },
+      "seconds": 0.1,
+      "schema": [
+        {
+          "step": "orders.validator",
+          "ok": true
+        },
+        {
+          "step": "orders.customer_placed",
+          "ok": true
+        },
+        {
+          "step": "orders.status_placed",
+          "ok": true
+        },
+        {
+          "step": "orders.placed_at",
+          "ok": true
+        },
+        {
+          "step": "orders.coupon_once",
+          "ok": true
+        },
+        {
+          "step": "customers.email_ci",
+          "ok": true
+        },
+        {
+          "step": "carts.expiry",
+          "ok": true
+        },
+        {
+          "step": "carts.customer",
+          "ok": true
+        },
+        {
+          "step": "products.search",
+          "ok": true
+        },
+        {
+          "step": "products.category",
+          "ok": true
+        }
+      ],
+      "insert_errors": []
+    }
+  ],
+  "target": [
+    {
+      "database": "shoplog",
+      "inserted": {
+        "customers": 5000,
+        "products": 500,
+        "inventory": 500,
+        "orders": 50000,
+        "carts": 2000
+      },
+      "seconds": 5.4,
+      "schema": [
+        {
+          "step": "orders.validator",
+          "ok": true
+        },
+        {
+          "step": "orders.customer_placed",
+          "ok": true
+        },
+        {
+          "step": "orders.status_placed",
+          "ok": true
+        },
+        {
+          "step": "orders.placed_at",
+          "ok": true
+        },
+        {
+          "step": "orders.coupon_once",
+          "ok": true
+        },
+        {
+          "step": "customers.email_ci",
+          "ok": false,
+          "code": 115,
+          "error": "Error in specification { \"unique\" : true, \"name\" : \"email_ci_unique\", \"key\" : { \"email\" : 1 }, \"collation\" : { \"locale\" : \"en\", \"strength\" : 2 } } :: caused by :: createIndex.collation is not implemented yet, full error: {'ok': 0.0, 'errmsg': 'Error in specification { \"unique\" : true, \"name\" : \"emai"
+        },
+        {
+          "step": "carts.expiry",
+          "ok": true
+        },
+        {
+          "step": "carts.customer",
+          "ok": true
+        },
+        {
+          "step": "products.search",
+          "ok": true
+        },
+        {
+          "step": "products.category",
+          "ok": true
+        }
+      ],
+      "insert_errors": []
+    },
+    {
+      "database": "shoplog_fx",
+      "inserted": {
+        "customers": 5000,
+        "products": 500,
+        "inventory": 500,
+        "orders": 2000,
+        "carts": 2000
+      },
+      "seconds": 0.3,
+      "schema": [
+        {
+          "step": "orders.validator",
+          "ok": true
+        },
+        {
+          "step": "orders.customer_placed",
+          "ok": true
+        },
+        {
+          "step": "orders.status_placed",
+          "ok": true
+        },
+        {
+          "step": "orders.placed_at",
+          "ok": true
+        },
+        {
+          "step": "orders.coupon_once",
+          "ok": true
+        },
+        {
+          "step": "customers.email_ci",
+          "ok": false,
+          "code": 115,
+          "error": "Error in specification { \"unique\" : true, \"name\" : \"email_ci_unique\", \"key\" : { \"email\" : 1 }, \"collation\" : { \"locale\" : \"en\", \"strength\" : 2 } } :: caused by :: createIndex.collation is not implemented yet, full error: {'ok': 0.0, 'errmsg': 'Error in specification { \"unique\" : true, \"name\" : \"emai"
+        },
+        {
+          "step": "carts.expiry",
+          "ok": true
+        },
+        {
+          "step": "carts.customer",
+          "ok": true
+        },
+        {
+          "step": "products.search",
+          "ok": true
+        },
+        {
+          "step": "products.category",
+          "ok": true
+        }
+      ],
+      "insert_errors": []
+    }
+  ]
+}
