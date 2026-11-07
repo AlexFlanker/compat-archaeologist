@@ -2,12 +2,12 @@
 
 *One-page brief for the CTO or VP Engineering. The evidence and method follow in the appendix.*
 
-**Stay on MongoDB for ShopLog for now.** On FerretDB, 6 blocking gaps showed up (F4, F5, F6, F8, F11). AWS DocumentDB documents support for most features but conflicts with this app's usage in 3 place(s), and nothing about it has been tested. Run these probes on a real cluster before considering it.
+**Stay on MongoDB for ShopLog for now.** On FerretDB, 6 blocking gaps showed up (F4, F5, F6, F8, F11, 1 slow reporting path). AWS DocumentDB documents support for most features but conflicts with this app's usage in 3 place(s), and nothing about it has been tested. Run these probes on a real cluster before considering it.
 
 | | FerretDB (observed) | AWS DocumentDB (inferred) |
 |---|---|---|
 | Recommendation | Stay: fixing the gaps costs more than the migration saves | Not verified: test on a real cluster before deciding |
-| Confidence | High (measured; self-check clean; SubQ P(net-positive) 0.00) | Low: documentation only, nothing measured |
+| Confidence | High (measured; self-check clean; SubQ P(net-positive) <0.001) | Low: documentation only, nothing measured |
 | Net over 12 months (base, best to worst) | -$98,823 (-$36,124 to -$234,031) | -$41,337 (-$24,897 to -$74,877) |
 | Reversibility (100 = easy to go back) | 15/100 (OBSERVED) | 75/100 (INFERRED) |
 
@@ -17,7 +17,7 @@
 2. **Logins and email uniqueness stop ignoring case: duplicate accounts, failed sign-ins** (FerretDB, silent). Evidence: probe `F6.ci-lookup`; probe `F6.ci-unique`; 17/40 replayed ops differ; code [shoplog/customers.py:9](../../shoplog/customers.py#L9), [shoplog/schema.py:60](../../shoplog/schema.py#L60).
 3. **Invalid orders get written: the schema validator isn't enforced** (FerretDB, silent). Evidence: probe `F8.orders-required-fields`; probe `F8.orders-enum-total`; code [shoplog/schema.py:12](../../shoplog/schema.py#L12).
 4. **Constraints don't survive a clean cutover: customers.email_ci_unique index (unique, collation), orders $jsonSchema validator** (FerretDB, cutover). Evidence: cutover check, clean run: 6 of 23 checks failed.
-5. **Queries on orders run 430× slower ($lookup sub-pipeline + $facet)** (FerretDB, performance). Evidence: replay p95 9.97 ms → 4289.43 ms; code [shoplog/analytics.py:33](../../shoplog/analytics.py#L33).
+5. **Queries on orders run 471× slower ($lookup sub-pipeline + $facet)** (FerretDB, performance). Evidence: replay p95 8.78 ms → 4134.76 ms; code [shoplog/analytics.py:33](../../shoplog/analytics.py#L33).
 
 **12-month cost, base case** (yearly figures; best and worst cases in the appendix)
 
@@ -37,12 +37,12 @@
 
 | Path | MongoDB p95 | FerretDB p95 | FerretDB over the timeout | Timeout used |
 |---|---|---|---|---|
-| Online | 1.89 ms | 4.02 ms | 0% of 367 | 1,000 ms |
-| Reporting | 9.97 ms | 4,289 ms | 0% of 17 | 30,000 ms |
+| Online | 1.88 ms | 4.24 ms | 0% of 367 | 1,000 ms |
+| Reporting | 8.78 ms | 4,135 ms | 0% of 17 | 30,000 ms |
 | Event-driven (change streams) | works | ❌ Not supported | | |
 
 **At production size (INFERRED)**: the data size at which each slow path reaches its timeout, projected from the measured 38.4 MB using the growth shape of its query plan. This assumes every collection grows by the same factor.
-- F1 reporting query on orders (30 s timeout): MongoDB grows linear (index lookups) and reaches it at ~116 GB; FerretDB grows quadratic (a sequential scan inside a nested loop) and reaches it at ~100 MB.
+- F1 reporting query on orders (30 s timeout): MongoDB grows linear (index lookups) and reaches it at ~131 GB; FerretDB grows quadratic (a sequential scan inside a nested loop) and reaches it at ~100 MB.
 - At TB scale both engines need work on reporting, such as pre-aggregation, but FerretDB hits the limit orders of magnitude sooner.
 
 **Business questions**: on untouched data, 8 of 8 answers match on FerretDB. After a clean cutover and one morning of traffic, 5 of 8 differ:
@@ -58,7 +58,7 @@
 **Cutover fidelity**: a simulated full-load + CDC migration with nothing injected failed 6 of 23 checks on FerretDB: customers.email_ci_unique index (unique, collation), orders $jsonSchema validator, Business rule: emails that collide when case is ignored, Business rule: orders that break the order schema.
 In a drill with faults injected on purpose (CDC gap: 30 change events dropped mid-cutover; Copier skipped unique index coupon_once_per_customer), the verifier caught 2 of 2.
 
-**Upgrade check**: FerretDB v2.2.0 → v2.7.0: 0 feature(s) fixed, 0 regressed, 5 still failing (F4, F5, F6, F8, F9). The slowest path went from 4287.32 ms to 4360.0 ms p95 (MongoDB 16.13 ms). A newer version number didn't change the decision. It did get faster elsewhere: F2 on orders 32.4 → 3.8 ms.
+**Upgrade check**: FerretDB v2.2.0 → v2.7.0: 0 feature(s) fixed, 0 regressed, 4 still failing (F4, F5, F6, F8). The slowest path went from 4422.56 ms to 4134.76 ms p95 (MongoDB 8.78 ms). A newer version number didn't change the decision. F9 only ranks results differently, in both versions. It did get faster elsewhere: F2 on orders 8.9 → 4.4 ms.
 
 Reversibility deductions: FerretDB: -30 No change streams on the target: moving back needs a full reload with downtime, -25 The target accepts writes MongoDB refuses, so that data needs cleaning before moving back, -20 5 code rewrite(s) make the two versions of the app diverge, -10 A separate search service would need to be retired or kept; AWS DocumentDB: -5 Documented limit: $setWindowFields, -5 Documented limit: $text search, -5 Documented limit: Atlas Search ($search with a search index), -10 A separate search service would need to be retired or kept.
 
@@ -70,8 +70,8 @@ Reversibility deductions: FerretDB: -30 No change streams on the target: moving 
 
 | Target | Evidence | Blocking gaps | Net over 12 months (base) | Decision | SubQ Snap: P(net-positive) |
 |---|---|---|---|---|---|
-| FerretDB | OBSERVED | 6 | -$98,823 | Stay: fixing the gaps costs more than the migration saves | 0.00 |
-| AWS DocumentDB | INFERRED | 3 | -$41,337 | Not verified: test on a real cluster before deciding | 0.00 |
+| FerretDB | OBSERVED | 6 | -$98,823 | Stay: fixing the gaps costs more than the migration saves | <0.001 |
+| AWS DocumentDB | INFERRED | 3 | -$41,337 | Not verified: test on a real cluster before deciding | <0.001 |
 
 The decision comes from measured gaps, list prices and stated assumptions. The SubQ probability is a separate second opinion on the same facts, from subq-snap-1.1.
 
@@ -178,25 +178,27 @@ Matching uses fixed patterns per rule, not a model's judgment, so a paraphrase t
 
 ## Upgrade check
 
-FerretDB v2.2.0 → v2.7.0: 0 feature(s) fixed, 0 regressed, 5 still failing (F4, F5, F6, F8, F9). The slowest path went from 4287.32 ms to 4360.0 ms p95 (MongoDB 16.13 ms). A newer version number didn't change the decision. It did get faster elsewhere: F2 on orders 32.4 → 3.8 ms.
+FerretDB v2.2.0 → v2.7.0: 0 feature(s) fixed, 0 regressed, 4 still failing (F4, F5, F6, F8). The slowest path went from 4422.56 ms to 4134.76 ms p95 (MongoDB 8.78 ms). A newer version number didn't change the decision. F9 only ranks results differently, in both versions. It did get faster elsewhere: F2 on orders 8.9 → 4.4 ms.
 
 | Feature | FerretDB v2.2.0 | FerretDB v2.7.0 |
 |---|---|---|
 | F1 | equal | equal |
 | F2 | equal | equal |
 | F3 | equal | equal |
-| F4 | result_diff | result_diff |
+| F4 | unsupported | unsupported |
 | F5 | unsupported | unsupported |
 | F6 | unsupported | unsupported |
+| F7 | equal | equal |
 | F8 | result_diff | result_diff |
 | F9 | ranking_diff | ranking_diff |
 | F10 | equal | equal |
+| X:graphLookup | equal | equal |
 
 | Slow path | Collection | v2.2.0 p95 | v2.7.0 p95 | MongoDB p95 |
 |---|---|---|---|---|
-| F1 | orders | 4287.32 ms | 4360.0 ms | 16.13 ms |
-| F10 | orders | 41.06 ms | 34.64 ms | 41.16 ms |
-| F2 | orders | 32.43 ms | 3.77 ms | 0.78 ms |
+| F1 | orders | 4422.56 ms | 4134.76 ms | 8.78 ms |
+| F10 | orders | 43.58 ms | 33.62 ms | 39.77 ms |
+| F2 | orders | 8.95 ms | 4.39 ms | 1.78 ms |
 
 AWS DocumentDB version differences (INFERRED from docs, not measured):
 
@@ -206,41 +208,41 @@ AWS DocumentDB version differences (INFERRED from docs, not measured):
 
 ## Latency
 
-Both engines ran in Docker on one machine, with the same CPU and memory limits, the same data, and alternating order. FerretDB's image holds Postgres and FerretDB in one container, so they share its limit. Overall read p50/p95: MongoDB 0.50 ms / 7.78 ms, FerretDB 0.75 ms / 7.02 ms.
-Writes (353 replayed) p50/p95: MongoDB 1.30 ms / 1.90 ms, FerretDB 0.64 ms / 1.03 ms. MongoDB here also writes an oplog as a replica set. These are local numbers for comparison, not production estimates.
+Both engines ran in Docker on one machine, with the same CPU and memory limits, the same data, and alternating order. FerretDB's image holds Postgres and FerretDB in one container, so they share its limit. Overall read p50/p95: MongoDB 0.50 ms / 6.62 ms, FerretDB 0.77 ms / 6.36 ms.
+Writes (353 replayed) p50/p95: MongoDB 1.21 ms / 1.83 ms, FerretDB 0.68 ms / 1.00 ms. MongoDB here also writes an oplog as a replica set. These are local numbers for comparison, not production estimates.
 
 | Feature | Operation | Samples | MongoDB p50 / p95 | FerretDB p50 / p95 | FerretDB compared at p50 |
 |---|---|---|---|---|---|
-| F1 | orders: $match → $addFields → $lookup → $unwind | 7/20 (time budget reached) | 7.78 ms / 9.97 ms | 4,026 ms / 4,289 ms | 517.4× |
-| F10 | orders: find | 15/15 | 8.89 ms / 54.86 ms | 9.43 ms / 38.49 ms | 1.1× |
-| F2 | orders: $match → $addFields → $setWindowFields → $project | 40/60 | 0.63 ms / 1.15 ms | 3.60 ms / 4.22 ms | 5.7× |
-| F10 | orders: find | 1/1 | 1.35 ms / 1.35 ms | 3.81 ms / 3.81 ms | 2.8× |
-| F9 | products: find | 40/100 | 0.89 ms / 1.89 ms | 1.80 ms / 2.68 ms | 2.0× |
-| F1 | products: $lookup → $match → $group → $sort | 10/10 | 7.92 ms / 8.60 ms | 2.21 ms / 2.67 ms | 3.6× faster |
-| F6 | customers: find | 40/110 | 0.31 ms / 0.73 ms | 0.74 ms / 1.95 ms | 2.4× |
-| F10 | orders: find | 40/40 | 0.84 ms / 1.68 ms | 1.07 ms / 1.89 ms | 1.3× |
-| F10 | orders: find | 40/270 | 0.40 ms / 0.95 ms | 0.57 ms / 1.65 ms | 1.4× |
-| F10 | orders: find | 40/100 | 0.48 ms / 1.24 ms | 0.55 ms / 1.09 ms | 1.1× |
-| F10 | products: find | 30/30 | 0.41 ms / 0.54 ms | 0.51 ms / 0.75 ms | 1.2× |
-| other | orders: $match → $group | 40/46 | 0.36 ms / 0.63 ms | 0.40 ms / 0.66 ms | 1.1× |
-| F10 | orders: find | 1/1 | 0.79 ms / 0.79 ms | 0.58 ms / 0.58 ms | 1.4× faster |
-| F10 | carts: find | 40/70 | 0.31 ms / 0.37 ms | 0.38 ms / 0.46 ms | 1.2× |
+| F1 | orders: $match → $addFields → $lookup → $unwind | 7/20 (time budget reached) | 7.20 ms / 8.78 ms | 3,968 ms / 4,135 ms | 551.1× |
+| F10 | orders: find | 15/15 | 8.17 ms / 39.77 ms | 7.99 ms / 33.62 ms | 1.0× faster |
+| F2 | orders: $match → $addFields → $setWindowFields → $project | 40/60 | 0.58 ms / 1.78 ms | 3.64 ms / 4.39 ms | 6.3× |
+| F10 | orders: find | 1/1 | 1.88 ms / 1.88 ms | 3.42 ms / 3.42 ms | 1.8× |
+| F9 | products: find | 40/100 | 0.81 ms / 1.14 ms | 1.78 ms / 2.69 ms | 2.2× |
+| F1 | products: $lookup → $match → $group → $sort | 10/10 | 6.68 ms / 6.89 ms | 1.74 ms / 2.02 ms | 3.8× faster |
+| F10 | orders: find | 40/270 | 0.39 ms / 0.87 ms | 0.53 ms / 1.81 ms | 1.4× |
+| F10 | orders: find | 40/40 | 0.79 ms / 1.65 ms | 1.03 ms / 1.74 ms | 1.3× |
+| F10 | orders: find | 40/100 | 0.47 ms / 0.74 ms | 0.53 ms / 1.05 ms | 1.1× |
+| F6 | customers: find | 40/110 | 0.31 ms / 0.60 ms | 0.77 ms / 0.98 ms | 2.5× |
+| F10 | products: find | 30/30 | 0.48 ms / 0.57 ms | 0.58 ms / 0.98 ms | 1.2× |
+| F10 | orders: find | 1/1 | 0.79 ms / 0.79 ms | 0.55 ms / 0.55 ms | 1.4× faster |
+| other | orders: $match → $group | 40/46 | 0.37 ms / 0.44 ms | 0.42 ms / 0.53 ms | 1.1× |
+| F10 | carts: find | 40/70 | 0.34 ms / 0.59 ms | 0.43 ms / 0.51 ms | 1.3× |
 
 ## Why the slow paths are slow
 
 Plans from the MongoDB MCP Server's `explain` tool (`mongodb-mcp-server@3.2.2 explain`), run read-only against each engine on the slowest replayed queries.
 
-**F1 on orders** (replay p95 9.97 ms on MongoDB, 4,289 ms on FerretDB)
+**F1 on orders** (replay p95 8.78 ms on MongoDB, 4,135 ms on FerretDB)
 - MongoDB: `IXSCAN(status_1_placed_at_-1) → FETCH → PROJECTION_SIMPLE → $addFields → $lookup(indexes=['_id_'], collection scans=0, docs examined=309) → $facet`, 306 documents examined.
 - FerretDB (Postgres plan): `Aggregate → ProjectSet → Subquery Scan → Nested Loop → Index Scan(status_1_placed_at_-1) → Aggregate → Seq Scan → Aggregate → Function Scan(bson_lookup_unwind) → Append → Aggregate → Sort → Subquery Scan → Aggregate → CTE Scan → Aggregate → Sort → Subquery Scan → Aggregate → CTE Scan → Aggregate → Limit → Sort → CTE Scan`, with 1 sequential scan(s) and 1 nested loop(s).
 
-**F2 on orders** (replay p95 1.15 ms on MongoDB, 4.22 ms on FerretDB)
+**F2 on orders** (replay p95 1.78 ms on MongoDB, 4.39 ms on FerretDB)
 - MongoDB: `IXSCAN(customer_id_1_placed_at_-1) → FETCH → PROJECTION_SIMPLE → $addFields → $sort → $_internalSetWindowFields → $project`, 13 documents examined.
 - FerretDB (Postgres plan): `Subquery Scan → WindowAgg → WindowAgg → WindowAgg → WindowAgg → Sort → Bitmap Heap Scan → BitmapAnd → Bitmap Index Scan(status_1_placed_at_-1) → Bitmap Index Scan(customer_id_1_placed_at_-1)`, with 0 sequential scan(s) and 0 nested loop(s).
 
-**F10 on orders** (replay p95 1.35 ms on MongoDB, 3.81 ms on FerretDB)
-- MongoDB: `IXSCAN(_id_) → FETCH → PROJECTION_DEFAULT → LIMIT`, 179 documents examined.
-- FerretDB (Postgres plan): `Limit → Sort → Bitmap Heap Scan → BitmapAnd → Bitmap Index Scan(status_1_placed_at_-1) → Bitmap Index Scan(_id_)`, with 0 sequential scan(s) and 0 nested loop(s).
+**F9 on products** (replay p95 1.14 ms on MongoDB, 2.69 ms on FerretDB)
+- MongoDB: `IXSCAN(product_search) → TEXT_OR → TEXT_MATCH(product_search) → FETCH → SORT → PROJECTION_DEFAULT`, 98 documents examined.
+- FerretDB (Postgres plan): `Limit → Sort → Custom Scan → Index Scan(product_search)`, with 0 sequential scan(s) and 0 nested loop(s).
 
 
 ## What Atlas observed
@@ -365,4 +367,4 @@ Recovered without any documentation. 9 of 50 are OBSERVED in the data. The rest 
 - **Fair by construction:** the same pipeline, thresholds and assumptions run on every workload. ShopLog was deliberately built to depend on MongoDB-specific features, and the control app wasn't.
 - **Not modeled:** data transfer, backups, support plans and committed-use discounts. Rewrite hours are model estimates, and the risk inputs are assumptions.
 
-Evidence: [ledger](ledger.json) · [runs](runs.json) · [cost model](tco.json) · run `20261107T224024Z`
+Evidence: [ledger](ledger.json) · [runs](runs.json) · [cost model](tco.json) · run `20261107T230243Z`

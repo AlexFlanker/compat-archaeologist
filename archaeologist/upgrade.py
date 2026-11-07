@@ -62,7 +62,8 @@ def compare(profile: str, older: dict, current: dict) -> dict:
         before = older["features"].get(feature, {}).get("verdict", "no_probe")
         after = current["features"].get(feature, {}).get("verdict", "no_probe")
         rows.append((feature, before, after))
-        if before != "equal" and after == "equal":
+        # A feature counts as fixed only if it was actually tested and failing before.
+        if before not in {"equal", "no_probe", "ranking_diff"} and after == "equal":
             fixed.append(feature)
         if before == "equal" and after != "equal":
             regressed.append(feature)
@@ -73,7 +74,8 @@ def compare(profile: str, older: dict, current: dict) -> dict:
         previous = older_shapes.get(shape_id, {})
         latency.append((", ".join(shape["features"]) or "other", shape["collection"], previous.get("target_p95_ms"), shape["target_p95_ms"], shape["source_p95_ms"]))
 
-    unchanged = [feature for feature, before, after in rows if before == after and before not in {"equal", "no_probe"}]
+    unchanged = [feature for feature, before, after in rows if before == after and before not in {"equal", "no_probe", "ranking_diff"}]
+    ranking = [feature for feature, before, after in rows if after == "ranking_diff"]
     faster = [
         f"{feature} on {collection} {before:,.1f} → {after:,.1f} ms"
         for feature, collection, before, after, _ in latency
@@ -87,6 +89,8 @@ def compare(profile: str, older: dict, current: dict) -> dict:
         if not fixed
         else f"FerretDB {older_version} → {current_version}: {len(fixed)} feature(s) fixed ({', '.join(fixed)}), {len(unchanged)} still failing."
     )
+    if ranking:
+        summary += f" {', '.join(ranking)} only ranks results differently, in both versions."
     if faster:
         summary += f" It did get faster elsewhere: {'; '.join(faster)}."
     table = ["| Feature | " + f"FerretDB {older_version} | FerretDB {current_version} |", "|---|---|---|"]

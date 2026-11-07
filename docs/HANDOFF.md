@@ -41,7 +41,7 @@ On FerretDB 2.7, compared with MongoDB 8.0:
 - In the drill we inject a CDC gap and a dropped unique index **on purpose**, and the verifier catches both. Say "injected" out loud in the demo.
 - The control app's clean migration passes every check.
 
-**Upgrade check.** From FerretDB 2.2.0 to 2.7.0, nothing that was failing got fixed, and the revenue report is still about 4.3 s. Window functions did get faster.
+**Upgrade check.** From FerretDB 2.2.0 to 2.7.0, nothing that was failing got fixed, and the revenue report is still about 4.3 s. Window functions got about 2× faster.
 
 About AWS DocumentDB, **don't say "it lacks features"**. Engine 8.0.2's docs claim support for most of them. Our line is: *"on paper compatible is exactly why you test behavior."* DocumentDB conflicts with ShopLog only in a few documented limits: `$shift`, `$text` exclusion and array fields, and Atlas Search. It's marked **not verified**. FerretDB and AWS DocumentDB are different products despite the similar names.
 

@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import json
 
+from archaeologist.brief import probability as format_probability
+
 REPO_URL = "https://github.com/AlexFlanker/compat-archaeologist"
 MAX_PAYLOAD_BYTES = 64 * 1024
 APP_NAME = {"shoplog": "ShopLog", "lite": "ShopLog Lite"}
@@ -42,7 +44,7 @@ def decision_card(profile: str, tco: dict, ledger: dict, scoreboard: dict | None
         rows.append({"label": f"{name} ({info['evidence']})", "value": f"{info['decision_text']}. Net 12 months: {_money(info['economics']['net']['base'])}. Blocking gaps: {blocking}."})
     subq = tco.get("subq", {})
     if subq.get("available"):
-        rows.append({"label": "SubQ Snap: P(net-positive)", "value": ", ".join(f"{name} {probability:.2f}" for name, probability in subq["probabilities"].items())})
+        rows.append({"label": "SubQ Snap: P(net-positive)", "value": ", ".join(f"{name} {format_probability(probability)}" for name, probability in subq["probabilities"].items())})
     observed = sum(1 for item in ledger["items"] if item["status"] == "OBSERVED")
     rows.append({"label": "Usage spec reconstructed", "value": f"{len(ledger['items'])} items ({observed} observed), {len(ledger.get('behaviors', []))} business behaviors"})
     if scoreboard:

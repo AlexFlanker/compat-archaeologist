@@ -138,8 +138,11 @@ def _headline(profile: str, tco: dict) -> str:
     if ferretdb["decision"] == "SAFE_BUT_NOT_WORTH_IT":
         return f"**The migration is technically safe for {app}, but it doesn't pay off in 12 months at this size.** FerretDB matched MongoDB on everything this app does."
     names = ", ".join(sorted({gap["feature"] for gap in blocking if gap["kind"] != "performance"}, key=lambda key: int(key[1:]) if key[1:].isdigit() else 99))
+    slow = sum(1 for gap in blocking if gap["kind"] == "performance")
+    if slow:
+        names = (names + ", " if names else "") + (f"{slow} slow reporting path" + ("s" if slow > 1 else ""))
     return (
-        f"**Stay on MongoDB for {app} for now.** On FerretDB, {len(blocking)} blocking gaps showed up ({names or 'performance only'}). "
+        f"**Stay on MongoDB for {app} for now.** On FerretDB, {len(blocking)} blocking gaps showed up ({names or 'none'}). "
         f"AWS DocumentDB documents support for most features but conflicts with this app's usage in {sum(1 for gap in docdb['gaps'] if gap['blocking'])} place(s), "
         "and nothing about it has been tested. Run these probes on a real cluster before considering it."
     )
@@ -469,7 +472,7 @@ def write(
 
     lines += ["## Decision detail", "", "| Target | Evidence | Blocking gaps | Net over 12 months (base) | Decision | SubQ Snap: P(net-positive) |", "|---|---|---|---|---|---|"]
     for name, info in tco["targets"].items():
-        probability = f"{subq['probabilities'][name]:.2f}" if subq.get("available") else f"unavailable ({subq.get('reason')})"
+        probability = brief.probability(subq['probabilities'][name]) if subq.get("available") else f"unavailable ({subq.get('reason')})"
         lines.append(
             f"| {name} | {info['evidence']} | {sum(1 for gap in info['gaps'] if gap['blocking'])} | {_money(info['economics']['net']['base'])} | {info['decision_text']} | {probability} |"
         )

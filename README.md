@@ -41,7 +41,7 @@ FerretDB's own [compatibility page](https://docs.ferretdb.io/migration/compatibi
 - **Clean migration to FerretDB**, with nothing injected: data and change events match exactly, yet 6 of 23 checks fail. The case-insensitive unique index and the schema validator don't survive. On day one, a duplicate account (same email, different case) and an invalid order are both accepted, and two business rules break.
 - **Drill**, with a CDC gap and a dropped unique index injected on purpose: the verifier caught both, finding 21 of the 27 affected documents out of sync. The other 6 were healed by later change events. The oplog count also exposed the gap.
 
-**Upgrade check.** From FerretDB 2.2.0 to 2.7.0, none of the failing behaviors were fixed, and the revenue report stayed at about 4.3 s. Window functions did get about 8× faster.
+**Upgrade check.** From FerretDB 2.2.0 to 2.7.0, none of the failing behaviors were fixed, and the revenue report stayed at about 4.1–4.4 s. Window functions did get about 2× faster (8.9 → 4.4 ms).
 
 **Business questions.** The pipeline asks both systems eight questions the business runs on: revenue, refunds, orders by status, active customers, top products, coupon redemptions, stock on hand, and customers by tier.
 - **On the same untouched data**, all 8 answers match. FerretDB computes these aggregates correctly.

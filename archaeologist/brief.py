@@ -179,6 +179,15 @@ def top_risks(tco: dict, ledger: dict, cutover: dict | None, limit: int = 5) -> 
     return ranked[:limit]
 
 
+def probability(value: float) -> str:
+    """Small probabilities read as '<0.001' rather than a misleading '0.00'."""
+    if value < 0.001:
+        return "<0.001"
+    if value > 0.999:
+        return ">0.999"
+    return f"{value:.2f}" if value >= 0.01 else f"{value:.3f}"
+
+
 def confidence_label(name: str, info: dict, self_check: dict | None, subq: dict) -> str:
     if info["evidence"] == "INFERRED":
         return "Low: documentation only, nothing measured"
@@ -186,7 +195,7 @@ def confidence_label(name: str, info: dict, self_check: dict | None, subq: dict)
     level = "High" if clean_self_check else "Medium"
     reason = "measured; self-check clean" if clean_self_check else "measured; self-check not run"
     if subq.get("available"):
-        reason += f"; SubQ P(net-positive) {subq['probabilities'][name]:.2f}"
+        reason += f"; SubQ P(net-positive) {probability(subq['probabilities'][name])}"
     return f"{level} ({reason})"
 
 

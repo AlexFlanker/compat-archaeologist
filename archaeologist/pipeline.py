@@ -9,7 +9,7 @@ import time
 from rich.console import Console
 from rich.table import Table
 
-from archaeologist import business_questions, cutover, docdb_inferred, explain_compare, extract_data, extract_querylog, ledger as ledger_module, memo, meta_client, probes, scoreboard, store, subq_client, tco, upgrade
+from archaeologist import brief, business_questions, cutover, docdb_inferred, explain_compare, extract_data, extract_querylog, ledger as ledger_module, memo, meta_client, probes, scoreboard, store, subq_client, tco, upgrade
 from archaeologist.config import OUT_DIR, ROOT, source_client, target_client
 from archaeologist.diff import run as run_diff
 from scripts.seed import PROFILES, database_names, seed_database
@@ -110,7 +110,7 @@ def _decision_table(result: dict) -> Table:
         table.add_column(column)
     subq = result["subq"]
     for name, info in result["targets"].items():
-        probability = f"{subq['probabilities'][name]:.2f}" if subq.get("available") else "unavailable"
+        probability = brief.probability(subq['probabilities'][name]) if subq.get("available") else "unavailable"
         table.add_row(
             name,
             info["evidence"],
@@ -253,7 +253,36 @@ def main() -> int:
     saved = store.save(profile, runs["run_id"], ledger, runs, result, text)
     console.print(f"  Atlas: {'saved to ' + saved['database'] + '.' + saved['collection'] if saved['saved'] else '[yellow]skipped[/] (' + saved['reason'] + ')'}")
     console.print(f"[bold]Done in {time.perf_counter() - started:.0f}s[/]")
+    _banner(profile, result)
     return 0
+
+
+def _call_summary(name: str) -> str:
+    path = ROOT / "logs" / name
+    if not path.exists():
+        return "none"
+    counts: dict[str, int] = {}
+    for line in path.read_text().splitlines():
+        entry = json.loads(line)
+        if entry.get("status") != "ok" or "smoke_test" in entry.get("purpose", ""):
+            continue
+        purpose = entry["purpose"].split(":")[0].replace("_", " ")
+        counts[purpose] = counts.get(purpose, 0) + 1
+    return ", ".join(f"{purpose} {count}" for purpose, count in sorted(counts.items(), key=lambda item: -item[1])) or "none"
+
+
+def _banner(profile: str, result: dict) -> None:
+    from rich.panel import Panel
+
+    headline = memo._headline(profile, result).replace("**", "")
+    lines = [
+        f"[bold]{headline}[/]",
+        "",
+        f"Memo: out/{profile}/memo.md",
+        f"Meta Muse calls today: {_call_summary('meta_calls.jsonl')}",
+        f"SubQ Snap calls today: {_call_summary('subq_calls.jsonl')}",
+    ]
+    console.print(Panel("\n".join(lines), title="Compat Archaeologist", border_style="cyan"))
 
 
 if __name__ == "__main__":
