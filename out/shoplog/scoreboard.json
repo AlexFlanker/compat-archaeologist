@@ -1,10 +1,10 @@
 {
   "profile": "shoplog",
   "answer_key": "docs/RULES.md",
-  "code_evidence_source": "static_scan_only",
-  "found": 8,
-  "partly": 1,
-  "labels_correct": 9,
+  "code_evidence_source": "muse_cached",
+  "found": 10,
+  "partly": 0,
+  "labels_correct": 10,
   "total": 10,
   "rows": [
     {
@@ -20,8 +20,12 @@
           "text": "[orders] customers.tier=legacy_vip \u21d2 coupon_code is absent"
         },
         {
-          "ref": "B19 (INV-019)",
-          "text": "customers.tier=legacy_vip \u21d2 coupon_code is absent [orders]"
+          "ref": "B31 (INV-017, INV-018, INV-020)",
+          "text": "Tier discount is bronze 0%, silver 5%, gold 10%, legacy_vip 15% off subtotal, so silver, gold and legacy_vip orders have discount > 0."
+        },
+        {
+          "ref": "B33 (INV-019, shoplog/pricing.py:13)",
+          "text": "legacy_vip tier cannot use coupons - any coupon is ignored for legacy_vip, so legacy_vip orders have coupon_code absent."
         }
       ]
     },
@@ -52,8 +56,8 @@
           "text": "[orders] shipping=0 when subtotal - discount \u2265 7500, otherwise shipping=795"
         },
         {
-          "ref": "B28 (INV-028)",
-          "text": "shipping=0 when subtotal - discount \u2265 7500, otherwise shipping=795 [orders]"
+          "ref": "B35 (INV-027, INV-028, shoplog/pricing.py:18)",
+          "text": "Discounted merchandise (subtotal - discount) of 7500 or more gets free shipping (shipping 0), otherwise shipping is 795 flat; shipping is 0 when subtotal - disc"
         }
       ]
     },
@@ -70,8 +74,12 @@
           "text": "[orders] tax is absent before ~2021-01-01 and int from then on (placed_at)"
         },
         {
-          "ref": "B26 (INV-026)",
-          "text": "tax is absent before ~2021-01-01 and int from then on (placed_at) [orders]"
+          "ref": "B36 (shoplog/pricing.py:19)",
+          "text": "Tax is 8.5% (850 bps) applied to discounted merchandise excluding shipping."
+        },
+        {
+          "ref": "B49 (INV-026)",
+          "text": "Tax was introduced around 2021-01-01: tax is absent before ~2021-01-01 and stored as int from then on."
         }
       ]
     },
@@ -100,29 +108,34 @@
     {
       "rule": "R6",
       "title": "Order state machine; only placed or paid can be cancelled",
-      "found": "partly",
+      "found": "yes",
       "expected_label": "OBSERVED",
       "label": "OBSERVED",
       "label_correct": true,
       "evidence": [
         {
-          "ref": "INV-002",
-          "text": "[orders] status=cancelled \u21d2 delivered_at is absent"
-        },
-        {
-          "ref": "B02 (INV-002)",
-          "text": "status=cancelled \u21d2 delivered_at is absent [orders]"
+          "ref": "B25 (shoplog/orders.py:11)",
+          "text": "An order can be cancelled only from 2 prior statuses: placed or paid, never after shipped."
         }
       ]
     },
     {
       "rule": "R7",
       "title": "Refund window: 30 days, 90 for legacy_vip",
-      "found": "no",
+      "found": "yes",
       "expected_label": "INFERRED",
-      "label": null,
-      "label_correct": null,
-      "evidence": []
+      "label": "INFERRED",
+      "label_correct": true,
+      "evidence": [
+        {
+          "ref": "B37 (shoplog/refunds.py:7)",
+          "text": "Orders in the legacy_vip tier may be refunded up to 90 days after delivered_at."
+        },
+        {
+          "ref": "B38 (shoplog/refunds.py:8)",
+          "text": "Orders in all other tiers may be refunded up to 30 days after delivered_at."
+        }
+      ]
     },
     {
       "rule": "R8",
@@ -137,8 +150,8 @@
           "text": "[orders.items[]] category=clearance \u21d2 refund_status=none"
         },
         {
-          "ref": "B29 (INV-029)",
-          "text": "category=clearance \u21d2 refund_status=none [orders.items[]]"
+          "ref": "B39 (INV-029, shoplog/refunds.py:9)",
+          "text": "Items in the clearance category are final sale and are never eligible for refund, so clearance items have refund_status none."
         }
       ]
     },
@@ -159,8 +172,8 @@
           "text": "[orders] status=refunded \u21d2 refund_total > 0"
         },
         {
-          "ref": "B08 (INV-008)",
-          "text": "status=partially_refunded \u21d2 refund_total > 0 [orders]"
+          "ref": "B17 (INV-001, INV-003, INV-008)",
+          "text": "Every new order starts with refund_total of 0 and only orders whose status is delivered or partially_refunded can be refunded; after a refund the order status b"
         }
       ]
     },
@@ -179,6 +192,10 @@
         {
           "ref": "catalog:carts.active_cart_expiry",
           "text": "carts.active_cart_expiry is TTL, expireAfterSeconds=0"
+        },
+        {
+          "ref": "B06 (shoplog/carts.py:7)",
+          "text": "A cart's lifetime is 24 hours after its last touch/update."
         }
       ]
     }

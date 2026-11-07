@@ -1,7 +1,7 @@
 {
   "profile": "shoplog",
-  "code_evidence_source": "static_scan_only",
-  "code_model": null,
+  "code_evidence_source": "muse_cached",
+  "code_model": "muse-spark-1.3",
   "citations_dropped": 0,
   "atlas": null,
   "operators": {
@@ -56,7 +56,7 @@
     {
       "id": "F1",
       "feature": "$lookup sub-pipeline + $facet",
-      "behavior": "Code uses $lookup | Code uses $facet",
+      "behavior": "revenue report must join orders to customers via $lookup sub-pipeline and return by_tier, by_month and 5 largest orders in a single $facet aggregation",
       "why_risky": "Partial or different support across compatible engines",
       "sources": [
         {
@@ -67,24 +67,24 @@
         },
         {
           "type": "code",
-          "ref": "shoplog/analytics.py:21",
-          "token": "$lookup",
-          "detail": "Code uses $lookup",
-          "origin": "static_scan_only"
+          "ref": "shoplog/analytics.py:33",
+          "token": "$facet",
+          "detail": "revenue report must join orders to customers via $lookup sub-pipeline and return by_tier, by_month and 5 largest orders in a single $facet aggregation",
+          "origin": "muse_cached"
         },
         {
           "type": "code",
-          "ref": "shoplog/analytics.py:33",
-          "token": "$facet",
-          "detail": "Code uses $facet",
-          "origin": "static_scan_only"
+          "ref": "shoplog/analytics.py:21",
+          "token": "$lookup",
+          "detail": "Static token match on $lookup",
+          "origin": "static_scan"
         },
         {
           "type": "code",
           "ref": "shoplog/analytics.py:61",
           "token": "$lookup",
-          "detail": "Code uses $lookup",
-          "origin": "static_scan_only"
+          "detail": "Static token match on $lookup",
+          "origin": "static_scan"
         }
       ],
       "independent_sources": 2,
@@ -286,7 +286,7 @@
     {
       "id": "F2",
       "feature": "$setWindowFields",
-      "behavior": "Code uses $setWindowFields | Code uses $documentNumber | Code uses $shift",
+      "behavior": "customer spend timeline must compute running_total, 90-day rolling sum, sequence number and previous order date partitioned by customer ordered by placed_at",
       "why_risky": "Newer stage, often missing or limited to some window operators",
       "sources": [
         {
@@ -299,22 +299,22 @@
           "type": "code",
           "ref": "shoplog/analytics.py:81",
           "token": "$setWindowFields",
-          "detail": "Code uses $setWindowFields",
-          "origin": "static_scan_only"
+          "detail": "customer spend timeline must compute running_total, 90-day rolling sum, sequence number and previous order date partitioned by customer ordered by placed_at",
+          "origin": "muse_cached"
         },
         {
           "type": "code",
           "ref": "shoplog/analytics.py:87",
           "token": "$documentNumber",
-          "detail": "Code uses $documentNumber",
-          "origin": "static_scan_only"
+          "detail": "Static token match on $documentNumber",
+          "origin": "static_scan"
         },
         {
           "type": "code",
           "ref": "shoplog/analytics.py:88",
           "token": "$shift",
-          "detail": "Code uses $shift",
-          "origin": "static_scan_only"
+          "detail": "Static token match on $shift",
+          "origin": "static_scan"
         }
       ],
       "independent_sources": 2,
@@ -421,7 +421,7 @@
     {
       "id": "F3",
       "feature": "arrayFilters / positional $[<id>] updates",
-      "behavior": "Code uses $[line] | Code uses array_filters | Code uses $[]",
+      "behavior": "mark only the requested order lines as refunded with a filtered positional update guarded by line_id list and refund_status none | mark every order line as reviewed in a single update using the all-positional $[] operator",
       "why_risky": "Semantic gaps in array element matching",
       "sources": [
         {
@@ -437,31 +437,31 @@
         },
         {
           "type": "code",
+          "ref": "shoplog/refunds.py:46",
+          "token": "array_filters",
+          "detail": "mark only the requested order lines as refunded with a filtered positional update guarded by line_id list and refund_status none",
+          "origin": "muse_cached"
+        },
+        {
+          "type": "code",
+          "ref": "shoplog/refunds.py:69",
+          "token": "items.$[].reviewed_by",
+          "detail": "mark every order line as reviewed in a single update using the all-positional $[] operator",
+          "origin": "muse_cached"
+        },
+        {
+          "type": "code",
           "ref": "shoplog/refunds.py:40",
           "token": "$[line]",
-          "detail": "Code uses $[line]",
-          "origin": "static_scan_only"
+          "detail": "Static token match on $[line]",
+          "origin": "static_scan"
         },
         {
           "type": "code",
           "ref": "shoplog/refunds.py:41",
           "token": "$[line]",
-          "detail": "Code uses $[line]",
-          "origin": "static_scan_only"
-        },
-        {
-          "type": "code",
-          "ref": "shoplog/refunds.py:46",
-          "token": "array_filters",
-          "detail": "Code uses array_filters",
-          "origin": "static_scan_only"
-        },
-        {
-          "type": "code",
-          "ref": "shoplog/refunds.py:69",
-          "token": "$[]",
-          "detail": "Code uses $[]",
-          "origin": "static_scan_only"
+          "detail": "Static token match on $[line]",
+          "origin": "static_scan"
         }
       ],
       "independent_sources": 3,
@@ -528,7 +528,7 @@
     {
       "id": "F4",
       "feature": "Multi-document transactions",
-      "behavior": "Code uses start_transaction",
+      "behavior": "checkout must atomically reserve inventory for all lines, insert the order, and convert the cart in one transaction, rolling back all reservations if any line is out of stock or the order insert fails",
       "why_risky": "Limits and rollback behavior differ",
       "sources": [
         {
@@ -541,8 +541,8 @@
           "type": "code",
           "ref": "shoplog/checkout.py:57",
           "token": "start_transaction",
-          "detail": "Code uses start_transaction",
-          "origin": "static_scan_only"
+          "detail": "checkout must atomically reserve inventory for all lines, insert the order, and convert the cart in one transaction, rolling back all reservations if any line is out of stock or the order insert fails",
+          "origin": "muse_cached"
         }
       ],
       "independent_sources": 2,
@@ -563,7 +563,7 @@
     {
       "id": "F5",
       "feature": "Change streams",
-      "behavior": "Code uses .watch(",
+      "behavior": "inventory sync tails the inventory collection with a change stream filtered to update/replace, using fullDocument updateLookup and resume_after with non-blocking polling to emit an event per change without loss on restart",
       "why_risky": "Support, retention and event shape differ",
       "sources": [
         {
@@ -575,9 +575,9 @@
         {
           "type": "code",
           "ref": "shoplog/inventory_sync.py:15",
-          "token": ".watch(",
-          "detail": "Code uses .watch(",
-          "origin": "static_scan_only"
+          "token": "watch",
+          "detail": "inventory sync tails the inventory collection with a change stream filtered to update/replace, using fullDocument updateLookup and resume_after with non-blocking polling to emit an event per change without loss on restart",
+          "origin": "muse_cached"
         }
       ],
       "independent_sources": 2,
@@ -599,7 +599,7 @@
     {
       "id": "F6",
       "feature": "Case-insensitive collation index",
-      "behavior": "Code uses collation= | Code uses Collation(",
+      "behavior": "customer lookup by email must match case-insensitively using collation | customer email uniqueness is case-insensitive via collation index",
       "why_risky": "Often unsupported, which breaks uniqueness and lookups",
       "sources": [
         {
@@ -621,23 +621,23 @@
         {
           "type": "code",
           "ref": "shoplog/customers.py:9",
-          "token": "collation=",
-          "detail": "Code uses collation=",
-          "origin": "static_scan_only"
+          "token": "collation=EMAIL_COLLATION",
+          "detail": "customer lookup by email must match case-insensitively using collation",
+          "origin": "muse_cached"
+        },
+        {
+          "type": "code",
+          "ref": "shoplog/schema.py:60",
+          "token": "collation",
+          "detail": "customer email uniqueness is case-insensitive via collation index",
+          "origin": "muse_cached"
         },
         {
           "type": "code",
           "ref": "shoplog/schema.py:9",
           "token": "Collation(",
-          "detail": "Code uses Collation(",
-          "origin": "static_scan_only"
-        },
-        {
-          "type": "code",
-          "ref": "shoplog/schema.py:60",
-          "token": "collation=",
-          "detail": "Code uses collation=",
-          "origin": "static_scan_only"
+          "detail": "Static token match on Collation(",
+          "origin": "static_scan"
         }
       ],
       "independent_sources": 3,
@@ -666,7 +666,7 @@
     {
       "id": "F7",
       "feature": "Partial index + TTL index",
-      "behavior": "Code uses partialFilterExpression | Code uses expireAfterSeconds",
+      "behavior": "coupon_code uniqueness per customer is enforced only when coupon_code exists via partial unique index | active carts auto-delete at expires_at via TTL index limited to status active",
       "why_risky": "Filter expressions and expiry behavior differ",
       "sources": [
         {
@@ -694,22 +694,22 @@
           "type": "code",
           "ref": "shoplog/schema.py:53",
           "token": "partialFilterExpression",
-          "detail": "Code uses partialFilterExpression",
-          "origin": "static_scan_only"
+          "detail": "coupon_code uniqueness per customer is enforced only when coupon_code exists via partial unique index",
+          "origin": "muse_cached"
         },
         {
           "type": "code",
           "ref": "shoplog/schema.py:67",
           "token": "expireAfterSeconds",
-          "detail": "Code uses expireAfterSeconds",
-          "origin": "static_scan_only"
+          "detail": "active carts auto-delete at expires_at via TTL index limited to status active",
+          "origin": "muse_cached"
         },
         {
           "type": "code",
           "ref": "shoplog/schema.py:68",
           "token": "partialFilterExpression",
-          "detail": "Code uses partialFilterExpression",
-          "origin": "static_scan_only"
+          "detail": "Static token match on partialFilterExpression",
+          "origin": "static_scan"
         }
       ],
       "independent_sources": 3,
@@ -721,7 +721,7 @@
     {
       "id": "F8",
       "feature": "$jsonSchema validator",
-      "behavior": "Code uses $jsonSchema | Code uses validator=",
+      "behavior": "orders collection enforces $jsonSchema validation requiring customer_id, status, items, total and placed_at",
       "why_risky": "Validation may be limited or silently not enforced",
       "sources": [
         {
@@ -739,15 +739,15 @@
           "type": "code",
           "ref": "shoplog/schema.py:12",
           "token": "$jsonSchema",
-          "detail": "Code uses $jsonSchema",
-          "origin": "static_scan_only"
+          "detail": "orders collection enforces $jsonSchema validation requiring customer_id, status, items, total and placed_at",
+          "origin": "muse_cached"
         },
         {
           "type": "code",
           "ref": "shoplog/schema.py:42",
           "token": "validator=",
-          "detail": "Code uses validator=",
-          "origin": "static_scan_only"
+          "detail": "Static token match on validator=",
+          "origin": "static_scan"
         }
       ],
       "independent_sources": 3,
@@ -759,7 +759,7 @@
     {
       "id": "F9",
       "feature": "$text search",
-      "behavior": "Code uses $meta | Code uses $text",
+      "behavior": "keyword product search depends on MongoDB $text search with textScore ranking for matching query terms in active products | product search relies on text index over name, description and tags",
       "why_risky": "Scoring, exclusion terms and language handling differ",
       "sources": [
         {
@@ -775,31 +775,38 @@
         },
         {
           "type": "code",
-          "ref": "shoplog/catalog.py:15",
-          "token": "$meta",
-          "detail": "Code uses $meta",
-          "origin": "static_scan_only"
+          "ref": "shoplog/catalog.py:32",
+          "token": "$text",
+          "detail": "keyword product search depends on MongoDB $text search with textScore ranking for matching query terms in active products",
+          "origin": "muse_cached"
         },
         {
           "type": "code",
-          "ref": "shoplog/catalog.py:32",
-          "token": "$text",
-          "detail": "Code uses $text",
-          "origin": "static_scan_only"
+          "ref": "shoplog/schema.py:76",
+          "token": "TEXT",
+          "detail": "product search relies on text index over name, description and tags",
+          "origin": "muse_cached"
+        },
+        {
+          "type": "code",
+          "ref": "shoplog/catalog.py:15",
+          "token": "$meta",
+          "detail": "Static token match on $meta",
+          "origin": "static_scan"
         },
         {
           "type": "code",
           "ref": "shoplog/catalog.py:33",
           "token": "$meta",
-          "detail": "Code uses $meta",
-          "origin": "static_scan_only"
+          "detail": "Static token match on $meta",
+          "origin": "static_scan"
         },
         {
           "type": "code",
           "ref": "shoplog/catalog.py:35",
           "token": "$meta",
-          "detail": "Code uses $meta",
-          "origin": "static_scan_only"
+          "detail": "Static token match on $meta",
+          "origin": "static_scan"
         }
       ],
       "independent_sources": 3,
@@ -840,7 +847,7 @@
     {
       "id": "F10",
       "feature": "Plain CRUD by _id and simple filters",
-      "behavior": "Code uses update_one( | Code uses find_one( | Code uses delete_one( | Code uses insert_one( | Code uses count_documents(",
+      "behavior": "touching a cart must atomically create-or-update the cart document by _id via upsert while marking it active | fetching the shopper's current cart depends on a plain find by customer_id and status active | discarding a cart must delete it only when its _id is still active | converting a cart must update its status to converted with order_id by _id | browsing products in a category depends on plain find filtering by category and active flag sorted by _id | application stores and retrieves orders using only plain CRUD by _id and simple equality filters on customer_id and status with sort and limit, insert, update, delete and count | customer registration must insert a new customer document keyed by _id | adding loyalty points must atomically increment loyalty_points for the customer _id | startup must load the persisted change-stream resume token with a plain find by _id inventory in sync_state, starting from scratch when missing | each observed change must durably append an inventory_events document with sku, on_hand and clusterTime via plain insert | progress must be checkpointed with a plain upsert replace by _id inventory storing stream.resume_token after each processed change | order status transition must atomically compare-and-set: update succeeds only if current status is in the allowed prior set, otherwise no modification, while atomically setting status/updated_at and pushing a history entry | customer order history depends on plain find by customer_id with field proj",
       "why_risky": "Control group: expected to behave the same",
       "sources": [
         {
@@ -877,163 +884,205 @@
         {
           "type": "code",
           "ref": "shoplog/carts.py:11",
-          "token": "update_one(",
-          "detail": "Code uses update_one(",
-          "origin": "static_scan_only"
+          "token": "update_one",
+          "detail": "touching a cart must atomically create-or-update the cart document by _id via upsert while marking it active",
+          "origin": "muse_cached"
         },
         {
           "type": "code",
           "ref": "shoplog/carts.py:27",
-          "token": "find_one(",
-          "detail": "Code uses find_one(",
-          "origin": "static_scan_only"
+          "token": "find_one",
+          "detail": "fetching the shopper's current cart depends on a plain find by customer_id and status active",
+          "origin": "muse_cached"
         },
         {
           "type": "code",
           "ref": "shoplog/carts.py:31",
-          "token": "delete_one(",
-          "detail": "Code uses delete_one(",
-          "origin": "static_scan_only"
+          "token": "delete_one",
+          "detail": "discarding a cart must delete it only when its _id is still active",
+          "origin": "muse_cached"
         },
         {
           "type": "code",
           "ref": "shoplog/carts.py:35",
-          "token": "update_one(",
-          "detail": "Code uses update_one(",
-          "origin": "static_scan_only"
+          "token": "update_one",
+          "detail": "converting a cart must update its status to converted with order_id by _id",
+          "origin": "muse_cached"
+        },
+        {
+          "type": "code",
+          "ref": "shoplog/catalog.py:41",
+          "token": "find",
+          "detail": "browsing products in a category depends on plain find filtering by category and active flag sorted by _id",
+          "origin": "muse_cached"
+        },
+        {
+          "type": "code",
+          "ref": "shoplog/crud.py:9",
+          "token": "find_one",
+          "detail": "application stores and retrieves orders using only plain CRUD by _id and simple equality filters on customer_id and status with sort and limit, insert, update, delete and count",
+          "origin": "muse_cached"
+        },
+        {
+          "type": "code",
+          "ref": "shoplog/customers.py:13",
+          "token": "insert_one",
+          "detail": "customer registration must insert a new customer document keyed by _id",
+          "origin": "muse_cached"
+        },
+        {
+          "type": "code",
+          "ref": "shoplog/customers.py:19",
+          "token": "$inc",
+          "detail": "adding loyalty points must atomically increment loyalty_points for the customer _id",
+          "origin": "muse_cached"
+        },
+        {
+          "type": "code",
+          "ref": "shoplog/inventory_sync.py:12",
+          "token": "find_one",
+          "detail": "startup must load the persisted change-stream resume token with a plain find by _id inventory in sync_state, starting from scratch when missing",
+          "origin": "muse_cached"
+        },
+        {
+          "type": "code",
+          "ref": "shoplog/inventory_sync.py:27",
+          "token": "insert_one",
+          "detail": "each observed change must durably append an inventory_events document with sku, on_hand and clusterTime via plain insert",
+          "origin": "muse_cached"
+        },
+        {
+          "type": "code",
+          "ref": "shoplog/inventory_sync.py:34",
+          "token": "replace_one",
+          "detail": "progress must be checkpointed with a plain upsert replace by _id inventory storing stream.resume_token after each processed change",
+          "origin": "muse_cached"
+        },
+        {
+          "type": "code",
+          "ref": "shoplog/orders.py:26",
+          "token": "update_one",
+          "detail": "order status transition must atomically compare-and-set: update succeeds only if current status is in the allowed prior set, otherwise no modification, while atomically setting status/updated_at and pushing a history entry",
+          "origin": "muse_cached"
+        },
+        {
+          "type": "code",
+          "ref": "shoplog/orders.py:34",
+          "token": "customer_id",
+          "detail": "customer order history depends on plain find by customer_id with field projection and deterministic sorted pagination by placed_at descending then _id ascending with limit",
+          "origin": "muse_cached"
+        },
+        {
+          "type": "code",
+          "ref": "shoplog/orders.py:44",
+          "token": "items.sku",
+          "detail": "finding orders containing a SKU depends on equality match on array-element field items.sku combined with placed_at lower-bound filter and sorted limit pagination",
+          "origin": "muse_cached"
+        },
+        {
+          "type": "code",
+          "ref": "shoplog/orders.py:51",
+          "token": "find",
+          "detail": "listing open orders depends on plain equality find by status with sorted pagination by placed_at descending then _id ascending with limit",
+          "origin": "muse_cached"
+        },
+        {
+          "type": "code",
+          "ref": "shoplog/refunds.py:18",
+          "token": "find_one",
+          "detail": "fetch the order document by _id to validate refund eligibility before any write",
+          "origin": "muse_cached"
+        },
+        {
+          "type": "code",
+          "ref": "shoplog/refunds.py:49",
+          "token": "count_documents",
+          "detail": "check for remaining non-refunded non-clearance lines by _id to decide whether the order becomes partially_refunded or refunded",
+          "origin": "muse_cached"
+        },
+        {
+          "type": "code",
+          "ref": "shoplog/refunds.py:63",
+          "token": "$push",
+          "detail": "append the new order status to the history array with $push when finalizing a refund",
+          "origin": "muse_cached"
         },
         {
           "type": "code",
           "ref": "shoplog/checkout.py:59",
           "token": "update_one(",
-          "detail": "Code uses update_one(",
-          "origin": "static_scan_only"
+          "detail": "Static token match on update_one(",
+          "origin": "static_scan"
         },
         {
           "type": "code",
           "ref": "shoplog/checkout.py:66",
           "token": "insert_one(",
-          "detail": "Code uses insert_one(",
-          "origin": "static_scan_only"
+          "detail": "Static token match on insert_one(",
+          "origin": "static_scan"
         },
         {
           "type": "code",
           "ref": "shoplog/checkout.py:68",
           "token": "update_one(",
-          "detail": "Code uses update_one(",
-          "origin": "static_scan_only"
-        },
-        {
-          "type": "code",
-          "ref": "shoplog/crud.py:9",
-          "token": "find_one(",
-          "detail": "Code uses find_one(",
-          "origin": "static_scan_only"
+          "detail": "Static token match on update_one(",
+          "origin": "static_scan"
         },
         {
           "type": "code",
           "ref": "shoplog/crud.py:21",
           "token": "insert_one(",
-          "detail": "Code uses insert_one(",
-          "origin": "static_scan_only"
+          "detail": "Static token match on insert_one(",
+          "origin": "static_scan"
         },
         {
           "type": "code",
           "ref": "shoplog/crud.py:25",
           "token": "update_one(",
-          "detail": "Code uses update_one(",
-          "origin": "static_scan_only"
+          "detail": "Static token match on update_one(",
+          "origin": "static_scan"
         },
         {
           "type": "code",
           "ref": "shoplog/crud.py:29",
           "token": "delete_one(",
-          "detail": "Code uses delete_one(",
-          "origin": "static_scan_only"
+          "detail": "Static token match on delete_one(",
+          "origin": "static_scan"
         },
         {
           "type": "code",
           "ref": "shoplog/crud.py:33",
           "token": "count_documents(",
-          "detail": "Code uses count_documents(",
-          "origin": "static_scan_only"
+          "detail": "Static token match on count_documents(",
+          "origin": "static_scan"
         },
         {
           "type": "code",
           "ref": "shoplog/customers.py:9",
           "token": "find_one(",
-          "detail": "Code uses find_one(",
-          "origin": "static_scan_only"
-        },
-        {
-          "type": "code",
-          "ref": "shoplog/customers.py:13",
-          "token": "insert_one(",
-          "detail": "Code uses insert_one(",
-          "origin": "static_scan_only"
-        },
-        {
-          "type": "code",
-          "ref": "shoplog/customers.py:19",
-          "token": "update_one(",
-          "detail": "Code uses update_one(",
-          "origin": "static_scan_only"
-        },
-        {
-          "type": "code",
-          "ref": "shoplog/inventory_sync.py:12",
-          "token": "find_one(",
-          "detail": "Code uses find_one(",
-          "origin": "static_scan_only"
-        },
-        {
-          "type": "code",
-          "ref": "shoplog/inventory_sync.py:27",
-          "token": "insert_one(",
-          "detail": "Code uses insert_one(",
-          "origin": "static_scan_only"
-        },
-        {
-          "type": "code",
-          "ref": "shoplog/orders.py:26",
-          "token": "update_one(",
-          "detail": "Code uses update_one(",
-          "origin": "static_scan_only"
-        },
-        {
-          "type": "code",
-          "ref": "shoplog/refunds.py:18",
-          "token": "find_one(",
-          "detail": "Code uses find_one(",
-          "origin": "static_scan_only"
+          "detail": "Static token match on find_one(",
+          "origin": "static_scan"
         },
         {
           "type": "code",
           "ref": "shoplog/refunds.py:36",
           "token": "update_one(",
-          "detail": "Code uses update_one(",
-          "origin": "static_scan_only"
-        },
-        {
-          "type": "code",
-          "ref": "shoplog/refunds.py:49",
-          "token": "count_documents(",
-          "detail": "Code uses count_documents(",
-          "origin": "static_scan_only"
+          "detail": "Static token match on update_one(",
+          "origin": "static_scan"
         },
         {
           "type": "code",
           "ref": "shoplog/refunds.py:61",
           "token": "update_one(",
-          "detail": "Code uses update_one(",
-          "origin": "static_scan_only"
+          "detail": "Static token match on update_one(",
+          "origin": "static_scan"
         },
         {
           "type": "code",
           "ref": "shoplog/refunds.py:69",
           "token": "update_one(",
-          "detail": "Code uses update_one(",
-          "origin": "static_scan_only"
+          "detail": "Static token match on update_one(",
+          "origin": "static_scan"
         }
       ],
       "independent_sources": 3,
@@ -1151,462 +1200,936 @@
     {
       "id": "F11",
       "feature": "Atlas Search ($search with a search index)",
-      "behavior": "Code uses {\"$search\": {\"index\" | Code uses create_search_index(",
+      "behavior": "storefront search depends on Atlas Search compound fuzzy text query over name, description and tags filtered to active products with searchScore ranking | name autocomplete depends on Atlas Search autocomplete operator on the name field using the storefront search index | storefront search depends on Atlas Search index named storefront with autocomplete mapping",
       "why_risky": "Atlas-only: other engines need a separate search service",
       "sources": [
         {
           "type": "code",
           "ref": "shoplog/catalog.py:10",
-          "token": "{\"$search\": {\"index\"",
-          "detail": "Code uses {\"$search\": {\"index\"",
-          "origin": "static_scan_only"
+          "token": "$search",
+          "detail": "storefront search depends on Atlas Search compound fuzzy text query over name, description and tags filtered to active products with searchScore ranking",
+          "origin": "muse_cached"
         },
         {
           "type": "code",
           "ref": "shoplog/catalog.py:22",
-          "token": "{\"$search\": {\"index\"",
-          "detail": "Code uses {\"$search\": {\"index\"",
-          "origin": "static_scan_only"
+          "token": "autocomplete",
+          "detail": "name autocomplete depends on Atlas Search autocomplete operator on the name field using the storefront search index",
+          "origin": "muse_cached"
         },
         {
           "type": "code",
           "ref": "shoplog/schema.py:106",
-          "token": "create_search_index(",
-          "detail": "Code uses create_search_index(",
-          "origin": "static_scan_only"
+          "token": "create_search_index",
+          "detail": "storefront search depends on Atlas Search index named storefront with autocomplete mapping",
+          "origin": "muse_cached"
         }
       ],
       "independent_sources": 1,
       "status": "INFERRED",
-      "confidence": null,
-      "confidence_basis": "unknown: SUBQ_API_KEY is not set",
+      "confidence": 0.959,
+      "confidence_basis": "subq-snap-1.1, single source",
       "sample_operations": []
     },
     {
       "id": "X:graphLookup",
       "feature": "graphLookup",
-      "behavior": "Code uses $graphLookup",
+      "behavior": "referral chain report depends on $graphLookup to recursively follow referred_by to _id in customers and collect ancestors as referrers with depth tracking",
       "why_risky": "Unusual stage outside the common subset",
       "sources": [
         {
           "type": "code",
           "ref": "shoplog/legacy_reports.py:10",
           "token": "$graphLookup",
-          "detail": "Code uses $graphLookup",
-          "origin": "static_scan_only"
+          "detail": "referral chain report depends on $graphLookup to recursively follow referred_by to _id in customers and collect ancestors as referrers with depth tracking",
+          "origin": "muse_cached"
         }
       ],
       "independent_sources": 1,
       "status": "INFERRED",
-      "confidence": null,
-      "confidence_basis": "unknown: SUBQ_API_KEY is not set",
+      "confidence": 0.575,
+      "confidence_basis": "subq-snap-1.1, single source",
       "sample_operations": []
     }
   ],
   "behaviors": [
     {
       "id": "B01",
-      "statement": "status=cancelled \u21d2 refund_total = 0 [orders]",
+      "statement": "Cancelled orders are excluded from the revenue report \u2014 only orders with status not equal to cancelled count.",
       "sources": [
         {
-          "type": "data",
-          "ref": "INV-001",
-          "count": 1231,
-          "detail": "status=cancelled \u21d2 refund_total = 0 [orders], 0 counterexamples"
+          "type": "code",
+          "ref": "shoplog/analytics.py:18",
+          "token": "cancelled"
         }
       ],
-      "status": "OBSERVED",
-      "confidence": null,
-      "confidence_basis": "unknown: SUBQ_API_KEY is not set",
+      "status": "INFERRED",
+      "confidence": 0.757,
+      "confidence_basis": "subq-snap-1.1, single source",
       "independent_sources": 1
     },
     {
       "id": "B02",
-      "statement": "status=cancelled \u21d2 delivered_at is absent [orders]",
-      "sources": [
-        {
-          "type": "data",
-          "ref": "INV-002",
-          "count": 1231,
-          "detail": "status=cancelled \u21d2 delivered_at is absent [orders], 0 counterexamples"
-        }
-      ],
-      "status": "OBSERVED",
-      "confidence": null,
-      "confidence_basis": "unknown: SUBQ_API_KEY is not set",
-      "independent_sources": 1
-    },
-    {
-      "id": "B03",
-      "statement": "status=delivered \u21d2 refund_total = 0 [orders]",
-      "sources": [
-        {
-          "type": "data",
-          "ref": "INV-003",
-          "count": 21681,
-          "detail": "status=delivered \u21d2 refund_total = 0 [orders], 0 counterexamples"
-        }
-      ],
-      "status": "OBSERVED",
-      "confidence": null,
-      "confidence_basis": "unknown: SUBQ_API_KEY is not set",
-      "independent_sources": 1
-    },
-    {
-      "id": "B04",
-      "statement": "status=delivered \u21d2 delivered_at is present [orders]",
-      "sources": [
-        {
-          "type": "data",
-          "ref": "INV-004",
-          "count": 21681,
-          "detail": "status=delivered \u21d2 delivered_at is present [orders], 0 counterexamples"
-        }
-      ],
-      "status": "OBSERVED",
-      "confidence": null,
-      "confidence_basis": "unknown: SUBQ_API_KEY is not set",
-      "independent_sources": 1
-    },
-    {
-      "id": "B05",
-      "statement": "status=paid \u21d2 delivered_at is absent [orders]",
-      "sources": [
-        {
-          "type": "data",
-          "ref": "INV-005",
-          "count": 43,
-          "detail": "status=paid \u21d2 delivered_at is absent [orders], 0 counterexamples"
-        }
-      ],
-      "status": "OBSERVED",
-      "confidence": null,
-      "confidence_basis": "unknown: SUBQ_API_KEY is not set",
-      "independent_sources": 1
-    },
-    {
-      "id": "B06",
-      "statement": "status=paid \u21d2 tax is present [orders]",
-      "sources": [
-        {
-          "type": "data",
-          "ref": "INV-006",
-          "count": 43,
-          "detail": "status=paid \u21d2 tax is present [orders], 0 counterexamples"
-        }
-      ],
-      "status": "OBSERVED",
-      "confidence": null,
-      "confidence_basis": "unknown: SUBQ_API_KEY is not set",
-      "independent_sources": 1
-    },
-    {
-      "id": "B07",
-      "statement": "status=partially_refunded \u21d2 shipping = 0 [orders]",
-      "sources": [
-        {
-          "type": "data",
-          "ref": "INV-007",
-          "count": 646,
-          "detail": "status=partially_refunded \u21d2 shipping = 0 [orders], 0 counterexamples"
-        }
-      ],
-      "status": "OBSERVED",
-      "confidence": null,
-      "confidence_basis": "unknown: SUBQ_API_KEY is not set",
-      "independent_sources": 1
-    },
-    {
-      "id": "B08",
-      "statement": "status=partially_refunded \u21d2 refund_total > 0 [orders]",
-      "sources": [
-        {
-          "type": "data",
-          "ref": "INV-008",
-          "count": 646,
-          "detail": "status=partially_refunded \u21d2 refund_total > 0 [orders], 0 counterexamples"
-        }
-      ],
-      "status": "OBSERVED",
-      "confidence": null,
-      "confidence_basis": "unknown: SUBQ_API_KEY is not set",
-      "independent_sources": 1
-    },
-    {
-      "id": "B09",
-      "statement": "status=partially_refunded \u21d2 delivered_at is present [orders]",
-      "sources": [
-        {
-          "type": "data",
-          "ref": "INV-009",
-          "count": 646,
-          "detail": "status=partially_refunded \u21d2 delivered_at is present [orders], 0 counterexamples"
-        }
-      ],
-      "status": "OBSERVED",
-      "confidence": null,
-      "confidence_basis": "unknown: SUBQ_API_KEY is not set",
-      "independent_sources": 1
-    },
-    {
-      "id": "B10",
-      "statement": "status=placed \u21d2 delivered_at is absent [orders]",
-      "sources": [
-        {
-          "type": "data",
-          "ref": "INV-010",
-          "count": 48,
-          "detail": "status=placed \u21d2 delivered_at is absent [orders], 0 counterexamples"
-        }
-      ],
-      "status": "OBSERVED",
-      "confidence": null,
-      "confidence_basis": "unknown: SUBQ_API_KEY is not set",
-      "independent_sources": 1
-    },
-    {
-      "id": "B11",
-      "statement": "status=placed \u21d2 tax is present [orders]",
-      "sources": [
-        {
-          "type": "data",
-          "ref": "INV-011",
-          "count": 48,
-          "detail": "status=placed \u21d2 tax is present [orders], 0 counterexamples"
-        }
-      ],
-      "status": "OBSERVED",
-      "confidence": null,
-      "confidence_basis": "unknown: SUBQ_API_KEY is not set",
-      "independent_sources": 1
-    },
-    {
-      "id": "B12",
-      "statement": "status=refunded \u21d2 refund_total > 0 [orders]",
-      "sources": [
-        {
-          "type": "data",
-          "ref": "INV-012",
-          "count": 1145,
-          "detail": "status=refunded \u21d2 refund_total > 0 [orders], 0 counterexamples"
-        }
-      ],
-      "status": "OBSERVED",
-      "confidence": null,
-      "confidence_basis": "unknown: SUBQ_API_KEY is not set",
-      "independent_sources": 1
-    },
-    {
-      "id": "B13",
-      "statement": "status=refunded \u21d2 delivered_at is present [orders]",
-      "sources": [
-        {
-          "type": "data",
-          "ref": "INV-013",
-          "count": 1145,
-          "detail": "status=refunded \u21d2 delivered_at is present [orders], 0 counterexamples"
-        }
-      ],
-      "status": "OBSERVED",
-      "confidence": null,
-      "confidence_basis": "unknown: SUBQ_API_KEY is not set",
-      "independent_sources": 1
-    },
-    {
-      "id": "B14",
-      "statement": "status=shipped \u21d2 refund_total = 0 [orders]",
-      "sources": [
-        {
-          "type": "data",
-          "ref": "INV-014",
-          "count": 206,
-          "detail": "status=shipped \u21d2 refund_total = 0 [orders], 0 counterexamples"
-        }
-      ],
-      "status": "OBSERVED",
-      "confidence": null,
-      "confidence_basis": "unknown: SUBQ_API_KEY is not set",
-      "independent_sources": 1
-    },
-    {
-      "id": "B15",
-      "statement": "status=shipped \u21d2 delivered_at is absent [orders]",
-      "sources": [
-        {
-          "type": "data",
-          "ref": "INV-015",
-          "count": 206,
-          "detail": "status=shipped \u21d2 delivered_at is absent [orders], 0 counterexamples"
-        }
-      ],
-      "status": "OBSERVED",
-      "confidence": null,
-      "confidence_basis": "unknown: SUBQ_API_KEY is not set",
-      "independent_sources": 1
-    },
-    {
-      "id": "B16",
-      "statement": "status=shipped \u21d2 tax is present [orders]",
-      "sources": [
-        {
-          "type": "data",
-          "ref": "INV-016",
-          "count": 206,
-          "detail": "status=shipped \u21d2 tax is present [orders], 0 counterexamples"
-        }
-      ],
-      "status": "OBSERVED",
-      "confidence": null,
-      "confidence_basis": "unknown: SUBQ_API_KEY is not set",
-      "independent_sources": 1
-    },
-    {
-      "id": "B17",
-      "statement": "customers.tier=gold \u21d2 discount > 0 [orders]",
-      "sources": [
-        {
-          "type": "data",
-          "ref": "INV-017",
-          "count": 3004,
-          "detail": "customers.tier=gold \u21d2 discount > 0 [orders], 0 counterexamples"
-        }
-      ],
-      "status": "OBSERVED",
-      "confidence": null,
-      "confidence_basis": "unknown: SUBQ_API_KEY is not set",
-      "independent_sources": 1
-    },
-    {
-      "id": "B18",
-      "statement": "customers.tier=legacy_vip \u21d2 discount > 0 [orders]",
-      "sources": [
-        {
-          "type": "data",
-          "ref": "INV-018",
-          "count": 681,
-          "detail": "customers.tier=legacy_vip \u21d2 discount > 0 [orders], 0 counterexamples"
-        }
-      ],
-      "status": "OBSERVED",
-      "confidence": null,
-      "confidence_basis": "unknown: SUBQ_API_KEY is not set",
-      "independent_sources": 1
-    },
-    {
-      "id": "B19",
-      "statement": "customers.tier=legacy_vip \u21d2 coupon_code is absent [orders]",
-      "sources": [
-        {
-          "type": "data",
-          "ref": "INV-019",
-          "count": 681,
-          "detail": "customers.tier=legacy_vip \u21d2 coupon_code is absent [orders], 0 counterexamples"
-        }
-      ],
-      "status": "OBSERVED",
-      "confidence": null,
-      "confidence_basis": "unknown: SUBQ_API_KEY is not set",
-      "independent_sources": 1
-    },
-    {
-      "id": "B20",
-      "statement": "customers.tier=silver \u21d2 discount > 0 [orders]",
-      "sources": [
-        {
-          "type": "data",
-          "ref": "INV-020",
-          "count": 6209,
-          "detail": "customers.tier=silver \u21d2 discount > 0 [orders], 0 counterexamples"
-        }
-      ],
-      "status": "OBSERVED",
-      "confidence": null,
-      "confidence_basis": "unknown: SUBQ_API_KEY is not set",
-      "independent_sources": 1
-    },
-    {
-      "id": "B21",
-      "statement": "subtotal is double before ~2018-01-01 and int from then on (placed_at) [orders]",
+      "statement": "Dollar totals stored as double are converted to cents by multiplying by 100 and rounding to 0 decimals; orders subtotal, discount, shipping, total and refund_total are double before ~2018-01-01 and int from then on.",
       "sources": [
         {
           "type": "data",
           "ref": "INV-021",
           "count": 25000,
           "detail": "subtotal is double before ~2018-01-01 and int from then on (placed_at) [orders], 0 counterexamples"
-        }
-      ],
-      "status": "OBSERVED",
-      "confidence": null,
-      "confidence_basis": "unknown: SUBQ_API_KEY is not set",
-      "independent_sources": 1
-    },
-    {
-      "id": "B22",
-      "statement": "discount is double before ~2018-01-01 and int from then on (placed_at) [orders]",
-      "sources": [
+        },
         {
           "type": "data",
           "ref": "INV-022",
           "count": 25000,
           "detail": "discount is double before ~2018-01-01 and int from then on (placed_at) [orders], 0 counterexamples"
-        }
-      ],
-      "status": "OBSERVED",
-      "confidence": null,
-      "confidence_basis": "unknown: SUBQ_API_KEY is not set",
-      "independent_sources": 1
-    },
-    {
-      "id": "B23",
-      "statement": "shipping is double before ~2018-01-01 and int from then on (placed_at) [orders]",
-      "sources": [
+        },
         {
           "type": "data",
           "ref": "INV-023",
           "count": 25000,
           "detail": "shipping is double before ~2018-01-01 and int from then on (placed_at) [orders], 0 counterexamples"
-        }
-      ],
-      "status": "OBSERVED",
-      "confidence": null,
-      "confidence_basis": "unknown: SUBQ_API_KEY is not set",
-      "independent_sources": 1
-    },
-    {
-      "id": "B24",
-      "statement": "total is double before ~2018-01-01 and int from then on (placed_at) [orders]",
-      "sources": [
+        },
         {
           "type": "data",
           "ref": "INV-024",
           "count": 25000,
           "detail": "total is double before ~2018-01-01 and int from then on (placed_at) [orders], 0 counterexamples"
-        }
-      ],
-      "status": "OBSERVED",
-      "confidence": null,
-      "confidence_basis": "unknown: SUBQ_API_KEY is not set",
-      "independent_sources": 1
-    },
-    {
-      "id": "B25",
-      "statement": "refund_total is double before ~2018-01-01 and int from then on (placed_at) [orders]",
-      "sources": [
+        },
         {
           "type": "data",
           "ref": "INV-025",
           "count": 25000,
           "detail": "refund_total is double before ~2018-01-01 and int from then on (placed_at) [orders], 0 counterexamples"
+        },
+        {
+          "type": "code",
+          "ref": "shoplog/analytics.py:10",
+          "token": "100"
         }
       ],
       "status": "OBSERVED",
-      "confidence": null,
-      "confidence_basis": "unknown: SUBQ_API_KEY is not set",
+      "confidence": 0.9,
+      "confidence_basis": "2 independent sources agree",
+      "independent_sources": 2
+    },
+    {
+      "id": "B03",
+      "statement": "Revenue report returns the 5 largest orders by total_cents.",
+      "sources": [
+        {
+          "type": "code",
+          "ref": "shoplog/analytics.py:49",
+          "token": "$limit"
+        }
+      ],
+      "status": "INFERRED",
+      "confidence": 0.685,
+      "confidence_basis": "subq-snap-1.1, single source",
+      "independent_sources": 1
+    },
+    {
+      "id": "B04",
+      "statement": "Customer timeline maintains a 90-day rolling spend total per customer ordered by placed_at.",
+      "sources": [
+        {
+          "type": "code",
+          "ref": "shoplog/analytics.py:86",
+          "token": "rolling_90d"
+        }
+      ],
+      "status": "INFERRED",
+      "confidence": 0.635,
+      "confidence_basis": "subq-snap-1.1, single source",
+      "independent_sources": 1
+    },
+    {
+      "id": "B05",
+      "statement": "A SKU is low-stock when on_hand is less than the given threshold and low-stock SKUs are counted per category.",
+      "sources": [
+        {
+          "type": "code",
+          "ref": "shoplog/analytics.py:65",
+          "token": "$lt"
+        }
+      ],
+      "status": "INFERRED",
+      "confidence": 0.634,
+      "confidence_basis": "subq-snap-1.1, single source",
+      "independent_sources": 1
+    },
+    {
+      "id": "B06",
+      "statement": "A cart's lifetime is 24 hours after its last touch/update.",
+      "sources": [
+        {
+          "type": "code",
+          "ref": "shoplog/carts.py:7",
+          "token": "hours=24"
+        }
+      ],
+      "status": "INFERRED",
+      "confidence": 0.946,
+      "confidence_basis": "subq-snap-1.1, single source",
+      "independent_sources": 1
+    },
+    {
+      "id": "B07",
+      "statement": "Touching a cart marks it active and resets its expiry to 24 hours from now.",
+      "sources": [
+        {
+          "type": "code",
+          "ref": "shoplog/carts.py:19",
+          "token": "expires_at"
+        }
+      ],
+      "status": "INFERRED",
+      "confidence": 0.994,
+      "confidence_basis": "subq-snap-1.1, single source",
+      "independent_sources": 1
+    },
+    {
+      "id": "B08",
+      "statement": "Only the customer's cart with status active counts as the current active cart.",
+      "sources": [
+        {
+          "type": "code",
+          "ref": "shoplog/carts.py:27",
+          "token": "active"
+        }
+      ],
+      "status": "INFERRED",
+      "confidence": 0.991,
+      "confidence_basis": "subq-snap-1.1, single source",
+      "independent_sources": 1
+    },
+    {
+      "id": "B09",
+      "statement": "A cart can only be discarded while it is still active; converted carts are not deleted by discard.",
+      "sources": [
+        {
+          "type": "code",
+          "ref": "shoplog/carts.py:31",
+          "token": "active"
+        }
+      ],
+      "status": "INFERRED",
+      "confidence": 0.99,
+      "confidence_basis": "subq-snap-1.1, single source",
+      "independent_sources": 1
+    },
+    {
+      "id": "B10",
+      "statement": "Converting a cart marks it converted and records the order_id that fulfilled it.",
+      "sources": [
+        {
+          "type": "code",
+          "ref": "shoplog/carts.py:37",
+          "token": "converted"
+        }
+      ],
+      "status": "INFERRED",
+      "confidence": 0.98,
+      "confidence_basis": "subq-snap-1.1, single source",
+      "independent_sources": 1
+    },
+    {
+      "id": "B11",
+      "statement": "Storefront search returns at most 20 products by default.",
+      "sources": [
+        {
+          "type": "code",
+          "ref": "shoplog/catalog.py:8",
+          "token": "limit: int = 20"
+        }
+      ],
+      "status": "INFERRED",
+      "confidence": 0.881,
+      "confidence_basis": "subq-snap-1.1, single source",
+      "independent_sources": 1
+    },
+    {
+      "id": "B12",
+      "statement": "Autocomplete returns at most 8 name suggestions by default.",
+      "sources": [
+        {
+          "type": "code",
+          "ref": "shoplog/catalog.py:20",
+          "token": "limit: int = 8"
+        }
+      ],
+      "status": "INFERRED",
+      "confidence": 0.645,
+      "confidence_basis": "subq-snap-1.1, single source",
+      "independent_sources": 1
+    },
+    {
+      "id": "B13",
+      "statement": "Browsing products in a category returns at most 40 products by default.",
+      "sources": [
+        {
+          "type": "code",
+          "ref": "shoplog/catalog.py:40",
+          "token": "limit: int = 40"
+        }
+      ],
+      "status": "INFERRED",
+      "confidence": 0.75,
+      "confidence_basis": "subq-snap-1.1, single source",
+      "independent_sources": 1
+    },
+    {
+      "id": "B14",
+      "statement": "Storefront name/description/tags text matching tolerates at most 1 edit (fuzzy maxEdits 1).",
+      "sources": [
+        {
+          "type": "code",
+          "ref": "shoplog/catalog.py:11",
+          "token": "maxEdits"
+        }
+      ],
+      "status": "INFERRED",
+      "confidence": 0.908,
+      "confidence_basis": "subq-snap-1.1, single source",
+      "independent_sources": 1
+    },
+    {
+      "id": "B15",
+      "statement": "Order items are assigned sequential line_id values starting at 1 (index + 1).",
+      "sources": [
+        {
+          "type": "code",
+          "ref": "shoplog/checkout.py:32",
+          "token": "line_id"
+        }
+      ],
+      "status": "INFERRED",
+      "confidence": 0.986,
+      "confidence_basis": "subq-snap-1.1, single source",
+      "independent_sources": 1
+    },
+    {
+      "id": "B16",
+      "statement": "Each new order line starts with refunded amount 0.",
+      "sources": [
+        {
+          "type": "code",
+          "ref": "shoplog/checkout.py:39",
+          "token": "refunded"
+        }
+      ],
+      "status": "INFERRED",
+      "confidence": 0.992,
+      "confidence_basis": "subq-snap-1.1, single source",
+      "independent_sources": 1
+    },
+    {
+      "id": "B17",
+      "statement": "Every new order starts with refund_total of 0 and only orders whose status is delivered or partially_refunded can be refunded; after a refund the order status becomes partially_refunded if refundable lines remain, otherwise it becomes refunded, so refund_total is 0 for cancelled, delivered and shipped orders and >0 for partially_refunded and refunded orders.",
+      "sources": [
+        {
+          "type": "data",
+          "ref": "INV-001",
+          "count": 1231,
+          "detail": "status=cancelled \u21d2 refund_total = 0 [orders], 0 counterexamples"
+        },
+        {
+          "type": "data",
+          "ref": "INV-003",
+          "count": 21681,
+          "detail": "status=delivered \u21d2 refund_total = 0 [orders], 0 counterexamples"
+        },
+        {
+          "type": "data",
+          "ref": "INV-008",
+          "count": 646,
+          "detail": "status=partially_refunded \u21d2 refund_total > 0 [orders], 0 counterexamples"
+        },
+        {
+          "type": "data",
+          "ref": "INV-012",
+          "count": 1145,
+          "detail": "status=refunded \u21d2 refund_total > 0 [orders], 0 counterexamples"
+        },
+        {
+          "type": "data",
+          "ref": "INV-014",
+          "count": 206,
+          "detail": "status=shipped \u21d2 refund_total = 0 [orders], 0 counterexamples"
+        },
+        {
+          "type": "code",
+          "ref": "shoplog/checkout.py:48",
+          "token": "refund_total"
+        },
+        {
+          "type": "code",
+          "ref": "shoplog/refunds.py:10",
+          "token": "delivered"
+        },
+        {
+          "type": "code",
+          "ref": "shoplog/refunds.py:60",
+          "token": "partially_refunded"
+        }
+      ],
+      "status": "OBSERVED",
+      "confidence": 0.9,
+      "confidence_basis": "2 independent sources agree",
+      "independent_sources": 2
+    },
+    {
+      "id": "B18",
+      "statement": "Checkout fails with OutOfStock unless exactly 1 inventory document is updated per order line, meaning on_hand must cover the ordered qty.",
+      "sources": [
+        {
+          "type": "code",
+          "ref": "shoplog/checkout.py:64",
+          "token": "modified_count"
+        }
+      ],
+      "status": "INFERRED",
+      "confidence": 0.999,
+      "confidence_basis": "subq-snap-1.1, single source",
+      "independent_sources": 1
+    },
+    {
+      "id": "B19",
+      "statement": "New customers start with 0 loyalty points.",
+      "sources": [
+        {
+          "type": "code",
+          "ref": "shoplog/customers.py:14",
+          "token": "loyalty_points"
+        }
+      ],
+      "status": "INFERRED",
+      "confidence": 0.889,
+      "confidence_basis": "subq-snap-1.1, single source",
+      "independent_sources": 1
+    },
+    {
+      "id": "B20",
+      "statement": "Only 2 operation types \u2014 update and replace \u2014 on inventory create inventory_events entries; inserts and deletes are ignored.",
+      "sources": [
+        {
+          "type": "code",
+          "ref": "shoplog/inventory_sync.py:7",
+          "token": "WATCHED_OPERATIONS"
+        }
+      ],
+      "status": "INFERRED",
+      "confidence": 0.889,
+      "confidence_basis": "subq-snap-1.1, single source",
+      "independent_sources": 1
+    },
+    {
+      "id": "B21",
+      "statement": "Referral chain lookup follows referred_by links up to 3 levels deep by default.",
+      "sources": [
+        {
+          "type": "code",
+          "ref": "shoplog/legacy_reports.py:6",
+          "token": "max_depth"
+        }
+      ],
+      "status": "INFERRED",
+      "confidence": 0.023,
+      "confidence_basis": "subq-snap-1.1, single source",
+      "independent_sources": 1
+    },
+    {
+      "id": "B22",
+      "statement": "An order can move to paid only from 1 prior status: placed.",
+      "sources": [
+        {
+          "type": "code",
+          "ref": "shoplog/orders.py:8",
+          "token": "paid"
+        }
+      ],
+      "status": "INFERRED",
+      "confidence": 0.998,
+      "confidence_basis": "subq-snap-1.1, single source",
+      "independent_sources": 1
+    },
+    {
+      "id": "B23",
+      "statement": "An order can move to shipped only from 1 prior status: paid.",
+      "sources": [
+        {
+          "type": "code",
+          "ref": "shoplog/orders.py:9",
+          "token": "shipped"
+        }
+      ],
+      "status": "INFERRED",
+      "confidence": 0.998,
+      "confidence_basis": "subq-snap-1.1, single source",
+      "independent_sources": 1
+    },
+    {
+      "id": "B24",
+      "statement": "An order can move to delivered only from 1 prior status: shipped.",
+      "sources": [
+        {
+          "type": "code",
+          "ref": "shoplog/orders.py:10",
+          "token": "delivered"
+        }
+      ],
+      "status": "INFERRED",
+      "confidence": 0.998,
+      "confidence_basis": "subq-snap-1.1, single source",
+      "independent_sources": 1
+    },
+    {
+      "id": "B25",
+      "statement": "An order can be cancelled only from 2 prior statuses: placed or paid, never after shipped.",
+      "sources": [
+        {
+          "type": "code",
+          "ref": "shoplog/orders.py:11",
+          "token": "cancelled"
+        }
+      ],
+      "status": "INFERRED",
+      "confidence": 0.999,
+      "confidence_basis": "subq-snap-1.1, single source",
       "independent_sources": 1
     },
     {
       "id": "B26",
-      "statement": "tax is absent before ~2021-01-01 and int from then on (placed_at) [orders]",
+      "statement": "When an order is marked delivered, delivered_at must be set to the same transition time as updated_at, so delivered_at is present for delivered, partially_refunded and refunded orders and absent for placed, paid, shipped and cancelled orders.",
+      "sources": [
+        {
+          "type": "data",
+          "ref": "INV-002",
+          "count": 1231,
+          "detail": "status=cancelled \u21d2 delivered_at is absent [orders], 0 counterexamples"
+        },
+        {
+          "type": "data",
+          "ref": "INV-004",
+          "count": 21681,
+          "detail": "status=delivered \u21d2 delivered_at is present [orders], 0 counterexamples"
+        },
+        {
+          "type": "data",
+          "ref": "INV-005",
+          "count": 43,
+          "detail": "status=paid \u21d2 delivered_at is absent [orders], 0 counterexamples"
+        },
+        {
+          "type": "data",
+          "ref": "INV-009",
+          "count": 646,
+          "detail": "status=partially_refunded \u21d2 delivered_at is present [orders], 0 counterexamples"
+        },
+        {
+          "type": "data",
+          "ref": "INV-010",
+          "count": 48,
+          "detail": "status=placed \u21d2 delivered_at is absent [orders], 0 counterexamples"
+        },
+        {
+          "type": "data",
+          "ref": "INV-013",
+          "count": 1145,
+          "detail": "status=refunded \u21d2 delivered_at is present [orders], 0 counterexamples"
+        },
+        {
+          "type": "data",
+          "ref": "INV-015",
+          "count": 206,
+          "detail": "status=shipped \u21d2 delivered_at is absent [orders], 0 counterexamples"
+        },
+        {
+          "type": "code",
+          "ref": "shoplog/orders.py:25",
+          "token": "delivered_at"
+        }
+      ],
+      "status": "OBSERVED",
+      "confidence": 0.9,
+      "confidence_basis": "2 independent sources agree",
+      "independent_sources": 2
+    },
+    {
+      "id": "B27",
+      "statement": "Every status change must append 1 history entry with the new status and timestamp while updating status.",
+      "sources": [
+        {
+          "type": "code",
+          "ref": "shoplog/orders.py:22",
+          "token": "$push"
+        }
+      ],
+      "status": "INFERRED",
+      "confidence": 0.999,
+      "confidence_basis": "subq-snap-1.1, single source",
+      "independent_sources": 1
+    },
+    {
+      "id": "B28",
+      "statement": "Customer order history returns at most 20 orders, newest placed_at first with _id tie-breaker.",
+      "sources": [
+        {
+          "type": "code",
+          "ref": "shoplog/orders.py:31",
+          "token": "20"
+        }
+      ],
+      "status": "INFERRED",
+      "confidence": 0.997,
+      "confidence_basis": "subq-snap-1.1, single source",
+      "independent_sources": 1
+    },
+    {
+      "id": "B29",
+      "statement": "Search for orders containing a SKU returns at most 100 orders placed since the given date, newest first.",
+      "sources": [
+        {
+          "type": "code",
+          "ref": "shoplog/orders.py:42",
+          "token": "100"
+        }
+      ],
+      "status": "INFERRED",
+      "confidence": 0.952,
+      "confidence_basis": "subq-snap-1.1, single source",
+      "independent_sources": 1
+    },
+    {
+      "id": "B30",
+      "statement": "Listing open orders by a status returns at most 50 orders, newest placed_at first.",
+      "sources": [
+        {
+          "type": "code",
+          "ref": "shoplog/orders.py:50",
+          "token": "50"
+        }
+      ],
+      "status": "INFERRED",
+      "confidence": 0.98,
+      "confidence_basis": "subq-snap-1.1, single source",
+      "independent_sources": 1
+    },
+    {
+      "id": "B31",
+      "statement": "Tier discount is bronze 0%, silver 5%, gold 10%, legacy_vip 15% off subtotal, so silver, gold and legacy_vip orders have discount > 0.",
+      "sources": [
+        {
+          "type": "data",
+          "ref": "INV-017",
+          "count": 3004,
+          "detail": "customers.tier=gold \u21d2 discount > 0 [orders], 0 counterexamples"
+        },
+        {
+          "type": "data",
+          "ref": "INV-018",
+          "count": 681,
+          "detail": "customers.tier=legacy_vip \u21d2 discount > 0 [orders], 0 counterexamples"
+        },
+        {
+          "type": "data",
+          "ref": "INV-020",
+          "count": 6209,
+          "detail": "customers.tier=silver \u21d2 discount > 0 [orders], 0 counterexamples"
+        },
+        {
+          "type": "code",
+          "ref": "shoplog/pricing.py:3",
+          "token": "TIER_RATE_PCT"
+        }
+      ],
+      "status": "OBSERVED",
+      "confidence": 0.9,
+      "confidence_basis": "2 independent sources agree",
+      "independent_sources": 2
+    },
+    {
+      "id": "B32",
+      "statement": "Coupon code WELCOME10 is worth 1000 off merchandise.",
+      "sources": [
+        {
+          "type": "code",
+          "ref": "shoplog/pricing.py:4",
+          "token": "WELCOME10"
+        }
+      ],
+      "status": "INFERRED",
+      "confidence": 0.926,
+      "confidence_basis": "subq-snap-1.1, single source",
+      "independent_sources": 1
+    },
+    {
+      "id": "B33",
+      "statement": "legacy_vip tier cannot use coupons - any coupon is ignored for legacy_vip, so legacy_vip orders have coupon_code absent.",
+      "sources": [
+        {
+          "type": "data",
+          "ref": "INV-019",
+          "count": 681,
+          "detail": "customers.tier=legacy_vip \u21d2 coupon_code is absent [orders], 0 counterexamples"
+        },
+        {
+          "type": "code",
+          "ref": "shoplog/pricing.py:13",
+          "token": "legacy_vip"
+        }
+      ],
+      "status": "OBSERVED",
+      "confidence": 0.9,
+      "confidence_basis": "2 independent sources agree",
+      "independent_sources": 2
+    },
+    {
+      "id": "B34",
+      "statement": "Total discount (tier + coupon) is capped at subtotal so merchandise never goes negative.",
+      "sources": [
+        {
+          "type": "code",
+          "ref": "shoplog/pricing.py:16",
+          "token": "min(discount, subtotal)"
+        }
+      ],
+      "status": "INFERRED",
+      "confidence": 0.996,
+      "confidence_basis": "subq-snap-1.1, single source",
+      "independent_sources": 1
+    },
+    {
+      "id": "B35",
+      "statement": "Discounted merchandise (subtotal - discount) of 7500 or more gets free shipping (shipping 0), otherwise shipping is 795 flat; shipping is 0 when subtotal - discount >= 7500 otherwise 795, equivalently shipping is 0 when tax >= 637 otherwise 795.",
+      "sources": [
+        {
+          "type": "data",
+          "ref": "INV-027",
+          "count": 14794,
+          "detail": "shipping=0 when tax \u2265 637, otherwise shipping=795 [orders], 0 counterexamples"
+        },
+        {
+          "type": "data",
+          "ref": "INV-028",
+          "count": 20924,
+          "detail": "shipping=0 when subtotal - discount \u2265 7500, otherwise shipping=795 [orders], 0 counterexamples"
+        },
+        {
+          "type": "code",
+          "ref": "shoplog/pricing.py:18",
+          "token": "FREE_SHIPPING_FROM"
+        }
+      ],
+      "status": "OBSERVED",
+      "confidence": 0.9,
+      "confidence_basis": "2 independent sources agree",
+      "independent_sources": 2
+    },
+    {
+      "id": "B36",
+      "statement": "Tax is 8.5% (850 bps) applied to discounted merchandise excluding shipping.",
+      "sources": [
+        {
+          "type": "code",
+          "ref": "shoplog/pricing.py:19",
+          "token": "TAX_BPS"
+        }
+      ],
+      "status": "INFERRED",
+      "confidence": 0.998,
+      "confidence_basis": "subq-snap-1.1, single source",
+      "independent_sources": 1
+    },
+    {
+      "id": "B37",
+      "statement": "Orders in the legacy_vip tier may be refunded up to 90 days after delivered_at.",
+      "sources": [
+        {
+          "type": "code",
+          "ref": "shoplog/refunds.py:7",
+          "token": "90"
+        }
+      ],
+      "status": "INFERRED",
+      "confidence": 0.989,
+      "confidence_basis": "subq-snap-1.1, single source",
+      "independent_sources": 1
+    },
+    {
+      "id": "B38",
+      "statement": "Orders in all other tiers may be refunded up to 30 days after delivered_at.",
+      "sources": [
+        {
+          "type": "code",
+          "ref": "shoplog/refunds.py:8",
+          "token": "30"
+        }
+      ],
+      "status": "INFERRED",
+      "confidence": 0.993,
+      "confidence_basis": "subq-snap-1.1, single source",
+      "independent_sources": 1
+    },
+    {
+      "id": "B39",
+      "statement": "Items in the clearance category are final sale and are never eligible for refund, so clearance items have refund_status none.",
+      "sources": [
+        {
+          "type": "data",
+          "ref": "INV-029",
+          "count": 8399,
+          "detail": "category=clearance \u21d2 refund_status=none [orders.items[]], 0 counterexamples"
+        },
+        {
+          "type": "code",
+          "ref": "shoplog/refunds.py:9",
+          "token": "clearance"
+        }
+      ],
+      "status": "OBSERVED",
+      "confidence": 0.9,
+      "confidence_basis": "2 independent sources agree",
+      "independent_sources": 2
+    },
+    {
+      "id": "B40",
+      "statement": "Only line items whose refund_status is none can be refunded; already refunded lines are excluded.",
+      "sources": [
+        {
+          "type": "code",
+          "ref": "shoplog/refunds.py:29",
+          "token": "refund_status"
+        }
+      ],
+      "status": "INFERRED",
+      "confidence": 0.981,
+      "confidence_basis": "subq-snap-1.1, single source",
+      "independent_sources": 1
+    },
+    {
+      "id": "B41",
+      "statement": "An order must include all 5 fields: customer_id, status, items, total and placed_at.",
+      "sources": [
+        {
+          "type": "code",
+          "ref": "shoplog/schema.py:14",
+          "token": "required"
+        }
+      ],
+      "status": "INFERRED",
+      "confidence": 1.0,
+      "confidence_basis": "subq-snap-1.1, single source",
+      "independent_sources": 1
+    },
+    {
+      "id": "B42",
+      "statement": "Each order must contain at least 1 item.",
+      "sources": [
+        {
+          "type": "code",
+          "ref": "shoplog/schema.py:28",
+          "token": "minItems"
+        }
+      ],
+      "status": "INFERRED",
+      "confidence": 0.998,
+      "confidence_basis": "subq-snap-1.1, single source",
+      "independent_sources": 1
+    },
+    {
+      "id": "B43",
+      "statement": "Order total must be 0 or greater.",
+      "sources": [
+        {
+          "type": "code",
+          "ref": "shoplog/schema.py:29",
+          "token": "minimum"
+        }
+      ],
+      "status": "INFERRED",
+      "confidence": 0.999,
+      "confidence_basis": "subq-snap-1.1, single source",
+      "independent_sources": 1
+    },
+    {
+      "id": "B44",
+      "statement": "Order status must be one of 7 values: placed, paid, shipped, delivered, cancelled, partially_refunded, refunded.",
+      "sources": [
+        {
+          "type": "code",
+          "ref": "shoplog/schema.py:18",
+          "token": "enum"
+        }
+      ],
+      "status": "INFERRED",
+      "confidence": 0.999,
+      "confidence_basis": "subq-snap-1.1, single source",
+      "independent_sources": 1
+    },
+    {
+      "id": "B45",
+      "statement": "A customer can use the same coupon_code only once; orders without a coupon_code are exempt.",
+      "sources": [
+        {
+          "type": "code",
+          "ref": "shoplog/schema.py:54",
+          "token": "coupon_once_per_customer"
+        }
+      ],
+      "status": "INFERRED",
+      "confidence": 0.99,
+      "confidence_basis": "subq-snap-1.1, single source",
+      "independent_sources": 1
+    },
+    {
+      "id": "B46",
+      "statement": "Customer email addresses must be unique ignoring case (English collation strength 2).",
+      "sources": [
+        {
+          "type": "code",
+          "ref": "shoplog/schema.py:9",
+          "token": "strength=2"
+        }
+      ],
+      "status": "INFERRED",
+      "confidence": 0.996,
+      "confidence_basis": "subq-snap-1.1, single source",
+      "independent_sources": 1
+    },
+    {
+      "id": "B47",
+      "statement": "Only carts with status active automatically expire at expires_at (expireAfterSeconds 0).",
+      "sources": [
+        {
+          "type": "code",
+          "ref": "shoplog/schema.py:67",
+          "token": "expireAfterSeconds"
+        }
+      ],
+      "status": "INFERRED",
+      "confidence": 1.0,
+      "confidence_basis": "subq-snap-1.1, single source",
+      "independent_sources": 1
+    },
+    {
+      "id": "B48",
+      "statement": "Product text search ranks name with weight 10, tags with weight 5 and description with weight 1.",
+      "sources": [
+        {
+          "type": "code",
+          "ref": "shoplog/schema.py:77",
+          "token": "weights"
+        }
+      ],
+      "status": "INFERRED",
+      "confidence": 0.961,
+      "confidence_basis": "subq-snap-1.1, single source",
+      "independent_sources": 1
+    },
+    {
+      "id": "B49",
+      "statement": "Tax was introduced around 2021-01-01: tax is absent before ~2021-01-01 and stored as int from then on.",
       "sources": [
         {
           "type": "data",
@@ -1616,69 +2139,21 @@
         }
       ],
       "status": "OBSERVED",
-      "confidence": null,
-      "confidence_basis": "unknown: SUBQ_API_KEY is not set",
-      "independent_sources": 1
-    },
-    {
-      "id": "B27",
-      "statement": "shipping=0 when tax \u2265 637, otherwise shipping=795 [orders]",
-      "sources": [
-        {
-          "type": "data",
-          "ref": "INV-027",
-          "count": 14794,
-          "detail": "shipping=0 when tax \u2265 637, otherwise shipping=795 [orders], 0 counterexamples"
-        }
-      ],
-      "status": "OBSERVED",
-      "confidence": null,
-      "confidence_basis": "unknown: SUBQ_API_KEY is not set",
-      "independent_sources": 1
-    },
-    {
-      "id": "B28",
-      "statement": "shipping=0 when subtotal - discount \u2265 7500, otherwise shipping=795 [orders]",
-      "sources": [
-        {
-          "type": "data",
-          "ref": "INV-028",
-          "count": 20924,
-          "detail": "shipping=0 when subtotal - discount \u2265 7500, otherwise shipping=795 [orders], 0 counterexamples"
-        }
-      ],
-      "status": "OBSERVED",
-      "confidence": null,
-      "confidence_basis": "unknown: SUBQ_API_KEY is not set",
-      "independent_sources": 1
-    },
-    {
-      "id": "B29",
-      "statement": "category=clearance \u21d2 refund_status=none [orders.items[]]",
-      "sources": [
-        {
-          "type": "data",
-          "ref": "INV-029",
-          "count": 8399,
-          "detail": "category=clearance \u21d2 refund_status=none [orders.items[]], 0 counterexamples"
-        }
-      ],
-      "status": "OBSERVED",
-      "confidence": null,
-      "confidence_basis": "unknown: SUBQ_API_KEY is not set",
+      "confidence": 0.988,
+      "confidence_basis": "subq-snap-1.1, single source",
       "independent_sources": 1
     }
   ],
   "subq": {
     "items": {
-      "available": false,
+      "available": true,
       "asked": 2,
-      "reason": "SUBQ_API_KEY is not set"
+      "reason": null
     },
     "behaviors": {
-      "available": false,
-      "asked": 29,
-      "reason": "SUBQ_API_KEY is not set"
+      "available": true,
+      "asked": 42,
+      "reason": null
     }
   }
 }

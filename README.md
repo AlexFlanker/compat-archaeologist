@@ -48,7 +48,10 @@ FerretDB's own [compatibility page](https://docs.ferretdb.io/migration/compatibi
 - **After a clean cutover and one morning of identical traffic**, 5 of 8 differ. 12 units of stock stay "reserved" by checkouts that failed and never released them. An invalid order adds a status that shouldn't exist. A duplicate account shows up in the tier counts.
 - **The same 12 checkouts**: the 6 that succeed on MongoDB all return error 59 on FerretDB, yet their orders were saved.
 
-**Hidden rules, scored blind.** ShopLog has 10 planted business rules ([docs/RULES.md](docs/RULES.md)) that the pipeline never reads. A separate scorer matches the recovered evidence against fixed patterns: 8 of 10 found from data and catalog alone, plus 1 partly, and 9 of 10 labeled correctly. The one missed, the refund window, exists only in code, which is where Muse's code evidence comes in.
+**Hidden rules, scored blind.** ShopLog has 10 planted business rules ([docs/RULES.md](docs/RULES.md)) that the pipeline never reads. A separate scorer matches the recovered evidence against fixed patterns, not a model's judgment.
+- **From data and the catalog alone:** 8 of 10 found, plus 1 partly.
+- **With Muse reading the code:** 10 of 10 found and 10 of 10 labeled correctly. That includes the refund window, which exists only in code and is correctly labeled INFERRED.
+- **Disclosure:** one scoring pattern was fixed after the first Muse run, because it depended on word order. Before the fix, the score was 9 found and 8 labeled. The change log is in `archaeologist/scoreboard.py`.
 
 **Fairness check.** The same pipeline, thresholds and assumptions run on a control app, ShopLog Lite, which uses only plain CRUD. Its verdict: *the migration is fine*, with FerretDB matching MongoDB on everything it does.
 

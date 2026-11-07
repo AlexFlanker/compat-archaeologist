@@ -1,0 +1,119 @@
+{
+  "profile": "lite",
+  "source": "muse",
+  "model": "muse-spark-1.3",
+  "findings": [
+    {
+      "behavior": "retrieves a single order document by its _id",
+      "confidence": 1.0,
+      "feature_id": "F10",
+      "feature_name": "Plain CRUD by _id and simple filters",
+      "line": 9,
+      "token": "find_one",
+      "file": "shoplog/crud.py"
+    },
+    {
+      "behavior": "lists orders for a given customer_id sorted by _id with a limit",
+      "confidence": 1.0,
+      "feature_id": "F10",
+      "feature_name": "Plain CRUD by _id and simple filters",
+      "line": 13,
+      "token": "customer_id",
+      "file": "shoplog/crud.py"
+    },
+    {
+      "behavior": "lists orders filtered by status sorted by _id with a limit",
+      "confidence": 1.0,
+      "feature_id": "F10",
+      "feature_name": "Plain CRUD by _id and simple filters",
+      "line": 17,
+      "token": "find",
+      "file": "shoplog/crud.py"
+    },
+    {
+      "behavior": "inserts a new order document",
+      "confidence": 1.0,
+      "feature_id": "F10",
+      "feature_name": "Plain CRUD by _id and simple filters",
+      "line": 21,
+      "token": "insert_one",
+      "file": "shoplog/crud.py"
+    },
+    {
+      "behavior": "updates an order status and updated_at timestamp by _id",
+      "confidence": 1.0,
+      "feature_id": "F10",
+      "feature_name": "Plain CRUD by _id and simple filters",
+      "line": 25,
+      "token": "update_one",
+      "file": "shoplog/crud.py"
+    },
+    {
+      "behavior": "deletes a single order by its _id",
+      "confidence": 1.0,
+      "feature_id": "F10",
+      "feature_name": "Plain CRUD by _id and simple filters",
+      "line": 29,
+      "token": "delete_one",
+      "file": "shoplog/crud.py"
+    },
+    {
+      "behavior": "counts orders filtered by status",
+      "confidence": 1.0,
+      "feature_id": "F10",
+      "feature_name": "Plain CRUD by _id and simple filters",
+      "line": 33,
+      "token": "count_documents",
+      "file": "shoplog/crud.py"
+    }
+  ],
+  "business_rules": [
+    {
+      "confidence": 0.95,
+      "line": 12,
+      "rule": "Listing orders for a customer returns at most 20 orders by default",
+      "token": "20",
+      "file": "shoplog/crud.py"
+    },
+    {
+      "confidence": 0.95,
+      "line": 16,
+      "rule": "Listing orders filtered by status returns at most 20 orders by default",
+      "token": "20",
+      "file": "shoplog/crud.py"
+    }
+  ],
+  "dropped_citations": [],
+  "static_scan": [
+    {
+      "feature_id": "F10",
+      "file": "shoplog/crud.py",
+      "line": 9,
+      "token": "find_one("
+    },
+    {
+      "feature_id": "F10",
+      "file": "shoplog/crud.py",
+      "line": 21,
+      "token": "insert_one("
+    },
+    {
+      "feature_id": "F10",
+      "file": "shoplog/crud.py",
+      "line": 25,
+      "token": "update_one("
+    },
+    {
+      "feature_id": "F10",
+      "file": "shoplog/crud.py",
+      "line": 29,
+      "token": "delete_one("
+    },
+    {
+      "feature_id": "F10",
+      "file": "shoplog/crud.py",
+      "line": 33,
+      "token": "count_documents("
+    }
+  ]
+}

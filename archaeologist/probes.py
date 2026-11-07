@@ -210,9 +210,13 @@ def load_invalid(profile: str) -> list[dict]:
     return [probe for probe in json.loads(path.read_text()) if probe.get("status") == "invalid"] if path.exists() else []
 
 
+# Features the local oracle can't run, so a probe could never pass the gate there.
+ORACLE_UNAVAILABLE = {"F11": "Atlas Search needs Atlas (or mongot); the local MongoDB oracle doesn't have it"}
+
+
 def generate(profile: str, ledger: dict) -> list[dict]:
     source = source_client(timeout_ms=120_000)
-    items = [item for item in ledger["items"] if item["status"] == "OBSERVED" or item["id"] in FEATURES or item["id"].startswith("X:")]
+    items = [item for item in ledger["items"] if item["id"] not in ORACLE_UNAVAILABLE]
     with ThreadPoolExecutor(max_workers=4) as pool:
         results = list(pool.map(lambda item: generate_for_item(item, source), items))
     probes = [probe for group in results for probe in group]

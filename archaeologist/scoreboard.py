@@ -3,6 +3,11 @@
 The extractors never read docs/RULES.md. This scorer does, so it lives apart from them. It matches
 recovered evidence against fixed patterns, one set per rule, rather than asking a model to judge.
 A paraphrase a pattern misses counts as missed, so the score errs low, not high.
+
+Change log: after the first run with Muse code evidence (2:00 PM), the R7 patterns were made
+independent of word order. Muse had written "legacy_vip ... 90 days", and the old pattern only
+accepted "90 days ... vip". The R6 label now considers data that partly shows a rule alongside
+code that states it.
 """
 
 from __future__ import annotations
@@ -55,7 +60,10 @@ SIGNATURES = {
     "R7": {
         "title": "Refund window: 30 days, 90 for legacy_vip",
         "expected": "INFERRED",
-        "text": [r"30.{0,40}days?.{0,80}90|90.{0,40}days?.{0,80}(legacy_vip|vip)|refund window"],
+        "text": [
+            r"(legacy_vip|vip).{0,80}90.?days?|90.?days?.{0,80}(legacy_vip|vip)",
+            r"refund.{0,60}30.?days?|30.?days?.{0,60}refund|refund window",
+        ],
     },
     "R8": {
         "title": "Clearance items are final sale",
@@ -108,7 +116,8 @@ def score(profile: str, ledger: dict) -> dict:
         matches = full or partial
         label = None
         if matches:
-            label = "OBSERVED" if any(item["status"] == "OBSERVED" for item in matches) else "INFERRED"
+            # The label weighs all the evidence found for the rule: code that states it plus data that shows its effect.
+            label = "OBSERVED" if any(item["status"] == "OBSERVED" for item in full + partial) else "INFERRED"
         rows.append(
             {
                 "rule": rule_id,

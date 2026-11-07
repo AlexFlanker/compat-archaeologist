@@ -1,0 +1,983 @@
+{
+  "profile": "shoplog",
+  "source": "muse",
+  "model": "muse-spark-1.3",
+  "findings": [
+    {
+      "behavior": "revenue report must join orders to customers via $lookup sub-pipeline and return by_tier, by_month and 5 largest orders in a single $facet aggregation",
+      "confidence": 0.97,
+      "feature_id": "F1",
+      "feature_name": "$lookup sub-pipeline + $facet",
+      "line": 33,
+      "token": "$facet",
+      "file": "shoplog/analytics.py"
+    },
+    {
+      "behavior": "customer spend timeline must compute running_total, 90-day rolling sum, sequence number and previous order date partitioned by customer ordered by placed_at",
+      "confidence": 0.97,
+      "feature_id": "F2",
+      "feature_name": "$setWindowFields",
+      "line": 81,
+      "token": "$setWindowFields",
+      "file": "shoplog/analytics.py"
+    },
+    {
+      "behavior": "touching a cart must atomically create-or-update the cart document by _id via upsert while marking it active",
+      "confidence": 0.95,
+      "feature_id": "F10",
+      "feature_name": "Plain CRUD by _id and simple filters",
+      "line": 11,
+      "token": "update_one",
+      "file": "shoplog/carts.py"
+    },
+    {
+      "behavior": "fetching the shopper's current cart depends on a plain find by customer_id and status active",
+      "confidence": 0.95,
+      "feature_id": "F10",
+      "feature_name": "Plain CRUD by _id and simple filters",
+      "line": 27,
+      "token": "find_one",
+      "file": "shoplog/carts.py"
+    },
+    {
+      "behavior": "discarding a cart must delete it only when its _id is still active",
+      "confidence": 0.95,
+      "feature_id": "F10",
+      "feature_name": "Plain CRUD by _id and simple filters",
+      "line": 31,
+      "token": "delete_one",
+      "file": "shoplog/carts.py"
+    },
+    {
+      "behavior": "converting a cart must update its status to converted with order_id by _id",
+      "confidence": 0.95,
+      "feature_id": "F10",
+      "feature_name": "Plain CRUD by _id and simple filters",
+      "line": 35,
+      "token": "update_one",
+      "file": "shoplog/carts.py"
+    },
+    {
+      "behavior": "storefront search depends on Atlas Search compound fuzzy text query over name, description and tags filtered to active products with searchScore ranking",
+      "confidence": 0.98,
+      "feature_id": "F11",
+      "feature_name": "Atlas Search ($search with a search index)",
+      "line": 10,
+      "token": "$search",
+      "file": "shoplog/catalog.py"
+    },
+    {
+      "behavior": "name autocomplete depends on Atlas Search autocomplete operator on the name field using the storefront search index",
+      "confidence": 0.98,
+      "feature_id": "F11",
+      "feature_name": "Atlas Search ($search with a search index)",
+      "line": 22,
+      "token": "autocomplete",
+      "file": "shoplog/catalog.py"
+    },
+    {
+      "behavior": "keyword product search depends on MongoDB $text search with textScore ranking for matching query terms in active products",
+      "confidence": 0.99,
+      "feature_id": "F9",
+      "feature_name": "$text search",
+      "line": 32,
+      "token": "$text",
+      "file": "shoplog/catalog.py"
+    },
+    {
+      "behavior": "browsing products in a category depends on plain find filtering by category and active flag sorted by _id",
+      "confidence": 0.99,
+      "feature_id": "F10",
+      "feature_name": "Plain CRUD by _id and simple filters",
+      "line": 41,
+      "token": "find",
+      "file": "shoplog/catalog.py"
+    },
+    {
+      "behavior": "checkout must atomically reserve inventory for all lines, insert the order, and convert the cart in one transaction, rolling back all reservations if any line is out of stock or the order insert fails",
+      "confidence": 0.99,
+      "feature_id": "F4",
+      "feature_name": "Multi-document transactions",
+      "line": 57,
+      "token": "start_transaction",
+      "file": "shoplog/checkout.py"
+    },
+    {
+      "behavior": "application stores and retrieves orders using only plain CRUD by _id and simple equality filters on customer_id and status with sort and limit, insert, update, delete and count",
+      "confidence": 1.0,
+      "feature_id": "F10",
+      "feature_name": "Plain CRUD by _id and simple filters",
+      "line": 9,
+      "token": "find_one",
+      "file": "shoplog/crud.py"
+    },
+    {
+      "behavior": "customer lookup by email must match case-insensitively using collation",
+      "confidence": 0.95,
+      "feature_id": "F6",
+      "feature_name": "Case-insensitive collation index",
+      "line": 9,
+      "token": "collation=EMAIL_COLLATION",
+      "file": "shoplog/customers.py"
+    },
+    {
+      "behavior": "customer registration must insert a new customer document keyed by _id",
+      "confidence": 0.99,
+      "feature_id": "F10",
+      "feature_name": "Plain CRUD by _id and simple filters",
+      "line": 13,
+      "token": "insert_one",
+      "file": "shoplog/customers.py"
+    },
+    {
+      "behavior": "adding loyalty points must atomically increment loyalty_points for the customer _id",
+      "confidence": 0.98,
+      "feature_id": "F10",
+      "feature_name": "Plain CRUD by _id and simple filters",
+      "line": 19,
+      "token": "$inc",
+      "file": "shoplog/customers.py"
+    },
+    {
+      "behavior": "inventory sync tails the inventory collection with a change stream filtered to update/replace, using fullDocument updateLookup and resume_after with non-blocking polling to emit an event per change without loss on restart",
+      "confidence": 0.99,
+      "feature_id": "F5",
+      "feature_name": "Change streams",
+      "line": 15,
+      "token": "watch",
+      "file": "shoplog/inventory_sync.py"
+    },
+    {
+      "behavior": "startup must load the persisted change-stream resume token with a plain find by _id inventory in sync_state, starting from scratch when missing",
+      "confidence": 0.98,
+      "feature_id": "F10",
+      "feature_name": "Plain CRUD by _id and simple filters",
+      "line": 12,
+      "token": "find_one",
+      "file": "shoplog/inventory_sync.py"
+    },
+    {
+      "behavior": "each observed change must durably append an inventory_events document with sku, on_hand and clusterTime via plain insert",
+      "confidence": 0.97,
+      "feature_id": "F10",
+      "feature_name": "Plain CRUD by _id and simple filters",
+      "line": 27,
+      "token": "insert_one",
+      "file": "shoplog/inventory_sync.py"
+    },
+    {
+      "behavior": "progress must be checkpointed with a plain upsert replace by _id inventory storing stream.resume_token after each processed change",
+      "confidence": 0.97,
+      "feature_id": "F10",
+      "feature_name": "Plain CRUD by _id and simple filters",
+      "line": 34,
+      "token": "replace_one",
+      "file": "shoplog/inventory_sync.py"
+    },
+    {
+      "behavior": "referral chain report depends on $graphLookup to recursively follow referred_by to _id in customers and collect ancestors as referrers with depth tracking",
+      "confidence": 0.98,
+      "feature_id": "OTHER",
+      "feature_name": "$graphLookup recursive traversal",
+      "line": 10,
+      "token": "$graphLookup",
+      "file": "shoplog/legacy_reports.py"
+    },
+    {
+      "behavior": "order status transition must atomically compare-and-set: update succeeds only if current status is in the allowed prior set, otherwise no modification, while atomically setting status/updated_at and pushing a history entry",
+      "confidence": 0.97,
+      "feature_id": "F10",
+      "feature_name": "Plain CRUD by _id and simple filters",
+      "line": 26,
+      "token": "update_one",
+      "file": "shoplog/orders.py"
+    },
+    {
+      "behavior": "customer order history depends on plain find by customer_id with field projection and deterministic sorted pagination by placed_at descending then _id ascending with limit",
+      "confidence": 0.95,
+      "feature_id": "F10",
+      "feature_name": "Plain CRUD by _id and simple filters",
+      "line": 34,
+      "token": "customer_id",
+      "file": "shoplog/orders.py"
+    },
+    {
+      "behavior": "finding orders containing a SKU depends on equality match on array-element field items.sku combined with placed_at lower-bound filter and sorted limit pagination",
+      "confidence": 0.95,
+      "feature_id": "F10",
+      "feature_name": "Plain CRUD by _id and simple filters",
+      "line": 44,
+      "token": "items.sku",
+      "file": "shoplog/orders.py"
+    },
+    {
+      "behavior": "listing open orders depends on plain equality find by status with sorted pagination by placed_at descending then _id ascending with limit",
+      "confidence": 0.95,
+      "feature_id": "F10",
+      "feature_name": "Plain CRUD by _id and simple filters",
+      "line": 51,
+      "token": "find",
+      "file": "shoplog/orders.py"
+    },
+    {
+      "behavior": "fetch the order document by _id to validate refund eligibility before any write",
+      "confidence": 0.99,
+      "feature_id": "F10",
+      "feature_name": "Plain CRUD by _id and simple filters",
+      "line": 18,
+      "token": "find_one",
+      "file": "shoplog/refunds.py"
+    },
+    {
+      "behavior": "mark only the requested order lines as refunded with a filtered positional update guarded by line_id list and refund_status none",
+      "confidence": 0.98,
+      "feature_id": "F3",
+      "feature_name": "arrayFilters / positional $[<id>] updates",
+      "line": 46,
+      "token": "array_filters",
+      "file": "shoplog/refunds.py"
+    },
+    {
+      "behavior": "check for remaining non-refunded non-clearance lines by _id to decide whether the order becomes partially_refunded or refunded",
+      "confidence": 0.92,
+      "feature_id": "F10",
+      "feature_name": "Plain CRUD by _id and simple filters",
+      "line": 49,
+      "token": "count_documents",
+      "file": "shoplog/refunds.py"
+    },
+    {
+      "behavior": "append the new order status to the history array with $push when finalizing a refund",
+      "confidence": 0.96,
+      "feature_id": "F10",
+      "feature_name": "Plain CRUD by _id and simple filters",
+      "line": 63,
+      "token": "$push",
+      "file": "shoplog/refunds.py"
+    },
+    {
+      "behavior": "mark every order line as reviewed in a single update using the all-positional $[] operator",
+      "confidence": 0.95,
+      "feature_id": "F3",
+      "feature_name": "arrayFilters / positional $[<id>] updates",
+      "line": 69,
+      "token": "items.$[].reviewed_by",
+      "file": "shoplog/refunds.py"
+    },
+    {
+      "behavior": "orders collection enforces $jsonSchema validation requiring customer_id, status, items, total and placed_at",
+      "confidence": 0.98,
+      "feature_id": "F8",
+      "feature_name": "$text search",
+      "line": 12,
+      "token": "$jsonSchema",
+      "file": "shoplog/schema.py"
+    },
+    {
+      "behavior": "coupon_code uniqueness per customer is enforced only when coupon_code exists via partial unique index",
+      "confidence": 0.96,
+      "feature_id": "F7",
+      "feature_name": "Partial index + TTL index",
+      "line": 53,
+      "token": "partialFilterExpression",
+      "file": "shoplog/schema.py"
+    },
+    {
+      "behavior": "customer email uniqueness is case-insensitive via collation index",
+      "confidence": 0.97,
+      "feature_id": "F6",
+      "feature_name": "Case-insensitive collation index",
+      "line": 60,
+      "token": "collation",
+      "file": "shoplog/schema.py"
+    },
+    {
+      "behavior": "active carts auto-delete at expires_at via TTL index limited to status active",
+      "confidence": 0.97,
+      "feature_id": "F7",
+      "feature_name": "Partial index + TTL index",
+      "line": 67,
+      "token": "expireAfterSeconds",
+      "file": "shoplog/schema.py"
+    },
+    {
+      "behavior": "product search relies on text index over name, description and tags",
+      "confidence": 0.97,
+      "feature_id": "F9",
+      "feature_name": "$text search",
+      "line": 76,
+      "token": "TEXT",
+      "file": "shoplog/schema.py"
+    },
+    {
+      "behavior": "storefront search depends on Atlas Search index named storefront with autocomplete mapping",
+      "confidence": 0.96,
+      "feature_id": "F11",
+      "feature_name": "Atlas Search ($search with a search index)",
+      "line": 106,
+      "token": "create_search_index",
+      "file": "shoplog/schema.py"
+    }
+  ],
+  "business_rules": [
+    {
+      "confidence": 0.96,
+      "line": 18,
+      "rule": "Cancelled orders are excluded from the revenue report (only orders with status not equal to cancelled count)",
+      "token": "cancelled",
+      "file": "shoplog/analytics.py"
+    },
+    {
+      "confidence": 0.9,
+      "line": 10,
+      "rule": "Dollar totals stored as double are converted to cents by multiplying by 100 and rounding to 0 decimals",
+      "token": "100",
+      "file": "shoplog/analytics.py"
+    },
+    {
+      "confidence": 0.95,
+      "line": 49,
+      "rule": "Revenue report returns the 5 largest orders by total_cents",
+      "token": "$limit",
+      "file": "shoplog/analytics.py"
+    },
+    {
+      "confidence": 0.96,
+      "line": 86,
+      "rule": "Customer timeline maintains a 90-day rolling spend total per customer ordered by placed_at",
+      "token": "rolling_90d",
+      "file": "shoplog/analytics.py"
+    },
+    {
+      "confidence": 0.92,
+      "line": 65,
+      "rule": "A SKU is low-stock when on_hand is less than the given threshold and low-stock SKUs are counted per category",
+      "token": "$lt",
+      "file": "shoplog/analytics.py"
+    },
+    {
+      "confidence": 0.95,
+      "line": 7,
+      "rule": "A cart's lifetime is 24 hours after its last touch/update.",
+      "token": "hours=24",
+      "file": "shoplog/carts.py"
+    },
+    {
+      "confidence": 0.95,
+      "line": 19,
+      "rule": "Touching a cart marks it active and resets its expiry to 24 hours from now.",
+      "token": "expires_at",
+      "file": "shoplog/carts.py"
+    },
+    {
+      "confidence": 0.9,
+      "line": 27,
+      "rule": "Only the customer's cart with status active counts as the current active cart.",
+      "token": "active",
+      "file": "shoplog/carts.py"
+    },
+    {
+      "confidence": 0.9,
+      "line": 31,
+      "rule": "A cart can only be discarded while it is still active; converted carts are not deleted by discard.",
+      "token": "active",
+      "file": "shoplog/carts.py"
+    },
+    {
+      "confidence": 0.95,
+      "line": 37,
+      "rule": "Converting a cart marks it converted and records the order_id that fulfilled it.",
+      "token": "converted",
+      "file": "shoplog/carts.py"
+    },
+    {
+      "confidence": 0.99,
+      "line": 8,
+      "rule": "Storefront search returns at most 20 products by default",
+      "token": "limit: int = 20",
+      "file": "shoplog/catalog.py"
+    },
+    {
+      "confidence": 0.99,
+      "line": 20,
+      "rule": "Autocomplete returns at most 8 name suggestions by default",
+      "token": "limit: int = 8",
+      "file": "shoplog/catalog.py"
+    },
+    {
+      "confidence": 0.99,
+      "line": 40,
+      "rule": "Browsing products in a category returns at most 40 products by default",
+      "token": "limit: int = 40",
+      "file": "shoplog/catalog.py"
+    },
+    {
+      "confidence": 0.95,
+      "line": 11,
+      "rule": "Storefront name/description/tags text matching tolerates at most 1 edit (fuzzy maxEdits 1)",
+      "token": "maxEdits",
+      "file": "shoplog/catalog.py"
+    },
+    {
+      "confidence": 0.9,
+      "line": 32,
+      "rule": "Order items are assigned sequential line_id values starting at 1 (index + 1).",
+      "token": "line_id",
+      "file": "shoplog/checkout.py"
+    },
+    {
+      "confidence": 0.95,
+      "line": 39,
+      "rule": "Each new order line starts with refunded amount 0.",
+      "token": "refunded",
+      "file": "shoplog/checkout.py"
+    },
+    {
+      "confidence": 0.95,
+      "line": 48,
+      "rule": "Every new order starts with refund_total of 0.",
+      "token": "refund_total",
+      "file": "shoplog/checkout.py"
+    },
+    {
+      "confidence": 0.95,
+      "line": 64,
+      "rule": "Checkout fails with OutOfStock unless exactly 1 inventory document is updated per order line, meaning on_hand must cover the ordered qty.",
+      "token": "modified_count",
+      "file": "shoplog/checkout.py"
+    },
+    {
+      "confidence": 0.95,
+      "line": 14,
+      "rule": "New customers start with 0 loyalty points",
+      "token": "loyalty_points",
+      "file": "shoplog/customers.py"
+    },
+    {
+      "confidence": 0.9,
+      "line": 7,
+      "rule": "Only 2 operation types \u2014 update and replace \u2014 on inventory create inventory_events entries; inserts and deletes are ignored.",
+      "token": "WATCHED_OPERATIONS",
+      "file": "shoplog/inventory_sync.py"
+    },
+    {
+      "confidence": 0.95,
+      "line": 6,
+      "rule": "referral chain lookup follows referred_by links up to 3 levels deep by default",
+      "token": "max_depth",
+      "file": "shoplog/legacy_reports.py"
+    },
+    {
+      "confidence": 0.95,
+      "line": 8,
+      "rule": "An order can move to paid only from 1 prior status: placed",
+      "token": "paid",
+      "file": "shoplog/orders.py"
+    },
+    {
+      "confidence": 0.95,
+      "line": 9,
+      "rule": "An order can move to shipped only from 1 prior status: paid",
+      "token": "shipped",
+      "file": "shoplog/orders.py"
+    },
+    {
+      "confidence": 0.95,
+      "line": 10,
+      "rule": "An order can move to delivered only from 1 prior status: shipped",
+      "token": "delivered",
+      "file": "shoplog/orders.py"
+    },
+    {
+      "confidence": 0.95,
+      "line": 11,
+      "rule": "An order can be cancelled only from 2 prior statuses: placed or paid, never after shipped",
+      "token": "cancelled",
+      "file": "shoplog/orders.py"
+    },
+    {
+      "confidence": 0.92,
+      "line": 25,
+      "rule": "When an order is marked delivered, delivered_at must be set to the same transition time as updated_at",
+      "token": "delivered_at",
+      "file": "shoplog/orders.py"
+    },
+    {
+      "confidence": 0.9,
+      "line": 22,
+      "rule": "Every status change must append 1 history entry with the new status and timestamp while updating status",
+      "token": "$push",
+      "file": "shoplog/orders.py"
+    },
+    {
+      "confidence": 0.95,
+      "line": 31,
+      "rule": "Customer order history returns at most 20 orders, newest placed_at first with _id tie-breaker",
+      "token": "20",
+      "file": "shoplog/orders.py"
+    },
+    {
+      "confidence": 0.95,
+      "line": 42,
+      "rule": "Search for orders containing a SKU returns at most 100 orders placed since the given date, newest first",
+      "token": "100",
+      "file": "shoplog/orders.py"
+    },
+    {
+      "confidence": 0.95,
+      "line": 50,
+      "rule": "Listing open orders by a status returns at most 50 orders, newest placed_at first",
+      "token": "50",
+      "file": "shoplog/orders.py"
+    },
+    {
+      "confidence": 1.0,
+      "line": 3,
+      "rule": "Tier discount is bronze 0%, silver 5%, gold 10%, legacy_vip 15% off subtotal",
+      "token": "TIER_RATE_PCT",
+      "file": "shoplog/pricing.py"
+    },
+    {
+      "confidence": 1.0,
+      "line": 4,
+      "rule": "Coupon code WELCOME10 is worth 1000 off merchandise",
+      "token": "WELCOME10",
+      "file": "shoplog/pricing.py"
+    },
+    {
+      "confidence": 0.95,
+      "line": 13,
+      "rule": "legacy_vip tier cannot use coupons - any coupon is ignored for legacy_vip",
+      "token": "legacy_vip",
+      "file": "shoplog/pricing.py"
+    },
+    {
+      "confidence": 0.99,
+      "line": 16,
+      "rule": "Total discount (tier + coupon) is capped at subtotal so merchandise never goes negative",
+      "token": "min(discount, subtotal)",
+      "file": "shoplog/pricing.py"
+    },
+    {
+      "confidence": 1.0,
+      "line": 18,
+      "rule": "Discounted merchandise of 7500 or more gets free shipping, otherwise shipping is 795 flat",
+      "token": "FREE_SHIPPING_FROM",
+      "file": "shoplog/pricing.py"
+    },
+    {
+      "confidence": 0.98,
+      "line": 19,
+      "rule": "Tax is 8.5% (850 bps) applied to discounted merchandise excluding shipping",
+      "token": "TAX_BPS",
+      "file": "shoplog/pricing.py"
+    },
+    {
+      "confidence": 0.98,
+      "line": 7,
+      "rule": "Orders in the legacy_vip tier may be refunded up to 90 days after delivered_at",
+      "token": "90",
+      "file": "shoplog/refunds.py"
+    },
+    {
+      "confidence": 0.98,
+      "line": 8,
+      "rule": "Orders in all other tiers may be refunded up to 30 days after delivered_at",
+      "token": "30",
+      "file": "shoplog/refunds.py"
+    },
+    {
+      "confidence": 0.98,
+      "line": 9,
+      "rule": "Items in the clearance category are final sale and are never eligible for refund",
+      "token": "clearance",
+      "file": "shoplog/refunds.py"
+    },
+    {
+      "confidence": 0.97,
+      "line": 10,
+      "rule": "Only orders whose status is delivered or partially_refunded can be refunded",
+      "token": "delivered",
+      "file": "shoplog/refunds.py"
+    },
+    {
+      "confidence": 0.96,
+      "line": 29,
+      "rule": "Only line items whose refund_status is none can be refunded; already refunded lines are excluded",
+      "token": "refund_status",
+      "file": "shoplog/refunds.py"
+    },
+    {
+      "confidence": 0.95,
+      "line": 60,
+      "rule": "After a refund the order status becomes partially_refunded if refundable lines remain, otherwise it becomes refunded",
+      "token": "partially_refunded",
+      "file": "shoplog/refunds.py"
+    },
+    {
+      "confidence": 0.98,
+      "line": 14,
+      "rule": "An order must include all 5 fields: customer_id, status, items, total and placed_at",
+      "token": "required",
+      "file": "shoplog/schema.py"
+    },
+    {
+      "confidence": 0.97,
+      "line": 28,
+      "rule": "Each order must contain at least 1 item",
+      "token": "minItems",
+      "file": "shoplog/schema.py"
+    },
+    {
+      "confidence": 0.97,
+      "line": 29,
+      "rule": "Order total must be 0 or greater",
+      "token": "minimum",
+      "file": "shoplog/schema.py"
+    },
+    {
+      "confidence": 0.98,
+      "line": 18,
+      "rule": "Order status must be one of 7 values: placed, paid, shipped, delivered, cancelled, partially_refunded, refunded",
+      "token": "enum",
+      "file": "shoplog/schema.py"
+    },
+    {
+      "confidence": 0.95,
+      "line": 54,
+      "rule": "A customer can use the same coupon_code only once; orders without a coupon_code are exempt",
+      "token": "coupon_once_per_customer",
+      "file": "shoplog/schema.py"
+    },
+    {
+      "confidence": 0.95,
+      "line": 9,
+      "rule": "Customer email addresses must be unique ignoring case (English collation strength 2)",
+      "token": "strength=2",
+      "file": "shoplog/schema.py"
+    },
+    {
+      "confidence": 0.96,
+      "line": 67,
+      "rule": "Only carts with status active automatically expire at expires_at (expireAfterSeconds 0)",
+      "token": "expireAfterSeconds",
+      "file": "shoplog/schema.py"
+    },
+    {
+      "confidence": 0.94,
+      "line": 77,
+      "rule": "Product text search ranks name with weight 10, tags with weight 5 and description with weight 1",
+      "token": "weights",
+      "file": "shoplog/schema.py"
+    }
+  ],
+  "dropped_citations": [],
+  "static_scan": [
+    {
+      "feature_id": "F1",
+      "file": "shoplog/analytics.py",
+      "line": 21,
+      "token": "$lookup"
+    },
+    {
+      "feature_id": "F1",
+      "file": "shoplog/analytics.py",
+      "line": 33,
+      "token": "$facet"
+    },
+    {
+      "feature_id": "F1",
+      "file": "shoplog/analytics.py",
+      "line": 61,
+      "token": "$lookup"
+    },
+    {
+      "feature_id": "F2",
+      "file": "shoplog/analytics.py",
+      "line": 81,
+      "token": "$setWindowFields"
+    },
+    {
+      "feature_id": "F2",
+      "file": "shoplog/analytics.py",
+      "line": 87,
+      "token": "$documentNumber"
+    },
+    {
+      "feature_id": "F2",
+      "file": "shoplog/analytics.py",
+      "line": 88,
+      "token": "$shift"
+    },
+    {
+      "feature_id": "F10",
+      "file": "shoplog/carts.py",
+      "line": 11,
+      "token": "update_one("
+    },
+    {
+      "feature_id": "F10",
+      "file": "shoplog/carts.py",
+      "line": 27,
+      "token": "find_one("
+    },
+    {
+      "feature_id": "F10",
+      "file": "shoplog/carts.py",
+      "line": 31,
+      "token": "delete_one("
+    },
+    {
+      "feature_id": "F10",
+      "file": "shoplog/carts.py",
+      "line": 35,
+      "token": "update_one("
+    },
+    {
+      "feature_id": "F11",
+      "file": "shoplog/catalog.py",
+      "line": 10,
+      "token": "{\"$search\": {\"index\""
+    },
+    {
+      "feature_id": "F9",
+      "file": "shoplog/catalog.py",
+      "line": 15,
+      "token": "$meta"
+    },
+    {
+      "feature_id": "F11",
+      "file": "shoplog/catalog.py",
+      "line": 22,
+      "token": "{\"$search\": {\"index\""
+    },
+    {
+      "feature_id": "F9",
+      "file": "shoplog/catalog.py",
+      "line": 32,
+      "token": "$text"
+    },
+    {
+      "feature_id": "F9",
+      "file": "shoplog/catalog.py",
+      "line": 33,
+      "token": "$meta"
+    },
+    {
+      "feature_id": "F9",
+      "file": "shoplog/catalog.py",
+      "line": 35,
+      "token": "$meta"
+    },
+    {
+      "feature_id": "F4",
+      "file": "shoplog/checkout.py",
+      "line": 57,
+      "token": "start_transaction"
+    },
+    {
+      "feature_id": "F10",
+      "file": "shoplog/checkout.py",
+      "line": 59,
+      "token": "update_one("
+    },
+    {
+      "feature_id": "F10",
+      "file": "shoplog/checkout.py",
+      "line": 66,
+      "token": "insert_one("
+    },
+    {
+      "feature_id": "F10",
+      "file": "shoplog/checkout.py",
+      "line": 68,
+      "token": "update_one("
+    },
+    {
+      "feature_id": "F10",
+      "file": "shoplog/crud.py",
+      "line": 9,
+      "token": "find_one("
+    },
+    {
+      "feature_id": "F10",
+      "file": "shoplog/crud.py",
+      "line": 21,
+      "token": "insert_one("
+    },
+    {
+      "feature_id": "F10",
+      "file": "shoplog/crud.py",
+      "line": 25,
+      "token": "update_one("
+    },
+    {
+      "feature_id": "F10",
+      "file": "shoplog/crud.py",
+      "line": 29,
+      "token": "delete_one("
+    },
+    {
+      "feature_id": "F10",
+      "file": "shoplog/crud.py",
+      "line": 33,
+      "token": "count_documents("
+    },
+    {
+      "feature_id": "F6",
+      "file": "shoplog/customers.py",
+      "line": 9,
+      "token": "collation="
+    },
+    {
+      "feature_id": "F10",
+      "file": "shoplog/customers.py",
+      "line": 9,
+      "token": "find_one("
+    },
+    {
+      "feature_id": "F10",
+      "file": "shoplog/customers.py",
+      "line": 13,
+      "token": "insert_one("
+    },
+    {
+      "feature_id": "F10",
+      "file": "shoplog/customers.py",
+      "line": 19,
+      "token": "update_one("
+    },
+    {
+      "feature_id": "F10",
+      "file": "shoplog/inventory_sync.py",
+      "line": 12,
+      "token": "find_one("
+    },
+    {
+      "feature_id": "F5",
+      "file": "shoplog/inventory_sync.py",
+      "line": 15,
+      "token": ".watch("
+    },
+    {
+      "feature_id": "F10",
+      "file": "shoplog/inventory_sync.py",
+      "line": 27,
+      "token": "insert_one("
+    },
+    {
+      "feature_id": "X:graphLookup",
+      "file": "shoplog/legacy_reports.py",
+      "line": 10,
+      "token": "$graphLookup"
+    },
+    {
+      "feature_id": "F10",
+      "file": "shoplog/orders.py",
+      "line": 26,
+      "token": "update_one("
+    },
+    {
+      "feature_id": "F10",
+      "file": "shoplog/refunds.py",
+      "line": 18,
+      "token": "find_one("
+    },
+    {
+      "feature_id": "F10",
+      "file": "shoplog/refunds.py",
+      "line": 36,
+      "token": "update_one("
+    },
+    {
+      "feature_id": "F3",
+      "file": "shoplog/refunds.py",
+      "line": 40,
+      "token": "$[line]"
+    },
+    {
+      "feature_id": "F3",
+      "file": "shoplog/refunds.py",
+      "line": 41,
+      "token": "$[line]"
+    },
+    {
+      "feature_id": "F3",
+      "file": "shoplog/refunds.py",
+      "line": 46,
+      "token": "array_filters"
+    },
+    {
+      "feature_id": "F10",
+      "file": "shoplog/refunds.py",
+      "line": 49,
+      "token": "count_documents("
+    },
+    {
+      "feature_id": "F10",
+      "file": "shoplog/refunds.py",
+      "line": 61,
+      "token": "update_one("
+    },
+    {
+      "feature_id": "F3",
+      "file": "shoplog/refunds.py",
+      "line": 69,
+      "token": "$[]"
+    },
+    {
+      "feature_id": "F10",
+      "file": "shoplog/refunds.py",
+      "line": 69,
+      "token": "update_one("
+    },
+    {
+      "feature_id": "F6",
+      "file": "shoplog/schema.py",
+      "line": 9,
+      "token": "Collation("
+    },
+    {
+      "feature_id": "F8",
+      "file": "shoplog/schema.py",
+      "line": 12,
+      "token": "$jsonSchema"
+    },
+    {
+      "feature_id": "F8",
+      "file": "shoplog/schema.py",
+      "line": 42,
+      "token": "validator="
+    },
+    {
+      "feature_id": "F7",
+      "file": "shoplog/schema.py",
+      "line": 53,
+      "token": "partialFilterExpression"
+    },
+    {
+      "feature_id": "F6",
+      "file": "shoplog/schema.py",
+      "line": 60,
+      "token": "collation="
+    },
+    {
+      "feature_id": "F7",
+      "file": "shoplog/schema.py",
+      "line": 67,
+      "token": "expireAfterSeconds"
+    },
+    {
+      "feature_id": "F7",
+      "file": "shoplog/schema.py",
+      "line": 68,
+      "token": "partialFilterExpression"
+    },
+    {
+      "feature_id": "F11",
+      "file": "shoplog/schema.py",
+      "line": 106,
+      "token": "create_search_index("
+    }
+  ]
+}

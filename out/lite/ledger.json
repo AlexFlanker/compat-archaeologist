@@ -1,7 +1,7 @@
 {
   "profile": "lite",
-  "code_evidence_source": "static_scan_only",
-  "code_model": null,
+  "code_evidence_source": "muse_cached",
+  "code_model": "muse-spark-1.3",
   "citations_dropped": 0,
   "atlas": null,
   "operators": {
@@ -18,7 +18,7 @@
     {
       "id": "F10",
       "feature": "Plain CRUD by _id and simple filters",
-      "behavior": "Code uses find_one( | Code uses insert_one( | Code uses update_one( | Code uses delete_one( | Code uses count_documents(",
+      "behavior": "retrieves a single order document by its _id | lists orders for a given customer_id sorted by _id with a limit | lists orders filtered by status sorted by _id with a limit | inserts a new order document | updates an order status and updated_at timestamp by _id | deletes a single order by its _id | counts orders filtered by status",
       "why_risky": "Control group: expected to behave the same",
       "sources": [
         {
@@ -40,37 +40,51 @@
         {
           "type": "code",
           "ref": "shoplog/crud.py:9",
-          "token": "find_one(",
-          "detail": "Code uses find_one(",
-          "origin": "static_scan_only"
+          "token": "find_one",
+          "detail": "retrieves a single order document by its _id",
+          "origin": "muse_cached"
+        },
+        {
+          "type": "code",
+          "ref": "shoplog/crud.py:13",
+          "token": "customer_id",
+          "detail": "lists orders for a given customer_id sorted by _id with a limit",
+          "origin": "muse_cached"
+        },
+        {
+          "type": "code",
+          "ref": "shoplog/crud.py:17",
+          "token": "find",
+          "detail": "lists orders filtered by status sorted by _id with a limit",
+          "origin": "muse_cached"
         },
         {
           "type": "code",
           "ref": "shoplog/crud.py:21",
-          "token": "insert_one(",
-          "detail": "Code uses insert_one(",
-          "origin": "static_scan_only"
+          "token": "insert_one",
+          "detail": "inserts a new order document",
+          "origin": "muse_cached"
         },
         {
           "type": "code",
           "ref": "shoplog/crud.py:25",
-          "token": "update_one(",
-          "detail": "Code uses update_one(",
-          "origin": "static_scan_only"
+          "token": "update_one",
+          "detail": "updates an order status and updated_at timestamp by _id",
+          "origin": "muse_cached"
         },
         {
           "type": "code",
           "ref": "shoplog/crud.py:29",
-          "token": "delete_one(",
-          "detail": "Code uses delete_one(",
-          "origin": "static_scan_only"
+          "token": "delete_one",
+          "detail": "deletes a single order by its _id",
+          "origin": "muse_cached"
         },
         {
           "type": "code",
           "ref": "shoplog/crud.py:33",
-          "token": "count_documents(",
-          "detail": "Code uses count_documents(",
-          "origin": "static_scan_only"
+          "token": "count_documents",
+          "detail": "counts orders filtered by status",
+          "origin": "muse_cached"
         }
       ],
       "independent_sources": 3,
@@ -156,7 +170,28 @@
       ]
     }
   ],
-  "behaviors": [],
+  "behaviors": [
+    {
+      "id": "B01",
+      "statement": "Listing orders for a customer or filtered by status returns at most 20 orders by default",
+      "sources": [
+        {
+          "type": "code",
+          "ref": "shoplog/crud.py:12",
+          "token": "20"
+        },
+        {
+          "type": "code",
+          "ref": "shoplog/crud.py:16",
+          "token": "20"
+        }
+      ],
+      "status": "INFERRED",
+      "confidence": 0.336,
+      "confidence_basis": "subq-snap-1.1, single source",
+      "independent_sources": 1
+    }
+  ],
   "subq": {
     "items": {
       "available": true,
@@ -164,7 +199,8 @@
     },
     "behaviors": {
       "available": true,
-      "asked": 0
+      "asked": 1,
+      "reason": null
     }
   }
 }

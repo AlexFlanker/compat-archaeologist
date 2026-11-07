@@ -366,7 +366,8 @@ def _brief(profile, ledger, runs, self_check, tco, cutover, drill, explain, meas
             "",
             f"**Hidden rules recovered blind**: {scoreboard['found']} of {scoreboard['total']} found"
             + (f" (+{scoreboard['partly']} partly)" if scoreboard["partly"] else "")
-            + f", {scoreboard['labels_correct']} of {scoreboard['total']} labeled correctly (OBSERVED or INFERRED). Scored against [docs/RULES.md](../../docs/RULES.md), which the pipeline never reads. Code evidence for this run: {scoreboard['code_evidence_source']}.",
+            + f", {scoreboard['labels_correct']} of {scoreboard['total']} labeled correctly (OBSERVED or INFERRED). Scored against [docs/RULES.md](../../docs/RULES.md), which the pipeline never reads. Code evidence for this run: {scoreboard['code_evidence_source']}."
+            + " One scoring pattern was fixed after the first run with Muse; the change log is in `archaeologist/scoreboard.py`.",
         ]
 
     if cutover:
