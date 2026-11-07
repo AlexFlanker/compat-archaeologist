@@ -5,40 +5,13 @@
   "target": "FerretDB",
   "full_load": {
     "collections": {
-      "carts": 2000,
-      "products": 500,
-      "customers": 5000,
+      "inventory": 500,
       "orders": 50000,
-      "inventory": 500
+      "customers": 5000,
+      "products": 500,
+      "carts": 2000
     },
     "indexes": [
-      {
-        "collection": "carts",
-        "name": "active_cart_expiry",
-        "ok": true
-      },
-      {
-        "collection": "carts",
-        "name": "customer_id_1",
-        "ok": true
-      },
-      {
-        "collection": "products",
-        "name": "product_search",
-        "ok": true
-      },
-      {
-        "collection": "products",
-        "name": "category_1",
-        "ok": true
-      },
-      {
-        "collection": "customers",
-        "name": "email_ci_unique",
-        "ok": false,
-        "code": 115,
-        "error": "Error in specification { \"name\" : \"email_ci_unique\", \"unique\" : true, \"key\" : { \"email\" : 1 }, \"collation\" : { \"locale\" : \"en\", \"caseLevel\" : false, \"caseFirst\" : \"off\", \"strength\" : 2, \"numericOrderi"
-      },
       {
         "collection": "orders",
         "name": "customer_id_1_placed_at_-1",
@@ -59,6 +32,33 @@
         "name": "coupon_once_per_customer",
         "ok": null,
         "skipped_by_copier": true
+      },
+      {
+        "collection": "customers",
+        "name": "email_ci_unique",
+        "ok": false,
+        "code": 115,
+        "error": "Error in specification { \"name\" : \"email_ci_unique\", \"unique\" : true, \"key\" : { \"email\" : 1 }, \"collation\" : { \"locale\" : \"en\", \"caseLevel\" : false, \"caseFirst\" : \"off\", \"strength\" : 2, \"numericOrderi"
+      },
+      {
+        "collection": "products",
+        "name": "product_search",
+        "ok": true
+      },
+      {
+        "collection": "products",
+        "name": "category_1",
+        "ok": true
+      },
+      {
+        "collection": "carts",
+        "name": "active_cart_expiry",
+        "ok": true
+      },
+      {
+        "collection": "carts",
+        "name": "customer_id_1",
+        "ok": true
       }
     ],
     "validators": [
@@ -665,5 +665,5 @@
       "evidence": "orders.coupon_once_per_customer index (unique, partialFilterExpression)"
     }
   ],
-  "seconds": 10.4
+  "seconds": 9.3
 }

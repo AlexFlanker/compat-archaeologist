@@ -5,13 +5,33 @@
   "target": "FerretDB",
   "full_load": {
     "collections": {
+      "orders": 50000,
       "customers": 5000,
       "products": 500,
       "carts": 2000,
-      "orders": 50000,
       "inventory": 500
     },
     "indexes": [
+      {
+        "collection": "orders",
+        "name": "customer_id_1_placed_at_-1",
+        "ok": true
+      },
+      {
+        "collection": "orders",
+        "name": "status_1_placed_at_-1",
+        "ok": true
+      },
+      {
+        "collection": "orders",
+        "name": "placed_at_1",
+        "ok": true
+      },
+      {
+        "collection": "orders",
+        "name": "coupon_once_per_customer",
+        "ok": true
+      },
       {
         "collection": "customers",
         "name": "email_ci_unique",
@@ -37,26 +57,6 @@
       {
         "collection": "carts",
         "name": "customer_id_1",
-        "ok": true
-      },
-      {
-        "collection": "orders",
-        "name": "customer_id_1_placed_at_-1",
-        "ok": true
-      },
-      {
-        "collection": "orders",
-        "name": "status_1_placed_at_-1",
-        "ok": true
-      },
-      {
-        "collection": "orders",
-        "name": "placed_at_1",
-        "ok": true
-      },
-      {
-        "collection": "orders",
-        "name": "coupon_once_per_customer",
         "ok": true
       }
     ],
@@ -521,5 +521,5 @@
     }
   ],
   "injected_faults": [],
-  "seconds": 9.5
+  "seconds": 9.6
 }

@@ -2,9 +2,9 @@
 
 Snapshot: 2026-11-07, 1:10 PM PT. Deadline is 5:00 PM: feature freeze 4:15, submit by 4:45.
 
-## The one-paragraph story
+## The one-paragraph story (v3.2: keep it generic, with no company names or real numbers)
 
-A team moved from MongoDB Atlas to a "MongoDB-compatible" service to save money. On paper it was compatible. In production it wasn't, and it cost more. **Compat Archaeologist** is an agent pipeline that does the homework that team skipped. It rebuilds how an app *really* uses MongoDB from evidence (data, query log, code, Atlas Performance Advisor). Then it tests every item on MongoDB and on a compatible engine side by side, and writes a cost-backed decision memo. The same pipeline tells a simple CRUD app "migration is fine". That's the fairness check, and it already works.
+A TB-scale production app moved from MongoDB Atlas to a "MongoDB-compatible" service to cut the bill and consolidate cloud spend. A managed full-load + CDC tool did the migration. The CDC missed events, and unique, TTL and validator constraints never came across; nobody noticed until after cutover. Aggregations slowed down or timed out, features driven by change streams broke, and I/O billing, scale-ups and extra services followed. A later major-version upgrade of the target didn't help much. They're still on it, paying more. The CTO never had a 12-month TCO, real-workload performance evidence, or a risk and reversibility assessment. **Compat Archaeologist** is an agent pipeline that does the homework that team skipped. It rebuilds how an app *really* uses MongoDB from evidence (data, query log, code, Atlas Performance Advisor). Then it tests every item on MongoDB and on a compatible engine side by side, and writes a cost-backed decision memo. The same pipeline tells a simple CRUD app "migration is fine". That's the fairness check, and it already works.
 
 Read these first, in order:
 1. [README.md](../README.md): what it does and what it found
@@ -35,6 +35,13 @@ On FerretDB 2.7, compared with MongoDB 8.0:
 - **The case-insensitive email index is refused.** Logins with different capitalization find nobody, with no error.
 - **The revenue report goes from ~7 ms to ~4,000 ms.** Postgres runs a sequential scan inside a nested loop.
 - **To be fair, it goes both ways.** Window functions, array updates and plain CRUD behave the same, and writes are faster on FerretDB.
+
+**Cutover fidelity, the demo's "caught it" moment.**
+- Even a clean simulated migration to FerretDB, with nothing injected, loses the case-insensitive unique index and the schema validator. On day one, a duplicate account and an invalid order are both accepted.
+- In the drill we inject a CDC gap and a dropped unique index **on purpose**, and the verifier catches both. Say "injected" out loud in the demo.
+- The control app's clean migration passes every check.
+
+**Upgrade check.** From FerretDB 2.2.0 to 2.7.0, nothing that was failing got fixed, and the revenue report is still about 4.3 s. Window functions did get faster.
 
 About AWS DocumentDB, **don't say "it lacks features"**. Engine 8.0.2's docs claim support for most of them. Our line is: *"on paper compatible is exactly why you test behavior."* DocumentDB conflicts with ShopLog only in a few documented limits: `$shift`, `$text` exclusion and array fields, and Atlas Search. It's marked **not verified**. FerretDB and AWS DocumentDB are different products despite the similar names.
 

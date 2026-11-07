@@ -209,7 +209,7 @@ def main() -> int:
     for fault in cutover_drill["injected_faults"]:
         console.print(f"  drill: injected {fault['fault']} → {'[green]caught[/]' if fault['caught'] else '[red]missed[/]'} ({fault['evidence']})")
 
-    upgrade_summary = upgrade.load(profile) if arguments.with_upgrade else None
+    upgrade_summary = upgrade.load(profile)
     if arguments.with_upgrade:
         _step("4d. Upgrade check: same probes and replay on an older target version")
         try:

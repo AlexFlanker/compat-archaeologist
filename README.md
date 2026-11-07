@@ -4,13 +4,17 @@
 
 **Before you migrate a database, get the archaeology done.**
 
-A team moves from MongoDB Atlas to a "MongoDB-compatible" service to save money. On paper it's compatible and cheaper. In production, queries get rewritten, aggregations slow down, features go missing, and the total cost ends up higher. Nobody had a precise, evidence-backed spec of how the app *actually* used MongoDB.
+A TB-scale production app moves from MongoDB Atlas to a "MongoDB-compatible" service to cut the bill and consolidate cloud spend. A managed full-load + CDC tool does the migration. After cutover, the team finds that the CDC missed events, and that unique, TTL and validator constraints never came across. Online and reporting aggregations slow down or time out. Features driven by change streams break. I/O billing and scale-ups follow, then extra services. A later major-version upgrade of the target doesn't materially help. The team is still on it, paying more than before.
 
-Compat Archaeologist is an agent pipeline that writes that spec and then tests it:
+The CTO who approved it never had three things: a 12-month TCO, performance evidence from the real workload, and an assessment of risk and reversibility. That story is a composite and is kept generic.
+
+Compat Archaeologist is an agent pipeline that produces that evidence before the decision:
 
 1. **Reconstructs the real MongoDB usage spec** of an application from three kinds of evidence: data samples (and the catalog), the profiler query log, and the application code. Atlas Performance Advisor adds a fourth source when an Atlas cluster is available. Each item is **OBSERVED** (seen at runtime or in the catalog) or **INFERRED** (code only), with a confidence score.
 2. **Proves behavioral equivalence, or finds the gaps.** It generates probes for every ledger item and replays the recorded workload on MongoDB and on a compatible target, side by side: result diffs, errors and p50/p95 latency, plus query plans for the slowest paths.
-3. **Produces a decision memo** that weighs infrastructure cost, rewrite effort and incident risk over 12 months, with a recommendation. Every claim links to its evidence.
+3. **Verifies the cutover itself.** It simulates a full-load + CDC migration while the source keeps taking writes, then reconciles independently: counts and content hashes, index and validator parity, the source oplog against applied events, business rules, and day-one writes the source would refuse.
+4. **Checks whether an upgrade helps.** The same probes and replay run against an older and a newer target version. Version-compatible isn't behavior- or performance-compatible.
+5. **Writes a one-page brief for the CTO**, with an evidence appendix. It covers the recommendation and its confidence, the top five risks with evidence links, and a 12-month TCO (infrastructure, I/O, scale-ups, extra services, rewrite person-days, incident cost). It also gives replay p95 and timeout rates, a reversibility score, and a projection to production size, marked INFERRED.
 
 The output is a Markdown memo ([ShopLog](out/shoplog/memo.md), [control app](out/lite/memo.md)) and, in ASI:One, interactive cards. There is no dashboard.
 
@@ -32,6 +36,12 @@ Observed on FerretDB 2.7.0, each also checked with plain pymongo outside the pip
 | `$setWindowFields`, `arrayFilters`, plain CRUD, `$text` matching | | Same results. `$text` ranks differently; writes are faster on FerretDB |
 
 FerretDB's own [compatibility page](https://docs.ferretdb.io/migration/compatibility/) lists transactions as not implemented yet, so that part is documented. The risk is that at runtime nothing tells the application.
+
+**Cutover fidelity.** The same copier, MongoDB to MongoDB, passes all 23 checks, so the verifier raises no false alarms.
+- **Clean migration to FerretDB**, with nothing injected: data and change events match exactly, yet 6 of 23 checks fail. The case-insensitive unique index and the schema validator don't survive. On day one, a duplicate account (same email, different case) and an invalid order are both accepted, and two business rules break.
+- **Drill**, with a CDC gap and a dropped unique index injected on purpose: the verifier caught both, finding 21 of the 27 affected documents out of sync. The other 6 were healed by later change events. The oplog count also exposed the gap.
+
+**Upgrade check.** From FerretDB 2.2.0 to 2.7.0, none of the failing behaviors were fixed, and the revenue report stayed at about 4.3 s. Window functions did get about 8× faster.
 
 **Fairness check.** The same pipeline, thresholds and assumptions run on a control app, ShopLog Lite, which uses only plain CRUD. Its verdict: *the migration is fine*, with FerretDB matching MongoDB on everything it does.
 
@@ -83,6 +93,8 @@ cp .env.example .env     # add META_API_KEY (or MODEL_API_KEY), SUBQ_API_KEY, op
 
 Regenerate the evidence: `python scripts/seed.py`, then `python scripts/workload.py --profile shoplog` (profiler on, exports `evidence/query_log.jsonl`).
 
+Cutover check on its own: `python -m archaeologist.cutover --scenario clean` (or `drill`, or add `--self-check` to migrate MongoDB to MongoDB). Upgrade mode: `docker compose --profile upgrade up -d`, then `./run_demo.sh --with-upgrade`.
+
 Atlas evidence (optional, M10+): `python scripts/atlas_evidence.py run`, then, a few minutes later, `python scripts/atlas_evidence.py collect`. Atlas stores results and serves as an evidence source; it is never part of the latency comparison.
 
 Tests: `.venv/bin/python -m pytest tests`.
@@ -103,6 +115,9 @@ Everything in this repository was written today, after 10:45 AM PT, during the A
 - The Usage-Spec Ledger and its confidence rules (`archaeologist/ledger.py`)
 - The declarative probe language, its runner, the MongoDB-as-oracle gate, and the probe generator (`archaeologist/probe_runner.py`, `archaeologist/probes.py`)
 - Normalization and the differential runner, workload replay, and explain() comparison (`archaeologist/normalize.py`, `diff.py`, `replay.py`, `explain_compare.py`)
+- The cutover fidelity check, with its full-load + CDC copier, fault injection and independent verifier (`archaeologist/cutover.py`)
+- Upgrade mode, comparing two target versions (`archaeologist/upgrade.py`)
+- The CTO brief: top risks, path latency and timeouts, reversibility, production-size projection (`archaeologist/brief.py`)
 - The DocumentDB documentation mapping, the cost model, the memo writer, Atlas storage and the pipeline (`archaeologist/`)
 - The ASI:One agent and its cards (`fetch_agent/`), plus tests (`tests/`)
 
@@ -125,7 +140,8 @@ Vendor facts are summarized in our own words, with links:
 
 ## Limits, stated plainly
 
-- ShopLog and its data are fictional and synthetic. Latency is measured locally, both engines in Docker on one machine with the same limits, so it's for comparison, not a production forecast.
+- ShopLog and its data are fictional and synthetic. Latency is measured locally on a mid-size dataset (50,000 orders, about 38 MB), with both engines in Docker on one machine and the same limits, so it's for comparison, not a production forecast. Projections to TB scale come from each query plan's growth shape and are labeled INFERRED.
+- The cutover drill's faults are injected on purpose to test the verifier. The clean run injects nothing.
 - Rewrite hours are model estimates, and incident risk inputs are assumptions. Both are labeled in the memo, with best and worst cases.
 - MongoDB's public sources disagree on whether Atlas list prices are per cluster or per node. The memo shows both readings.
 - The decision thresholds were committed before any model-generated probe ran, but after the author had seen results from handwritten test probes.
