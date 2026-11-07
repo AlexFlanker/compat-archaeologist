@@ -1,0 +1,253 @@
+{
+  "profile": "lite",
+  "assumptions": {
+    "as_of": "2026-11-07",
+    "horizon_months": 12,
+    "hours_per_month": 730,
+    "deployment": {
+      "clusters": 4,
+      "nodes_per_cluster": 3,
+      "dataset_gb_per_cluster": 80,
+      "average_iops_per_cluster": 200
+    },
+    "pricing": {
+      "atlas_m40": {
+        "per_hour": 1.04,
+        "specification": "4 vCPU, 16 GB RAM, 80 GB storage included",
+        "url": "https://www.mongodb.com/pricing",
+        "basis": "covers_default_cluster",
+        "alternative_basis": "per_node",
+        "basis_urls": [
+          "https://www.mongodb.com/pricing",
+          "https://www.mongodb.com/docs/atlas/billing/cluster-configuration-costs/"
+        ]
+      },
+      "documentdb_r6g_large": {
+        "specification": "2 vCPU, 16 GiB RAM (RAM-matched to M40; half the vCPUs, which favors migrating)",
+        "url": "https://pricing.us-east-1.amazonaws.com/offers/v1.0/aws/AmazonDocDB/current/us-east-1/index.json",
+        "standard": {
+          "per_hour": 0.26315,
+          "storage_per_gb_month": 0.1,
+          "per_million_io": 0.2
+        },
+        "io_optimized": {
+          "per_hour": 0.289465,
+          "storage_per_gb_month": 0.3
+        }
+      },
+      "ec2_r6g_large": {
+        "per_hour": 0.1008,
+        "specification": "2 vCPU, 16 GiB RAM",
+        "url": "https://instances.vantage.sh/aws/ec2/r6g.large"
+      },
+      "ebs_gp3": {
+        "per_gb_month": 0.08,
+        "note": "Not confirmed for us-east-1. AWS's EBS page uses this figure in a worked example without naming a region.",
+        "url": "https://aws.amazon.com/ebs/pricing/"
+      },
+      "search_service_opensearch": {
+        "per_hour": 0.167,
+        "storage_per_gb_month": 0.122,
+        "instances_per_cluster": 2,
+        "storage_gb_per_instance": 20,
+        "url": "https://pricing.us-east-1.amazonaws.com/offers/v1.0/aws/AmazonES/current/us-east-1/index.json",
+        "published": "2026-11-06"
+      }
+    },
+    "people": {
+      "engineer_cost_per_hour": 120
+    },
+    "migration_baseline_hours": {
+      "low": 24,
+      "base": 40,
+      "high": 80
+    },
+    "self_managed_ops_hours_per_month_per_cluster": {
+      "low": 1,
+      "base": 2,
+      "high": 4
+    },
+    "risk": {
+      "incident_cost": {
+        "low": 5000,
+        "base": 15000,
+        "high": 50000
+      },
+      "residual_incident_probability": {
+        "silent": 0.5,
+        "loud": 0.1,
+        "performance": 0.25,
+        "documented_conflict": 0.1
+      }
+    },
+    "decision": {
+      "blocking_verdicts": [
+        "unsupported",
+        "error",
+        "result_diff",
+        "timeout"
+      ],
+      "minimum_confidence_to_block": 0.7,
+      "performance_regression": {
+        "minimum_ratio": 2.0,
+        "minimum_added_ms": 50
+      }
+    }
+  },
+  "targets": {
+    "FerretDB": {
+      "evidence": "OBSERVED",
+      "gaps": [],
+      "economics": {
+        "annual_costs": {
+          "MongoDB Atlas": 36441.6,
+          "FerretDB": 11517.7,
+          "AWS DocumentDB": 31580.56
+        },
+        "search_service_annual": 0.0,
+        "infra_savings": 24923.9,
+        "net": {
+          "best": 16283.9,
+          "base": 8603.9,
+          "worst": -7716.1
+        },
+        "breakdown": {
+          "best": {
+            "ops_cost": 5760,
+            "migration_hours": 24,
+            "rewrite_hours": 0,
+            "one_time_cost": 2880,
+            "residual_risk_cost": 0
+          },
+          "base": {
+            "ops_cost": 11520,
+            "migration_hours": 40,
+            "rewrite_hours": 0,
+            "one_time_cost": 4800,
+            "residual_risk_cost": 0
+          },
+          "worst": {
+            "ops_cost": 23040,
+            "migration_hours": 80,
+            "rewrite_hours": 0,
+            "one_time_cost": 9600,
+            "residual_risk_cost": 0
+          }
+        },
+        "payback_months": 4.3,
+        "break_even_rewrite_hours": 71.7,
+        "rewrite_estimates_missing": []
+      },
+      "decision": "GO",
+      "decision_text": "Safe to migrate, and it pays off",
+      "sensitivity": {
+        "atlas_per_node": {
+          "net_base": 81487.1,
+          "infra_savings": 97807.1,
+          "decision": "GO"
+        },
+        "clusters": {
+          "1": {
+            "net_base": -1449.02,
+            "infra_savings": 6230.98,
+            "decision": "SAFE_BUT_NOT_WORTH_IT"
+          },
+          "4": {
+            "net_base": 8603.9,
+            "infra_savings": 24923.9,
+            "decision": "GO"
+          },
+          "10": {
+            "net_base": 28709.76,
+            "infra_savings": 62309.76,
+            "decision": "GO"
+          },
+          "25": {
+            "net_base": 78974.4,
+            "infra_savings": 155774.4,
+            "decision": "GO"
+          }
+        }
+      }
+    },
+    "AWS DocumentDB": {
+      "evidence": "INFERRED",
+      "gaps": [],
+      "economics": {
+        "annual_costs": {
+          "MongoDB Atlas": 36441.6,
+          "FerretDB": 11517.7,
+          "AWS DocumentDB": 31580.56
+        },
+        "search_service_annual": 0.0,
+        "infra_savings": 4861.04,
+        "net": {
+          "best": 1981.04,
+          "base": 61.04,
+          "worst": -4738.96
+        },
+        "breakdown": {
+          "best": {
+            "ops_cost": 0,
+            "migration_hours": 24,
+            "rewrite_hours": 0,
+            "one_time_cost": 2880,
+            "residual_risk_cost": 0
+          },
+          "base": {
+            "ops_cost": 0,
+            "migration_hours": 40,
+            "rewrite_hours": 0,
+            "one_time_cost": 4800,
+            "residual_risk_cost": 0
+          },
+          "worst": {
+            "ops_cost": 0,
+            "migration_hours": 80,
+            "rewrite_hours": 0,
+            "one_time_cost": 9600,
+            "residual_risk_cost": 0
+          }
+        },
+        "payback_months": 11.8,
+        "break_even_rewrite_hours": 0.5,
+        "rewrite_estimates_missing": []
+      },
+      "decision": "VERIFY_FIRST",
+      "decision_text": "Not verified: test on a real cluster before deciding",
+      "sensitivity": {
+        "atlas_per_node": {
+          "net_base": 72944.24,
+          "infra_savings": 77744.24,
+          "decision": "VERIFY_FIRST"
+        },
+        "clusters": {
+          "1": {
+            "net_base": -3584.74,
+            "infra_savings": 1215.26,
+            "decision": "VERIFY_FIRST"
+          },
+          "4": {
+            "net_base": 61.04,
+            "infra_savings": 4861.04,
+            "decision": "VERIFY_FIRST"
+          },
+          "10": {
+            "net_base": 7352.6,
+            "infra_savings": 12152.6,
+            "decision": "VERIFY_FIRST"
+          },
+          "25": {
+            "net_base": 25581.5,
+            "infra_savings": 30381.5,
+            "decision": "VERIFY_FIRST"
+          }
+        }
+      }
+    }
+  },
+  "subq": {
+    "available": false,
+    "reason": "SUBQ_API_KEY is not set"
+  }
+}

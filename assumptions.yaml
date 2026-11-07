@@ -43,6 +43,16 @@ pricing:
     note: "Not confirmed for us-east-1. AWS's EBS page uses this figure in a worked example without naming a region."
     url: https://aws.amazon.com/ebs/pricing/
 
+  # Atlas Search runs on the Atlas cluster at no separate charge unless dedicated search nodes
+  # are added. Engines without it need a search service; this prices Amazon OpenSearch.
+  search_service_opensearch:
+    per_hour: 0.167 # r6g.large.search, on demand
+    storage_per_gb_month: 0.122 # gp3
+    instances_per_cluster: 2 # Two nodes for availability.
+    storage_gb_per_instance: 20
+    url: https://pricing.us-east-1.amazonaws.com/offers/v1.0/aws/AmazonES/current/us-east-1/index.json
+    published: "2026-11-06"
+
 people:
   engineer_cost_per_hour: 120
 

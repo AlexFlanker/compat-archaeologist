@@ -112,6 +112,8 @@ def features_of(entry: dict) -> set[str]:
 
     if "$changeStream" in stages:
         features.add("F5")
+    if "$search" in stages or "$searchMeta" in stages:
+        features.add("F11")
     if "$facet" in stages or any(
         isinstance(stage.get("$lookup"), dict) and "pipeline" in stage["$lookup"] for stage in pipeline_of(entry)
     ):

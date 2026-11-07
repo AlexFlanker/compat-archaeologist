@@ -3,6 +3,7 @@
   "code_evidence_source": "static_scan_only",
   "code_model": null,
   "citations_dropped": 0,
+  "atlas": null,
   "operators": {
     "$set": 60,
     "$match": 30,

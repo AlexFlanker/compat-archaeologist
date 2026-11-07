@@ -47,6 +47,8 @@ def _source_summary(item: dict) -> str:
     if "querylog" in kinds:
         ops = sum(source.get("count", 0) for source in item["sources"] if source["type"] == "querylog")
         labels.append(f"query log ({ops:,} ops)")
+    if "atlas-performance-advisor" in kinds:
+        labels.append("Atlas Performance Advisor")
     if "code" in kinds:
         labels.append("code")
     return " + ".join(labels)
@@ -56,8 +58,11 @@ def _confidence(record: dict) -> str:
     return f"{record['confidence']:.2f}" if record["confidence"] is not None else "unknown"
 
 
-def _ferretdb_cell(feature: str, runs: dict) -> str:
+def _ferretdb_cell(feature: str, runs: dict, documented: dict | None = None) -> str:
     info = runs["features"].get(feature)
+    if documented and feature in documented:
+        entry = documented[feature]
+        return f"🟠 INFERRED: [not supported per FerretDB docs]({entry['url']})<br>{entry['limits']}"
     if not info:
         return VERDICT_LABEL["no_probe"]
     label = VERDICT_LABEL.get(info["verdict"], info["verdict"])
@@ -152,6 +157,7 @@ def _cost_section(tco: dict) -> list[str]:
 
     row("Atlas today, per year", lambda info: _money(atlas))
     row("Target infrastructure, per year", lambda info: _money(info["economics"]["annual_costs"][FERRETDB if info is ferretdb else DOCUMENTDB]))
+    row("  of which a separate search service", lambda info: _money(info["economics"].get("search_service_annual", 0)))
     row("Infrastructure saved", lambda info: _money(info["economics"]["infra_savings"]))
     row("Self-managed operations", lambda info: f"-{_money(info['economics']['breakdown']['base']['ops_cost'])}")
     row("Migration baseline (assumed hours)", lambda info: f"{info['economics']['breakdown']['base']['migration_hours']} h")
@@ -178,7 +184,54 @@ def _cost_section(tco: dict) -> list[str]:
     return lines
 
 
-def write(profile: str, ledger: dict, runs: dict, self_check: dict | None, docdb: dict, tco: dict, invalid_probes: list[dict]) -> str:
+def _explain_section(explain: dict | None) -> list[str]:
+    if not explain:
+        return []
+    lines = ["", "## Why the slow paths are slow", ""]
+    if not explain.get("available"):
+        return lines + [f"Query plans weren't collected: {explain.get('reason')}."]
+    lines.append(f"Plans from the MongoDB MCP Server's `explain` tool (`{explain['tool']}`), run read-only against each engine on the slowest replayed queries.")
+    lines.append("")
+    for comparison in explain["comparisons"]:
+        source, target = comparison["source"], comparison["target"]
+        p95 = comparison["replay_p95_ms"]
+        lines.append(f"**{', '.join(comparison['features']) or 'other'} on {comparison['collection']}** (replay p95 {_ms(p95['source'])} on MongoDB, {_ms(p95['target'])} on FerretDB)")
+        lines.append(f"- MongoDB: `{source.get('plan', source.get('error'))}`, {source.get('docs_examined')} documents examined.")
+        lines.append(
+            f"- FerretDB (Postgres plan): `{target.get('plan', target.get('error'))}`, with {target.get('full_scans')} sequential scan(s) and {target.get('nested_loops')} nested loop(s)."
+        )
+        lines.append("")
+    return lines
+
+
+def _atlas_section(atlas: dict | None) -> list[str]:
+    lines = ["", "## What Atlas observed", ""]
+    if not atlas:
+        return lines + ["No Atlas evidence was collected for this run. `scripts/atlas_evidence.py` seeds an Atlas cluster, runs the workload, and collects Performance Advisor output through the MongoDB MCP Server."]
+    lines.append(f"Collected from Atlas cluster `{atlas['cluster']}` through the MongoDB MCP Server. Atlas served as an evidence source only and wasn't part of the latency comparison.")
+    lines.append(f"- Performance Advisor: {'available' if atlas['advisor_available'] else 'not available'}; {atlas['slow_operations']} slow operation(s) in its log.")
+    for feature, info in atlas["slow_by_feature"].items():
+        lines.append(f"  - {feature}: {info['count']} slow operation(s), slowest {info['max_ms']} ms.")
+    for index in atlas["suggested_indexes"][:5]:
+        lines.append(f"- Suggested index: `{json.dumps(index, default=str)[:200]}`")
+    for advice in atlas["schema_advice"][:5]:
+        lines.append(f"- Schema advice: `{json.dumps(advice, default=str)[:200]}`")
+    for index in atlas["search_indexes"]:
+        lines.append(f"- Atlas Search index `{index['name']}` on {', '.join(index['fields'])} (status {index['status']}).")
+    return lines
+
+
+def write(
+    profile: str,
+    ledger: dict,
+    runs: dict,
+    self_check: dict | None,
+    docdb: dict,
+    tco: dict,
+    invalid_probes: list[dict],
+    ferretdb_documented: dict | None = None,
+    explain: dict | None = None,
+) -> str:
     app = APP_NAME.get(profile, profile)
     ferretdb, documentdb = tco["targets"][FERRETDB], tco["targets"][DOCUMENTDB]
     engines = runs["engines"]
@@ -205,7 +258,7 @@ def write(profile: str, ledger: dict, runs: dict, self_check: dict | None, docdb
     ]
     for item in ledger["items"]:
         lines.append(
-            f"| {item['id']} | {item['feature']} | {_source_summary(item)} | {item['status']} | {_confidence(item)} | {_ferretdb_cell(item['id'], runs)} | {_docdb_cell(item['id'], docdb)} |"
+            f"| {item['id']} | {item['feature']} | {_source_summary(item)} | {item['status']} | {_confidence(item)} | {_ferretdb_cell(item['id'], runs, ferretdb_documented)} | {_docdb_cell(item['id'], docdb)} |"
         )
 
     findings = _probe_findings(runs)
@@ -241,6 +294,9 @@ def write(profile: str, ledger: dict, runs: dict, self_check: dict | None, docdb
         "|---|---|---|---|---|---|",
     ]
     lines += _latency_rows(runs)
+    lines += _explain_section(explain)
+    if profile == "shoplog":
+        lines += _atlas_section(ledger.get("atlas"))
 
     lines += ["", "## Cost over 12 months", ""]
     lines += _cost_section(tco)

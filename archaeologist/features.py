@@ -17,6 +17,7 @@ FEATURES = {
     "F8": {"name": "$jsonSchema validator", "why_risky": "Validation may be limited or silently not enforced"},
     "F9": {"name": "$text search", "why_risky": "Scoring, exclusion terms and language handling differ"},
     "F10": {"name": "Plain CRUD by _id and simple filters", "why_risky": "Control group: expected to behave the same"},
+    "F11": {"name": "Atlas Search ($search with a search index)", "why_risky": "Atlas-only: other engines need a separate search service"},
 }
 
 # Strings a static scan can match in source code, used to check model findings and as a
@@ -32,6 +33,7 @@ CODE_TOKENS = {
     "F8": ["$jsonSchema", "validator="],
     "F9": ["$text", "$meta"],
     "F10": ["find_one(", "insert_one(", "update_one(", "delete_one(", "count_documents("],
+    "F11": ['{"$search": {"index"', "create_search_index("],
 }
 
 # Stages that are unusual enough to surface as their own item when found outside F1-F10.

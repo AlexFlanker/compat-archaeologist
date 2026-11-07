@@ -3,32 +3,33 @@
   "code_evidence_source": "static_scan_only",
   "code_model": null,
   "citations_dropped": 0,
+  "atlas": null,
   "operators": {
-    "$set": 330,
-    "$sum": 235,
+    "$set": 333,
+    "$sum": 236,
     "$meta": 200,
     "$inc": 179,
-    "$match": 165,
-    "$gte": 135,
-    "$in": 117,
+    "$match": 166,
+    "$gte": 149,
+    "$in": 119,
     "$text": 100,
     "$search": 100,
     "$eq": 100,
     "$project": 100,
-    "$group": 95,
+    "$group": 96,
     "$ne": 80,
     "$addFields": 80,
     "$cond": 80,
     "$type": 80,
     "$round": 80,
     "$multiply": 80,
-    "$push": 71,
+    "$push": 72,
     "$sort": 70,
     "$setWindowFields": 60,
     "$documentNumber": 60,
     "$shift": 60,
-    "$elemMatch": 45,
-    "$nin": 45,
+    "$elemMatch": 46,
+    "$nin": 46,
     "$lt": 30,
     "$lookup": 30,
     "$expr": 30,
@@ -40,12 +41,12 @@
     "$lte": 2
   },
   "stages": {
-    "$match": 186,
+    "$match": 193,
     "$addFields": 80,
     "$setWindowFields": 60,
     "$project": 60,
-    "$group": 55,
-    "$changeStream": 51,
+    "$changeStream": 57,
+    "$group": 56,
     "$lookup": 30,
     "$unwind": 20,
     "$facet": 20,
@@ -100,8 +101,8 @@
               {
                 "$match": {
                   "placed_at": {
-                    "$gte": "2017-07-01 00:00:00",
-                    "$lt": "2017-08-01 00:00:00"
+                    "$gte": "2024-01-01 00:00:00",
+                    "$lt": "2024-02-01 00:00:00"
                   },
                   "status": {
                     "$ne": "cancelled"
@@ -246,7 +247,7 @@
                         "$expr": {
                           "$lt": [
                             "$on_hand",
-                            50
+                            200
                           ]
                         }
                       }
@@ -329,7 +330,7 @@
             "pipeline": [
               {
                 "$match": {
-                  "customer_id": "C002547",
+                  "customer_id": "C000507",
                   "status": {
                     "$ne": "cancelled"
                   }
@@ -426,8 +427,8 @@
         {
           "type": "querylog",
           "ref": "evidence query log, shapes Sdfb00aac, Se06fc905",
-          "count": 55,
-          "detail": "55 recorded operations across 2 shape(s)"
+          "count": 56,
+          "detail": "56 recorded operations across 2 shape(s)"
         },
         {
           "type": "data",
@@ -473,22 +474,6 @@
           "ns": "shoplog_wl.orders",
           "command": {
             "q": {
-              "_id": "O00001434"
-            },
-            "u": {
-              "$set": {
-                "items.$[].reviewed_by": "qa-bot"
-              }
-            },
-            "multi": false,
-            "upsert": false
-          }
-        },
-        {
-          "op": "update",
-          "ns": "shoplog_wl.orders",
-          "command": {
-            "q": {
               "_id": "O00001995",
               "status": {
                 "$in": [
@@ -504,19 +489,36 @@
                 "updated_at": "2026-11-02 00:00:00"
               },
               "$inc": {
-                "refund_total": 43800
+                "refund_total": 64800
               }
             },
             "arrayFilters": [
               {
                 "line.line_id": {
                   "$in": [
-                    1
+                    1,
+                    2
                   ]
                 },
                 "line.refund_status": "none"
               }
             ],
+            "multi": false,
+            "upsert": false
+          }
+        },
+        {
+          "op": "update",
+          "ns": "shoplog_wl.orders",
+          "command": {
+            "q": {
+              "_id": "O00001473"
+            },
+            "u": {
+              "$set": {
+                "items.$[].reviewed_by": "qa-bot"
+              }
+            },
             "multi": false,
             "upsert": false
           }
@@ -567,8 +569,8 @@
         {
           "type": "querylog",
           "ref": "evidence query log, shapes Sf05e5fb0",
-          "count": 51,
-          "detail": "51 recorded operations across 1 shape(s)"
+          "count": 57,
+          "detail": "57 recorded operations across 1 shape(s)"
         },
         {
           "type": "code",
@@ -587,7 +589,7 @@
           "op": "getmore",
           "ns": "shoplog_wl.inventory",
           "command": {
-            "getMore": 5351018646582498152,
+            "getMore": 7493526430982320200,
             "collection": "inventory",
             "maxTimeMS": 200
           }
@@ -649,7 +651,7 @@
           "command": {
             "find": "customers",
             "filter": {
-              "email": "User1655@example.com"
+              "email": "USER4841@EXAMPLE.COM"
             },
             "limit": 1,
             "singleBatch": true,
@@ -757,7 +759,7 @@
     {
       "id": "F9",
       "feature": "$text search",
-      "behavior": "Code uses $text | Code uses $meta",
+      "behavior": "Code uses $meta | Code uses $text",
       "why_risky": "Scoring, exclusion terms and language handling differ",
       "sources": [
         {
@@ -773,21 +775,28 @@
         },
         {
           "type": "code",
-          "ref": "shoplog/catalog.py:9",
-          "token": "$text",
-          "detail": "Code uses $text",
-          "origin": "static_scan_only"
-        },
-        {
-          "type": "code",
-          "ref": "shoplog/catalog.py:10",
+          "ref": "shoplog/catalog.py:15",
           "token": "$meta",
           "detail": "Code uses $meta",
           "origin": "static_scan_only"
         },
         {
           "type": "code",
-          "ref": "shoplog/catalog.py:12",
+          "ref": "shoplog/catalog.py:32",
+          "token": "$text",
+          "detail": "Code uses $text",
+          "origin": "static_scan_only"
+        },
+        {
+          "type": "code",
+          "ref": "shoplog/catalog.py:33",
+          "token": "$meta",
+          "detail": "Code uses $meta",
+          "origin": "static_scan_only"
+        },
+        {
+          "type": "code",
+          "ref": "shoplog/catalog.py:35",
           "token": "$meta",
           "detail": "Code uses $meta",
           "origin": "static_scan_only"
@@ -805,7 +814,7 @@
             "find": "products",
             "filter": {
               "$text": {
-                "$search": "rugged tent"
+                "$search": "premium"
               },
               "active": true
             },
@@ -837,8 +846,8 @@
         {
           "type": "querylog",
           "ref": "evidence query log, shapes S10aa717d, S181542d4, S38ca7604, S3a146702",
-          "count": 1001,
-          "detail": "1001 recorded operations across 18 shape(s)"
+          "count": 1034,
+          "detail": "1034 recorded operations across 19 shape(s)"
         },
         {
           "type": "data",
@@ -1093,48 +1102,78 @@
           "command": {
             "find": "orders",
             "filter": {
-              "_id": "O00024805"
+              "_id": "O00024033"
             },
             "limit": 1,
             "singleBatch": true
           }
         },
         {
-          "op": "query",
-          "ns": "shoplog_wl.orders",
+          "op": "update",
+          "ns": "shoplog_wl.inventory",
           "command": {
-            "find": "orders",
-            "filter": {
-              "customer_id": "C002764"
+            "q": {
+              "_id": "SKU-0023",
+              "on_hand": {
+                "$gte": 1
+              }
             },
-            "sort": {
-              "placed_at": -1,
-              "_id": 1
+            "u": {
+              "$inc": {
+                "on_hand": -1,
+                "reserved": 1
+              },
+              "$set": {
+                "updated_at": "2026-11-02 00:00:00"
+              }
             },
-            "projection": {
-              "status": 1,
-              "total": 1,
-              "placed_at": 1
-            },
-            "limit": 20
+            "multi": false,
+            "upsert": false
           }
         },
         {
-          "op": "query",
-          "ns": "shoplog_wl.products",
+          "op": "insert",
+          "ns": "shoplog_wl.inventory_events",
           "command": {
-            "find": "products",
-            "filter": {
-              "category": "kitchen",
-              "active": true
-            },
-            "sort": {
-              "_id": 1
-            },
-            "limit": 40
+            "insert": "inventory_events",
+            "ordered": true
           }
         }
       ]
+    },
+    {
+      "id": "F11",
+      "feature": "Atlas Search ($search with a search index)",
+      "behavior": "Code uses {\"$search\": {\"index\" | Code uses create_search_index(",
+      "why_risky": "Atlas-only: other engines need a separate search service",
+      "sources": [
+        {
+          "type": "code",
+          "ref": "shoplog/catalog.py:10",
+          "token": "{\"$search\": {\"index\"",
+          "detail": "Code uses {\"$search\": {\"index\"",
+          "origin": "static_scan_only"
+        },
+        {
+          "type": "code",
+          "ref": "shoplog/catalog.py:22",
+          "token": "{\"$search\": {\"index\"",
+          "detail": "Code uses {\"$search\": {\"index\"",
+          "origin": "static_scan_only"
+        },
+        {
+          "type": "code",
+          "ref": "shoplog/schema.py:106",
+          "token": "create_search_index(",
+          "detail": "Code uses create_search_index(",
+          "origin": "static_scan_only"
+        }
+      ],
+      "independent_sources": 1,
+      "status": "INFERRED",
+      "confidence": null,
+      "confidence_basis": "unknown: SUBQ_API_KEY is not set",
+      "sample_operations": []
     },
     {
       "id": "X:graphLookup",
@@ -1626,7 +1665,7 @@
   "subq": {
     "items": {
       "available": false,
-      "asked": 1,
+      "asked": 2,
       "reason": "SUBQ_API_KEY is not set"
     },
     "behaviors": {

@@ -1,5 +1,5 @@
 {
-  "run_id": "20261107T204203Z",
+  "run_id": "20261107T205342Z",
   "profile": "shoplog",
   "self_check": false,
   "probe_origin": "handwritten_fixture",
@@ -27,19 +27,19 @@
           {
             "label": "seed",
             "op": "command",
-            "ms": 55.25,
+            "ms": 37.27,
             "status": "ok"
           },
           {
             "label": "update",
             "op": "command",
-            "ms": 1.79,
+            "ms": 1.03,
             "status": "ok"
           },
           {
             "label": "read",
             "op": "command",
-            "ms": 1.21,
+            "ms": 0.51,
             "status": "ok",
             "captured": {
               "docs": [
@@ -86,7 +86,7 @@
             }
           }
         ],
-        "seconds": 0.069
+        "seconds": 0.04
       },
       "target": {
         "outcome": "completed",
@@ -94,19 +94,19 @@
           {
             "label": "seed",
             "op": "command",
-            "ms": 9.75,
+            "ms": 7.36,
             "status": "ok"
           },
           {
             "label": "update",
             "op": "command",
-            "ms": 2.14,
+            "ms": 1.85,
             "status": "ok"
           },
           {
             "label": "read",
             "op": "command",
-            "ms": 0.96,
+            "ms": 0.68,
             "status": "ok",
             "captured": {
               "docs": [
@@ -153,7 +153,7 @@
             }
           }
         ],
-        "seconds": 0.023
+        "seconds": 0.019
       },
       "verdict": "equal",
       "detail": {}
@@ -169,13 +169,13 @@
           {
             "label": "create",
             "op": "command",
-            "ms": 56.98,
+            "ms": 37.12,
             "status": "ok"
           },
           {
             "label": "seed",
             "op": "command",
-            "ms": 1.58,
+            "ms": 1.04,
             "status": "ok"
           },
           {
@@ -187,19 +187,19 @@
           {
             "label": "decrement",
             "op": "command",
-            "ms": 1.86,
+            "ms": 0.66,
             "status": "ok"
           },
           {
             "label": "abort",
             "op": "txn_abort",
-            "ms": 2.07,
+            "ms": 0.64,
             "status": "ok"
           },
           {
             "label": "read",
             "op": "command",
-            "ms": 0.98,
+            "ms": 0.52,
             "status": "ok",
             "captured": {
               "docs": [
@@ -220,7 +220,7 @@
             }
           }
         ],
-        "seconds": 0.076
+        "seconds": 0.042
       },
       "target": {
         "outcome": "completed",
@@ -228,37 +228,37 @@
           {
             "label": "create",
             "op": "command",
-            "ms": 11.17,
+            "ms": 8.97,
             "status": "ok"
           },
           {
             "label": "seed",
             "op": "command",
-            "ms": 3.15,
+            "ms": 1.44,
             "status": "ok"
           },
           {
             "label": "begin",
             "op": "txn_start",
-            "ms": 0.02,
+            "ms": 0.01,
             "status": "ok"
           },
           {
             "label": "decrement",
             "op": "command",
-            "ms": 2.88,
+            "ms": 1.31,
             "status": "ok"
           },
           {
             "label": "abort",
             "op": "txn_abort",
-            "ms": 0.53,
+            "ms": 0.66,
             "status": "ok"
           },
           {
             "label": "read",
             "op": "command",
-            "ms": 1.54,
+            "ms": 0.9,
             "status": "ok",
             "captured": {
               "docs": [
@@ -279,7 +279,7 @@
             }
           }
         ],
-        "seconds": 0.03
+        "seconds": 0.023
       },
       "verdict": "result_diff",
       "detail": {
@@ -303,19 +303,19 @@
           {
             "label": "index",
             "op": "command",
-            "ms": 55.35,
+            "ms": 39.39,
             "status": "ok"
           },
           {
             "label": "first",
             "op": "command",
-            "ms": 1.36,
+            "ms": 0.94,
             "status": "ok"
           },
           {
             "label": "variant",
             "op": "command",
-            "ms": 1.31,
+            "ms": 1.1,
             "status": "ok",
             "captured": {
               "error_code": 11000
@@ -324,7 +324,7 @@
             "message": "write error"
           }
         ],
-        "seconds": 0.069
+        "seconds": 0.043
       },
       "target": {
         "outcome": "failed",
@@ -332,13 +332,13 @@
           {
             "label": "index",
             "op": "command",
-            "ms": 3.12,
+            "ms": 1.66,
             "status": "error",
             "code": 115,
             "message": "Error in specification { \"key\" : { \"email\" : 1 }, \"name\" : \"ci\", \"unique\" : true, \"collation\" : { \"locale\" : \"en\", \"strength\" : 2 } } :: caused by :: createIndex.collation is not implemented yet, full error: {'ok': 0.0, 'errmsg': 'Error in specification { \"key\" : { \"email\" : 1 }, \"name\" : \"ci\", \"unique\" : true, \"collation\" : { \"locale\" : \"en\", \"strength\" : 2 } } :: caused by :: createIndex.collati"
           }
         ],
-        "seconds": 0.005
+        "seconds": 0.003
       },
       "verdict": "unsupported",
       "detail": {
@@ -358,13 +358,13 @@
           {
             "label": "create",
             "op": "command",
-            "ms": 57.37,
+            "ms": 34.43,
             "status": "ok"
           },
           {
             "label": "bad",
             "op": "command",
-            "ms": 1.12,
+            "ms": 1.21,
             "status": "ok",
             "captured": {
               "error_code": 121
@@ -373,7 +373,7 @@
             "message": "write error"
           }
         ],
-        "seconds": 0.061
+        "seconds": 0.038
       },
       "target": {
         "outcome": "completed",
@@ -381,13 +381,13 @@
           {
             "label": "create",
             "op": "command",
-            "ms": 12.44,
+            "ms": 12.53,
             "status": "ok"
           },
           {
             "label": "bad",
             "op": "command",
-            "ms": 2.05,
+            "ms": 1.8,
             "status": "unexpected_success",
             "captured": {
               "no_error": true
@@ -419,19 +419,19 @@
           {
             "label": "index",
             "op": "command",
-            "ms": 59.22,
+            "ms": 34.26,
             "status": "ok"
           },
           {
             "label": "seed",
             "op": "command",
-            "ms": 1.52,
+            "ms": 0.91,
             "status": "ok"
           },
           {
             "label": "search",
             "op": "command",
-            "ms": 0.91,
+            "ms": 0.81,
             "status": "ok",
             "captured": {
               "docs": [
@@ -450,7 +450,7 @@
             }
           }
         ],
-        "seconds": 0.064
+        "seconds": 0.038
       },
       "target": {
         "outcome": "completed",
@@ -458,19 +458,19 @@
           {
             "label": "index",
             "op": "command",
-            "ms": 16.03,
+            "ms": 9.14,
             "status": "ok"
           },
           {
             "label": "seed",
             "op": "command",
-            "ms": 4.1,
+            "ms": 2.22,
             "status": "ok"
           },
           {
             "label": "search",
             "op": "command",
-            "ms": 26.69,
+            "ms": 65.99,
             "status": "ok",
             "captured": {
               "docs": [
@@ -489,7 +489,7 @@
             }
           }
         ],
-        "seconds": 0.053
+        "seconds": 0.082
       },
       "verdict": "equal",
       "detail": {}
@@ -505,13 +505,13 @@
           {
             "label": "seed",
             "op": "command",
-            "ms": 59.09,
+            "ms": 38.53,
             "status": "ok"
           },
           {
             "label": "window",
             "op": "command",
-            "ms": 0.8,
+            "ms": 0.93,
             "status": "ok",
             "captured": {
               "docs": [
@@ -548,7 +548,7 @@
             }
           }
         ],
-        "seconds": 0.061
+        "seconds": 0.042
       },
       "target": {
         "outcome": "completed",
@@ -556,13 +556,13 @@
           {
             "label": "seed",
             "op": "command",
-            "ms": 16.09,
+            "ms": 12.07,
             "status": "ok"
           },
           {
             "label": "window",
             "op": "command",
-            "ms": 2.1,
+            "ms": 2.05,
             "status": "ok",
             "captured": {
               "docs": [
@@ -599,7 +599,7 @@
             }
           }
         ],
-        "seconds": 0.028
+        "seconds": 0.022
       },
       "verdict": "equal",
       "detail": {}
@@ -615,13 +615,13 @@
           {
             "label": "seed",
             "op": "command",
-            "ms": 14.84,
+            "ms": 10.38,
             "status": "ok"
           },
           {
             "label": "update",
             "op": "command",
-            "ms": 1.08,
+            "ms": 2.95,
             "status": "ok",
             "captured": {
               "n": 1,
@@ -636,7 +636,7 @@
           {
             "label": "delete",
             "op": "command",
-            "ms": 0.86,
+            "ms": 2.4,
             "status": "ok",
             "captured": {
               "n": 1
@@ -649,7 +649,7 @@
           {
             "label": "read",
             "op": "command",
-            "ms": 0.34,
+            "ms": 0.46,
             "status": "ok",
             "captured": {
               "docs": [
@@ -670,7 +670,7 @@
             }
           }
         ],
-        "seconds": 0.125
+        "seconds": 0.118
       },
       "target": {
         "outcome": "completed",
@@ -678,13 +678,13 @@
           {
             "label": "seed",
             "op": "command",
-            "ms": 5.99,
+            "ms": 4.85,
             "status": "ok"
           },
           {
             "label": "update",
             "op": "command",
-            "ms": 1.5,
+            "ms": 2.44,
             "status": "ok",
             "captured": {
               "n": 1,
@@ -699,7 +699,7 @@
           {
             "label": "delete",
             "op": "command",
-            "ms": 0.9,
+            "ms": 1.29,
             "status": "ok",
             "captured": {
               "n": 1
@@ -712,7 +712,7 @@
           {
             "label": "read",
             "op": "command",
-            "ms": 3.14,
+            "ms": 2.81,
             "status": "ok",
             "captured": {
               "docs": [
@@ -733,7 +733,7 @@
             }
           }
         ],
-        "seconds": 0.017
+        "seconds": 0.018
       },
       "verdict": "equal",
       "detail": {}
@@ -749,25 +749,25 @@
           {
             "label": "seed",
             "op": "command",
-            "ms": 12.87,
+            "ms": 9.97,
             "status": "ok"
           },
           {
             "label": "open",
             "op": "watch_open",
-            "ms": 1.22,
+            "ms": 1.41,
             "status": "ok"
           },
           {
             "label": "update",
             "op": "command",
-            "ms": 0.68,
+            "ms": 1.58,
             "status": "ok"
           },
           {
             "label": "next",
             "op": "watch_next",
-            "ms": 0.47,
+            "ms": 0.76,
             "status": "ok",
             "captured": [
               {
@@ -818,11 +818,11 @@
           {
             "label": "close",
             "op": "watch_close",
-            "ms": 0.97,
+            "ms": 0.62,
             "status": "ok"
           }
         ],
-        "seconds": 0.123
+        "seconds": 0.118
       },
       "target": {
         "outcome": "failed",
@@ -830,19 +830,19 @@
           {
             "label": "seed",
             "op": "command",
-            "ms": 4.65,
+            "ms": 5.1,
             "status": "ok"
           },
           {
             "label": "open",
             "op": "watch_open",
-            "ms": 1.1,
+            "ms": 1.18,
             "status": "error",
             "code": 115,
             "message": "Stage $changeStream is not supported yet in native pipeline, full error: {'ok': 0.0, 'errmsg': 'Stage $changeStream is not supported yet in native pipeline', 'code': 115, 'codeName': 'CommandNotSupported'}"
           }
         ],
-        "seconds": 0.012
+        "seconds": 0.014
       },
       "verdict": "unsupported",
       "detail": {
@@ -869,10 +869,10 @@
           "target_errors": 0,
           "source_errors": 0,
           "budget_exhausted": false,
-          "source_p50_ms": 0.29,
-          "source_p95_ms": 0.36,
-          "target_p50_ms": 0.38,
-          "target_p95_ms": 0.48,
+          "source_p50_ms": 0.28,
+          "source_p95_ms": 0.31,
+          "target_p50_ms": 0.36,
+          "target_p95_ms": 0.44,
           "first_difference": null,
           "difference_kinds": {},
           "ranking_only": false,
@@ -887,22 +887,22 @@
           "stages": [],
           "replayed": 40,
           "in_log": 110,
-          "equal": 25,
-          "different": 15,
+          "equal": 23,
+          "different": 17,
           "target_errors": 0,
           "source_errors": 0,
           "budget_exhausted": false,
-          "source_p50_ms": 0.28,
-          "source_p95_ms": 0.31,
-          "target_p50_ms": 0.71,
-          "target_p95_ms": 1.79,
+          "source_p50_ms": 0.27,
+          "source_p95_ms": 0.3,
+          "target_p50_ms": 0.65,
+          "target_p95_ms": 0.77,
           "first_difference": {
             "path": "$.docs.length",
             "source": 1,
             "target": 0
           },
           "difference_kinds": {
-            "different number of documents": 15
+            "different number of documents": 17
           },
           "ranking_only": false,
           "first_error": null
@@ -921,14 +921,14 @@
           "target_errors": 0,
           "source_errors": 0,
           "budget_exhausted": false,
-          "source_p50_ms": 0.61,
-          "source_p95_ms": 0.84,
-          "target_p50_ms": 1.59,
-          "target_p95_ms": 1.74,
+          "source_p50_ms": 0.66,
+          "source_p95_ms": 0.83,
+          "target_p50_ms": 1.6,
+          "target_p95_ms": 1.77,
           "first_difference": {
             "path": "$.docs[0]._id",
-            "source": "SKU-0144",
-            "target": "SKU-0024"
+            "source": "SKU-0062",
+            "target": "SKU-0005"
           },
           "difference_kinds": {
             "same matches, ranked differently": 40
@@ -950,10 +950,10 @@
           "target_errors": 0,
           "source_errors": 0,
           "budget_exhausted": false,
-          "source_p50_ms": 0.51,
-          "source_p95_ms": 0.81,
+          "source_p50_ms": 0.39,
+          "source_p95_ms": 0.94,
           "target_p50_ms": 0.47,
-          "target_p95_ms": 0.6,
+          "target_p95_ms": 0.76,
           "first_difference": null,
           "difference_kinds": {},
           "ranking_only": false,
@@ -973,10 +973,10 @@
           "target_errors": 0,
           "source_errors": 0,
           "budget_exhausted": false,
-          "source_p50_ms": 0.27,
-          "source_p95_ms": 0.3,
-          "target_p50_ms": 0.35,
-          "target_p95_ms": 1.42,
+          "source_p50_ms": 0.28,
+          "source_p95_ms": 0.47,
+          "target_p50_ms": 0.37,
+          "target_p95_ms": 0.58,
           "first_difference": null,
           "difference_kinds": {},
           "ranking_only": false,
@@ -1001,10 +1001,10 @@
           "target_errors": 0,
           "source_errors": 0,
           "budget_exhausted": false,
-          "source_p50_ms": 0.51,
-          "source_p95_ms": 1.12,
-          "target_p50_ms": 3.41,
-          "target_p95_ms": 4.61,
+          "source_p50_ms": 0.44,
+          "source_p95_ms": 0.68,
+          "target_p50_ms": 3.32,
+          "target_p95_ms": 3.49,
           "first_difference": null,
           "difference_kinds": {},
           "ranking_only": false,
@@ -1019,16 +1019,16 @@
             "$group"
           ],
           "replayed": 40,
-          "in_log": 45,
+          "in_log": 46,
           "equal": 40,
           "different": 0,
           "target_errors": 0,
           "source_errors": 0,
           "budget_exhausted": false,
-          "source_p50_ms": 0.35,
-          "source_p95_ms": 0.51,
-          "target_p50_ms": 0.39,
-          "target_p95_ms": 0.52,
+          "source_p50_ms": 0.37,
+          "source_p95_ms": 0.49,
+          "target_p50_ms": 0.42,
+          "target_p95_ms": 0.5,
           "first_difference": null,
           "difference_kinds": {},
           "ranking_only": false,
@@ -1048,10 +1048,10 @@
           "target_errors": 0,
           "source_errors": 0,
           "budget_exhausted": false,
-          "source_p50_ms": 0.88,
-          "source_p95_ms": 1.47,
-          "target_p50_ms": 1.03,
-          "target_p95_ms": 2.25,
+          "source_p50_ms": 0.73,
+          "source_p95_ms": 1.4,
+          "target_p50_ms": 0.88,
+          "target_p95_ms": 2.12,
           "first_difference": null,
           "difference_kinds": {},
           "ranking_only": false,
@@ -1071,10 +1071,10 @@
           "target_errors": 0,
           "source_errors": 0,
           "budget_exhausted": false,
-          "source_p50_ms": 0.45,
-          "source_p95_ms": 0.63,
+          "source_p50_ms": 0.47,
+          "source_p95_ms": 0.51,
           "target_p50_ms": 0.56,
-          "target_p95_ms": 0.71,
+          "target_p95_ms": 1.02,
           "first_difference": null,
           "difference_kinds": {},
           "ranking_only": false,
@@ -1100,10 +1100,33 @@
           "target_errors": 0,
           "source_errors": 0,
           "budget_exhausted": true,
-          "source_p50_ms": 7.13,
-          "source_p95_ms": 11.32,
-          "target_p50_ms": 4067.03,
-          "target_p95_ms": 4620.97,
+          "source_p50_ms": 6.47,
+          "source_p95_ms": 7.29,
+          "target_p50_ms": 3909.58,
+          "target_p95_ms": 4081.4,
+          "first_difference": null,
+          "difference_kinds": {},
+          "ranking_only": false,
+          "first_error": null
+        },
+        {
+          "shape_id": "Sba60fea1",
+          "collection": "orders",
+          "features": [
+            "F10"
+          ],
+          "stages": [],
+          "replayed": 15,
+          "in_log": 15,
+          "equal": 15,
+          "different": 0,
+          "target_errors": 0,
+          "source_errors": 0,
+          "budget_exhausted": false,
+          "source_p50_ms": 7.68,
+          "source_p95_ms": 39.07,
+          "target_p50_ms": 8.16,
+          "target_p95_ms": 33.66,
           "first_difference": null,
           "difference_kinds": {},
           "ranking_only": false,
@@ -1128,10 +1151,10 @@
           "target_errors": 0,
           "source_errors": 0,
           "budget_exhausted": false,
-          "source_p50_ms": 6.59,
-          "source_p95_ms": 6.91,
-          "target_p50_ms": 1.74,
-          "target_p95_ms": 2.74,
+          "source_p50_ms": 6.71,
+          "source_p95_ms": 7.54,
+          "target_p50_ms": 1.79,
+          "target_p95_ms": 1.95,
           "first_difference": null,
           "difference_kinds": {},
           "ranking_only": false,
@@ -1151,10 +1174,10 @@
           "target_errors": 0,
           "source_errors": 0,
           "budget_exhausted": false,
-          "source_p50_ms": 1.48,
-          "source_p95_ms": 1.48,
-          "target_p50_ms": 3.03,
-          "target_p95_ms": 3.03,
+          "source_p50_ms": 1.37,
+          "source_p95_ms": 1.37,
+          "target_p50_ms": 3.16,
+          "target_p95_ms": 3.16,
           "first_difference": null,
           "difference_kinds": {},
           "ranking_only": false,
@@ -1174,10 +1197,10 @@
           "target_errors": 0,
           "source_errors": 0,
           "budget_exhausted": false,
-          "source_p50_ms": 0.81,
-          "source_p95_ms": 0.81,
-          "target_p50_ms": 0.67,
-          "target_p95_ms": 0.67,
+          "source_p50_ms": 0.72,
+          "source_p95_ms": 0.72,
+          "target_p50_ms": 0.51,
+          "target_p95_ms": 0.51,
           "first_difference": null,
           "difference_kinds": {},
           "ranking_only": false,
@@ -1185,43 +1208,43 @@
         }
       ],
       "overall": {
-        "source_p50_ms": 0.44,
-        "source_p95_ms": 1.61,
-        "target_p50_ms": 0.57,
-        "target_p95_ms": 3.48,
-        "compared_on_both": 369
+        "source_p50_ms": 0.43,
+        "source_p95_ms": 6.5,
+        "target_p50_ms": 0.6,
+        "target_p95_ms": 5.94,
+        "compared_on_both": 384
       }
     },
     "writes": {
-      "replayed": 350,
-      "equal": 350,
+      "replayed": 353,
+      "equal": 353,
       "different": 0,
       "target_errors": 0,
       "source_errors": 0,
       "first_difference": null,
       "first_error": null,
-      "source_p50_ms": 1.29,
-      "source_p95_ms": 1.87,
-      "target_p50_ms": 0.62,
-      "target_p95_ms": 0.89,
+      "source_p50_ms": 1.3,
+      "source_p95_ms": 1.81,
+      "target_p50_ms": 0.57,
+      "target_p95_ms": 0.91,
       "by_feature": {
         "F10": {
-          "equal": 295
+          "equal": 297
         },
         "F3": {
-          "equal": 55
+          "equal": 56
         }
       },
       "final_state_differences": {}
     },
     "excluded": {
-      "sync worker bookkeeping": 189,
+      "sync worker bookkeeping": 205,
       "inside a transaction (covered by probes)": 60,
-      "change stream (covered by probes)": 51,
+      "change stream (covered by probes)": 57,
       "insert: the profiler doesn't keep the documents": 5,
       "cursor maintenance": 1
     },
-    "in_log": 1513
+    "in_log": 1554
   },
   "schema_rejections": [
     {
@@ -1268,8 +1291,8 @@
         }
       ],
       "replay": {
-        "replayed": 55,
-        "equal": 55,
+        "replayed": 56,
+        "equal": 56,
         "different": 0,
         "errors": 0
       },
@@ -1317,8 +1340,8 @@
       ],
       "replay": {
         "replayed": 40,
-        "equal": 25,
-        "different": 15,
+        "equal": 23,
+        "different": 17,
         "errors": 0
       },
       "schema_rejections": [
@@ -1371,13 +1394,13 @@
         }
       ],
       "replay": {
-        "replayed": 487,
-        "equal": 487,
+        "replayed": 504,
+        "equal": 504,
         "different": 0,
         "errors": 0
       },
       "schema_rejections": []
     }
   },
-  "seconds": 36.3
+  "seconds": 33.7
 }

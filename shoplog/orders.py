@@ -39,5 +39,13 @@ def order_history(db: Database, customer_id: str, limit: int = 20) -> list[dict]
     )
 
 
+def orders_containing_sku(db: Database, sku: str, since: datetime, limit: int = 100) -> list[dict]:
+    return list(
+        db.orders.find({"items.sku": sku, "placed_at": {"$gte": since}}, {"customer_id": 1, "status": 1, "placed_at": 1})
+        .sort([("placed_at", -1), ("_id", 1)])
+        .limit(limit)
+    )
+
+
 def open_orders_by_status(db: Database, status: str, limit: int = 50) -> list[dict]:
     return list(db.orders.find({"status": status}).sort([("placed_at", -1), ("_id", 1)]).limit(limit))

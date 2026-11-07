@@ -44,6 +44,14 @@
         "per_gb_month": 0.08,
         "note": "Not confirmed for us-east-1. AWS's EBS page uses this figure in a worked example without naming a region.",
         "url": "https://aws.amazon.com/ebs/pricing/"
+      },
+      "search_service_opensearch": {
+        "per_hour": 0.167,
+        "storage_per_gb_month": 0.122,
+        "instances_per_cluster": 2,
+        "storage_gb_per_instance": 20,
+        "url": "https://pricing.us-east-1.amazonaws.com/offers/v1.0/aws/AmazonES/current/us-east-1/index.json",
+        "published": "2026-11-06"
       }
     },
     "people": {
@@ -174,8 +182,8 @@
           ],
           "replay": {
             "replayed": 40,
-            "equal": 25,
-            "different": 15,
+            "equal": 23,
+            "different": 17,
             "errors": 0
           },
           "schema_rejections": [
@@ -239,9 +247,25 @@
                 "$unwind",
                 "$facet"
               ],
-              "source_p95_ms": 11.32,
-              "target_p95_ms": 4620.97,
+              "source_p95_ms": 7.29,
+              "target_p95_ms": 4081.4,
               "samples": 7
+            }
+          ],
+          "estimate": null
+        },
+        {
+          "key": "documented:F11",
+          "feature": "F11",
+          "name": "Atlas Search ($search with a search index)",
+          "kind": "documented_conflict",
+          "verdict": "documented_conflict",
+          "confidence": null,
+          "blocking": true,
+          "evidence": [
+            {
+              "conflict": "The app uses Atlas Search, which FerretDB doesn't provide; a separate search service is needed",
+              "url": "https://docs.ferretdb.io/migration/compatibility/"
             }
           ],
           "estimate": null
@@ -250,14 +274,15 @@
       "economics": {
         "annual_costs": {
           "MongoDB Atlas": 36441.6,
-          "FerretDB": 11517.7,
+          "FerretDB": 23455.3,
           "AWS DocumentDB": 31580.56
         },
-        "infra_savings": 24923.9,
+        "search_service_annual": 11937.6,
+        "infra_savings": 12986.3,
         "net": {
-          "best": 7033.9,
-          "base": -19146.1,
-          "worst": -100216.1
+          "best": -5403.7,
+          "base": -32583.7,
+          "worst": -117153.7
         },
         "breakdown": {
           "best": {
@@ -265,21 +290,21 @@
             "migration_hours": 24,
             "rewrite_hours": 0,
             "one_time_cost": 2880,
-            "residual_risk_cost": 9250.0
+            "residual_risk_cost": 9750.0
           },
           "base": {
             "ops_cost": 11520,
             "migration_hours": 40,
             "rewrite_hours": 0,
             "one_time_cost": 4800,
-            "residual_risk_cost": 27750.0
+            "residual_risk_cost": 29250.000000000004
           },
           "worst": {
             "ops_cost": 23040,
             "migration_hours": 80,
             "rewrite_hours": 0,
             "one_time_cost": 9600,
-            "residual_risk_cost": 92500.0
+            "residual_risk_cost": 97500.00000000001
           }
         },
         "payback_months": null,
@@ -289,36 +314,37 @@
           "behavior:F5",
           "behavior:F6",
           "behavior:F8",
-          "performance:S78e856b9"
+          "performance:S78e856b9",
+          "documented:F11"
         ]
       },
       "decision": "STAY_UNPRICED",
       "decision_text": "Stay for now: blocking gaps exist, and the rewrite isn't priced yet",
       "sensitivity": {
         "atlas_per_node": {
-          "net_base": 53737.1,
-          "infra_savings": 97807.1,
+          "net_base": 40299.5,
+          "infra_savings": 85869.5,
           "decision": "STAY_UNPRICED"
         },
         "clusters": {
           "1": {
-            "net_base": -29199.02,
-            "infra_savings": 6230.98,
+            "net_base": -33683.42,
+            "infra_savings": 3246.58,
             "decision": "STAY_UNPRICED"
           },
           "4": {
-            "net_base": -19146.1,
-            "infra_savings": 24923.9,
+            "net_base": -32583.7,
+            "infra_savings": 12986.3,
             "decision": "STAY_UNPRICED"
           },
           "10": {
-            "net_base": 959.76,
-            "infra_savings": 62309.76,
+            "net_base": -30384.24,
+            "infra_savings": 32465.76,
             "decision": "STAY_UNPRICED"
           },
           "25": {
-            "net_base": 51224.4,
-            "infra_savings": 155774.4,
+            "net_base": -24885.6,
+            "infra_savings": 81164.4,
             "decision": "STAY_UNPRICED"
           }
         }
@@ -362,19 +388,36 @@
             }
           ],
           "estimate": null
+        },
+        {
+          "key": "documented:F11",
+          "feature": "F11",
+          "name": "Atlas Search ($search with a search index)",
+          "kind": "documented_conflict",
+          "verdict": "documented_conflict",
+          "confidence": null,
+          "blocking": true,
+          "evidence": [
+            {
+              "conflict": "The app uses Atlas Search, which DocumentDB doesn't provide; a separate search service is needed",
+              "url": "https://docs.aws.amazon.com/documentdb/latest/developerguide/search.html"
+            }
+          ],
+          "estimate": null
         }
       ],
       "economics": {
         "annual_costs": {
           "MongoDB Atlas": 36441.6,
           "FerretDB": 11517.7,
-          "AWS DocumentDB": 31580.56
+          "AWS DocumentDB": 43518.16
         },
-        "infra_savings": 4861.04,
+        "search_service_annual": 11937.6,
+        "infra_savings": -7076.56,
         "net": {
-          "best": 981.04,
-          "base": -2938.96,
-          "worst": -14738.96
+          "best": -11456.56,
+          "base": -16376.56,
+          "worst": -31676.56
         },
         "breakdown": {
           "best": {
@@ -382,57 +425,58 @@
             "migration_hours": 24,
             "rewrite_hours": 0,
             "one_time_cost": 2880,
-            "residual_risk_cost": 1000.0
+            "residual_risk_cost": 1500.0000000000002
           },
           "base": {
             "ops_cost": 0,
             "migration_hours": 40,
             "rewrite_hours": 0,
             "one_time_cost": 4800,
-            "residual_risk_cost": 3000.0
+            "residual_risk_cost": 4500.000000000001
           },
           "worst": {
             "ops_cost": 0,
             "migration_hours": 80,
             "rewrite_hours": 0,
             "one_time_cost": 9600,
-            "residual_risk_cost": 10000.0
+            "residual_risk_cost": 15000.000000000002
           }
         },
-        "payback_months": 31.0,
+        "payback_months": null,
         "break_even_rewrite_hours": 0,
         "rewrite_estimates_missing": [
           "documented:F2",
-          "documented:F9"
+          "documented:F9",
+          "documented:F11"
         ]
       },
       "decision": "VERIFY_FIRST",
       "decision_text": "Not verified: test on a real cluster before deciding",
       "sensitivity": {
         "atlas_per_node": {
-          "net_base": 69944.24,
-          "infra_savings": 77744.24,
+          "net_base": 56506.64,
+          "infra_savings": 65806.64,
           "decision": "VERIFY_FIRST"
         },
         "clusters": {
           "1": {
-            "net_base": -6584.74,
-            "infra_savings": 1215.26,
+            "net_base": -11069.14,
+            "infra_savings": -1769.14,
             "decision": "VERIFY_FIRST"
           },
           "4": {
-            "net_base": -2938.96,
-            "infra_savings": 4861.04,
+            "net_base": -16376.56,
+            "infra_savings": -7076.56,
             "decision": "VERIFY_FIRST"
           },
           "10": {
-            "net_base": 4352.6,
-            "infra_savings": 12152.6,
+            "net_base": -26991.4,
+            "infra_savings": -17691.4,
             "decision": "VERIFY_FIRST"
           },
           "25": {
-            "net_base": 22581.5,
-            "infra_savings": 30381.5,
+            "net_base": -53528.5,
+            "infra_savings": -44228.5,
             "decision": "VERIFY_FIRST"
           }
         }

@@ -1,0 +1,99 @@
+{
+  "available": true,
+  "tool": "mongodb-mcp-server@3.2.2 explain",
+  "comparisons": [
+    {
+      "shape_id": "S78e856b9",
+      "features": [
+        "F1"
+      ],
+      "collection": "orders",
+      "stages": [
+        "$match",
+        "$addFields",
+        "$lookup",
+        "$unwind",
+        "$facet"
+      ],
+      "replay_p95_ms": {
+        "source": 7.29,
+        "target": 4081.4
+      },
+      "source": {
+        "engine_format": "MongoDB plan",
+        "docs_examined": 306,
+        "time_ms": 20,
+        "plan": "IXSCAN(status_1_placed_at_-1) \u2192 FETCH \u2192 PROJECTION_SIMPLE \u2192 $addFields \u2192 $lookup(indexes=['_id_'], collection scans=0, docs examined=309) \u2192 $facet",
+        "full_scans": 0
+      },
+      "target": {
+        "engine_format": "Postgres plan (FerretDB)",
+        "plan": "Aggregate \u2192 ProjectSet \u2192 Subquery Scan \u2192 Nested Loop \u2192 Index Scan(status_1_placed_at_-1) \u2192 Aggregate \u2192 Seq Scan \u2192 Aggregate \u2192 Function Scan(bson_lookup_unwind) \u2192 Append \u2192 Aggregate \u2192 Sort \u2192 Subquery Scan \u2192 Aggregate \u2192 CTE Scan \u2192 Aggregate \u2192 Sort \u2192 Subquery Scan \u2192 Aggregate \u2192 CTE Scan \u2192 Aggregate \u2192 Limit \u2192 Sort \u2192 CTE Scan",
+        "full_scans": 1,
+        "nested_loops": 1,
+        "estimated_total_cost": 994462.27,
+        "time_ms": null
+      }
+    },
+    {
+      "shape_id": "Sac78c80d",
+      "features": [
+        "F2"
+      ],
+      "collection": "orders",
+      "stages": [
+        "$match",
+        "$addFields",
+        "$setWindowFields",
+        "$project"
+      ],
+      "replay_p95_ms": {
+        "source": 0.68,
+        "target": 3.49
+      },
+      "source": {
+        "engine_format": "MongoDB plan",
+        "docs_examined": 13,
+        "time_ms": 0,
+        "plan": "IXSCAN(customer_id_1_placed_at_-1) \u2192 FETCH \u2192 PROJECTION_SIMPLE \u2192 $addFields \u2192 $sort \u2192 $_internalSetWindowFields \u2192 $project",
+        "full_scans": 0
+      },
+      "target": {
+        "engine_format": "Postgres plan (FerretDB)",
+        "plan": "Subquery Scan \u2192 WindowAgg \u2192 WindowAgg \u2192 WindowAgg \u2192 WindowAgg \u2192 Sort \u2192 Bitmap Heap Scan \u2192 BitmapAnd \u2192 Bitmap Index Scan(status_1_placed_at_-1) \u2192 Bitmap Index Scan(customer_id_1_placed_at_-1)",
+        "full_scans": 0,
+        "nested_loops": 0,
+        "estimated_total_cost": 4871.65,
+        "time_ms": null
+      }
+    },
+    {
+      "shape_id": "S181542d4",
+      "features": [
+        "F10"
+      ],
+      "collection": "orders",
+      "stages": [],
+      "replay_p95_ms": {
+        "source": 1.37,
+        "target": 3.16
+      },
+      "source": {
+        "engine_format": "MongoDB plan",
+        "docs_examined": 179,
+        "keys_examined": 179,
+        "time_ms": 1,
+        "plan": "IXSCAN(_id_) \u2192 FETCH \u2192 PROJECTION_DEFAULT \u2192 LIMIT",
+        "full_scans": 0
+      },
+      "target": {
+        "engine_format": "Postgres plan (FerretDB)",
+        "plan": "Limit \u2192 Sort \u2192 Bitmap Heap Scan \u2192 BitmapAnd \u2192 Bitmap Index Scan(status_1_placed_at_-1) \u2192 Bitmap Index Scan(_id_)",
+        "full_scans": 0,
+        "nested_loops": 0,
+        "estimated_total_cost": 43.02,
+        "time_ms": null
+      }
+    }
+  ]
+}

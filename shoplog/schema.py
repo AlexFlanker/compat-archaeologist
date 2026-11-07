@@ -83,6 +83,32 @@ def ensure_schema(db: Database) -> list[dict]:
     return _run_steps(steps)
 
 
+STOREFRONT_SEARCH_DEFINITION = {
+    "mappings": {
+        "dynamic": False,
+        "fields": {
+            "name": [{"type": "string"}, {"type": "autocomplete"}],
+            "description": {"type": "string"},
+            "tags": {"type": "string"},
+            "active": {"type": "boolean"},
+        },
+    }
+}
+
+
+def ensure_search_index(db: Database) -> dict:
+    """Atlas Search only. Other engines are expected to refuse this, which is itself evidence."""
+    from pymongo.operations import SearchIndexModel
+
+    try:
+        existing = {index["name"] for index in db.products.list_search_indexes()}
+        if "storefront" not in existing:
+            db.products.create_search_index(SearchIndexModel(definition=STOREFRONT_SEARCH_DEFINITION, name="storefront"))
+        return {"step": "products.storefront_search", "ok": True}
+    except Exception as exc:  # Recorded as a finding, like any other rejected schema step.
+        return {"step": "products.storefront_search", "ok": False, "code": getattr(exc, "code", None), "error": str(exc)[:300]}
+
+
 def ensure_lite_schema(db: Database) -> list[dict]:
     steps: list[tuple[str, Callable[[], object]]] = [
         ("orders.customer", lambda: db.orders.create_index([("customer_id", ASCENDING)])),

@@ -174,6 +174,14 @@ def estimate_rewrites(profile: str, target: str, gaps: list[dict], ledger: dict)
     return {key.split("|", 1)[1]: value for key, value in cache.items() if key.startswith(f"{target}|")}
 
 
+def search_service_annual(assumptions: dict, clusters: int) -> float:
+    search = assumptions["pricing"]["search_service_opensearch"]
+    monthly = search["instances_per_cluster"] * (
+        search["per_hour"] * assumptions["hours_per_month"] + search["storage_per_gb_month"] * search["storage_gb_per_instance"]
+    )
+    return round(monthly * assumptions["horizon_months"] * clusters, 2)
+
+
 def annual_run_costs(assumptions: dict, clusters: int, atlas_basis: str) -> dict[str, float]:
     pricing, deployment = assumptions["pricing"], assumptions["deployment"]
     hours = assumptions["hours_per_month"]
@@ -205,9 +213,11 @@ def _economics(assumptions: dict, target: str, gaps: list[dict], estimates: dict
     costs = annual_run_costs(assumptions, clusters, atlas_basis)
     rate = assumptions["people"]["engineer_cost_per_hour"]
     months = assumptions["horizon_months"]
+    blocking = [gap for gap in gaps if gap["blocking"]]
+    search_cost = search_service_annual(assumptions, clusters) if any(gap["feature"] == "F11" for gap in blocking) else 0.0
+    costs[target] = round(costs[target] + search_cost, 2)
     infra_savings = round(costs["MongoDB Atlas"] - costs[target], 2)
 
-    blocking = [gap for gap in gaps if gap["blocking"]]
     missing_estimates = [gap["key"] for gap in blocking if gap["key"] not in estimates]
     net, breakdown = {}, {}
     for scenario, level in SCENARIOS.items():
@@ -233,6 +243,7 @@ def _economics(assumptions: dict, target: str, gaps: list[dict], estimates: dict
     affordable = yearly_benefit - base["migration_hours"] * rate
     return {
         "annual_costs": costs,
+        "search_service_annual": search_cost,
         "infra_savings": infra_savings,
         "net": net,
         "breakdown": breakdown,
@@ -299,14 +310,14 @@ def _ask_subq(profile: str, targets: dict) -> dict:
     }
 
 
-def run(profile: str, runs: dict, ledger: dict, docdb: dict) -> dict:
+def run(profile: str, runs: dict, ledger: dict, docdb: dict, ferretdb_documented: dict | None = None) -> dict:
     assumptions = load_assumptions()
     clusters = assumptions["deployment"]["clusters"]
     basis = assumptions["pricing"]["atlas_m40"]["basis"]
     alternative = assumptions["pricing"]["atlas_m40"]["alternative_basis"]
 
     target_specs = {
-        FERRETDB: ("OBSERVED", observed_gaps(runs, ledger, assumptions)),
+        FERRETDB: ("OBSERVED", observed_gaps(runs, ledger, assumptions) + documented_gaps(ferretdb_documented or {}, ledger, assumptions)),
         DOCUMENTDB: ("INFERRED", documented_gaps(docdb, ledger, assumptions)),
     }
     targets: dict[str, dict] = {}

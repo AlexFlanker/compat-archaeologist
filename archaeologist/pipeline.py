@@ -9,7 +9,7 @@ import time
 from rich.console import Console
 from rich.table import Table
 
-from archaeologist import docdb_inferred, extract_data, extract_querylog, ledger as ledger_module, memo, meta_client, probes, store, subq_client, tco
+from archaeologist import docdb_inferred, explain_compare, extract_data, extract_querylog, ledger as ledger_module, memo, meta_client, probes, store, subq_client, tco
 from archaeologist.config import OUT_DIR, ROOT, source_client, target_client
 from archaeologist.diff import run as run_diff
 from scripts.seed import PROFILES, database_names, seed_database
@@ -184,16 +184,27 @@ def main() -> int:
 
     _step("4. Differential run: same probes, same workload, both engines")
     runs = run_diff(profile, active, probe_origin=origin)
-    docdb = docdb_inferred.assess(profile, [item["id"] for item in ledger["items"]])
+    feature_ids = [item["id"] for item in ledger["items"]]
+    docdb = docdb_inferred.assess(profile, feature_ids)
+    ferretdb_documented = docdb_inferred.assess_ferretdb(feature_ids)
     console.print(_side_by_side(ledger, runs, docdb))
     console.print(_latency_table(runs))
 
+    _step("4b. Query plans for the slowest paths (MongoDB MCP Server: explain)")
+    plans = explain_compare.run(profile, runs)
+    for comparison in plans.get("comparisons", []):
+        console.print(f"  [bold]{', '.join(comparison['features'])}[/] {comparison['collection']}")
+        console.print(f"    MongoDB : {comparison['source'].get('plan')}")
+        console.print(f"    FerretDB: {comparison['target'].get('plan', '')[:150]}")
+    if not plans.get("available"):
+        console.print(f"  [yellow]skipped[/]: {plans.get('reason')}")
+
     _step("5. Cost and decision")
-    result = tco.run(profile, runs, ledger, docdb)
+    result = tco.run(profile, runs, ledger, docdb, ferretdb_documented)
     console.print(_decision_table(result))
 
     _step("6. Decision memo")
-    text = memo.write(profile, ledger, runs, self_check, docdb, result, invalid)
+    text = memo.write(profile, ledger, runs, self_check, docdb, result, invalid, ferretdb_documented, plans)
     console.print(f"  wrote out/{profile}/memo.md")
     saved = store.save(profile, runs["run_id"], ledger, runs, result, text)
     console.print(f"  Atlas: {'saved to ' + saved['database'] + '.' + saved['collection'] if saved['saved'] else '[yellow]skipped[/] (' + saved['reason'] + ')'}")

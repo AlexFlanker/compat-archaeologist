@@ -124,7 +124,36 @@ TABLE: dict[str, dict] = {
         "url": COMPATIBILITY_INDEX,
         "conflicts": [],
     },
+    "F11": {
+        "since": "Not available",
+        "requires": None,
+        "limits": "DocumentDB has an operator named $search, but it is a plain text search with no options. Atlas Search indexes, compound, fuzzy and autocomplete operators, and searchScore aren't available.",
+        "url": f"{DOCS}/developerguide/search.html",
+        "conflicts": [
+            {
+                "check": lambda context: True,
+                "detail": "The app uses Atlas Search, which DocumentDB doesn't provide; a separate search service is needed",
+            }
+        ],
+    },
 }
+
+# FerretDB facts we didn't observe through probes. Atlas Search can't be probed locally, because
+# the oracle needs Atlas Search too, so these rows stay INFERRED.
+FERRETDB_DOCUMENTED = {
+    "F11": {
+        "status": "INFERRED",
+        "verdict": "documented_conflict",
+        "since": "Not available",
+        "limits": "The compatibility page lists no $search stage or search index commands. Locally, FerretDB also refused $listSearchIndexes (code 40324).",
+        "url": "https://docs.ferretdb.io/migration/compatibility/",
+        "conflicts": ["The app uses Atlas Search, which FerretDB doesn't provide; a separate search service is needed"],
+    }
+}
+
+
+def assess_ferretdb(feature_ids: list[str]) -> dict[str, dict]:
+    return {feature: FERRETDB_DOCUMENTED[feature] for feature in feature_ids if feature in FERRETDB_DOCUMENTED}
 
 
 def _context(profile: str) -> dict:

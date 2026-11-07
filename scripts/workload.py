@@ -179,10 +179,13 @@ def run_shoplog(client, db, rng: random.Random) -> dict:
     def review():
         refunds.mark_all_lines_reviewed(db, generate.order_id(rng.randrange(1, settings["fixture_orders"] + 1)), "qa-bot")
 
+    def recall():
+        orders.orders_containing_sku(db, rng.choice(all_products)["_id"], generate.AS_OF - timedelta(days=rng.choice([90, 365, 3650])))
+
     mix = (
         [get_order] * 220 + [history] * 100 + [status_list] * 40 + [login] * 110 + [search] * 100 + [browse] * 30
         + [buy] * 60 + [refund] * 50 + [advance] * 30 + [illegal_cancel] * 10 + [cart] * 70 + [bad_order] * 5
-        + [revenue] * 20 + [low_stock] * 10 + [timeline] * 60 + [loyalty] * 20 + [review] * 10
+        + [revenue] * 20 + [low_stock] * 10 + [timeline] * 60 + [loyalty] * 20 + [review] * 10 + [recall] * 15
     )
     rng.shuffle(mix)
 
