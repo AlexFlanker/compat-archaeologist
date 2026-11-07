@@ -1,0 +1,28 @@
+[
+ {
+  "_id": "BE-01",
+  "name": "Wim Claes",
+  "country": "BE"
+ },
+ {
+  "_id": "NL-01",
+  "name": "Sanne Willems",
+  "country": "NL"
+ },
+ {
+  "_id": "FR-01",
+  "name": "Claire Dubois",
+  "country": "FR"
+ },
+ {
+  "_id": "DE-01",
+  "name": "Jonas Meyer",
+  "country": "DE"
+ },
+ {
+  "_id": "US-01",
+  "name": "James Smith",
+  "country": "US",
+  "from": "2021"
+ }
+]
