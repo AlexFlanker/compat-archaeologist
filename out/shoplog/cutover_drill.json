@@ -7,9 +7,9 @@
     "collections": {
       "inventory": 500,
       "customers": 5000,
+      "carts": 2000,
       "orders": 50000,
-      "products": 500,
-      "carts": 2000
+      "products": 500
     },
     "indexes": [
       {
@@ -18,6 +18,16 @@
         "ok": false,
         "code": 115,
         "error": "Error in specification { \"name\" : \"email_ci_unique\", \"unique\" : true, \"key\" : { \"email\" : 1 }, \"collation\" : { \"locale\" : \"en\", \"caseLevel\" : false, \"caseFirst\" : \"off\", \"strength\" : 2, \"numericOrderi"
+      },
+      {
+        "collection": "carts",
+        "name": "active_cart_expiry",
+        "ok": true
+      },
+      {
+        "collection": "carts",
+        "name": "customer_id_1",
+        "ok": true
       },
       {
         "collection": "orders",
@@ -48,16 +58,6 @@
       {
         "collection": "products",
         "name": "category_1",
-        "ok": true
-      },
-      {
-        "collection": "carts",
-        "name": "active_cart_expiry",
-        "ok": true
-      },
-      {
-        "collection": "carts",
-        "name": "customer_id_1",
         "ok": true
       }
     ],
@@ -771,5 +771,5 @@
       "explanation": "bronze: customers 3,040 \u2192 3,039"
     }
   ],
-  "seconds": 9.6
+  "seconds": 10.0
 }

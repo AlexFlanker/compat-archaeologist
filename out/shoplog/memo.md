@@ -17,7 +17,7 @@
 2. **Logins and email uniqueness stop ignoring case: duplicate accounts, failed sign-ins** (FerretDB, silent). Evidence: probe `F6.ci-lookup`; probe `F6.ci-unique`; 17/40 replayed ops differ; code [shoplog/customers.py:9](../../shoplog/customers.py#L9), [shoplog/schema.py:60](../../shoplog/schema.py#L60).
 3. **Invalid orders get written: the schema validator isn't enforced** (FerretDB, silent). Evidence: probe `F8.orders-required-fields`; probe `F8.orders-enum-total`; code [shoplog/schema.py:12](../../shoplog/schema.py#L12).
 4. **Constraints don't survive a clean cutover: customers.email_ci_unique index (unique, collation), orders $jsonSchema validator** (FerretDB, cutover). Evidence: cutover check, clean run: 6 of 23 checks failed.
-5. **Queries on orders run 562× slower ($lookup sub-pipeline + $facet)** (FerretDB, performance). Evidence: replay p95 7.48 ms → 4202.1 ms; code [shoplog/analytics.py:33](../../shoplog/analytics.py#L33).
+5. **Queries on orders run 430× slower ($lookup sub-pipeline + $facet)** (FerretDB, performance). Evidence: replay p95 9.97 ms → 4289.43 ms; code [shoplog/analytics.py:33](../../shoplog/analytics.py#L33).
 
 **12-month cost, base case** (yearly figures; best and worst cases in the appendix)
 
@@ -37,12 +37,12 @@
 
 | Path | MongoDB p95 | FerretDB p95 | FerretDB over the timeout | Timeout used |
 |---|---|---|---|---|
-| Online | 1.92 ms | 4.41 ms | 0% of 367 | 1,000 ms |
-| Reporting | 7.48 ms | 4,202 ms | 0% of 17 | 30,000 ms |
+| Online | 1.89 ms | 4.02 ms | 0% of 367 | 1,000 ms |
+| Reporting | 9.97 ms | 4,289 ms | 0% of 17 | 30,000 ms |
 | Event-driven (change streams) | works | ❌ Not supported | | |
 
 **At production size (INFERRED)**: the data size at which each slow path reaches its timeout, projected from the measured 38.4 MB using the growth shape of its query plan. This assumes every collection grows by the same factor.
-- F1 reporting query on orders (30 s timeout): MongoDB grows linear (index lookups) and reaches it at ~154 GB; FerretDB grows quadratic (a sequential scan inside a nested loop) and reaches it at ~100 MB.
+- F1 reporting query on orders (30 s timeout): MongoDB grows linear (index lookups) and reaches it at ~116 GB; FerretDB grows quadratic (a sequential scan inside a nested loop) and reaches it at ~100 MB.
 - At TB scale both engines need work on reporting, such as pre-aggregation, but FerretDB hits the limit orders of magnitude sooner.
 
 **Business questions**: on untouched data, 8 of 8 answers match on FerretDB. After a clean cutover and one morning of traffic, 5 of 8 differ:
@@ -206,39 +206,39 @@ AWS DocumentDB version differences (INFERRED from docs, not measured):
 
 ## Latency
 
-Both engines ran in Docker on one machine, with the same CPU and memory limits, the same data, and alternating order. FerretDB's image holds Postgres and FerretDB in one container, so they share its limit. Overall read p50/p95: MongoDB 0.48 ms / 6.59 ms, FerretDB 0.70 ms / 6.04 ms.
-Writes (353 replayed) p50/p95: MongoDB 1.43 ms / 2.35 ms, FerretDB 0.73 ms / 1.54 ms. MongoDB here also writes an oplog as a replica set. These are local numbers for comparison, not production estimates.
+Both engines ran in Docker on one machine, with the same CPU and memory limits, the same data, and alternating order. FerretDB's image holds Postgres and FerretDB in one container, so they share its limit. Overall read p50/p95: MongoDB 0.50 ms / 7.78 ms, FerretDB 0.75 ms / 7.02 ms.
+Writes (353 replayed) p50/p95: MongoDB 1.30 ms / 1.90 ms, FerretDB 0.64 ms / 1.03 ms. MongoDB here also writes an oplog as a replica set. These are local numbers for comparison, not production estimates.
 
 | Feature | Operation | Samples | MongoDB p50 / p95 | FerretDB p50 / p95 | FerretDB compared at p50 |
 |---|---|---|---|---|---|
-| F1 | orders: $match → $addFields → $lookup → $unwind | 7/20 (time budget reached) | 6.75 ms / 7.48 ms | 3,959 ms / 4,202 ms | 586.5× |
-| F10 | orders: find | 15/15 | 8.46 ms / 43.42 ms | 7.98 ms / 41.26 ms | 1.1× faster |
-| F2 | orders: $match → $addFields → $setWindowFields → $project | 40/60 | 0.64 ms / 1.28 ms | 3.79 ms / 4.92 ms | 5.9× |
-| F10 | orders: find | 1/1 | 1.57 ms / 1.57 ms | 3.38 ms / 3.38 ms | 2.2× |
-| F9 | products: find | 40/100 | 0.93 ms / 1.74 ms | 1.84 ms / 3.02 ms | 2.0× |
-| F10 | orders: find | 40/40 | 0.84 ms / 1.96 ms | 1.12 ms / 2.69 ms | 1.3× |
-| F1 | products: $lookup → $match → $group → $sort | 10/10 | 6.62 ms / 6.71 ms | 1.73 ms / 2.30 ms | 3.8× faster |
-| F10 | orders: find | 40/270 | 0.40 ms / 0.72 ms | 0.50 ms / 1.10 ms | 1.2× |
-| F6 | customers: find | 40/110 | 0.34 ms / 0.89 ms | 0.77 ms / 1.03 ms | 2.3× |
-| other | orders: $match → $group | 40/46 | 0.40 ms / 0.56 ms | 0.46 ms / 0.76 ms | 1.1× |
-| F10 | orders: find | 40/100 | 0.44 ms / 0.71 ms | 0.50 ms / 0.72 ms | 1.1× |
-| F10 | carts: find | 40/70 | 0.30 ms / 0.48 ms | 0.40 ms / 0.67 ms | 1.3× |
-| F10 | products: find | 30/30 | 0.46 ms / 0.50 ms | 0.56 ms / 0.61 ms | 1.2× |
-| F10 | orders: find | 1/1 | 0.69 ms / 0.69 ms | 0.50 ms / 0.50 ms | 1.4× faster |
+| F1 | orders: $match → $addFields → $lookup → $unwind | 7/20 (time budget reached) | 7.78 ms / 9.97 ms | 4,026 ms / 4,289 ms | 517.4× |
+| F10 | orders: find | 15/15 | 8.89 ms / 54.86 ms | 9.43 ms / 38.49 ms | 1.1× |
+| F2 | orders: $match → $addFields → $setWindowFields → $project | 40/60 | 0.63 ms / 1.15 ms | 3.60 ms / 4.22 ms | 5.7× |
+| F10 | orders: find | 1/1 | 1.35 ms / 1.35 ms | 3.81 ms / 3.81 ms | 2.8× |
+| F9 | products: find | 40/100 | 0.89 ms / 1.89 ms | 1.80 ms / 2.68 ms | 2.0× |
+| F1 | products: $lookup → $match → $group → $sort | 10/10 | 7.92 ms / 8.60 ms | 2.21 ms / 2.67 ms | 3.6× faster |
+| F6 | customers: find | 40/110 | 0.31 ms / 0.73 ms | 0.74 ms / 1.95 ms | 2.4× |
+| F10 | orders: find | 40/40 | 0.84 ms / 1.68 ms | 1.07 ms / 1.89 ms | 1.3× |
+| F10 | orders: find | 40/270 | 0.40 ms / 0.95 ms | 0.57 ms / 1.65 ms | 1.4× |
+| F10 | orders: find | 40/100 | 0.48 ms / 1.24 ms | 0.55 ms / 1.09 ms | 1.1× |
+| F10 | products: find | 30/30 | 0.41 ms / 0.54 ms | 0.51 ms / 0.75 ms | 1.2× |
+| other | orders: $match → $group | 40/46 | 0.36 ms / 0.63 ms | 0.40 ms / 0.66 ms | 1.1× |
+| F10 | orders: find | 1/1 | 0.79 ms / 0.79 ms | 0.58 ms / 0.58 ms | 1.4× faster |
+| F10 | carts: find | 40/70 | 0.31 ms / 0.37 ms | 0.38 ms / 0.46 ms | 1.2× |
 
 ## Why the slow paths are slow
 
 Plans from the MongoDB MCP Server's `explain` tool (`mongodb-mcp-server@3.2.2 explain`), run read-only against each engine on the slowest replayed queries.
 
-**F1 on orders** (replay p95 7.48 ms on MongoDB, 4,202 ms on FerretDB)
+**F1 on orders** (replay p95 9.97 ms on MongoDB, 4,289 ms on FerretDB)
 - MongoDB: `IXSCAN(status_1_placed_at_-1) → FETCH → PROJECTION_SIMPLE → $addFields → $lookup(indexes=['_id_'], collection scans=0, docs examined=309) → $facet`, 306 documents examined.
 - FerretDB (Postgres plan): `Aggregate → ProjectSet → Subquery Scan → Nested Loop → Index Scan(status_1_placed_at_-1) → Aggregate → Seq Scan → Aggregate → Function Scan(bson_lookup_unwind) → Append → Aggregate → Sort → Subquery Scan → Aggregate → CTE Scan → Aggregate → Sort → Subquery Scan → Aggregate → CTE Scan → Aggregate → Limit → Sort → CTE Scan`, with 1 sequential scan(s) and 1 nested loop(s).
 
-**F2 on orders** (replay p95 1.28 ms on MongoDB, 4.92 ms on FerretDB)
+**F2 on orders** (replay p95 1.15 ms on MongoDB, 4.22 ms on FerretDB)
 - MongoDB: `IXSCAN(customer_id_1_placed_at_-1) → FETCH → PROJECTION_SIMPLE → $addFields → $sort → $_internalSetWindowFields → $project`, 13 documents examined.
 - FerretDB (Postgres plan): `Subquery Scan → WindowAgg → WindowAgg → WindowAgg → WindowAgg → Sort → Bitmap Heap Scan → BitmapAnd → Bitmap Index Scan(status_1_placed_at_-1) → Bitmap Index Scan(customer_id_1_placed_at_-1)`, with 0 sequential scan(s) and 0 nested loop(s).
 
-**F10 on orders** (replay p95 1.57 ms on MongoDB, 3.38 ms on FerretDB)
+**F10 on orders** (replay p95 1.35 ms on MongoDB, 3.81 ms on FerretDB)
 - MongoDB: `IXSCAN(_id_) → FETCH → PROJECTION_DEFAULT → LIMIT`, 179 documents examined.
 - FerretDB (Postgres plan): `Limit → Sort → Bitmap Heap Scan → BitmapAnd → Bitmap Index Scan(status_1_placed_at_-1) → Bitmap Index Scan(_id_)`, with 0 sequential scan(s) and 0 nested loop(s).
 
@@ -365,4 +365,4 @@ Recovered without any documentation. 9 of 50 are OBSERVED in the data. The rest 
 - **Fair by construction:** the same pipeline, thresholds and assumptions run on every workload. ShopLog was deliberately built to depend on MongoDB-specific features, and the control app wasn't.
 - **Not modeled:** data transfer, backups, support plans and committed-use discounts. Rewrite hours are model estimates, and the risk inputs are assumptions.
 
-Evidence: [ledger](ledger.json) · [runs](runs.json) · [cost model](tco.json) · run `20261107T221427Z`
+Evidence: [ledger](ledger.json) · [runs](runs.json) · [cost model](tco.json) · run `20261107T224024Z`

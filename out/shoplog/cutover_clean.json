@@ -7,8 +7,8 @@
     "collections": {
       "orders": 50000,
       "products": 500,
-      "inventory": 500,
       "customers": 5000,
+      "inventory": 500,
       "carts": 2000
     },
     "indexes": [
@@ -622,5 +622,5 @@
       "explanation": "bronze: customers 3,040 \u2192 3,041"
     }
   ],
-  "seconds": 9.9
+  "seconds": 10.3
 }
