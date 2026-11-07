@@ -270,8 +270,8 @@
                 "$unwind",
                 "$facet"
               ],
-              "source_p95_ms": 7.64,
-              "target_p95_ms": 4131.73,
+              "source_p95_ms": 7.04,
+              "target_p95_ms": 4082.2,
               "samples": 7
             }
           ],

@@ -9,7 +9,7 @@ import time
 from rich.console import Console
 from rich.table import Table
 
-from archaeologist import cutover, docdb_inferred, explain_compare, extract_data, extract_querylog, ledger as ledger_module, memo, meta_client, probes, store, subq_client, tco, upgrade
+from archaeologist import business_questions, cutover, docdb_inferred, explain_compare, extract_data, extract_querylog, ledger as ledger_module, memo, meta_client, probes, scoreboard, store, subq_client, tco, upgrade
 from archaeologist.config import OUT_DIR, ROOT, source_client, target_client
 from archaeologist.diff import run as run_diff
 from scripts.seed import PROFILES, database_names, seed_database
@@ -170,6 +170,13 @@ def main() -> int:
     console.print(_ledger_table(ledger))
     observed = sum(1 for behavior in ledger["behaviors"] if behavior["status"] == "OBSERVED")
     console.print(f"  business behaviors reconstructed: {len(ledger['behaviors'])} ({observed} observed in data)")
+    rules = scoreboard.score(profile, ledger) if profile == "shoplog" else None
+    if rules:
+        console.print(
+            f"  [bold]hidden rules recovered blind: {rules['found']}/{rules['total']}[/]"
+            + (f" (+{rules['partly']} partly)" if rules["partly"] else "")
+            + f", labels correct {rules['labels_correct']}/{rules['total']} (answer key: docs/RULES.md, never read by the pipeline)"
+        )
 
     _step("3. Probes")
     active, invalid, origin = _load_or_generate_probes(profile, ledger, arguments.refresh_probes)
@@ -209,6 +216,18 @@ def main() -> int:
     for fault in cutover_drill["injected_faults"]:
         console.print(f"  drill: injected {fault['fault']} → {'[green]caught[/]' if fault['caught'] else '[red]missed[/]'} ({fault['evidence']})")
 
+    _step("4e. Business questions: the numbers the business runs on, asked of both systems")
+    questions = business_questions.run(profile)
+    after = cutover_clean.get("business_questions", [])
+    console.print(f"  same untouched data: {questions['same']}/{len(questions['rows'])} answers match")
+    if after:
+        changed = [row for row in after if row["verdict"] != "same"]
+        console.print(f"  after a clean cutover and one morning of traffic: [bold]{len(changed)}/{len(after)} answers differ[/]")
+        for row in changed:
+            console.print(f"    {row['question']} {row.get('explanation', '')}")
+    if (cutover_clean.get("day_one_checkouts") or {}).get("source"):
+        console.print(f"  same 12 checkouts: MongoDB {cutover_clean['day_one_checkouts']['source']} · FerretDB {cutover_clean['day_one_checkouts']['target']}")
+
     upgrade_summary = upgrade.load(profile)
     if arguments.with_upgrade:
         _step("4d. Upgrade check: same probes and replay on an older target version")
@@ -227,6 +246,7 @@ def main() -> int:
     text = memo.write(
         profile, ledger, runs, self_check, docdb, result, invalid, ferretdb_documented, plans,
         cutover=cutover_clean, drill=cutover_drill, measured_bytes=measured_bytes, upgrade=upgrade_summary,
+        questions=questions, scoreboard=rules,
     )
     console.print(f"  wrote out/{profile}/memo.md")
     saved = store.save(profile, runs["run_id"], ledger, runs, result, text)

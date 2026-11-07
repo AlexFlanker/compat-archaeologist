@@ -56,7 +56,7 @@ About AWS DocumentDB, **don't say "it lacks features"**. Engine 8.0.2's docs cla
 
 The builder is actively changing `archaeologist/`, `fetch_agent/`, `scripts/`, `shoplog/`, `probes/`, `evidence/` and `out/`. **Please don't edit those**, or our changes will collide. Everything below is yours.
 
-1. **Business rules: `docs/RULES.md`.** The 1:00 PM cutoff has passed, so keep changes small (wording, or a number). If you change a number, say so in the PR description: the code in `shoplog/` must change to match, and the builder will do that and regenerate the evidence.
+1. **Business rules: `docs/RULES.md`.** The builder added a "fossils" section at 1:50 PM, with a story and a pitch line per rule. **Pull before you edit it.** The 1:00 PM cutoff has passed, so keep changes small (wording, or a number). If you change a number, say so in the PR description: the code in `shoplog/` must change to match, and the builder will do that and regenerate the evidence.
 2. **Demo scripts: new file `docs/DEMO_SCRIPT.md`.**
    - The 3-minute live demo, following CONTEXT §7 but with the DocumentDB wording above.
    - A cut for the **1-minute video** (Cerebral Valley).

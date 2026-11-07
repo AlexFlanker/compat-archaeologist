@@ -24,7 +24,7 @@ from bson import json_util
 from bson.codec_options import CodecOptions
 from pymongo.errors import PyMongoError
 
-from archaeologist import normalize
+from archaeologist import business_questions, normalize
 from archaeologist.config import OUT_DIR, source_client, target_client
 from scripts import generate
 from scripts.seed import PROFILES, seed_database
@@ -275,6 +275,33 @@ def _day_one_writes(profile: str, db) -> list[dict]:
     return attempts
 
 
+SOLD_OUT_SKU = "SKU-0007"
+
+
+def _day_one_checkouts(profile: str, client, db) -> dict:
+    """A morning of checkouts, run identically on both systems. One product has just sold out,
+    so those checkouts must fail and release whatever stock they reserved."""
+    if profile != "shoplog":
+        return {}
+    products = {product["_id"]: product for product in generate.generate_products(PROFILES["shoplog"]["products"])}
+    buyers = generate.generate_customers(PROFILES["shoplog"]["customers"])[:12]
+    db.inventory.update_one({"_id": SOLD_OUT_SKU}, {"$set": {"on_hand": 0}})
+    outcomes: dict[str, int] = {}
+    for position, buyer in enumerate(buyers):
+        lines = [{"sku": "SKU-0001", "category": products["SKU-0001"]["category"], "qty": 2, "unit_price": products["SKU-0001"]["price"]}]
+        if position % 2 == 0:
+            lines.append({"sku": SOLD_OUT_SKU, "category": products[SOLD_OUT_SKU]["category"], "qty": 1, "unit_price": products[SOLD_OUT_SKU]["price"]})
+        try:
+            checkout.checkout(client, db, f"DAY1-{position:03d}", buyer, lines, datetime.now(timezone.utc))
+            outcome = "completed"
+        except checkout.OutOfStock:
+            outcome = "refused: out of stock"
+        except PyMongoError as exc:
+            outcome = f"error {getattr(exc, 'code', None)}"
+        outcomes[outcome] = outcomes.get(outcome, 0) + 1
+    return outcomes
+
+
 def run(profile: str, scenario: str, self_check: bool = False) -> dict:
     settings = PROFILES[profile]
     config = SCENARIOS[scenario]
@@ -352,6 +379,10 @@ def run(profile: str, scenario: str, self_check: bool = False) -> dict:
     target_invariants_before = _business_invariants(profile, target_db)
     day_one_source = _day_one_writes(profile, source_db)
     day_one_target = _day_one_writes(profile, target_db)
+    checkouts = {"source": _day_one_checkouts(profile, source, source_db), "target": _day_one_checkouts(profile, target, target_db)}
+    questions = business_questions.compare(
+        profile, business_questions.answer(profile, source_db), business_questions.answer(profile, target_db)
+    )
     target_invariants_after = _business_invariants(profile, target_db)
     for rule, violations in target_invariants_after.items():
         checks.append(
@@ -401,6 +432,8 @@ def run(profile: str, scenario: str, self_check: bool = False) -> dict:
         "checks": checks,
         "failed": [check for check in checks if not check["ok"]],
         "injected_faults": injected,
+        "day_one_checkouts": checkouts,
+        "business_questions": questions,
         "seconds": round(time.perf_counter() - started, 1),
     }
     out_dir = OUT_DIR / profile
@@ -433,3 +466,6 @@ if __name__ == "__main__":
         print(f"  FAIL [{check['area']}] {check['check']}: {json.dumps(check['evidence'], default=str)[:220]}")
     for fault in result["injected_faults"]:
         print(f"  injected: {fault['fault']} → caught={fault['caught']} ({fault['evidence']})")
+    print(f"  day-one checkouts: {result['day_one_checkouts']}")
+    for row in result["business_questions"]:
+        print(f"  {row['id']} {row['verdict']:9} {row['question']} {json.dumps(row.get('difference'), default=str)[:150] if row['verdict'] != 'same' else ''}")

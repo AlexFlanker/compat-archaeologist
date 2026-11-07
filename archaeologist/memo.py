@@ -226,7 +226,34 @@ def _pct(value) -> str:
     return "n/a" if value is None else f"{value * 100:.0f}%"
 
 
-def _brief(profile, ledger, runs, self_check, tco, cutover, drill, explain, measured_bytes, upgrade) -> list[str]:
+def _outcomes(counts: dict) -> str:
+    return ", ".join(f"{count} {outcome}" for outcome, count in sorted(counts.items()))
+
+
+def _scoreboard_section(scoreboard: dict | None) -> list[str]:
+    if not scoreboard:
+        return []
+    lines = ["", "## Scoreboard: hidden rules", "", "| Rule | Found | Label | Expected | Evidence |", "|---|---|---|---|---|"]
+    for row in scoreboard["rows"]:
+        evidence = "; ".join(f"{item['ref']}: {item['text'][:90]}" for item in row["evidence"][:2]) or ""
+        lines.append(f"| {row['rule']} {row['title']} | {row['found']} | {row['label'] or ''} | {row['expected_label']} | {evidence} |")
+    lines.append("")
+    lines.append("Matching uses fixed patterns per rule, not a model's judgment, so a paraphrase the pattern misses counts as missed.")
+    return lines
+
+
+def _questions_section(questions: dict | None, cutover: dict | None) -> list[str]:
+    if not questions:
+        return []
+    after = {row["id"]: row for row in (cutover or {}).get("business_questions", [])}
+    lines = ["", "## Business questions", "", "| Question | Same data, both engines | After clean cutover and day one |", "|---|---|---|"]
+    for row in questions["rows"]:
+        later = after.get(row["id"])
+        lines.append(f"| {row['question']} | {row['verdict']} | {later['verdict'] if later else 'n/a'} |")
+    return lines
+
+
+def _brief(profile, ledger, runs, self_check, tco, cutover, drill, explain, measured_bytes, upgrade, questions=None, scoreboard=None) -> list[str]:
     assumptions = tco["assumptions"]
     app = APP_NAME.get(profile, profile)
     targets = tco["targets"]
@@ -318,6 +345,30 @@ def _brief(profile, ledger, runs, self_check, tco, cutover, drill, explain, meas
         elif projection["rows"]:
             lines.append("- Both engines grow the same way here, so scale doesn't change the comparison.")
 
+    if questions:
+        same = questions["same"]
+        lines += ["", f"**Business questions**: on untouched data, {same} of {len(questions['rows'])} answers match on FerretDB."]
+        after = (cutover or {}).get("business_questions", [])
+        changed = [row for row in after if row["verdict"] != "same"]
+        if after:
+            lines[-1] += f" After a clean cutover and one morning of traffic, {len(changed)} of {len(after)} differ" + (":" if changed else ".")
+            for row in changed:
+                lines.append(f"- {row['question']} {row.get('explanation', 'Values differ')}.")
+        checkouts = (cutover or {}).get("day_one_checkouts") or {}
+        if checkouts.get("source"):
+            lines.append(
+                f"- The same 12 checkouts: MongoDB {_outcomes(checkouts['source'])}; FerretDB {_outcomes(checkouts['target'])}."
+                + (" Error 59 means commit isn't implemented: the shopper is told it failed, but the order was already written." if any("59" in key for key in checkouts["target"]) else "")
+            )
+
+    if scoreboard:
+        lines += [
+            "",
+            f"**Hidden rules recovered blind**: {scoreboard['found']} of {scoreboard['total']} found"
+            + (f" (+{scoreboard['partly']} partly)" if scoreboard["partly"] else "")
+            + f", {scoreboard['labels_correct']} of {scoreboard['total']} labeled correctly (OBSERVED or INFERRED). Scored against [docs/RULES.md](../../docs/RULES.md), which the pipeline never reads. Code evidence for this run: {scoreboard['code_evidence_source']}.",
+        ]
+
     if cutover:
         engine_failures = [check["check"] for check in cutover["failed"]]
         lines += [
@@ -406,12 +457,14 @@ def write(
     drill: dict | None = None,
     measured_bytes: int | None = None,
     upgrade: dict | None = None,
+    questions: dict | None = None,
+    scoreboard: dict | None = None,
 ) -> str:
     app = APP_NAME.get(profile, profile)
     ferretdb, documentdb = tco["targets"][FERRETDB], tco["targets"][DOCUMENTDB]
     engines = runs["engines"]
     subq = tco["subq"]
-    lines = _brief(profile, ledger, runs, self_check, tco, cutover, drill, explain, measured_bytes, upgrade)
+    lines = _brief(profile, ledger, runs, self_check, tco, cutover, drill, explain, measured_bytes, upgrade, questions, scoreboard)
 
     lines += ["## Decision detail", "", "| Target | Evidence | Blocking gaps | Net over 12 months (base) | Decision | SubQ Snap: P(net-positive) |", "|---|---|---|---|---|---|"]
     for name, info in tco["targets"].items():
@@ -456,6 +509,8 @@ def write(
             "The risk for an application is what happens at runtime: pymongo follows the driver specification and ignores errors from abort, so nothing tells the application its rollback did nothing.",
         ]
     lines += _cutover_section(cutover, drill)
+    lines += _questions_section(questions, cutover)
+    lines += _scoreboard_section(scoreboard)
     if upgrade:
         lines += ["", "## Upgrade check", "", upgrade["summary"], ""] + upgrade.get("table", [])
 

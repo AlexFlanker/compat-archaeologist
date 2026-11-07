@@ -34,7 +34,7 @@ def _money(value: float) -> str:
     return f"-${abs(value):,.0f}" if value < 0 else f"${value:,.0f}"
 
 
-def decision_card(profile: str, tco: dict, ledger: dict) -> tuple[str, dict]:
+def decision_card(profile: str, tco: dict, ledger: dict, scoreboard: dict | None = None, cutover: dict | None = None) -> tuple[str, dict]:
     """The headline: one row per target, with the views a decision maker asks for next."""
     rows = []
     for name, info in tco["targets"].items():
@@ -45,6 +45,12 @@ def decision_card(profile: str, tco: dict, ledger: dict) -> tuple[str, dict]:
         rows.append({"label": "SubQ Snap: P(net-positive)", "value": ", ".join(f"{name} {probability:.2f}" for name, probability in subq["probabilities"].items())})
     observed = sum(1 for item in ledger["items"] if item["status"] == "OBSERVED")
     rows.append({"label": "Usage spec reconstructed", "value": f"{len(ledger['items'])} items ({observed} observed), {len(ledger.get('behaviors', []))} business behaviors"})
+    if scoreboard:
+        rows.append({"label": "Hidden rules recovered blind", "value": f"{scoreboard['found']}/{scoreboard['total']} found, {scoreboard['labels_correct']}/{scoreboard['total']} labeled correctly"})
+    after = (cutover or {}).get("business_questions", [])
+    if after:
+        changed = sum(1 for row in after if row["verdict"] != "same")
+        rows.append({"label": "Business numbers after cutover", "value": f"{changed} of {len(after)} answers differ after one day on FerretDB"})
     payload = {
         "title": f"Migration decision: {APP_NAME.get(profile, profile)}",
         "summary_rows": rows,

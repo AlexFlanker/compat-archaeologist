@@ -1,0 +1,186 @@
+{
+  "profile": "shoplog",
+  "answer_key": "docs/RULES.md",
+  "code_evidence_source": "static_scan_only",
+  "found": 8,
+  "partly": 1,
+  "labels_correct": 9,
+  "total": 10,
+  "rows": [
+    {
+      "rule": "R1",
+      "title": "Tier discounts; legacy_vip never takes a coupon",
+      "found": "yes",
+      "expected_label": "OBSERVED",
+      "label": "OBSERVED",
+      "label_correct": true,
+      "evidence": [
+        {
+          "ref": "INV-019",
+          "text": "[orders] customers.tier=legacy_vip \u21d2 coupon_code is absent"
+        },
+        {
+          "ref": "B19 (INV-019)",
+          "text": "customers.tier=legacy_vip \u21d2 coupon_code is absent [orders]"
+        }
+      ]
+    },
+    {
+      "rule": "R2",
+      "title": "WELCOME10 works once per customer",
+      "found": "yes",
+      "expected_label": "OBSERVED",
+      "label": "OBSERVED",
+      "label_correct": true,
+      "evidence": [
+        {
+          "ref": "catalog:orders.coupon_once_per_customer",
+          "text": "orders.coupon_once_per_customer on ['customer_id', 'coupon_code'] is unique and partial on {\"coupon_code\": {\"$exists\": true}}"
+        }
+      ]
+    },
+    {
+      "rule": "R3",
+      "title": "Free shipping from $75 of discounted merchandise",
+      "found": "yes",
+      "expected_label": "OBSERVED",
+      "label": "OBSERVED",
+      "label_correct": true,
+      "evidence": [
+        {
+          "ref": "INV-028",
+          "text": "[orders] shipping=0 when subtotal - discount \u2265 7500, otherwise shipping=795"
+        },
+        {
+          "ref": "B28 (INV-028)",
+          "text": "shipping=0 when subtotal - discount \u2265 7500, otherwise shipping=795 [orders]"
+        }
+      ]
+    },
+    {
+      "rule": "R4",
+      "title": "8.5% tax on merchandise; no tax field before 2021",
+      "found": "yes",
+      "expected_label": "OBSERVED",
+      "label": "OBSERVED",
+      "label_correct": true,
+      "evidence": [
+        {
+          "ref": "INV-026",
+          "text": "[orders] tax is absent before ~2021-01-01 and int from then on (placed_at)"
+        },
+        {
+          "ref": "B26 (INV-026)",
+          "text": "tax is absent before ~2021-01-01 and int from then on (placed_at) [orders]"
+        }
+      ]
+    },
+    {
+      "rule": "R5",
+      "title": "Float dollars before 2018, integer cents after",
+      "found": "yes",
+      "expected_label": "OBSERVED",
+      "label": "OBSERVED",
+      "label_correct": true,
+      "evidence": [
+        {
+          "ref": "INV-021",
+          "text": "[orders] subtotal is double before ~2018-01-01 and int from then on (placed_at)"
+        },
+        {
+          "ref": "INV-024",
+          "text": "[orders] total is double before ~2018-01-01 and int from then on (placed_at)"
+        },
+        {
+          "ref": "INV-025",
+          "text": "[orders] refund_total is double before ~2018-01-01 and int from then on (placed_at)"
+        }
+      ]
+    },
+    {
+      "rule": "R6",
+      "title": "Order state machine; only placed or paid can be cancelled",
+      "found": "partly",
+      "expected_label": "OBSERVED",
+      "label": "OBSERVED",
+      "label_correct": true,
+      "evidence": [
+        {
+          "ref": "INV-002",
+          "text": "[orders] status=cancelled \u21d2 delivered_at is absent"
+        },
+        {
+          "ref": "B02 (INV-002)",
+          "text": "status=cancelled \u21d2 delivered_at is absent [orders]"
+        }
+      ]
+    },
+    {
+      "rule": "R7",
+      "title": "Refund window: 30 days, 90 for legacy_vip",
+      "found": "no",
+      "expected_label": "INFERRED",
+      "label": null,
+      "label_correct": null,
+      "evidence": []
+    },
+    {
+      "rule": "R8",
+      "title": "Clearance items are final sale",
+      "found": "yes",
+      "expected_label": "OBSERVED",
+      "label": "OBSERVED",
+      "label_correct": true,
+      "evidence": [
+        {
+          "ref": "INV-029",
+          "text": "[orders.items[]] category=clearance \u21d2 refund_status=none"
+        },
+        {
+          "ref": "B29 (INV-029)",
+          "text": "category=clearance \u21d2 refund_status=none [orders.items[]]"
+        }
+      ]
+    },
+    {
+      "rule": "R9",
+      "title": "refund_total > 0 exactly when refunded",
+      "found": "yes",
+      "expected_label": "OBSERVED",
+      "label": "OBSERVED",
+      "label_correct": true,
+      "evidence": [
+        {
+          "ref": "INV-008",
+          "text": "[orders] status=partially_refunded \u21d2 refund_total > 0"
+        },
+        {
+          "ref": "INV-012",
+          "text": "[orders] status=refunded \u21d2 refund_total > 0"
+        },
+        {
+          "ref": "B08 (INV-008)",
+          "text": "status=partially_refunded \u21d2 refund_total > 0 [orders]"
+        }
+      ]
+    },
+    {
+      "rule": "R10",
+      "title": "Active carts expire after 24 hours; converted carts are kept",
+      "found": "yes",
+      "expected_label": "OBSERVED",
+      "label": "OBSERVED",
+      "label_correct": true,
+      "evidence": [
+        {
+          "ref": "catalog:carts.active_cart_expiry",
+          "text": "carts.active_cart_expiry on ['expires_at'] is partial on {\"status\": \"active\"}"
+        },
+        {
+          "ref": "catalog:carts.active_cart_expiry",
+          "text": "carts.active_cart_expiry is TTL, expireAfterSeconds=0"
+        }
+      ]
+    }
+  ]
+}

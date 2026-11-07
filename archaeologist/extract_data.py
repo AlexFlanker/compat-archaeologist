@@ -276,7 +276,9 @@ def feature_signals(catalog: dict, samples: dict[str, list[dict]]) -> dict[str, 
                 collation = index["collation"]
                 signals["F6"].append({"ref": f"{ref}.{index['name']}", "detail": f"{name}.{index['name']} uses collation locale={collation.get('locale')} strength={collation.get('strength')}, unique={index.get('unique', False)}"})
             if "partialFilterExpression" in index:
-                signals["F7"].append({"ref": f"{ref}.{index['name']}", "detail": f"{name}.{index['name']} is partial on {index['partialFilterExpression']}"})
+                expression = json.dumps(json.loads(json.dumps(index["partialFilterExpression"], default=str)))
+                kind = "unique and partial" if index.get("unique") else "partial"
+                signals["F7"].append({"ref": f"{ref}.{index['name']}", "detail": f"{name}.{index['name']} on {list(index['key'])} is {kind} on {expression}"})
             if "expireAfterSeconds" in index:
                 signals["F7"].append({"ref": f"{ref}.{index['name']}", "detail": f"{name}.{index['name']} is TTL, expireAfterSeconds={index['expireAfterSeconds']}"})
             if any(value == "text" for value in index["key"].values()):

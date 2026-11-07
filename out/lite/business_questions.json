@@ -1,0 +1,31 @@
+{
+  "profile": "lite",
+  "scope": "engine",
+  "rows": [
+    {
+      "id": "Q1",
+      "question": "How many orders are in each status?",
+      "verdict": "same",
+      "difference": null,
+      "source": "[{\"_id\": \"delivered\", \"orders\": 2445}, {\"_id\": \"paid\", \"orders\": 2543}, {\"_id\": \"placed\", \"orders\": 2524}, {\"_id\": \"shipped\", \"orders\": 2488}]",
+      "target": "[{\"_id\": \"delivered\", \"orders\": 2445}, {\"_id\": \"paid\", \"orders\": 2543}, {\"_id\": \"placed\", \"orders\": 2524}, {\"_id\": \"shipped\", \"orders\": 2488}]"
+    },
+    {
+      "id": "Q2",
+      "question": "What is the total order value by status?",
+      "verdict": "same",
+      "difference": null,
+      "source": "[{\"_id\": \"delivered\", \"total\": 62437284}, {\"_id\": \"paid\", \"total\": 64993988}, {\"_id\": \"placed\", \"total\": 63396642}, {\"_id\": \"shipped\", \"total\": 63825955}]",
+      "target": "[{\"_id\": \"delivered\", \"total\": 62437284}, {\"_id\": \"paid\", \"total\": 64993988}, {\"_id\": \"placed\", \"total\": 63396642}, {\"_id\": \"shipped\", \"total\": 63825955}]"
+    },
+    {
+      "id": "Q3",
+      "question": "Which 5 customers ordered the most?",
+      "verdict": "same",
+      "difference": null,
+      "source": "[{\"_id\": \"C000040\", \"orders\": 32}, {\"_id\": \"C000330\", \"orders\": 32}, {\"_id\": \"C000405\", \"orders\": 32}, {\"_id\": \"C000193\", \"orders\": 31}, {\"_id\": \"C000229\", \"orders\": 30}]",
+      "target": "[{\"_id\": \"C000040\", \"orders\": 32}, {\"_id\": \"C000330\", \"orders\": 32}, {\"_id\": \"C000405\", \"orders\": 32}, {\"_id\": \"C000193\", \"orders\": 31}, {\"_id\": \"C000229\", \"orders\": 30}]"
+    }
+  ],
+  "same": 3
+}

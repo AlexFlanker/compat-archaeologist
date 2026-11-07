@@ -5,18 +5,13 @@
   "target": "MongoDB (self-check)",
   "full_load": {
     "collections": {
-      "customers": 5000,
       "orders": 50000,
+      "customers": 5000,
       "products": 500,
-      "carts": 2000,
-      "inventory": 500
+      "inventory": 500,
+      "carts": 2000
     },
     "indexes": [
-      {
-        "collection": "customers",
-        "name": "email_ci_unique",
-        "ok": true
-      },
       {
         "collection": "orders",
         "name": "customer_id_1_placed_at_-1",
@@ -35,6 +30,11 @@
       {
         "collection": "orders",
         "name": "coupon_once_per_customer",
+        "ok": true
+      },
+      {
+        "collection": "customers",
+        "name": "email_ci_unique",
         "ok": true
       },
       {
@@ -456,5 +456,81 @@
   ],
   "failed": [],
   "injected_faults": [],
-  "seconds": 10.8
+  "day_one_checkouts": {
+    "source": {
+      "refused: out of stock": 6,
+      "completed": 6
+    },
+    "target": {
+      "refused: out of stock": 6,
+      "completed": 6
+    }
+  },
+  "business_questions": [
+    {
+      "id": "Q1",
+      "question": "What was revenue in each year?",
+      "verdict": "same",
+      "difference": null,
+      "source": "[{\"_id\": 2016, \"orders\": 3858, \"revenue_cents\": 268476861}, {\"_id\": 2017, \"orders\": 3896, \"revenue_cents\": 266871799}, {\"_id\": 2018, \"orders\": 3843, \"revenue_cents\": 272920706}, {\"_id\": 2019, \"orders\": 3807, \"revenue_cents\": 262087425}, {\"_\u2026",
+      "target": "[{\"_id\": 2016, \"orders\": 3858, \"revenue_cents\": 268476861}, {\"_id\": 2017, \"orders\": 3896, \"revenue_cents\": 266871799}, {\"_id\": 2018, \"orders\": 3843, \"revenue_cents\": 272920706}, {\"_id\": 2019, \"orders\": 3807, \"revenue_cents\": 262087425}, {\"_\u2026"
+    },
+    {
+      "id": "Q2",
+      "question": "How much was refunded each year?",
+      "verdict": "same",
+      "difference": null,
+      "source": "[{\"_id\": 2016, \"orders\": 308, \"refunded_cents\": 12856900}, {\"_id\": 2017, \"orders\": 276, \"refunded_cents\": 11421900}, {\"_id\": 2018, \"orders\": 301, \"refunded_cents\": 13611300}, {\"_id\": 2019, \"orders\": 283, \"refunded_cents\": 11756900}, {\"_id\":\u2026",
+      "target": "[{\"_id\": 2016, \"orders\": 308, \"refunded_cents\": 12856900}, {\"_id\": 2017, \"orders\": 276, \"refunded_cents\": 11421900}, {\"_id\": 2018, \"orders\": 301, \"refunded_cents\": 13611300}, {\"_id\": 2019, \"orders\": 283, \"refunded_cents\": 11756900}, {\"_id\":\u2026"
+    },
+    {
+      "id": "Q3",
+      "question": "How many orders are in each status?",
+      "verdict": "same",
+      "difference": null,
+      "source": "[{\"_id\": \"cancelled\", \"orders\": 2539}, {\"_id\": \"delivered\", \"orders\": 43215}, {\"_id\": \"paid\", \"orders\": 61}, {\"_id\": \"partially_refunded\", \"orders\": 1317}, {\"_id\": \"placed\", \"orders\": 158}, {\"_id\": \"refunded\", \"orders\": 2321}, {\"_id\": \"ship\u2026",
+      "target": "[{\"_id\": \"cancelled\", \"orders\": 2539}, {\"_id\": \"delivered\", \"orders\": 43215}, {\"_id\": \"paid\", \"orders\": 61}, {\"_id\": \"partially_refunded\", \"orders\": 1317}, {\"_id\": \"placed\", \"orders\": 158}, {\"_id\": \"refunded\", \"orders\": 2321}, {\"_id\": \"ship\u2026"
+    },
+    {
+      "id": "Q4",
+      "question": "How many customers ordered in the last 90 days?",
+      "verdict": "same",
+      "difference": null,
+      "source": "[{\"customers\": 3653}]",
+      "target": "[{\"customers\": 3653}]"
+    },
+    {
+      "id": "Q5",
+      "question": "Which 5 products sold the most units in 2025?",
+      "verdict": "same",
+      "difference": null,
+      "source": "[{\"_id\": \"SKU-0227\", \"units\": 69}, {\"_id\": \"SKU-0491\", \"units\": 69}, {\"_id\": \"SKU-0223\", \"units\": 67}, {\"_id\": \"SKU-0249\", \"units\": 65}, {\"_id\": \"SKU-0356\", \"units\": 64}]",
+      "target": "[{\"_id\": \"SKU-0227\", \"units\": 69}, {\"_id\": \"SKU-0491\", \"units\": 69}, {\"_id\": \"SKU-0223\", \"units\": 67}, {\"_id\": \"SKU-0249\", \"units\": 65}, {\"_id\": \"SKU-0356\", \"units\": 64}]"
+    },
+    {
+      "id": "Q6",
+      "question": "How many welcome coupons were redeemed?",
+      "verdict": "same",
+      "difference": null,
+      "source": "[{\"redemptions\": 1967}]",
+      "target": "[{\"redemptions\": 1967}]"
+    },
+    {
+      "id": "Q7",
+      "question": "How many units are on hand across all products?",
+      "verdict": "same",
+      "difference": null,
+      "source": "[{\"_id\": null, \"on_hand\": 499078, \"reserved\": 66}]",
+      "target": "[{\"_id\": null, \"on_hand\": 499078, \"reserved\": 66}]"
+    },
+    {
+      "id": "Q8",
+      "question": "How many customers are in each loyalty tier?",
+      "verdict": "same",
+      "difference": null,
+      "source": "[{\"_id\": \"bronze\", \"customers\": 3040}, {\"_id\": \"gold\", \"customers\": 590}, {\"_id\": \"legacy_vip\", \"customers\": 137}, {\"_id\": \"silver\", \"customers\": 1250}]",
+      "target": "[{\"_id\": \"bronze\", \"customers\": 3040}, {\"_id\": \"gold\", \"customers\": 590}, {\"_id\": \"legacy_vip\", \"customers\": 137}, {\"_id\": \"silver\", \"customers\": 1250}]"
+    }
+  ],
+  "seconds": 12.0
 }

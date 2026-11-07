@@ -5,11 +5,11 @@
   "target": "FerretDB",
   "full_load": {
     "collections": {
-      "inventory": 500,
       "orders": 50000,
-      "customers": 5000,
+      "carts": 2000,
       "products": 500,
-      "carts": 2000
+      "inventory": 500,
+      "customers": 5000
     },
     "indexes": [
       {
@@ -34,11 +34,14 @@
         "skipped_by_copier": true
       },
       {
-        "collection": "customers",
-        "name": "email_ci_unique",
-        "ok": false,
-        "code": 115,
-        "error": "Error in specification { \"name\" : \"email_ci_unique\", \"unique\" : true, \"key\" : { \"email\" : 1 }, \"collation\" : { \"locale\" : \"en\", \"caseLevel\" : false, \"caseFirst\" : \"off\", \"strength\" : 2, \"numericOrderi"
+        "collection": "carts",
+        "name": "active_cart_expiry",
+        "ok": true
+      },
+      {
+        "collection": "carts",
+        "name": "customer_id_1",
+        "ok": true
       },
       {
         "collection": "products",
@@ -51,14 +54,11 @@
         "ok": true
       },
       {
-        "collection": "carts",
-        "name": "active_cart_expiry",
-        "ok": true
-      },
-      {
-        "collection": "carts",
-        "name": "customer_id_1",
-        "ok": true
+        "collection": "customers",
+        "name": "email_ci_unique",
+        "ok": false,
+        "code": 115,
+        "error": "Error in specification { \"name\" : \"email_ci_unique\", \"unique\" : true, \"key\" : { \"email\" : 1 }, \"collation\" : { \"locale\" : \"en\", \"caseLevel\" : false, \"caseFirst\" : \"off\", \"strength\" : 2, \"numericOrderi"
       }
     ],
     "validators": [
@@ -665,5 +665,111 @@
       "evidence": "orders.coupon_once_per_customer index (unique, partialFilterExpression)"
     }
   ],
-  "seconds": 9.3
+  "day_one_checkouts": {
+    "source": {
+      "refused: out of stock": 6,
+      "completed": 6
+    },
+    "target": {
+      "refused: out of stock": 6,
+      "error 59": 6
+    }
+  },
+  "business_questions": [
+    {
+      "id": "Q1",
+      "question": "What was revenue in each year?",
+      "verdict": "different",
+      "difference": {
+        "path": "$[10].orders",
+        "source": 8919,
+        "target": 8918
+      },
+      "source": "[{\"_id\": 2016, \"orders\": 3858, \"revenue_cents\": 268476861}, {\"_id\": 2017, \"orders\": 3896, \"revenue_cents\": 266871799}, {\"_id\": 2018, \"orders\": 3843, \"revenue_cents\": 272920706}, {\"_id\": 2019, \"orders\": 3807, \"revenue_cents\": 262087425}, {\"_\u2026",
+      "target": "[{\"_id\": 2016, \"orders\": 3858, \"revenue_cents\": 268476861}, {\"_id\": 2017, \"orders\": 3896, \"revenue_cents\": 266871799}, {\"_id\": 2018, \"orders\": 3843, \"revenue_cents\": 272920706}, {\"_id\": 2019, \"orders\": 3807, \"revenue_cents\": 262087425}, {\"_\u2026",
+      "explanation": "2026: orders 8,919 \u2192 8,918, revenue_cents 614,753,084 \u2192 614,714,880"
+    },
+    {
+      "id": "Q2",
+      "question": "How much was refunded each year?",
+      "verdict": "different",
+      "difference": {
+        "path": "$[10].orders",
+        "source": 674,
+        "target": 671
+      },
+      "source": "[{\"_id\": 2016, \"orders\": 308, \"refunded_cents\": 12856900}, {\"_id\": 2017, \"orders\": 276, \"refunded_cents\": 11421900}, {\"_id\": 2018, \"orders\": 301, \"refunded_cents\": 13611300}, {\"_id\": 2019, \"orders\": 283, \"refunded_cents\": 11756900}, {\"_id\":\u2026",
+      "target": "[{\"_id\": 2016, \"orders\": 308, \"refunded_cents\": 12856900}, {\"_id\": 2017, \"orders\": 276, \"refunded_cents\": 11421900}, {\"_id\": 2018, \"orders\": 301, \"refunded_cents\": 13611300}, {\"_id\": 2019, \"orders\": 283, \"refunded_cents\": 11756900}, {\"_id\":\u2026",
+      "explanation": "2026: orders 674 \u2192 671, refunded_cents 28,726,900 \u2192 28,648,000"
+    },
+    {
+      "id": "Q3",
+      "question": "How many orders are in each status?",
+      "verdict": "different",
+      "difference": {
+        "path": "$.length",
+        "source": 7,
+        "target": 8
+      },
+      "source": "[{\"_id\": \"cancelled\", \"orders\": 2539}, {\"_id\": \"delivered\", \"orders\": 43215}, {\"_id\": \"paid\", \"orders\": 61}, {\"_id\": \"partially_refunded\", \"orders\": 1317}, {\"_id\": \"placed\", \"orders\": 158}, {\"_id\": \"refunded\", \"orders\": 2321}, {\"_id\": \"ship\u2026",
+      "target": "[{\"_id\": \"cancelled\", \"orders\": 2539}, {\"_id\": \"delivered\", \"orders\": 43218}, {\"_id\": \"lost_in_mail\", \"orders\": 1}, {\"_id\": \"paid\", \"orders\": 62}, {\"_id\": \"partially_refunded\", \"orders\": 1316}, {\"_id\": \"placed\", \"orders\": 156}, {\"_id\": \"ref\u2026",
+      "explanation": "FerretDB has extra group(s) lost_in_mail; delivered: orders 43,215 \u2192 43,218; paid: orders 61 \u2192 62"
+    },
+    {
+      "id": "Q4",
+      "question": "How many customers ordered in the last 90 days?",
+      "verdict": "same",
+      "difference": null,
+      "source": "[{\"customers\": 3653}]",
+      "target": "[{\"customers\": 3653}]"
+    },
+    {
+      "id": "Q5",
+      "question": "Which 5 products sold the most units in 2025?",
+      "verdict": "same",
+      "difference": null,
+      "source": "[{\"_id\": \"SKU-0227\", \"units\": 69}, {\"_id\": \"SKU-0491\", \"units\": 69}, {\"_id\": \"SKU-0223\", \"units\": 67}, {\"_id\": \"SKU-0249\", \"units\": 65}, {\"_id\": \"SKU-0356\", \"units\": 64}]",
+      "target": "[{\"_id\": \"SKU-0227\", \"units\": 69}, {\"_id\": \"SKU-0491\", \"units\": 69}, {\"_id\": \"SKU-0223\", \"units\": 67}, {\"_id\": \"SKU-0249\", \"units\": 65}, {\"_id\": \"SKU-0356\", \"units\": 64}]"
+    },
+    {
+      "id": "Q6",
+      "question": "How many welcome coupons were redeemed?",
+      "verdict": "different",
+      "difference": {
+        "path": "$[0].redemptions",
+        "source": 1967,
+        "target": 1968
+      },
+      "source": "[{\"redemptions\": 1967}]",
+      "target": "[{\"redemptions\": 1968}]",
+      "explanation": "redemptions 1,967 \u2192 1,968"
+    },
+    {
+      "id": "Q7",
+      "question": "How many units are on hand across all products?",
+      "verdict": "different",
+      "difference": {
+        "path": "$[0].on_hand",
+        "source": 499078,
+        "target": 499068
+      },
+      "source": "[{\"_id\": null, \"on_hand\": 499078, \"reserved\": 66}]",
+      "target": "[{\"_id\": null, \"on_hand\": 499068, \"reserved\": 76}]",
+      "explanation": "on_hand 499,078 \u2192 499,068, reserved 66 \u2192 76"
+    },
+    {
+      "id": "Q8",
+      "question": "How many customers are in each loyalty tier?",
+      "verdict": "different",
+      "difference": {
+        "path": "$[0].customers",
+        "source": 3040,
+        "target": 3039
+      },
+      "source": "[{\"_id\": \"bronze\", \"customers\": 3040}, {\"_id\": \"gold\", \"customers\": 590}, {\"_id\": \"legacy_vip\", \"customers\": 137}, {\"_id\": \"silver\", \"customers\": 1250}]",
+      "target": "[{\"_id\": \"bronze\", \"customers\": 3039}, {\"_id\": \"gold\", \"customers\": 590}, {\"_id\": \"legacy_vip\", \"customers\": 137}, {\"_id\": \"silver\", \"customers\": 1250}]",
+      "explanation": "bronze: customers 3,040 \u2192 3,039"
+    }
+  ],
+  "seconds": 10.7
 }

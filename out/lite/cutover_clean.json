@@ -101,5 +101,35 @@
   ],
   "failed": [],
   "injected_faults": [],
-  "seconds": 2.6
+  "day_one_checkouts": {
+    "source": {},
+    "target": {}
+  },
+  "business_questions": [
+    {
+      "id": "Q1",
+      "question": "How many orders are in each status?",
+      "verdict": "same",
+      "difference": null,
+      "source": "[{\"_id\": \"delivered\", \"orders\": 2440}, {\"_id\": \"paid\", \"orders\": 2546}, {\"_id\": \"placed\", \"orders\": 2577}, {\"_id\": \"shipped\", \"orders\": 2478}]",
+      "target": "[{\"_id\": \"delivered\", \"orders\": 2440}, {\"_id\": \"paid\", \"orders\": 2546}, {\"_id\": \"placed\", \"orders\": 2577}, {\"_id\": \"shipped\", \"orders\": 2478}]"
+    },
+    {
+      "id": "Q2",
+      "question": "What is the total order value by status?",
+      "verdict": "same",
+      "difference": null,
+      "source": "[{\"_id\": \"delivered\", \"total\": 62312282}, {\"_id\": \"paid\", \"total\": 65001771}, {\"_id\": \"placed\", \"total\": 63231895}, {\"_id\": \"shipped\", \"total\": 63606087}]",
+      "target": "[{\"_id\": \"delivered\", \"total\": 62312282}, {\"_id\": \"paid\", \"total\": 65001771}, {\"_id\": \"placed\", \"total\": 63231895}, {\"_id\": \"shipped\", \"total\": 63606087}]"
+    },
+    {
+      "id": "Q3",
+      "question": "Which 5 customers ordered the most?",
+      "verdict": "same",
+      "difference": null,
+      "source": "[{\"_id\": \"C000040\", \"orders\": 32}, {\"_id\": \"C000330\", \"orders\": 32}, {\"_id\": \"C000405\", \"orders\": 32}, {\"_id\": \"C000193\", \"orders\": 31}, {\"_id\": \"C000369\", \"orders\": 31}]",
+      "target": "[{\"_id\": \"C000040\", \"orders\": 32}, {\"_id\": \"C000330\", \"orders\": 32}, {\"_id\": \"C000405\", \"orders\": 32}, {\"_id\": \"C000193\", \"orders\": 31}, {\"_id\": \"C000369\", \"orders\": 31}]"
+    }
+  ],
+  "seconds": 2.7
 }

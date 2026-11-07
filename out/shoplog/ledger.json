@@ -678,7 +678,7 @@
         {
           "type": "data",
           "ref": "catalog:carts.active_cart_expiry",
-          "detail": "carts.active_cart_expiry is partial on SON([('status', 'active')])"
+          "detail": "carts.active_cart_expiry on ['expires_at'] is partial on {\"status\": \"active\"}"
         },
         {
           "type": "data",
@@ -688,7 +688,7 @@
         {
           "type": "data",
           "ref": "catalog:orders.coupon_once_per_customer",
-          "detail": "orders.coupon_once_per_customer is partial on SON([('coupon_code', SON([('$exists', True)]))])"
+          "detail": "orders.coupon_once_per_customer on ['customer_id', 'coupon_code'] is unique and partial on {\"coupon_code\": {\"$exists\": true}}"
         },
         {
           "type": "code",

@@ -95,7 +95,7 @@ async def _send_decision(ctx: Context, sender: str, profile: str) -> None:
     if not (tco and ledger):
         await ctx.send(sender, _message(f"No assessment exists yet for {profile}. Ask me to assess it."))
         return
-    narration, card = cards.decision_card(profile, tco, ledger)
+    narration, card = cards.decision_card(profile, tco, ledger, _read(profile, "scoreboard.json"), _read(profile, "cutover_clean.json"))
     await ctx.send(sender, _message(narration, card))
 
 

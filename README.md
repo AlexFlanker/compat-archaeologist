@@ -43,6 +43,13 @@ FerretDB's own [compatibility page](https://docs.ferretdb.io/migration/compatibi
 
 **Upgrade check.** From FerretDB 2.2.0 to 2.7.0, none of the failing behaviors were fixed, and the revenue report stayed at about 4.3 s. Window functions did get about 8× faster.
 
+**Business questions.** The pipeline asks both systems eight questions the business runs on: revenue, refunds, orders by status, active customers, top products, coupon redemptions, stock on hand, and customers by tier.
+- **On the same untouched data**, all 8 answers match. FerretDB computes these aggregates correctly.
+- **After a clean cutover and one morning of identical traffic**, 5 of 8 differ. 12 units of stock stay "reserved" by checkouts that failed and never released them. An invalid order adds a status that shouldn't exist. A duplicate account shows up in the tier counts.
+- **The same 12 checkouts**: the 6 that succeed on MongoDB all return error 59 on FerretDB, yet their orders were saved.
+
+**Hidden rules, scored blind.** ShopLog has 10 planted business rules ([docs/RULES.md](docs/RULES.md)) that the pipeline never reads. A separate scorer matches the recovered evidence against fixed patterns: 8 of 10 found from data and catalog alone, plus 1 partly, and 9 of 10 labeled correctly. The one missed, the refund window, exists only in code, which is where Muse's code evidence comes in.
+
 **Fairness check.** The same pipeline, thresholds and assumptions run on a control app, ShopLog Lite, which uses only plain CRUD. Its verdict: *the migration is fine*, with FerretDB matching MongoDB on everything it does.
 
 **AWS DocumentDB.** Engine 8.0.2's documentation lists support for most of these features. The memo flags only where ShopLog's actual usage conflicts with documented limits (`$shift` in window functions, `$text` exclusion terms and array fields, Atlas Search) and marks the target as **not verified**. FerretDB results say nothing about DocumentDB: they are different engines with similar names.
@@ -118,6 +125,7 @@ Everything in this repository was written today, after 10:45 AM PT, during the A
 - The cutover fidelity check, with its full-load + CDC copier, fault injection and independent verifier (`archaeologist/cutover.py`)
 - Upgrade mode, comparing two target versions (`archaeologist/upgrade.py`)
 - The CTO brief: top risks, path latency and timeouts, reversibility, production-size projection (`archaeologist/brief.py`)
+- Business-question replay and the blind scoreboard for hidden rules (`archaeologist/business_questions.py`, `archaeologist/scoreboard.py`)
 - The DocumentDB documentation mapping, the cost model, the memo writer, Atlas storage and the pipeline (`archaeologist/`)
 - The ASI:One agent and its cards (`fetch_agent/`), plus tests (`tests/`)
 

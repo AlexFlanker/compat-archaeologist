@@ -145,5 +145,45 @@
       "healed_by_later_events": 0
     }
   ],
-  "seconds": 2.6
+  "day_one_checkouts": {
+    "source": {},
+    "target": {}
+  },
+  "business_questions": [
+    {
+      "id": "Q1",
+      "question": "How many orders are in each status?",
+      "verdict": "different",
+      "difference": {
+        "path": "$[0].orders",
+        "source": 2440,
+        "target": 2443
+      },
+      "source": "[{\"_id\": \"delivered\", \"orders\": 2440}, {\"_id\": \"paid\", \"orders\": 2546}, {\"_id\": \"placed\", \"orders\": 2577}, {\"_id\": \"shipped\", \"orders\": 2478}]",
+      "target": "[{\"_id\": \"delivered\", \"orders\": 2443}, {\"_id\": \"paid\", \"orders\": 2540}, {\"_id\": \"placed\", \"orders\": 2573}, {\"_id\": \"shipped\", \"orders\": 2481}]",
+      "explanation": "delivered: orders 2,440 \u2192 2,443; paid: orders 2,546 \u2192 2,540; placed: orders 2,577 \u2192 2,573"
+    },
+    {
+      "id": "Q2",
+      "question": "What is the total order value by status?",
+      "verdict": "different",
+      "difference": {
+        "path": "$[0].total",
+        "source": 62312282,
+        "target": 62394195
+      },
+      "source": "[{\"_id\": \"delivered\", \"total\": 62312282}, {\"_id\": \"paid\", \"total\": 65001771}, {\"_id\": \"placed\", \"total\": 63231895}, {\"_id\": \"shipped\", \"total\": 63606087}]",
+      "target": "[{\"_id\": \"delivered\", \"total\": 62394195}, {\"_id\": \"paid\", \"total\": 64838864}, {\"_id\": \"placed\", \"total\": 63317224}, {\"_id\": \"shipped\", \"total\": 63684102}]",
+      "explanation": "delivered: total 62,312,282 \u2192 62,394,195; paid: total 65,001,771 \u2192 64,838,864; placed: total 63,231,895 \u2192 63,317,224"
+    },
+    {
+      "id": "Q3",
+      "question": "Which 5 customers ordered the most?",
+      "verdict": "same",
+      "difference": null,
+      "source": "[{\"_id\": \"C000040\", \"orders\": 32}, {\"_id\": \"C000330\", \"orders\": 32}, {\"_id\": \"C000405\", \"orders\": 32}, {\"_id\": \"C000193\", \"orders\": 31}, {\"_id\": \"C000369\", \"orders\": 31}]",
+      "target": "[{\"_id\": \"C000040\", \"orders\": 32}, {\"_id\": \"C000330\", \"orders\": 32}, {\"_id\": \"C000405\", \"orders\": 32}, {\"_id\": \"C000193\", \"orders\": 31}, {\"_id\": \"C000369\", \"orders\": 31}]"
+    }
+  ],
+  "seconds": 2.5
 }
