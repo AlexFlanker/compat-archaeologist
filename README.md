@@ -48,6 +48,8 @@ FerretDB's own [compatibility page](https://docs.ferretdb.io/migration/compatibi
 - **After a clean cutover and one morning of identical traffic**, 5 of 8 differ. 12 units of stock stay "reserved" by checkouts that failed and never released them. An invalid order adds a status that shouldn't exist. A duplicate account shows up in the tier counts.
 - **The same 12 checkouts**: the 6 that succeed on MongoDB all return error 59 on FerretDB, yet their orders were saved.
 
+**Edge cases.** SubQ's generative model, `subq-preview`, designed 48 awkward documents for ShopLog's real fields: dates before 1970 and in year 9999, int64 beyond 2^53, -0.0, NaN, Decimal128 money, Unicode, and null versus missing. MongoDB refereed, and round-trips were compared with BSON types kept exactly. FerretDB stored, matched, sorted and typed all 48 the same as MongoDB, and MongoDB matched itself on all 48 too. So the gaps are in behavior (transactions, validators, collation, change streams), not in storing data.
+
 **Hidden rules, scored blind.** ShopLog has 10 planted business rules ([docs/RULES.md](docs/RULES.md)) that the pipeline never reads. A separate scorer matches the recovered evidence against fixed patterns, not a model's judgment.
 - **From data and the catalog alone:** 8 of 10 found, plus 1 partly.
 - **With Muse reading the code:** 10 of 10 found and 10 of 10 labeled correctly. That includes the refund window, which exists only in code and is correctly labeled INFERRED.
@@ -133,6 +135,7 @@ Everything in this repository was written today, after 10:45 AM PT, during the A
 - Upgrade mode, comparing two target versions (`archaeologist/upgrade.py`)
 - The CTO brief: top risks, path latency and timeouts, reversibility, production-size projection (`archaeologist/brief.py`)
 - Business-question replay and the blind scoreboard for hidden rules (`archaeologist/business_questions.py`, `archaeologist/scoreboard.py`)
+- The edge-case fuzz, with model-designed cases, MongoDB as referee and exact BSON type comparison (`archaeologist/edge_cases.py`)
 - A second fictional legacy app, **International Racking**, built by teammate Lev0gan: a deterministic data generator, an evidence pack, a checker and an answer key (`datasets/international_racking/`, `tools/international_racking/`, `docs/GROUND_TRUTH_INTERNATIONAL_RACKING.md`). It's optional and not yet wired into the pipeline. The generator was first written with Meta Muse (muse-wonder-1.0).
 - The DocumentDB documentation mapping, the cost model, the memo writer, Atlas storage and the pipeline (`archaeologist/`)
 - The ASI:One agent and its cards (`fetch_agent/`), plus tests (`tests/`)
@@ -141,7 +144,7 @@ Everything in this repository was written today, after 10:45 AM PT, during the A
 
 - **Databases:** [MongoDB](https://www.mongodb.com/) 8.0 (Docker image `mongo:8.0`), [MongoDB Atlas](https://www.mongodb.com/atlas), [Atlas Search](https://www.mongodb.com/docs/atlas/atlas-search/), [FerretDB](https://www.ferretdb.com/) 2.7 (Apache-2.0, eval image), Docker
 - **Tools:** the official [MongoDB MCP Server](https://github.com/mongodb-js/mongodb-mcp-server) (`mongodb-mcp-server@3.2.2`)
-- **Models:** [Meta Model API](https://dev.meta.ai/docs/quickstart) (Muse Spark 1.3) for code evidence, probe generation and rewrite estimates. [SubQ Snap 1.1](https://docs.subq.ai/endpoints/decisions-api/) for confidence and decision probabilities.
+- **Models:** [Meta Model API](https://dev.meta.ai/docs/quickstart) (Muse Spark 1.3) for code evidence, probe generation and rewrite estimates. [SubQ Snap 1.1](https://docs.subq.ai/endpoints/decisions-api/) for confidence and decision probabilities. SubQ Preview (`subq-preview`) for edge-case design.
 - **Fetch.ai:** [uAgents](https://uagents.fetch.ai/), Agentverse, ASI:One
 - **Python libraries:** pymongo, openai, mcp, uagents, requests, PyYAML, rich, python-dotenv, pytest
 

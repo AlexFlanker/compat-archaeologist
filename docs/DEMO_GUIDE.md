@@ -52,6 +52,7 @@ Two apps were built today for the demo:
 - **9 ms → 4.2 s**: revenue report p95, about 470× slower.
 - **2/2** injected cutover faults caught.
 - **ShopLog → FerretDB**: −$98,823 over 12 months; SubQ gives 0.0001 that it pays off; reversibility 15/100.
+- **48/48** edge-case documents designed by SubQ Preview behaved the same on FerretDB. The gaps are behavior, not data.
 - **Control → FerretDB**: +$8,604; SubQ 0.94; "the migration is fine".
 
 | # | ShopLog depends on | FerretDB 2.7 (measured) | DocumentDB 8.0.2 (docs only) |

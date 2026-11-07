@@ -16,8 +16,8 @@
         "$facet"
       ],
       "replay_p95_ms": {
-        "source": 8.78,
-        "target": 4134.76
+        "source": 8.37,
+        "target": 4215.27
       },
       "source": {
         "engine_format": "MongoDB plan",
@@ -48,8 +48,8 @@
         "$project"
       ],
       "replay_p95_ms": {
-        "source": 1.78,
-        "target": 4.39
+        "source": 1.05,
+        "target": 4.23
       },
       "source": {
         "engine_format": "MongoDB plan",
@@ -75,8 +75,8 @@
       "collection": "products",
       "stages": [],
       "replay_p95_ms": {
-        "source": 1.14,
-        "target": 2.69
+        "source": 2.18,
+        "target": 3.81
       },
       "source": {
         "engine_format": "MongoDB plan",

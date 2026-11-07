@@ -256,7 +256,7 @@ def _questions_section(questions: dict | None, cutover: dict | None) -> list[str
     return lines
 
 
-def _brief(profile, ledger, runs, self_check, tco, cutover, drill, explain, measured_bytes, upgrade, questions=None, scoreboard=None) -> list[str]:
+def _brief(profile, ledger, runs, self_check, tco, cutover, drill, explain, measured_bytes, upgrade, questions=None, scoreboard=None, edge=None) -> list[str]:
     assumptions = tco["assumptions"]
     app = APP_NAME.get(profile, profile)
     targets = tco["targets"]
@@ -364,6 +364,16 @@ def _brief(profile, ledger, runs, self_check, tco, cutover, drill, explain, meas
                 + (" Error 59 means commit isn't implemented: the shopper is told it failed, but the order was already written." if any("59" in key for key in checkouts["target"]) else "")
             )
 
+    if edge and edge.get("available"):
+        if edge["different"] == 0:
+            lines += [
+                "",
+                f"**Edge cases**: {edge['generator']} designed {edge['cases']} awkward documents for ShopLog's fields: dates before 1970 and in year 9999, int64 beyond 2^53, -0.0, NaN, Decimal128 money, Unicode, null versus missing. MongoDB refereed. "
+                f"FerretDB stored, matched, sorted and typed all {edge['valid']} exactly as MongoDB did. The gaps above are in behavior, not in storing data.",
+            ]
+        else:
+            lines += ["", f"**Edge cases**: {edge['different']} of {edge['valid']} documents designed by {edge['generator']} behaved differently on FerretDB: {edge['counts']}."]
+
     if scoreboard:
         lines += [
             "",
@@ -463,12 +473,13 @@ def write(
     upgrade: dict | None = None,
     questions: dict | None = None,
     scoreboard: dict | None = None,
+    edge: dict | None = None,
 ) -> str:
     app = APP_NAME.get(profile, profile)
     ferretdb, documentdb = tco["targets"][FERRETDB], tco["targets"][DOCUMENTDB]
     engines = runs["engines"]
     subq = tco["subq"]
-    lines = _brief(profile, ledger, runs, self_check, tco, cutover, drill, explain, measured_bytes, upgrade, questions, scoreboard)
+    lines = _brief(profile, ledger, runs, self_check, tco, cutover, drill, explain, measured_bytes, upgrade, questions, scoreboard, edge)
 
     lines += ["## Decision detail", "", "| Target | Evidence | Blocking gaps | Net over 12 months (base) | Decision | SubQ Snap: P(net-positive) |", "|---|---|---|---|---|---|"]
     for name, info in tco["targets"].items():

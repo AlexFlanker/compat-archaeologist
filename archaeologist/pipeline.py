@@ -9,7 +9,7 @@ import time
 from rich.console import Console
 from rich.table import Table
 
-from archaeologist import brief, business_questions, cutover, docdb_inferred, explain_compare, extract_data, extract_querylog, ledger as ledger_module, memo, meta_client, probes, scoreboard, store, subq_client, tco, upgrade
+from archaeologist import brief, business_questions, cutover, edge_cases, docdb_inferred, explain_compare, extract_data, extract_querylog, ledger as ledger_module, memo, meta_client, probes, scoreboard, store, subq_client, tco, upgrade
 from archaeologist.config import OUT_DIR, ROOT, source_client, target_client
 from archaeologist.diff import run as run_diff
 from scripts.seed import PROFILES, database_names, seed_database
@@ -229,6 +229,15 @@ def main() -> int:
     if (cutover_clean.get("day_one_checkouts") or {}).get("source"):
         console.print(f"  same 12 checkouts: MongoDB {cutover_clean['day_one_checkouts']['source']} · FerretDB {cutover_clean['day_one_checkouts']['target']}")
 
+    edge = None
+    if profile == "shoplog":
+        _step("4f. Edge cases: designed by SubQ Preview, refereed by MongoDB, BSON types compared exactly")
+        edge = edge_cases.run()
+        if edge.get("available"):
+            console.print(f"  {edge['valid']} cases from {edge['generator']}: {edge['different']} differ on FerretDB {edge['counts']}")
+        else:
+            console.print(f"  [yellow]skipped[/]: {edge.get('reason')}")
+
     upgrade_summary = upgrade.load(profile)
     if arguments.with_upgrade:
         _step("4d. Upgrade check: same probes and replay on an older target version")
@@ -247,7 +256,7 @@ def main() -> int:
     text = memo.write(
         profile, ledger, runs, self_check, docdb, result, invalid, ferretdb_documented, plans,
         cutover=cutover_clean, drill=cutover_drill, measured_bytes=measured_bytes, upgrade=upgrade_summary,
-        questions=questions, scoreboard=rules,
+        questions=questions, scoreboard=rules, edge=edge,
     )
     console.print(f"  wrote out/{profile}/memo.md")
     saved = store.save(profile, runs["run_id"], ledger, runs, result, text)

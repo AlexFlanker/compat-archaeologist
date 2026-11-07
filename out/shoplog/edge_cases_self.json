@@ -1,0 +1,351 @@
+{
+  "available": true,
+  "generator": "subq-preview",
+  "target": "MongoDB (self-check)",
+  "cases": 48,
+  "valid": 48,
+  "excluded": 0,
+  "counts": {
+    "same": 48
+  },
+  "different": 0,
+  "sort_or_type_differs_on_fields": [],
+  "rows": [
+    {
+      "id": "E01",
+      "category": "date_before_1970",
+      "description": "delivered_at one millisecond before the Unix epoch; negative epoch values are the classic migration trap.",
+      "verdict": "same",
+      "detail": ""
+    },
+    {
+      "id": "E02",
+      "category": "date_before_1970",
+      "description": "placed_at exactly 1969-12-31T00:00:00Z, with updated_at at the epoch itself.",
+      "verdict": "same",
+      "detail": ""
+    },
+    {
+      "id": "E03",
+      "category": "date_far_future",
+      "description": "placed_at at the last millisecond of year 9999 \u2014 the maximum representable date the app can produce.",
+      "verdict": "same",
+      "detail": ""
+    },
+    {
+      "id": "E04",
+      "category": "date_year_0001",
+      "description": "signup_date at 0001-01-01T00:00:00Z, the minimum date BSON can hold.",
+      "verdict": "same",
+      "detail": ""
+    },
+    {
+      "id": "E05",
+      "category": "date_year_0001",
+      "description": "signup_date one millisecond after the minimum date, so millisecond precision must survive at the extreme.",
+      "verdict": "same",
+      "detail": ""
+    },
+    {
+      "id": "E06",
+      "category": "date_millisecond_precision",
+      "description": "updated_at carrying a non-zero millisecond component (.123).",
+      "verdict": "same",
+      "detail": ""
+    },
+    {
+      "id": "E07",
+      "category": "date_millisecond_precision",
+      "description": "updated_at on an exact second (milliseconds .000), the counterpart to the .123 case.",
+      "verdict": "same",
+      "detail": ""
+    },
+    {
+      "id": "E08",
+      "category": "date_far_future",
+      "description": "cart expires_at at year 9999 \u2014 carts that never expire are routinely stamped with a sentinel far-future date.",
+      "verdict": "same",
+      "detail": ""
+    },
+    {
+      "id": "E09",
+      "category": "timestamp_as_string",
+      "description": "placed_at stored as an ISO-8601 string instead of a Date, a decade of schema drift in one field.",
+      "verdict": "same",
+      "detail": ""
+    },
+    {
+      "id": "E10",
+      "category": "timestamp_as_string",
+      "description": "updated_at in a legacy US locale format, unparseable by ISO parsers.",
+      "verdict": "same",
+      "detail": ""
+    },
+    {
+      "id": "E11",
+      "category": "timestamp_as_string",
+      "description": "signup_date as an ISO string with an explicit offset and a leap day.",
+      "verdict": "same",
+      "detail": ""
+    },
+    {
+      "id": "E12",
+      "category": "timestamp_mixed_types",
+      "description": "placed_at a real Date while delivered_at for the same order is an ISO string \u2014 one document, two representations.",
+      "verdict": "same",
+      "detail": ""
+    },
+    {
+      "id": "E13",
+      "category": "numbers",
+      "description": "int32 maximum and minimum stored exactly at the boundary.",
+      "verdict": "same",
+      "detail": ""
+    },
+    {
+      "id": "E14",
+      "category": "numbers",
+      "description": "int64 maximum and minimum on money-ish fields.",
+      "verdict": "same",
+      "detail": ""
+    },
+    {
+      "id": "E15",
+      "category": "numbers",
+      "description": "int64 value past 2^53, where doubles lose integer precision.",
+      "verdict": "same",
+      "detail": ""
+    },
+    {
+      "id": "E16",
+      "category": "numbers",
+      "description": "Negative zero next to positive zero.",
+      "verdict": "same",
+      "detail": ""
+    },
+    {
+      "id": "E17",
+      "category": "numbers",
+      "description": "NaN in an aggregate field.",
+      "verdict": "same",
+      "detail": ""
+    },
+    {
+      "id": "E18",
+      "category": "numbers",
+      "description": "Positive infinity on a normally integral field.",
+      "verdict": "same",
+      "detail": ""
+    },
+    {
+      "id": "E19",
+      "category": "numbers",
+      "description": "Negative infinity in money data.",
+      "verdict": "same",
+      "detail": ""
+    },
+    {
+      "id": "E20",
+      "category": "numbers",
+      "description": "Decimal128 money value with two decimal places.",
+      "verdict": "same",
+      "detail": ""
+    },
+    {
+      "id": "E21",
+      "category": "numbers",
+      "description": "Decimal128 with 30 significant digits.",
+      "verdict": "same",
+      "detail": ""
+    },
+    {
+      "id": "E22",
+      "category": "numbers",
+      "description": "subtotal stored as int32.",
+      "verdict": "same",
+      "detail": ""
+    },
+    {
+      "id": "E23",
+      "category": "numbers",
+      "description": "subtotal stored as double in a sibling document.",
+      "verdict": "same",
+      "detail": ""
+    },
+    {
+      "id": "E24",
+      "category": "numbers",
+      "description": "Loyalty counter that outgrew int32 and is now int64.",
+      "verdict": "same",
+      "detail": ""
+    },
+    {
+      "id": "E25",
+      "category": "strings/unicode",
+      "description": "Customer name with accented Latin, an emoji carrying a variation selector (U+FE0F), and CJK text.",
+      "verdict": "same",
+      "detail": ""
+    },
+    {
+      "id": "E26",
+      "category": "strings/unicode",
+      "description": "Customer name stored in decomposed (NFD) form: 'Jose' + U+0301 COMBINING ACUTE ACCENT, not the precomposed 'Jos\u00e9'.",
+      "verdict": "same",
+      "detail": ""
+    },
+    {
+      "id": "E27",
+      "category": "strings/case",
+      "description": "Email stored with mixed case, as typed at signup 10 years ago.",
+      "verdict": "same",
+      "detail": ""
+    },
+    {
+      "id": "E28",
+      "category": "strings/case",
+      "description": "The same logical customer email stored lowercased \u2014 a second document accumulated over the years.",
+      "verdict": "same",
+      "detail": ""
+    },
+    {
+      "id": "E29",
+      "category": "strings/empty",
+      "description": "Order where the coupon field exists but is the empty string.",
+      "verdict": "same",
+      "detail": ""
+    },
+    {
+      "id": "E30",
+      "category": "strings/very_long",
+      "description": "Product description at roughly 760 characters, the kind of text that grows unbounded in a 10-year-old catalogue.",
+      "verdict": "same",
+      "detail": ""
+    },
+    {
+      "id": "E31",
+      "category": "strings/escaping",
+      "description": "Customer name containing an apostrophe, embedded double quotes and a literal backslash next to an emoji.",
+      "verdict": "same",
+      "detail": ""
+    },
+    {
+      "id": "E32",
+      "category": "null",
+      "description": "Order where coupon_code is explicitly null.",
+      "verdict": "same",
+      "detail": ""
+    },
+    {
+      "id": "E33",
+      "category": "missing",
+      "description": "Order from before the coupon feature existed: coupon_code is not present at all.",
+      "verdict": "same",
+      "detail": ""
+    },
+    {
+      "id": "E34",
+      "category": "empty_array",
+      "description": "Order whose items array is present but empty.",
+      "verdict": "same",
+      "detail": ""
+    },
+    {
+      "id": "E35",
+      "category": "empty_object",
+      "description": "Order with an empty history object rather than an empty array.",
+      "verdict": "same",
+      "detail": ""
+    },
+    {
+      "id": "E36",
+      "category": "null_in_array",
+      "description": "Product whose tags array contains a null element alongside a normal string.",
+      "verdict": "same",
+      "detail": ""
+    },
+    {
+      "id": "E37",
+      "category": "arrays: empty",
+      "description": "An order whose history array is present but empty. Engines that treat an empty array as null, or that drop empty arrays, lose this document from a $size/$eq [] query.",
+      "verdict": "same",
+      "detail": ""
+    },
+    {
+      "id": "E38",
+      "category": "arrays: nested",
+      "description": "History entries stored as arrays of arrays (a 10-year-old system that once used positional tuples). Index paths into nested arrays behave differently across engines.",
+      "verdict": "same",
+      "detail": ""
+    },
+    {
+      "id": "E39",
+      "category": "arrays: mixed types",
+      "description": "A legacy product whose tags array accumulated strings, numbers, booleans, ObjectIds and embedded objects over ten years of schema drift.",
+      "verdict": "same",
+      "detail": ""
+    },
+    {
+      "id": "E40",
+      "category": "arrays: single element vs scalar",
+      "description": "An order where status was written as a one-element array by an old code path. A scalar equality filter must still match it.",
+      "verdict": "same",
+      "detail": ""
+    },
+    {
+      "id": "E41",
+      "category": "arrays: single object instead of array",
+      "description": "An order from the pre-array era where items is one embedded object, not an array of line items. The dotted path still has to resolve.",
+      "verdict": "same",
+      "detail": ""
+    },
+    {
+      "id": "E42",
+      "category": "objects: deep nesting",
+      "description": "A refund history entry nested six levels deep: history[].event.meta.actor.roles and history[].event.meta.channel.region.",
+      "verdict": "same",
+      "detail": ""
+    },
+    {
+      "id": "E43",
+      "category": "objects: unusual key order",
+      "description": "An embedded history entry whose keys are stored in a different order than the equality filter lists them. BSON document equality is order-sensitive at the byte level but not semantically.",
+      "verdict": "same",
+      "detail": ""
+    },
+    {
+      "id": "E44",
+      "category": "other BSON types: ObjectId, plus top-level key order",
+      "description": "An order keyed to a warehouse by ObjectId, with top-level fields stored in an order nothing like the filter's.",
+      "verdict": "same",
+      "detail": ""
+    },
+    {
+      "id": "E45",
+      "category": "other BSON types: Binary",
+      "description": "A product thumbnail stored as BSON binary subtype 00 (generic), the shape a decade of GridFS-free image blobs produces.",
+      "verdict": "same",
+      "detail": ""
+    },
+    {
+      "id": "E46",
+      "category": "other BSON types: UUID (binary subtype 04)",
+      "description": "A customer session identifier stored as a 16-byte UUID in binary subtype 04.",
+      "verdict": "same",
+      "detail": ""
+    },
+    {
+      "id": "E47",
+      "category": "other BSON types: boolean vs 0/1",
+      "description": "A product whose active flag was written as the integer 1 by an old admin import, while the rest of the collection stores true.",
+      "verdict": "same",
+      "detail": ""
+    },
+    {
+      "id": "E48",
+      "category": "arrays: numeric type variants inside an array",
+      "description": "A sample pack whose tags array holds the int 1, the string \"1\", the boolean true and the double 1.0 together.",
+      "verdict": "same",
+      "detail": ""
+    }
+  ]
+}

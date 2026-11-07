@@ -1,0 +1,391 @@
+{
+  "model": "subq-preview",
+  "generated_at": "2026-11-07T23:10:56+00:00",
+  "prompt_sha256_16": "b9416a04186f30b3",
+  "cases": [
+    {
+      "category": "date_before_1970",
+      "description": "delivered_at one millisecond before the Unix epoch; negative epoch values are the classic migration trap.",
+      "document_ejson": "{\"customer_id\": \"cust_88123\", \"status\": \"delivered\", \"placed_at\": {\"$date\": {\"$numberLong\": \"-172800000\"}}, \"delivered_at\": {\"$date\": {\"$numberLong\": \"-1\"}}, \"subtotal\": {\"$numberInt\": \"40\"}, \"shipping\": {\"$numberInt\": \"2\"}, \"tax\": {\"$numberInt\": \"0\"}, \"total\": {\"$numberDouble\": \"42.5\"}}",
+      "filter_ejson": "{\"delivered_at\": {\"$lt\": {\"$date\": {\"$numberLong\": \"0\"}}}}",
+      "why_risky": "Negative $numberLong dates sort and compare correctly only if the engine keeps 64-bit signed millisecond semantics; some engines clamp to zero or treat pre-epoch as null.",
+      "id": "E01"
+    },
+    {
+      "category": "date_before_1970",
+      "description": "placed_at exactly 1969-12-31T00:00:00Z, with updated_at at the epoch itself.",
+      "document_ejson": "{\"customer_id\": \"cust_10442\", \"status\": \"pending\", \"placed_at\": {\"$date\": {\"$numberLong\": \"-86400000\"}}, \"updated_at\": {\"$date\": {\"$numberLong\": \"0\"}}, \"subtotal\": {\"$numberInt\": \"0\"}, \"total\": {\"$numberInt\": \"0\"}}",
+      "filter_ejson": "{\"placed_at\": {\"$lte\": {\"$date\": {\"$numberLong\": \"-86400000\"}}}}",
+      "why_risky": "Boundary between -86400000 and 0 is where naive 'date > 0' validity checks in the app silently drop 56 years of orders.",
+      "id": "E02"
+    },
+    {
+      "category": "date_far_future",
+      "description": "placed_at at the last millisecond of year 9999 \u2014 the maximum representable date the app can produce.",
+      "document_ejson": "{\"customer_id\": \"cust_77701\", \"status\": \"scheduled\", \"placed_at\": {\"$date\": {\"$numberLong\": \"253402300799999\"}}, \"updated_at\": {\"$date\": {\"$numberLong\": \"253402300799999\"}}, \"total\": {\"$numberDouble\": \"19.99\"}}",
+      "filter_ejson": "{\"placed_at\": {\"$gte\": {\"$date\": {\"$numberLong\": \"253402300799999\"}}}}",
+      "why_risky": "Engines that map dates to a 32-bit seconds field or a 4-digit-year formatter wrap or throw here; sorting against normal dates is also where overflow bugs show.",
+      "id": "E03"
+    },
+    {
+      "category": "date_year_0001",
+      "description": "signup_date at 0001-01-01T00:00:00Z, the minimum date BSON can hold.",
+      "document_ejson": "{\"email\": \"legacy.account@example.com\", \"name\": \"Ada Lovelace\", \"signup_date\": {\"$date\": {\"$numberLong\": \"-62135596800000\"}}, \"loyalty_points\": {\"$numberInt\": \"0\"}, \"tier\": \"bronze\"}",
+      "filter_ejson": "{\"signup_date\": {\"$lt\": {\"$date\": {\"$numberLong\": \"-2208988800000\"}}}}",
+      "why_risky": "Placeholder/import defaults often land on year 1; engines using a 1970-based unsigned offset or a proleptic-Gregorian-vs-Julian conversion disagree by days.",
+      "id": "E04"
+    },
+    {
+      "category": "date_year_0001",
+      "description": "signup_date one millisecond after the minimum date, so millisecond precision must survive at the extreme.",
+      "document_ejson": "{\"email\": \"ada.legacy@example.com\", \"name\": \"Ada Lovelace\", \"signup_date\": {\"$date\": {\"$numberLong\": \"-62135596799999\"}}, \"loyalty_points\": {\"$numberInt\": \"1\"}, \"tier\": \"bronze\"}",
+      "filter_ejson": "{\"signup_date\": {\"$gte\": {\"$date\": {\"$numberLong\": \"-62135596800000\"}}, \"$lte\": {\"$date\": {\"$numberLong\": \"-62135596799999\"}}}}",
+      "why_risky": "A 1 ms window at year 1 exposes engines that truncate to seconds or store dates as day counts \u2014 both documents collapse to the same value.",
+      "id": "E05"
+    },
+    {
+      "category": "date_millisecond_precision",
+      "description": "updated_at carrying a non-zero millisecond component (.123).",
+      "document_ejson": "{\"customer_id\": \"cust_20481\", \"status\": \"shipped\", \"placed_at\": {\"$date\": {\"$numberLong\": \"1710498600000\"}}, \"updated_at\": {\"$date\": {\"$numberLong\": \"1710498645123\"}}, \"total\": {\"$numberDouble\": \"129.99\"}}",
+      "filter_ejson": "{\"updated_at\": {\"$date\": {\"$numberLong\": \"1710498645123\"}}}",
+      "why_risky": "Equality on a millisecond timestamp fails on any engine that rounds to the second on write \u2014 a very common silent difference.",
+      "id": "E06"
+    },
+    {
+      "category": "date_millisecond_precision",
+      "description": "updated_at on an exact second (milliseconds .000), the counterpart to the .123 case.",
+      "document_ejson": "{\"customer_id\": \"cust_20482\", \"status\": \"shipped\", \"placed_at\": {\"$date\": {\"$numberLong\": \"1710498600000\"}}, \"updated_at\": {\"$date\": {\"$numberLong\": \"1710498645000\"}}}",
+      "filter_ejson": "{\"updated_at\": {\"$gte\": {\"$date\": {\"$numberLong\": \"1710498645000\"}}, \"$lt\": {\"$date\": {\"$numberLong\": \"1710498646000\"}}}}",
+      "why_risky": "Trailing-zero milliseconds are dropped by some serializers, turning a date into a string or a different type on round-trip.",
+      "id": "E07"
+    },
+    {
+      "category": "date_far_future",
+      "description": "cart expires_at at year 9999 \u2014 carts that never expire are routinely stamped with a sentinel far-future date.",
+      "document_ejson": "{\"customer_id\": \"cust_51200\", \"status\": \"open\", \"updated_at\": {\"$date\": {\"$numberLong\": \"1710498645123\"}}, \"expires_at\": {\"$date\": {\"$numberLong\": \"253402300799999\"}}, \"items\": []}",
+      "filter_ejson": "{\"expires_at\": {\"$gt\": {\"$date\": {\"$numberLong\": \"4102444800000\"}}}}",
+      "why_risky": "TTL-style logic and 'is this cart stale' range queries invert when the sentinel date overflows to a negative or null value.",
+      "id": "E08"
+    },
+    {
+      "category": "timestamp_as_string",
+      "description": "placed_at stored as an ISO-8601 string instead of a Date, a decade of schema drift in one field.",
+      "document_ejson": "{\"customer_id\": \"cust_33110\", \"status\": \"delivered\", \"placed_at\": \"2015-06-01T12:00:00Z\", \"delivered_at\": {\"$date\": {\"$numberLong\": \"1433160000000\"}}, \"total\": {\"$numberDouble\": \"59.0\"}}",
+      "filter_ejson": "{\"placed_at\": {\"$type\": \"string\"}}",
+      "why_risky": "The same field is a Date in most documents and a String here; date-range filters silently skip it, and string sort order differs from date order.",
+      "id": "E09"
+    },
+    {
+      "category": "timestamp_as_string",
+      "description": "updated_at in a legacy US locale format, unparseable by ISO parsers.",
+      "document_ejson": "{\"customer_id\": \"cust_90877\", \"status\": \"abandoned\", \"updated_at\": \"12/31/1999 11:59:59 PM\", \"expires_at\": {\"$date\": {\"$numberLong\": \"946684799000\"}}}",
+      "filter_ejson": "{\"updated_at\": {\"$regularExpression\": {\"pattern\": \"^12/31/1999\", \"options\": \"\"}}}",
+      "why_risky": "Only reachable via regex, never via $gt/$lt on dates; a migration that coerces it will reinterpret day/month order and shift by months.",
+      "id": "E10"
+    },
+    {
+      "category": "timestamp_as_string",
+      "description": "signup_date as an ISO string with an explicit offset and a leap day.",
+      "document_ejson": "{\"email\": \"leap.day@example.com\", \"name\": \"Grace Hopper\", \"signup_date\": \"2016-02-29T23:59:59.999+00:00\", \"loyalty_points\": {\"$numberInt\": \"1200\"}, \"tier\": \"gold\"}",
+      "filter_ejson": "{\"signup_date\": {\"$gte\": \"2016-02-29\", \"$lt\": \"2016-03-01\"}}",
+      "why_risky": "String range filters are lexicographic, so they match only because of the ISO layout; a non-ISO or offset-shifted value falls outside the range even though it is the same instant.",
+      "id": "E11"
+    },
+    {
+      "category": "timestamp_mixed_types",
+      "description": "placed_at a real Date while delivered_at for the same order is an ISO string \u2014 one document, two representations.",
+      "document_ejson": "{\"customer_id\": \"cust_66304\", \"status\": \"delivered\", \"placed_at\": {\"$date\": {\"$numberLong\": \"1710498645123\"}}, \"delivered_at\": \"2024-03-15T10:30:45.123Z\", \"total\": {\"$numberDouble\": \"88.25\"}}",
+      "filter_ejson": "{\"placed_at\": {\"$date\": {\"$numberLong\": \"1710498645123\"}}, \"delivered_at\": {\"$type\": \"string\"}}",
+      "why_risky": "A filter meant to find orders by delivery date compares a Date against a String; BSON type ordering puts strings after dates, so $gt/$lt return wrong sets instead of erroring.",
+      "id": "E12"
+    },
+    {
+      "category": "numbers",
+      "description": "int32 maximum and minimum stored exactly at the boundary.",
+      "document_ejson": "{\"status\": \"delivered\", \"tax\": {\"$numberInt\": \"2147483647\"}, \"total\": {\"$numberInt\": \"-2147483648\"}}",
+      "filter_ejson": "{\"tax\": {\"$numberInt\": \"2147483647\"}}",
+      "why_risky": "An engine that widens int32 to double, or narrows on read, silently changes 2147483647 and -2147483648; both must round-trip and compare exactly.",
+      "id": "E13"
+    },
+    {
+      "category": "numbers",
+      "description": "int64 maximum and minimum on money-ish fields.",
+      "document_ejson": "{\"status\": \"shipped\", \"shipping\": {\"$numberLong\": \"9223372036854775807\"}, \"subtotal\": {\"$numberLong\": \"-9223372036854775808\"}}",
+      "filter_ejson": "{\"shipping\": {\"$numberLong\": \"9223372036854775807\"}}",
+      "why_risky": "int64 limits do not survive a cast to double (they round to 9.223372036854776e18); equality on the exact literal only works if the engine keeps 64-bit integers.",
+      "id": "E14"
+    },
+    {
+      "category": "numbers",
+      "description": "int64 value past 2^53, where doubles lose integer precision.",
+      "document_ejson": "{\"status\": \"delivered\", \"shipping\": {\"$numberLong\": \"9007199254740993\"}}",
+      "filter_ejson": "{\"shipping\": {\"$numberLong\": \"9007199254740993\"}}",
+      "why_risky": "9007199254740993 is not representable as a double (it becomes ...992); engines that compare integers by converting to double match the wrong document or miss this one.",
+      "id": "E15"
+    },
+    {
+      "category": "numbers",
+      "description": "Negative zero next to positive zero.",
+      "document_ejson": "{\"status\": \"refunded\", \"discount\": {\"$numberDouble\": \"-0.0\"}, \"refund_total\": {\"$numberDouble\": \"0.0\"}}",
+      "filter_ejson": "{\"discount\": {\"$numberDouble\": \"-0.0\"}}",
+      "why_risky": "Equality treats -0.0 and 0.0 as equal, so the filter also matches the 0.0 field; only a bit-pattern check or a sort/index path distinguishes them, and some encodings normalize -0.0 to 0.0 on write.",
+      "id": "E16"
+    },
+    {
+      "category": "numbers",
+      "description": "NaN in an aggregate field.",
+      "document_ejson": "{\"status\": \"pending\", \"total\": {\"$numberDouble\": \"NaN\"}}",
+      "filter_ejson": "{\"total\": {\"$numberDouble\": \"NaN\"}}",
+      "why_risky": "NaN equals itself under MongoDB matching but fails every $gt/$lt/$gte/$lte and sorts inconsistently across engines; a compatible engine that uses IEEE comparison for equality matches nothing.",
+      "id": "E17"
+    },
+    {
+      "category": "numbers",
+      "description": "Positive infinity on a normally integral field.",
+      "document_ejson": "{\"category\": \"legacy\", \"name\": \"Placeholder SKU\", \"price\": {\"$numberDouble\": \"Infinity\"}}",
+      "filter_ejson": "{\"price\": {\"$numberDouble\": \"Infinity\"}}",
+      "why_risky": "price is an int elsewhere, so this is also a type-drift case; Infinity compares greater than every number, and engines that reject non-finite doubles on insert drop the document.",
+      "id": "E18"
+    },
+    {
+      "category": "numbers",
+      "description": "Negative infinity in money data.",
+      "document_ejson": "{\"status\": \"refunded\", \"refund_total\": {\"$numberDouble\": \"-Infinity\"}}",
+      "filter_ejson": "{\"refund_total\": {\"$numberDouble\": \"-Infinity\"}}",
+      "why_risky": "Infinity values often come from a division by zero in old aggregation code; they serialize to JSON as null in many drivers, so the value can vanish in a round trip.",
+      "id": "E19"
+    },
+    {
+      "category": "numbers",
+      "description": "Decimal128 money value with two decimal places.",
+      "document_ejson": "{\"status\": \"delivered\", \"total\": {\"$numberDecimal\": \"1234567.89\"}}",
+      "filter_ejson": "{\"total\": {\"$numberDecimal\": \"1234567.89\"}}",
+      "why_risky": "1234567.89 as a double is 1234567.8899999999...; a filter written with a double does not match the Decimal128, and engines without native decimal fall back to double.",
+      "id": "E20"
+    },
+    {
+      "category": "numbers",
+      "description": "Decimal128 with 30 significant digits.",
+      "document_ejson": "{\"status\": \"delivered\", \"subtotal\": {\"$numberDecimal\": \"19.990000000000000000000000000001\"}}",
+      "filter_ejson": "{\"subtotal\": {\"$numberDecimal\": \"19.990000000000000000000000000001\"}}",
+      "why_risky": "A double rounds this to 19.99, so the extra digits are lost (or the filter matches a different document); Decimal128 is also case-sensitive about trailing zeros in equality.",
+      "id": "E21"
+    },
+    {
+      "category": "numbers",
+      "description": "subtotal stored as int32.",
+      "document_ejson": "{\"status\": \"delivered\", \"subtotal\": {\"$numberInt\": \"1999\"}}",
+      "filter_ejson": "{\"subtotal\": {\"$numberInt\": \"1999\"}}",
+      "why_risky": "This is one half of a same-field type drift: the identical filter also matches the next document, where subtotal is a double.",
+      "id": "E22"
+    },
+    {
+      "category": "numbers",
+      "description": "subtotal stored as double in a sibling document.",
+      "document_ejson": "{\"status\": \"delivered\", \"subtotal\": {\"$numberDouble\": \"1999.0\"}}",
+      "filter_ejson": "{\"subtotal\": {\"$numberInt\": \"1999\"}}",
+      "why_risky": "MongoDB numeric equality is cross-type, so one filter returns both documents; an engine with strict typing returns only one, and $type/sort behaviour differs between int and double.",
+      "id": "E23"
+    },
+    {
+      "category": "numbers",
+      "description": "Loyalty counter that outgrew int32 and is now int64.",
+      "document_ejson": "{\"tier\": \"gold\", \"loyalty_points\": {\"$numberLong\": \"4000000000\"}}",
+      "filter_ejson": "{\"loyalty_points\": {\"$numberLong\": \"4000000000\"}}",
+      "why_risky": "4000000000 exceeds int32; an engine that promotes or truncates to 32 bits wraps it to a negative number, so the document either fails to insert or matches the wrong filter.",
+      "id": "E24"
+    },
+    {
+      "category": "strings/unicode",
+      "description": "Customer name with accented Latin, an emoji carrying a variation selector (U+FE0F), and CJK text.",
+      "document_ejson": "{\"name\": \"Zo\u00eb \ud83d\udecd\ufe0f \u6771\u4eac\", \"email\": \"zoe@example.com\", \"tier\": \"gold\", \"loyalty_points\": {\"$numberInt\": \"1200\"}, \"signup_date\": {\"$date\": {\"$numberLong\": \"1700000000000\"}}}",
+      "filter_ejson": "{\"name\": \"Zo\u00eb \ud83d\udecd\ufe0f \u6771\u4eac\"}",
+      "why_risky": "A legacy system may have stored this in a byte-oriented encoding, and some engines drop or normalize the U+FE0F variation selector, so an exact string equality check silently stops matching after migration.",
+      "id": "E25"
+    },
+    {
+      "category": "strings/unicode",
+      "description": "Customer name stored in decomposed (NFD) form: 'Jose' + U+0301 COMBINING ACUTE ACCENT, not the precomposed 'Jos\u00e9'.",
+      "document_ejson": "{\"name\": \"Jose\\u0301\", \"email\": \"jose@example.com\", \"tier\": \"silver\", \"loyalty_points\": {\"$numberInt\": \"340\"}}",
+      "filter_ejson": "{\"name\": \"Jose\\u0301\"}",
+      "why_risky": "The same human name has two byte sequences (NFC vs NFD). Equality matching treats them as different strings; a regex or a normalizing collation treats them as the same. Whether the migrated engine normalizes on storage decides if lookups keep working.",
+      "id": "E26"
+    },
+    {
+      "category": "strings/case",
+      "description": "Email stored with mixed case, as typed at signup 10 years ago.",
+      "document_ejson": "{\"email\": \"Support@Example.COM\", \"name\": \"Ada Lovelace\", \"tier\": \"platinum\", \"loyalty_points\": {\"$numberInt\": \"8800\"}}",
+      "filter_ejson": "{\"email\": \"Support@Example.COM\"}",
+      "why_risky": "Default equality is case-sensitive, so this document is invisible to a filter using the lowercased address. The application was probably written assuming one canonical case.",
+      "id": "E27"
+    },
+    {
+      "category": "strings/case",
+      "description": "The same logical customer email stored lowercased \u2014 a second document accumulated over the years.",
+      "document_ejson": "{\"email\": \"support@example.com\", \"name\": \"Ada Lovelace\", \"tier\": \"platinum\", \"loyalty_points\": {\"$numberInt\": \"8800\"}}",
+      "filter_ejson": "{\"email\": \"support@example.com\"}",
+      "why_risky": "Two documents, one real customer. A case-sensitive engine returns only one of them; a case-insensitive collation returns both. Any de-duplication or unique index behaves differently after migration.",
+      "id": "E28"
+    },
+    {
+      "category": "strings/empty",
+      "description": "Order where the coupon field exists but is the empty string.",
+      "document_ejson": "{\"customer_id\": \"cust_8842\", \"status\": \"placed\", \"coupon_code\": \"\", \"subtotal\": {\"$numberInt\": \"4999\"}, \"placed_at\": {\"$date\": {\"$numberLong\": \"1717200000000\"}}}",
+      "filter_ejson": "{\"coupon_code\": \"\"}",
+      "why_risky": "The empty string matches only itself: not null, not a missing field. Code that uses a falsy check (`if (!coupon)`) in the application treats '', null and absent identically, but the query engine does not \u2014 so a null-filtered backfill will skip these rows.",
+      "id": "E29"
+    },
+    {
+      "category": "strings/very_long",
+      "description": "Product description at roughly 760 characters, the kind of text that grows unbounded in a 10-year-old catalogue.",
+      "document_ejson": "{\"name\": \"Aero Grade Housing\", \"category\": \"hardware\", \"active\": true, \"price\": {\"$numberInt\": \"24900\"}, \"description\": \"Precision machined aluminum housing with a graphite anodized finish. Precision machined aluminum housing with a graphite anodized finish. Precision machined aluminum housing with a graphite anodized finish. Precision machined aluminum housing with a graphite anodized finish. Precision machined aluminum housing with a graphite anodized finish. Precision machined aluminum housing with a graphite anodized finish. Precision machined aluminum housing with a graphite anodized finish. Precision machined aluminum housing with a graphite anodized finish. Precision machined aluminum housing with a graphite anodized finish. Precision machined aluminum housing with a graphite anodized finish. Precision machined aluminum housing with a graphite anodized finish.\"}",
+      "filter_ejson": "{\"description\": {\"$regex\": \"^Precision machined\"}}",
+      "why_risky": "Long strings hit engine-specific limits (index key length, truncation on some storage engines, regex anchoring behaviour). An equality filter on the full string is fragile; a prefix regex is what the application actually runs, and it depends on the engine's regex implementation and any index prefix limits.",
+      "id": "E30"
+    },
+    {
+      "category": "strings/escaping",
+      "description": "Customer name containing an apostrophe, embedded double quotes and a literal backslash next to an emoji.",
+      "document_ejson": "{\"name\": \"O'Brien \\\"Bo\\\" \\\\ \ud83c\udf89\", \"email\": \"bo@example.com\", \"tier\": \"bronze\", \"loyalty_points\": {\"$numberInt\": \"12\"}}",
+      "filter_ejson": "{\"name\": \"O'Brien \\\"Bo\\\" \\\\ \ud83c\udf89\"}",
+      "why_risky": "Every layer (driver, shell, CSV export, JSON round-trip) re-escapes these characters. A migration that double-escapes or strips the backslash changes the stored bytes while the application's filter keeps sending the original, so lookups break silently.",
+      "id": "E31"
+    },
+    {
+      "category": "null",
+      "description": "Order where coupon_code is explicitly null.",
+      "document_ejson": "{\"customer_id\": \"cust_1123\", \"status\": \"placed\", \"coupon_code\": null, \"subtotal\": {\"$numberInt\": \"1299\"}, \"placed_at\": {\"$date\": {\"$numberLong\": \"1690000000000\"}}}",
+      "filter_ejson": "{\"coupon_code\": null}",
+      "why_risky": "A null equality filter matches both explicit nulls AND documents where the field is absent. To target only the explicit null you need {\"coupon_code\": {\"$type\": \"null\"}}. Engines differ on whether the null filter also matches an empty array.",
+      "id": "E32"
+    },
+    {
+      "category": "missing",
+      "description": "Order from before the coupon feature existed: coupon_code is not present at all.",
+      "document_ejson": "{\"customer_id\": \"cust_4471\", \"status\": \"placed\", \"subtotal\": {\"$numberInt\": \"2500\"}, \"placed_at\": {\"$date\": {\"$numberLong\": \"1420000000000\"}}}",
+      "filter_ejson": "{\"coupon_code\": {\"$exists\": false}}",
+      "why_risky": "This document is also returned by {\"coupon_code\": null}, which is exactly the trap: a null-vs-missing distinction that the application never made becomes a data-quality problem after migration. Some engines (and some query optimizers) treat an absent field and a null field as the same storage value.",
+      "id": "E33"
+    },
+    {
+      "category": "empty_array",
+      "description": "Order whose items array is present but empty.",
+      "document_ejson": "{\"customer_id\": \"cust_9001\", \"status\": \"draft\", \"items\": [], \"subtotal\": {\"$numberInt\": \"0\"}}",
+      "filter_ejson": "{\"items\": []}",
+      "why_risky": "An empty array is not null and not missing: {\"items\": null} does not match it, but {\"items\": {\"$size\": 0}} and {\"items\": []} do. Also, {\"items\": {\"$elemMatch\": ...}} and $all behave differently on empty arrays across engines.",
+      "id": "E34"
+    },
+    {
+      "category": "empty_object",
+      "description": "Order with an empty history object rather than an empty array.",
+      "document_ejson": "{\"customer_id\": \"cust_9001\", \"status\": \"draft\", \"history\": {}, \"updated_at\": {\"$date\": {\"$numberLong\": \"1710000000000\"}}}",
+      "filter_ejson": "{\"history\": {}}",
+      "why_risky": "Equality against an empty object matches only an empty object \u2014 not a missing field, not an empty array, and not an object with only null values. Some engines compare subdocuments by key order as well as content, so {} is the one subdocument case that is stable and the rest are not.",
+      "id": "E35"
+    },
+    {
+      "category": "null_in_array",
+      "description": "Product whose tags array contains a null element alongside a normal string.",
+      "document_ejson": "{\"name\": \"Clearance Cable\", \"category\": \"accessories\", \"active\": false, \"price\": {\"$numberInt\": \"199\"}, \"tags\": [null, \"clearance\"]}",
+      "filter_ejson": "{\"tags\": null}",
+      "why_risky": "Against an array field, a null filter means 'the array contains a null element', not 'the field is null'. The same filter on a scalar field means something else entirely, and engines disagree on whether an empty array is matched by {\"tags\": null}.",
+      "id": "E36"
+    },
+    {
+      "category": "arrays: empty",
+      "description": "An order whose history array is present but empty. Engines that treat an empty array as null, or that drop empty arrays, lose this document from a $size/$eq [] query.",
+      "document_ejson": "{\"customer_id\": \"cust-0042\", \"status\": \"open\", \"history\": [], \"total\": {\"$numberDouble\": \"0.0\"}, \"placed_at\": {\"$date\": {\"$numberLong\": \"1700000000000\"}}}",
+      "filter_ejson": "{\"customer_id\": \"cust-0042\", \"history\": {\"$eq\": []}}",
+      "why_risky": "Empty array vs missing field vs null: {\"history\": []} matches only a real empty array in MongoDB, but some compatible engines treat [] as absent or as null, so the document either disappears from the result or is matched by {\"history\": null}.",
+      "id": "E37"
+    },
+    {
+      "category": "arrays: nested",
+      "description": "History entries stored as arrays of arrays (a 10-year-old system that once used positional tuples). Index paths into nested arrays behave differently across engines.",
+      "document_ejson": "{\"customer_id\": \"cust-0117\", \"status\": \"delivered\", \"history\": [[\"status\", \"shipped\"], [\"status\", \"delivered\"], [\"note\", \"left at door\"]]}",
+      "filter_ejson": "{\"history.0.0\": \"status\"}",
+      "why_risky": "Dotted numeric paths into arrays-of-arrays: history.0 is itself an array, so history.0.0 must resolve to the first element of that inner array. Engines that flatten one level, or that stop descending at the first array, fail to match.",
+      "id": "E38"
+    },
+    {
+      "category": "arrays: mixed types",
+      "description": "A legacy product whose tags array accumulated strings, numbers, booleans, ObjectIds and embedded objects over ten years of schema drift.",
+      "document_ejson": "{\"name\": \"USB-C Cable 2m\", \"category\": \"accessories\", \"active\": true, \"tags\": [\"clearance\", {\"$numberInt\": \"42\"}, true, {\"$oid\": \"65f1a2b3c4d5e6f7a8b9c0d1\"}, {\"vip_only\": false}]}",
+      "filter_ejson": "{\"tags\": {\"$elemMatch\": {\"$gt\": 40, \"$lt\": 45}}}",
+      "why_risky": "Mixed-type arrays force a comparison order across type brackets. With $elemMatch + $gt/$lt only numeric elements are candidates in MongoDB; engines that compare strings or booleans numerically (\"clearance\" > 40, true == 1) return false positives.",
+      "id": "E39"
+    },
+    {
+      "category": "arrays: single element vs scalar",
+      "description": "An order where status was written as a one-element array by an old code path. A scalar equality filter must still match it.",
+      "document_ejson": "{\"customer_id\": \"cust-0203\", \"status\": [\"shipped\"], \"total\": {\"$numberDouble\": \"59.98\"}}",
+      "filter_ejson": "{\"status\": \"shipped\"}",
+      "why_risky": "MongoDB implicitly matches a scalar against a one-element array. Engines that require exact type/shape equality return nothing, so the order vanishes from every status dashboard for this legacy row.",
+      "id": "E40"
+    },
+    {
+      "category": "arrays: single object instead of array",
+      "description": "An order from the pre-array era where items is one embedded object, not an array of line items. The dotted path still has to resolve.",
+      "document_ejson": "{\"customer_id\": \"cust-0311\", \"status\": \"delivered\", \"items\": {\"sku\": \"SKU-9\", \"qty\": {\"$numberInt\": \"2\"}, \"price\": {\"$numberDecimal\": \"12.50\"}}}",
+      "filter_ejson": "{\"items.qty\": {\"$numberInt\": \"2\"}}",
+      "why_risky": "items.qty must traverse a plain object here but an array in every other document. An engine that only resolves dotted paths through arrays (or only through objects) matches one shape and not the other, silently splitting the collection.",
+      "id": "E41"
+    },
+    {
+      "category": "objects: deep nesting",
+      "description": "A refund history entry nested six levels deep: history[].event.meta.actor.roles and history[].event.meta.channel.region.",
+      "document_ejson": "{\"customer_id\": \"cust-0455\", \"status\": \"refunded\", \"history\": [{\"event\": {\"type\": \"refund\", \"meta\": {\"actor\": {\"id\": \"agent-77\", \"roles\": [\"admin\", \"billing\"]}, \"channel\": {\"name\": \"support_portal\", \"region\": \"eu-west\"}}}}]}",
+      "filter_ejson": "{\"history.event.meta.actor.roles\": \"admin\"}",
+      "why_risky": "Multi-level dotted paths that cross an array and then several objects. Engines with a depth limit, or that don't implicitly traverse arrays mid-path, return no match even though the value is there.",
+      "id": "E42"
+    },
+    {
+      "category": "objects: unusual key order",
+      "description": "An embedded history entry whose keys are stored in a different order than the equality filter lists them. BSON document equality is order-sensitive at the byte level but not semantically.",
+      "document_ejson": "{\"customer_id\": \"cust-0501\", \"history\": [{\"at\": {\"$date\": {\"$numberLong\": \"1699999999000\"}}, \"status\": \"delivered\", \"by\": \"system\"}]}",
+      "filter_ejson": "{\"history\": {\"status\": \"delivered\", \"by\": \"system\", \"at\": {\"$date\": {\"$numberLong\": \"1699999999000\"}}}}",
+      "why_risky": "Whole-subdocument equality: MongoDB matches regardless of key order, but engines that compare raw BSON bytes (or canonicalised JSON text) see {at,status,by} != {status,by,at} and return no match.",
+      "id": "E43"
+    },
+    {
+      "category": "other BSON types: ObjectId, plus top-level key order",
+      "description": "An order keyed to a warehouse by ObjectId, with top-level fields stored in an order nothing like the filter's.",
+      "document_ejson": "{\"updated_at\": {\"$date\": {\"$numberLong\": \"1712000000000\"}}, \"status\": \"packed\", \"warehouse_id\": {\"$oid\": \"507f1f77bcf86cd799439011\"}, \"customer_id\": \"cust-0612\", \"placed_at\": {\"$date\": {\"$numberLong\": \"1711999000000\"}}}",
+      "filter_ejson": "{\"warehouse_id\": {\"$oid\": \"507f1f77bcf86cd799439011\"}}",
+      "why_risky": "Two hazards at once: ObjectId equality (an engine that stores it as a plain 24-char string still matches, but one that stringifies it as 'ObjectId(\"507f...\")' does not), and field order at the top level, which must never affect matching.",
+      "id": "E44"
+    },
+    {
+      "category": "other BSON types: Binary",
+      "description": "A product thumbnail stored as BSON binary subtype 00 (generic), the shape a decade of GridFS-free image blobs produces.",
+      "document_ejson": "{\"name\": \"Receipt Template A\", \"category\": \"stationery\", \"active\": true, \"image_thumb\": {\"$binary\": {\"base64\": \"AQIDBA==\", \"subType\": \"00\"}}}",
+      "filter_ejson": "{\"image_thumb\": {\"$binary\": {\"base64\": \"AQIDBA==\", \"subType\": \"00\"}}}",
+      "why_risky": "Binary equality includes the subtype. Subtype 00 and subtype 04 (UUID) with identical bytes are different values; engines that compare only the base64 payload match the wrong documents, and engines that store binary as a hex string never match at all.",
+      "id": "E45"
+    },
+    {
+      "category": "other BSON types: UUID (binary subtype 04)",
+      "description": "A customer session identifier stored as a 16-byte UUID in binary subtype 04.",
+      "document_ejson": "{\"email\": \"dana@example.com\", \"name\": \"Dana Okoro\", \"tier\": \"gold\", \"loyalty_points\": {\"$numberInt\": \"1200\"}, \"session_id\": {\"$binary\": {\"base64\": \"yKO2oQ8tSx6cPSobDJ2Ofw==\", \"subType\": \"04\"}}}",
+      "filter_ejson": "{\"session_id\": {\"$binary\": {\"base64\": \"yKO2oQ8tSx6cPSobDJ2Ofw==\", \"subType\": \"04\"}}}",
+      "why_risky": "UUIDs are the classic migration trap: the same 16 bytes may be exposed as a string ('c8a3b6a1-0f2d-...'), as a subtype 03 legacy UUID (byte order differs!), or as subtype 04. An engine that normalises UUIDs to strings changes both equality and sort order.",
+      "id": "E46"
+    },
+    {
+      "category": "other BSON types: boolean vs 0/1",
+      "description": "A product whose active flag was written as the integer 1 by an old admin import, while the rest of the collection stores true.",
+      "document_ejson": "{\"name\": \"Gift Card 25\", \"category\": \"gift_cards\", \"price\": {\"$numberInt\": \"2500\"}, \"active\": {\"$numberInt\": \"1\"}}",
+      "filter_ejson": "{\"active\": {\"$in\": [true, {\"$numberInt\": \"1\"}]}}",
+      "why_risky": "In MongoDB true and 1 are different values and {\"active\": true} does NOT match active: 1 (type bracketing). Engines that coerce booleans to 0/1 either match both or neither, so the app's defensive $in [true, 1] query returns a different set of products after migration.",
+      "id": "E47"
+    },
+    {
+      "category": "arrays: numeric type variants inside an array",
+      "description": "A sample pack whose tags array holds the int 1, the string \"1\", the boolean true and the double 1.0 together.",
+      "document_ejson": "{\"name\": \"Sample Pack\", \"active\": false, \"tags\": [{\"$numberInt\": \"1\"}, \"1\", true, {\"$numberDouble\": \"1.0\"}]}",
+      "filter_ejson": "{\"tags\": {\"$numberInt\": \"1\"}}",
+      "why_risky": "1 and 1.0 are equal for matching but different for type-bracketed comparison and sorting; \"1\" and true are not equal to 1 at all. Engines that stringify array elements match \"1\", engines that coerce booleans match true, and engines that keep int/double distinct may miss the 1.0 element.",
+      "id": "E48"
+    }
+  ]
+}
