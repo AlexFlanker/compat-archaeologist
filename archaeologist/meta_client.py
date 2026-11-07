@@ -24,8 +24,13 @@ def model_name() -> str:
     return env("META_MODEL", DEFAULT_MODEL)
 
 
+def _api_key() -> str | None:
+    # MODEL_API_KEY is the name Meta's own docs use; META_API_KEY is this project's name.
+    return env("META_API_KEY") or env("MODEL_API_KEY")
+
+
 def is_configured() -> bool:
-    return bool(env("META_API_KEY"))
+    return bool(_api_key())
 
 
 def _record(entry: dict) -> None:
@@ -52,9 +57,9 @@ def structured(
     max_tokens: int = 16000,
 ) -> dict:
     """Returns the parsed JSON object for one structured completion."""
-    key = env("META_API_KEY")
+    key = _api_key()
     if not key:
-        raise MetaUnavailable("META_API_KEY is not set")
+        raise MetaUnavailable("META_API_KEY (or MODEL_API_KEY) is not set")
 
     client = OpenAI(base_url=BASE_URL, api_key=key, timeout=180, max_retries=0)
     model = model_name()
