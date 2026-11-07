@@ -16,13 +16,13 @@
         "$facet"
       ],
       "replay_p95_ms": {
-        "source": 7.29,
-        "target": 4081.4
+        "source": 7.85,
+        "target": 4126.54
       },
       "source": {
         "engine_format": "MongoDB plan",
         "docs_examined": 306,
-        "time_ms": 20,
+        "time_ms": 8,
         "plan": "IXSCAN(status_1_placed_at_-1) \u2192 FETCH \u2192 PROJECTION_SIMPLE \u2192 $addFields \u2192 $lookup(indexes=['_id_'], collection scans=0, docs examined=309) \u2192 $facet",
         "full_scans": 0
       },
@@ -48,8 +48,8 @@
         "$project"
       ],
       "replay_p95_ms": {
-        "source": 0.68,
-        "target": 3.49
+        "source": 0.61,
+        "target": 3.99
       },
       "source": {
         "engine_format": "MongoDB plan",
@@ -75,14 +75,14 @@
       "collection": "orders",
       "stages": [],
       "replay_p95_ms": {
-        "source": 1.37,
-        "target": 3.16
+        "source": 1.5,
+        "target": 3.23
       },
       "source": {
         "engine_format": "MongoDB plan",
         "docs_examined": 179,
         "keys_examined": 179,
-        "time_ms": 1,
+        "time_ms": 0,
         "plan": "IXSCAN(_id_) \u2192 FETCH \u2192 PROJECTION_DEFAULT \u2192 LIMIT",
         "full_scans": 0
       },

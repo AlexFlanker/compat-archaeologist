@@ -1,0 +1,105 @@
+{
+  "profile": "lite",
+  "scenario": "clean",
+  "self_check": false,
+  "target": "FerretDB",
+  "full_load": {
+    "collections": {
+      "orders": 10000
+    },
+    "indexes": [
+      {
+        "collection": "orders",
+        "name": "customer_id_1",
+        "ok": true
+      },
+      {
+        "collection": "orders",
+        "name": "status_1",
+        "ok": true
+      }
+    ],
+    "validators": []
+  },
+  "cdc": {
+    "events_seen": 200,
+    "applied": 200,
+    "skipped_no_document": 0
+  },
+  "checks": [
+    {
+      "check": "orders: documents and content",
+      "area": "data",
+      "ok": true,
+      "evidence": {
+        "source_count": 10041,
+        "target_count": 10041,
+        "documents_differing": 0,
+        "examples": []
+      },
+      "severity": "pass"
+    },
+    {
+      "check": "orders.customer_id_1 index (plain)",
+      "area": "constraints",
+      "ok": true,
+      "evidence": {
+        "source": {
+          "key": {
+            "customer_id": 1
+          }
+        },
+        "target": {
+          "key": {
+            "customer_id": 1
+          }
+        }
+      },
+      "severity": "pass"
+    },
+    {
+      "check": "orders.status_1 index (plain)",
+      "area": "constraints",
+      "ok": true,
+      "evidence": {
+        "source": {
+          "key": {
+            "status": 1
+          }
+        },
+        "target": {
+          "key": {
+            "status": 1
+          }
+        }
+      },
+      "severity": "pass"
+    },
+    {
+      "check": "Change events applied vs writes in the source oplog",
+      "area": "cdc",
+      "ok": true,
+      "evidence": {
+        "source_oplog_writes": 200,
+        "events_applied": 200,
+        "events_skipped_no_document": 0,
+        "live_writes_issued": 200
+      },
+      "severity": "pass"
+    },
+    {
+      "check": "Business rule: orders with a negative total",
+      "area": "invariants",
+      "ok": true,
+      "evidence": {
+        "source": 0,
+        "target_at_cutover": 0,
+        "target_after_day_one_writes": 0
+      },
+      "severity": "pass"
+    }
+  ],
+  "failed": [],
+  "injected_faults": [],
+  "seconds": 2.7
+}

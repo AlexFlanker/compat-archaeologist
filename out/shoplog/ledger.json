@@ -840,7 +840,7 @@
     {
       "id": "F10",
       "feature": "Plain CRUD by _id and simple filters",
-      "behavior": "Code uses update_one( | Code uses find_one( | Code uses insert_one( | Code uses delete_one( | Code uses count_documents(",
+      "behavior": "Code uses update_one( | Code uses find_one( | Code uses delete_one( | Code uses insert_one( | Code uses count_documents(",
       "why_risky": "Control group: expected to behave the same",
       "sources": [
         {
@@ -891,6 +891,13 @@
         {
           "type": "code",
           "ref": "shoplog/carts.py:31",
+          "token": "delete_one(",
+          "detail": "Code uses delete_one(",
+          "origin": "static_scan_only"
+        },
+        {
+          "type": "code",
+          "ref": "shoplog/carts.py:35",
           "token": "update_one(",
           "detail": "Code uses update_one(",
           "origin": "static_scan_only"

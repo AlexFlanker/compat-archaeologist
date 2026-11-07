@@ -19,6 +19,7 @@ from archaeologist.extract_querylog import (
     collection_of,
     features_of,
     in_transaction,
+    path_of,
     shape_of,
     stages_of,
 )
@@ -163,7 +164,11 @@ def replay_reads(source, target, database: str, reads: list[dict]) -> dict:
             {
                 "shape_id": _shape_id(shape),
                 "collection": collection_of(entries[0]),
+                "path": path_of(entries[0]),
                 "features": sorted(features_of(entries[0])),
+                "source_ms_samples": [round(value, 2) for value in source_ms],
+                "target_ms_samples": [round(value, 2) for value in target_ms],
+                "target_timeouts": target_errors if first_error and "time" in str(first_error.get("message", "")).lower() else 0,
                 "stages": stages_of(entries[0]),
                 "replayed": equal + different + target_errors,
                 "in_log": len(entries),

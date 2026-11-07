@@ -182,45 +182,59 @@ def search_service_annual(assumptions: dict, clusters: int) -> float:
     return round(monthly * assumptions["horizon_months"] * clusters, 2)
 
 
-def annual_run_costs(assumptions: dict, clusters: int, atlas_basis: str) -> dict[str, float]:
+def annual_cost_lines(assumptions: dict, clusters: int, atlas_basis: str) -> dict[str, dict[str, float]]:
+    """Yearly infrastructure and I/O per target, before scale-ups and extra services."""
     pricing, deployment = assumptions["pricing"], assumptions["deployment"]
     hours = assumptions["hours_per_month"]
     nodes = deployment["nodes_per_cluster"]
     gb = deployment["dataset_gb_per_cluster"]
-    months = assumptions["horizon_months"]
+    yearly = assumptions["horizon_months"] * clusters
 
     atlas_nodes = nodes if atlas_basis == "per_node" else 1
     atlas = pricing["atlas_m40"]["per_hour"] * atlas_nodes * hours
 
-    ec2 = pricing["ec2_r6g_large"]["per_hour"] * nodes * hours
-    ebs = pricing["ebs_gp3"]["per_gb_month"] * gb * nodes
-    ferretdb = ec2 + ebs
+    ferretdb = pricing["ec2_r6g_large"]["per_hour"] * nodes * hours + pricing["ebs_gp3"]["per_gb_month"] * gb * nodes
 
     docdb = pricing["documentdb_r6g_large"]
     io_millions = deployment["average_iops_per_cluster"] * 3600 * hours / 1_000_000
-    standard = docdb["standard"]["per_hour"] * nodes * hours + docdb["standard"]["storage_per_gb_month"] * gb + docdb["standard"]["per_million_io"] * io_millions
-    optimized = docdb["io_optimized"]["per_hour"] * nodes * hours + docdb["io_optimized"]["storage_per_gb_month"] * gb
-    documentdb = min(standard, optimized)
+    standard_infra = docdb["standard"]["per_hour"] * nodes * hours + docdb["standard"]["storage_per_gb_month"] * gb
+    standard_io = docdb["standard"]["per_million_io"] * io_millions
+    optimized_infra = docdb["io_optimized"]["per_hour"] * nodes * hours + docdb["io_optimized"]["storage_per_gb_month"] * gb
+    if standard_infra + standard_io <= optimized_infra:
+        documentdb = {"infrastructure": standard_infra, "io": standard_io, "plan": "Standard"}
+    else:
+        documentdb = {"infrastructure": optimized_infra, "io": 0.0, "plan": "I/O-Optimized"}
+
+    def scaled(lines: dict) -> dict:
+        return {key: (round(value * yearly, 2) if isinstance(value, float) else value) for key, value in lines.items()}
 
     return {
-        "MongoDB Atlas": round(atlas * months * clusters, 2),
-        FERRETDB: round(ferretdb * months * clusters, 2),
-        DOCUMENTDB: round(documentdb * months * clusters, 2),
+        "MongoDB Atlas": scaled({"infrastructure": float(atlas), "io": 0.0}),
+        FERRETDB: scaled({"infrastructure": float(ferretdb), "io": 0.0}),
+        DOCUMENTDB: scaled(documentdb),
     }
 
 
+def annual_run_costs(assumptions: dict, clusters: int, atlas_basis: str) -> dict[str, float]:
+    lines = annual_cost_lines(assumptions, clusters, atlas_basis)
+    return {name: round(values["infrastructure"] + values["io"], 2) for name, values in lines.items()}
+
+
 def _economics(assumptions: dict, target: str, gaps: list[dict], estimates: dict, clusters: int, atlas_basis: str) -> dict:
-    costs = annual_run_costs(assumptions, clusters, atlas_basis)
+    lines = annual_cost_lines(assumptions, clusters, atlas_basis)
+    atlas_total = lines["MongoDB Atlas"]["infrastructure"] + lines["MongoDB Atlas"]["io"]
     rate = assumptions["people"]["engineer_cost_per_hour"]
     months = assumptions["horizon_months"]
     blocking = [gap for gap in gaps if gap["blocking"]]
     search_cost = search_service_annual(assumptions, clusters) if any(gap["feature"] == "F11" for gap in blocking) else 0.0
-    costs[target] = round(costs[target] + search_cost, 2)
-    infra_savings = round(costs["MongoDB Atlas"] - costs[target], 2)
+    slow_paths = any(gap["kind"] == "performance" for gap in blocking)
 
     missing_estimates = [gap["key"] for gap in blocking if gap["key"] not in estimates]
     net, breakdown = {}, {}
     for scenario, level in SCENARIOS.items():
+        scale_up = lines[target]["infrastructure"] * (assumptions["performance_scale_up_factor"][level] - 1) if slow_paths else 0.0
+        target_total = lines[target]["infrastructure"] + lines[target]["io"] + search_cost + scale_up
+        savings = atlas_total - target_total
         ops_hours = assumptions["self_managed_ops_hours_per_month_per_cluster"][level] if target == FERRETDB else 0
         ops_cost = ops_hours * clusters * months * rate
         migration_hours = assumptions["migration_baseline_hours"][level]
@@ -228,16 +242,30 @@ def _economics(assumptions: dict, target: str, gaps: list[dict], estimates: dict
         probabilities = assumptions["risk"]["residual_incident_probability"]
         risk = sum(probabilities[gap["kind"]] for gap in blocking) * assumptions["risk"]["incident_cost"][level]
         one_time = (migration_hours + rewrite_hours) * rate
-        net[scenario] = round(infra_savings - ops_cost - one_time - risk, 2)
+        net[scenario] = round(savings - ops_cost - one_time - risk, 2)
         breakdown[scenario] = {
             "ops_cost": ops_cost,
             "migration_hours": migration_hours,
             "rewrite_hours": rewrite_hours,
             "one_time_cost": one_time,
             "residual_risk_cost": risk,
+            "infra_savings": round(savings, 2),
+            "lines": {
+                "infrastructure": round(lines[target]["infrastructure"], 2),
+                "io": round(lines[target]["io"], 2),
+                "scale_ups": round(scale_up, 2),
+                "extra_services": round(search_cost, 2),
+                "operations": round(ops_cost, 2),
+                "migration_and_rewrites": round(one_time, 2),
+                "person_days": round((migration_hours + rewrite_hours) / 8, 1),
+                "incidents": round(risk, 2),
+                "plan": lines[target].get("plan"),
+            },
         }
 
     base = breakdown["base"]
+    infra_savings = base["infra_savings"]
+    costs = {"MongoDB Atlas": round(atlas_total, 2), target: round(atlas_total - infra_savings, 2)}
     yearly_benefit = infra_savings - base["ops_cost"] - base["residual_risk_cost"]
     payback = round(base["one_time_cost"] / (yearly_benefit / 12), 1) if yearly_benefit > 0 else None
     affordable = yearly_benefit - base["migration_hours"] * rate

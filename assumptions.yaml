@@ -71,6 +71,29 @@ risk:
     performance: 0.25
     documented_conflict: 0.1
 
+# Added with v3.2. None of these change the decision thresholds below.
+service_levels:
+  online_timeout_ms: 1000 # A request a customer is waiting on.
+  reporting_timeout_ms: 30000 # A report or dashboard query.
+
+# Slow paths usually get bigger instances before anyone rewrites them. Applied only when a
+# performance gap was measured. INFERRED: no measurement says how much hardware it takes.
+performance_scale_up_factor: { low: 1.0, base: 1.5, high: 2.0 }
+
+# Extrapolating to production size from the measured dataset. INFERRED: assumes every
+# collection grows by the same factor, and uses each query plan's shape to pick linear or quadratic growth.
+extrapolation:
+  target_sizes_gb: [100, 1000]
+
+# How hard it is to move back to MongoDB after cutover. Starts at 100, minus each that applies.
+reversibility_deductions:
+  no_change_streams_on_target: 30 # No CDC back to MongoDB: going back needs a full reload and downtime.
+  constraint_drift: 25 # The target accepted data MongoDB would refuse; it must be cleaned before moving back.
+  per_rewrite: 5 # Each code rewrite makes the MongoDB and target versions of the app diverge.
+  max_rewrites: 20
+  extra_service: 10 # A separate service adopted for the target, such as search.
+  documented_limit: 5 # Inferred targets: a documented limit that the back-sync must work around.
+
 # The decision rule. Fixed before any Muse-generated probe ran, and shared by every workload.
 # If a workload's result is inconvenient, the demo changes rather than these thresholds.
 decision:

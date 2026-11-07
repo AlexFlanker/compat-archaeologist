@@ -80,6 +80,29 @@
         "documented_conflict": 0.1
       }
     },
+    "service_levels": {
+      "online_timeout_ms": 1000,
+      "reporting_timeout_ms": 30000
+    },
+    "performance_scale_up_factor": {
+      "low": 1.0,
+      "base": 1.5,
+      "high": 2.0
+    },
+    "extrapolation": {
+      "target_sizes_gb": [
+        100,
+        1000
+      ]
+    },
+    "reversibility_deductions": {
+      "no_change_streams_on_target": 30,
+      "constraint_drift": 25,
+      "per_rewrite": 5,
+      "max_rewrites": 20,
+      "extra_service": 10,
+      "documented_limit": 5
+    },
     "decision": {
       "blocking_verdicts": [
         "unsupported",
@@ -101,8 +124,7 @@
       "economics": {
         "annual_costs": {
           "MongoDB Atlas": 36441.6,
-          "FerretDB": 11517.7,
-          "AWS DocumentDB": 31580.56
+          "FerretDB": 11517.7
         },
         "search_service_annual": 0.0,
         "infra_savings": 24923.9,
@@ -117,21 +139,57 @@
             "migration_hours": 24,
             "rewrite_hours": 0,
             "one_time_cost": 2880,
-            "residual_risk_cost": 0
+            "residual_risk_cost": 0,
+            "infra_savings": 24923.9,
+            "lines": {
+              "infrastructure": 11517.7,
+              "io": 0.0,
+              "scale_ups": 0.0,
+              "extra_services": 0.0,
+              "operations": 5760,
+              "migration_and_rewrites": 2880,
+              "person_days": 3.0,
+              "incidents": 0,
+              "plan": null
+            }
           },
           "base": {
             "ops_cost": 11520,
             "migration_hours": 40,
             "rewrite_hours": 0,
             "one_time_cost": 4800,
-            "residual_risk_cost": 0
+            "residual_risk_cost": 0,
+            "infra_savings": 24923.9,
+            "lines": {
+              "infrastructure": 11517.7,
+              "io": 0.0,
+              "scale_ups": 0.0,
+              "extra_services": 0.0,
+              "operations": 11520,
+              "migration_and_rewrites": 4800,
+              "person_days": 5.0,
+              "incidents": 0,
+              "plan": null
+            }
           },
           "worst": {
             "ops_cost": 23040,
             "migration_hours": 80,
             "rewrite_hours": 0,
             "one_time_cost": 9600,
-            "residual_risk_cost": 0
+            "residual_risk_cost": 0,
+            "infra_savings": 24923.9,
+            "lines": {
+              "infrastructure": 11517.7,
+              "io": 0.0,
+              "scale_ups": 0.0,
+              "extra_services": 0.0,
+              "operations": 23040,
+              "migration_and_rewrites": 9600,
+              "person_days": 10.0,
+              "incidents": 0,
+              "plan": null
+            }
           }
         },
         "payback_months": 4.3,
@@ -176,7 +234,6 @@
       "economics": {
         "annual_costs": {
           "MongoDB Atlas": 36441.6,
-          "FerretDB": 11517.7,
           "AWS DocumentDB": 31580.56
         },
         "search_service_annual": 0.0,
@@ -192,21 +249,57 @@
             "migration_hours": 24,
             "rewrite_hours": 0,
             "one_time_cost": 2880,
-            "residual_risk_cost": 0
+            "residual_risk_cost": 0,
+            "infra_savings": 4861.04,
+            "lines": {
+              "infrastructure": 31580.56,
+              "io": 0.0,
+              "scale_ups": 0.0,
+              "extra_services": 0.0,
+              "operations": 0,
+              "migration_and_rewrites": 2880,
+              "person_days": 3.0,
+              "incidents": 0,
+              "plan": "I/O-Optimized"
+            }
           },
           "base": {
             "ops_cost": 0,
             "migration_hours": 40,
             "rewrite_hours": 0,
             "one_time_cost": 4800,
-            "residual_risk_cost": 0
+            "residual_risk_cost": 0,
+            "infra_savings": 4861.04,
+            "lines": {
+              "infrastructure": 31580.56,
+              "io": 0.0,
+              "scale_ups": 0.0,
+              "extra_services": 0.0,
+              "operations": 0,
+              "migration_and_rewrites": 4800,
+              "person_days": 5.0,
+              "incidents": 0,
+              "plan": "I/O-Optimized"
+            }
           },
           "worst": {
             "ops_cost": 0,
             "migration_hours": 80,
             "rewrite_hours": 0,
             "one_time_cost": 9600,
-            "residual_risk_cost": 0
+            "residual_risk_cost": 0,
+            "infra_savings": 4861.04,
+            "lines": {
+              "infrastructure": 31580.56,
+              "io": 0.0,
+              "scale_ups": 0.0,
+              "extra_services": 0.0,
+              "operations": 0,
+              "migration_and_rewrites": 9600,
+              "person_days": 10.0,
+              "incidents": 0,
+              "plan": "I/O-Optimized"
+            }
           }
         },
         "payback_months": 11.8,

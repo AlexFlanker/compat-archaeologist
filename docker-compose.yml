@@ -42,6 +42,22 @@ services:
     volumes:
       - ferretdb_data:/var/lib/postgresql/data
 
+  # Upgrade mode: an older target version, started only with `docker compose --profile upgrade up -d`.
+  ferretdb_older:
+    image: ghcr.io/ferretdb/ferretdb-eval:2.2.0
+    container_name: ca-ferretdb-2-2
+    profiles: ["upgrade"]
+    environment:
+      POSTGRES_USER: ${FERRETDB_USER:-ca_local}
+      POSTGRES_PASSWORD: ${FERRETDB_PASSWORD:-local-only-not-a-secret}
+    ports:
+      - "127.0.0.1:27019:27017"
+    cpus: "2.0"
+    mem_limit: 3g
+    volumes:
+      - ferretdb_older_data:/var/lib/postgresql/data
+
 volumes:
   mongo_data:
   ferretdb_data:
+  ferretdb_older_data:

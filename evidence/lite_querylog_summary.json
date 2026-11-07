@@ -49,6 +49,7 @@
       "count": 300,
       "collection": "orders",
       "op": "query",
+      "path": "online",
       "features": [
         "F10"
       ],
@@ -63,6 +64,7 @@
       "count": 150,
       "collection": "orders",
       "op": "query",
+      "path": "online",
       "features": [
         "F10"
       ],
@@ -77,6 +79,7 @@
       "count": 60,
       "collection": "orders",
       "op": "update",
+      "path": "online",
       "features": [
         "F10"
       ],
@@ -93,6 +96,7 @@
       "count": 50,
       "collection": "orders",
       "op": "query",
+      "path": "online",
       "features": [
         "F10"
       ],
@@ -107,6 +111,7 @@
       "count": 40,
       "collection": "orders",
       "op": "insert",
+      "path": "online",
       "features": [
         "F10"
       ],
@@ -121,6 +126,7 @@
       "count": 30,
       "collection": "orders",
       "op": "command",
+      "path": "reporting",
       "features": [],
       "operators": [
         "$group",
@@ -137,6 +143,7 @@
       "count": 10,
       "collection": "orders",
       "op": "remove",
+      "path": "online",
       "features": [
         "F10"
       ],

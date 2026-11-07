@@ -141,6 +141,26 @@ def features_of(entry: dict) -> set[str]:
     return features
 
 
+KEY_FIELDS = {"_id", "customer_id", "email", "items.sku", "sku"}
+ANALYTIC_STAGES = {"$group", "$facet", "$setWindowFields", "$bucket", "$bucketAuto"}
+
+
+def path_of(entry: dict) -> str:
+    """Online requests are keyed to one customer or order. Reporting scans ranges. Event-driven reads streams."""
+    stages = stages_of(entry)
+    if "$changeStream" in stages:
+        return "event-driven"
+    command = entry.get("command", {})
+    pipeline = pipeline_of(entry)
+    first_filter = command.get("filter") or command.get("q") or (pipeline[0].get("$match", {}) if pipeline else {})
+    keyed = isinstance(first_filter, dict) and bool(KEY_FIELDS & set(first_filter))
+    if set(stages) & ANALYTIC_STAGES and not keyed:
+        return "reporting"
+    if not keyed and pipeline and "$lookup" in stages:
+        return "reporting"
+    return "online"
+
+
 def _percentile(sorted_values: list[int], fraction: float) -> int:
     if not sorted_values:
         return 0
@@ -189,6 +209,7 @@ def summarize(entries: list[dict]) -> dict:
                 "count": len(group),
                 "collection": collection_of(group[0]),
                 "op": group[0].get("op"),
+                "path": path_of(group[0]),
                 "features": sorted(features_of(group[0])),
                 "operators": sorted(operators_in(clean_command(group[0]))),
                 "p50_ms": _percentile(millis, 0.5),

@@ -9,7 +9,7 @@ import time
 from rich.console import Console
 from rich.table import Table
 
-from archaeologist import docdb_inferred, explain_compare, extract_data, extract_querylog, ledger as ledger_module, memo, meta_client, probes, store, subq_client, tco
+from archaeologist import cutover, docdb_inferred, explain_compare, extract_data, extract_querylog, ledger as ledger_module, memo, meta_client, probes, store, subq_client, tco, upgrade
 from archaeologist.config import OUT_DIR, ROOT, source_client, target_client
 from archaeologist.diff import run as run_diff
 from scripts.seed import PROFILES, database_names, seed_database
@@ -143,6 +143,7 @@ def main() -> int:
     parser.add_argument("--refresh-probes", action="store_true", help="Generate probes with Muse even if cached ones exist")
     parser.add_argument("--no-live-code", action="store_true", help="Use saved code findings instead of calling Muse")
     parser.add_argument("--with-self-check", action="store_true", help="Run MongoDB against itself first")
+    parser.add_argument("--with-upgrade", action="store_true", help="Also run against the older target version (docker compose --profile upgrade)")
     arguments = parser.parse_args()
 
     profile = arguments.profile
@@ -199,12 +200,34 @@ def main() -> int:
     if not plans.get("available"):
         console.print(f"  [yellow]skipped[/]: {plans.get('reason')}")
 
+    _step("4c. Cutover fidelity: full load + CDC, then an independent reconciliation")
+    cutover_clean = cutover.run(profile, "clean")
+    cutover_drill = cutover.run(profile, "drill")
+    console.print(f"  clean migration: {len(cutover_clean['failed'])} of {len(cutover_clean['checks'])} checks failed")
+    for check in cutover_clean["failed"]:
+        console.print(f"    [red]✗[/] {check['check']}")
+    for fault in cutover_drill["injected_faults"]:
+        console.print(f"  drill: injected {fault['fault']} → {'[green]caught[/]' if fault['caught'] else '[red]missed[/]'} ({fault['evidence']})")
+
+    upgrade_summary = upgrade.load(profile) if arguments.with_upgrade else None
+    if arguments.with_upgrade:
+        _step("4d. Upgrade check: same probes and replay on an older target version")
+        try:
+            upgrade_summary = upgrade.run(profile, active, runs, origin)
+            console.print(f"  {upgrade_summary['summary']}")
+        except Exception as exc:  # The older engine is optional; its absence shouldn't stop the memo.
+            console.print(f"  [yellow]skipped[/]: older target not reachable ({type(exc).__name__})")
+
     _step("5. Cost and decision")
     result = tco.run(profile, runs, ledger, docdb, ferretdb_documented)
     console.print(_decision_table(result))
 
     _step("6. Decision memo")
-    text = memo.write(profile, ledger, runs, self_check, docdb, result, invalid, ferretdb_documented, plans)
+    measured_bytes = source_client().get_database(profile).command("dbStats").get("dataSize")
+    text = memo.write(
+        profile, ledger, runs, self_check, docdb, result, invalid, ferretdb_documented, plans,
+        cutover=cutover_clean, drill=cutover_drill, measured_bytes=measured_bytes, upgrade=upgrade_summary,
+    )
     console.print(f"  wrote out/{profile}/memo.md")
     saved = store.save(profile, runs["run_id"], ledger, runs, result, text)
     console.print(f"  Atlas: {'saved to ' + saved['database'] + '.' + saved['collection'] if saved['saved'] else '[yellow]skipped[/] (' + saved['reason'] + ')'}")

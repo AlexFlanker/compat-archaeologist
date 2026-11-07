@@ -77,9 +77,23 @@ def _feature_rollup(probe_results: list[dict], read_replay: dict, write_replay: 
     return rollup
 
 
-def run(profile: str, probes: list[dict], self_check: bool = False, probe_origin: str = "muse") -> dict:
+def run(
+    profile: str,
+    probes: list[dict],
+    self_check: bool = False,
+    probe_origin: str = "muse",
+    target_uri: str | None = None,
+    output_name: str | None = None,
+) -> dict:
     source = source_client(timeout_ms=30_000)
-    target = source if self_check else target_client(timeout_ms=30_000)
+    if self_check:
+        target = source
+    elif target_uri:
+        from archaeologist.config import _client
+
+        target = _client(target_uri, 30_000)
+    else:
+        target = target_client(timeout_ms=30_000)
     started = time.perf_counter()
     names = database_names(profile)
     settings = PROFILES[profile]
@@ -105,7 +119,7 @@ def run(profile: str, probes: list[dict], self_check: bool = False, probe_origin
         collections = ["orders"] if profile == "lite" else STATE_COLLECTIONS
         write_replay = replay_writes(source, target, names["fixture"], parts["writes"], collections)
 
-    schema_rejections = [] if self_check else _schema_findings(profile, "target")
+    schema_rejections = [] if self_check else _schema_findings(profile, output_name or "target")
     document = {
         "run_id": run_id,
         "profile": profile,
@@ -125,7 +139,8 @@ def run(profile: str, probes: list[dict], self_check: bool = False, probe_origin
     }
     out_dir = OUT_DIR / profile
     out_dir.mkdir(parents=True, exist_ok=True)
-    (out_dir / ("self_check.json" if self_check else "runs.json")).write_text(json.dumps(document, indent=2, default=str))
+    file_name = "self_check.json" if self_check else (f"runs_{output_name}.json" if output_name else "runs.json")
+    (out_dir / file_name).write_text(json.dumps(document, indent=2, default=str))
     return document
 
 

@@ -172,6 +172,7 @@
       "count": 270,
       "collection": "orders",
       "op": "query",
+      "path": "online",
       "features": [
         "F10"
       ],
@@ -186,6 +187,7 @@
       "count": 113,
       "collection": "inventory",
       "op": "update",
+      "path": "online",
       "features": [
         "F10"
       ],
@@ -204,6 +206,7 @@
       "count": 110,
       "collection": "customers",
       "op": "query",
+      "path": "online",
       "features": [
         "F6"
       ],
@@ -218,6 +221,7 @@
       "count": 102,
       "collection": "inventory_events",
       "op": "insert",
+      "path": "online",
       "features": [
         "F10"
       ],
@@ -232,6 +236,7 @@
       "count": 102,
       "collection": "sync_state",
       "op": "update",
+      "path": "online",
       "features": [
         "F10"
       ],
@@ -246,6 +251,7 @@
       "count": 100,
       "collection": "products",
       "op": "query",
+      "path": "online",
       "features": [
         "F9"
       ],
@@ -264,6 +270,7 @@
       "count": 100,
       "collection": "orders",
       "op": "query",
+      "path": "online",
       "features": [
         "F10"
       ],
@@ -278,6 +285,7 @@
       "count": 70,
       "collection": "carts",
       "op": "update",
+      "path": "online",
       "features": [
         "F10"
       ],
@@ -294,6 +302,7 @@
       "count": 70,
       "collection": "carts",
       "op": "query",
+      "path": "online",
       "features": [
         "F10"
       ],
@@ -308,6 +317,7 @@
       "count": 65,
       "collection": "orders",
       "op": "insert",
+      "path": "online",
       "features": [
         "F4"
       ],
@@ -322,6 +332,7 @@
       "count": 60,
       "collection": "orders",
       "op": "command",
+      "path": "online",
       "features": [
         "F2"
       ],
@@ -350,6 +361,7 @@
       "count": 57,
       "collection": "inventory",
       "op": "getmore",
+      "path": "event-driven",
       "features": [
         "F5"
       ],
@@ -364,6 +376,7 @@
       "count": 46,
       "collection": "orders",
       "op": "update",
+      "path": "online",
       "features": [
         "F3"
       ],
@@ -382,6 +395,7 @@
       "count": 46,
       "collection": "orders",
       "op": "command",
+      "path": "online",
       "features": [],
       "operators": [
         "$elemMatch",
@@ -400,6 +414,7 @@
       "count": 46,
       "collection": "orders",
       "op": "update",
+      "path": "online",
       "features": [
         "F10"
       ],
@@ -417,6 +432,7 @@
       "count": 40,
       "collection": "orders",
       "op": "query",
+      "path": "online",
       "features": [
         "F10"
       ],
@@ -431,6 +447,7 @@
       "count": 30,
       "collection": "products",
       "op": "query",
+      "path": "online",
       "features": [
         "F10"
       ],
@@ -445,6 +462,7 @@
       "count": 22,
       "collection": "carts",
       "op": "update",
+      "path": "online",
       "features": [
         "F10"
       ],
@@ -461,6 +479,7 @@
       "count": 20,
       "collection": "customers",
       "op": "update",
+      "path": "online",
       "features": [
         "F10"
       ],
@@ -477,6 +496,7 @@
       "count": 20,
       "collection": "orders",
       "op": "command",
+      "path": "reporting",
       "features": [
         "F1"
       ],
@@ -512,6 +532,7 @@
       "count": 15,
       "collection": "orders",
       "op": "query",
+      "path": "online",
       "features": [
         "F10"
       ],
@@ -528,6 +549,7 @@
       "count": 13,
       "collection": "orders",
       "op": "update",
+      "path": "online",
       "features": [
         "F10"
       ],
@@ -546,6 +568,7 @@
       "count": 13,
       "collection": "orders",
       "op": "update",
+      "path": "online",
       "features": [
         "F10"
       ],
@@ -564,6 +587,7 @@
       "count": 10,
       "collection": "orders",
       "op": "update",
+      "path": "online",
       "features": [
         "F3"
       ],
@@ -580,6 +604,7 @@
       "count": 10,
       "collection": "products",
       "op": "command",
+      "path": "reporting",
       "features": [
         "F1"
       ],
@@ -603,6 +628,7 @@
       "count": 1,
       "collection": "orders",
       "op": "query",
+      "path": "online",
       "features": [
         "F10"
       ],
@@ -620,6 +646,7 @@
       "count": 1,
       "collection": "orders",
       "op": "query",
+      "path": "online",
       "features": [
         "F10"
       ],
@@ -637,6 +664,7 @@
       "count": 1,
       "collection": "sync_state",
       "op": "query",
+      "path": "online",
       "features": [
         "F10"
       ],
@@ -651,6 +679,7 @@
       "count": 1,
       "collection": "inventory",
       "op": "command",
+      "path": "online",
       "features": [],
       "operators": [],
       "p50_ms": 0,

@@ -27,6 +27,10 @@ def active_cart(db: Database, customer_id: str) -> dict | None:
     return db.carts.find_one({"customer_id": customer_id, "status": "active"})
 
 
+def discard_cart(db: Database, cart_id: str) -> None:
+    db.carts.delete_one({"_id": cart_id, "status": "active"})
+
+
 def convert_cart(db: Database, cart_id: str, order_id: str, now: datetime) -> None:
     db.carts.update_one(
         {"_id": cart_id},

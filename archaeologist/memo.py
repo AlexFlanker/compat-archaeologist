@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 
+from archaeologist import brief
 from archaeologist.config import OUT_DIR
 from archaeologist.features import FEATURES
 from archaeologist.tco import DOCUMENTDB, FERRETDB
@@ -221,6 +222,176 @@ def _atlas_section(atlas: dict | None) -> list[str]:
     return lines
 
 
+def _pct(value) -> str:
+    return "n/a" if value is None else f"{value * 100:.0f}%"
+
+
+def _brief(profile, ledger, runs, self_check, tco, cutover, drill, explain, measured_bytes, upgrade) -> list[str]:
+    assumptions = tco["assumptions"]
+    app = APP_NAME.get(profile, profile)
+    targets = tco["targets"]
+    lines = [
+        f"# Migration decision: {app}",
+        "",
+        "*One-page brief for the CTO or VP Engineering. The evidence and method follow in the appendix.*",
+        "",
+        _headline(profile, tco),
+        "",
+        "| | " + " | ".join(f"{name} ({info['evidence'].lower()})" for name, info in targets.items()) + " |",
+        "|---|" + "---|" * len(targets),
+        "| Recommendation | " + " | ".join(info["decision_text"] for info in targets.values()) + " |",
+        "| Confidence | " + " | ".join(brief.confidence_label(name, info, self_check, tco["subq"]) for name, info in targets.items()) + " |",
+        "| Net over 12 months (base, best to worst) | "
+        + " | ".join(f"{_money(info['economics']['net']['base'])} ({_money(info['economics']['net']['best'])} to {_money(info['economics']['net']['worst'])})" for info in targets.values())
+        + " |",
+    ]
+    reversal = {name: brief.reversibility(name, info, runs, cutover, assumptions) for name, info in targets.items()}
+    lines.append("| Reversibility (100 = easy to go back) | " + " | ".join(f"{reversal[name]['score']}/100 ({reversal[name]['status']})" for name in targets) + " |")
+
+    risks = brief.top_risks(tco, ledger, cutover)
+    lines += ["", "**Top risks**", ""]
+    if not risks:
+        lines.append("None blocking. Every probe, replayed operation and cutover check matched.")
+    for number, risk in enumerate(risks, start=1):
+        code = ", ".join(_code_link(ref) for ref in risk["code"])
+        evidence = "; ".join(risk["evidence"] + ([f"code {code}"] if code else []))
+        lines.append(f"{number}. **{risk['title']}** ({risk['target']}, {risk['kind'].replace('_', ' ')}). Evidence: {evidence or 'see appendix'}.")
+
+    lines += ["", "**12-month cost, base case** (yearly figures; best and worst cases in the appendix)", ""]
+    lines += ["| | " + " | ".join(targets) + " |", "|---|" + "---|" * len(targets)]
+    atlas = next(iter(targets.values()))["economics"]["annual_costs"]["MongoDB Atlas"]
+    lines.append("| Staying on MongoDB Atlas | " + " | ".join(_money(atlas) for _ in targets) + " |")
+    labels = [
+        ("infrastructure", "Target infrastructure"),
+        ("io", "I/O billing"),
+        ("scale_ups", "Scale-ups for slow paths (INFERRED)"),
+        ("extra_services", "Extra services (search)"),
+        ("operations", "Running it yourself"),
+        ("migration_and_rewrites", "Migration and rewrites"),
+        ("incidents", "Expected incident cost"),
+    ]
+    for key, label in labels:
+        cells = []
+        for info in targets.values():
+            base_lines = info["economics"]["breakdown"]["base"]["lines"]
+            cell = _money(base_lines[key])
+            if key == "migration_and_rewrites":
+                cell += f" ({base_lines['person_days']:.0f} person-days)"
+                if info["economics"]["rewrite_estimates_missing"]:
+                    cell += "; rewrites not estimated yet"
+            if key == "io" and base_lines.get("plan"):
+                cell += f" ({base_lines['plan']} plan)"
+            cells.append(cell)
+        lines.append(f"| {label} | " + " | ".join(cells) + " |")
+    lines.append("| **Net vs staying** | " + " | ".join(f"**{_money(info['economics']['net']['base'])}**" for info in targets.values()) + " |")
+
+    paths = brief.path_stats(runs, assumptions)
+    lines += [
+        "",
+        f"**Measured on replay** (synthetic dataset, {_mb(measured_bytes)}; both engines local, same limits)",
+        "",
+        "| Path | MongoDB p95 | FerretDB p95 | FerretDB over the timeout | Timeout used |",
+        "|---|---|---|---|---|",
+    ]
+    for path in ("online", "reporting"):
+        stat = paths[path]
+        lines.append(f"| {path.title()} | {_ms(stat['source_p95_ms'])} | {_ms(stat['target_p95_ms'])} | {_pct(stat['target_timeout_rate'])} of {stat['operations']} | {stat['limit_ms']:,} ms |")
+    if any(item["id"] == "F5" for item in ledger["items"]):
+        lines.append(f"| Event-driven (change streams) | works | {VERDICT_LABEL.get(paths['event-driven']['verdict'], paths['event-driven']['verdict'])} | | |")
+    else:
+        lines.append("| Event-driven (change streams) | not used by this app | | | |")
+
+    projection = brief.extrapolate(explain, measured_bytes, assumptions, runs)
+    if projection["available"]:
+        lines += [
+            "",
+            f"**At production size (INFERRED)**: the data size at which each slow path reaches its timeout, projected from the measured {projection['measured_mb']} MB using the growth shape of its query plan. This assumes every collection grows by the same factor.",
+        ]
+        for row in projection["rows"]:
+            lines.append(
+                f"- {', '.join(row['features']) or 'Aggregation'} {row['path']} query on {row['collection']} ({row['limit_ms'] // 1000:,} s timeout): "
+                f"MongoDB grows {row['source_growth']} and reaches it at ~{_size(row['source_timeout_at_gb'])}; "
+                f"FerretDB grows {row['target_growth']} and reaches it at ~{_size(row['target_timeout_at_gb'])}."
+            )
+        if any(row["target_timeout_at_gb"] * 10 < row["source_timeout_at_gb"] for row in projection["rows"]):
+            lines.append("- At TB scale both engines need work on reporting, such as pre-aggregation, but FerretDB hits the limit orders of magnitude sooner.")
+        elif projection["rows"]:
+            lines.append("- Both engines grow the same way here, so scale doesn't change the comparison.")
+
+    if cutover:
+        engine_failures = [check["check"] for check in cutover["failed"]]
+        lines += [
+            "",
+            f"**Cutover fidelity**: a simulated full-load + CDC migration with nothing injected failed {len(cutover['failed'])} of {len(cutover['checks'])} checks on FerretDB"
+            + (f": {', '.join(engine_failures[:4])}." if engine_failures else "."),
+        ]
+        if drill and drill.get("injected_faults"):
+            caught = sum(1 for fault in drill["injected_faults"] if fault["caught"])
+            faults = "; ".join(fault["fault"] for fault in drill["injected_faults"])
+            lines.append(f"In a drill with faults injected on purpose ({faults}), the verifier caught {caught} of {len(drill['injected_faults'])}.")
+    if upgrade:
+        lines += ["", f"**Upgrade check**: {upgrade['summary']}"]
+    lines += [
+        "",
+        f"Reversibility deductions: " + "; ".join(f"{name}: " + (", ".join(f"-{item['points']} {item['reason']}" for item in reversal[name]["deductions"]) or "none") for name in targets) + ".",
+        "",
+        "---",
+        "",
+        "# Appendix: evidence and method",
+        "",
+    ]
+    return lines
+
+
+def _size(gb: float) -> str:
+    if gb >= 1000:
+        return f"{gb / 1000:,.1f} TB"
+    if gb >= 1:
+        return f"{gb:,.0f} GB"
+    return f"{gb * 1000:,.0f} MB"
+
+
+def _mb(measured_bytes) -> str:
+    return f"{measured_bytes / 1e6:.0f} MB" if measured_bytes else "size not measured"
+
+
+def _duration(ms: float) -> str:
+    seconds = ms / 1000
+    if seconds < 1:
+        return f"{ms:.0f} ms"
+    if seconds < 120:
+        return f"{seconds:.0f} s"
+    if seconds < 7200:
+        return f"{seconds / 60:.0f} min"
+    if seconds < 172800:
+        return f"{seconds / 3600:.0f} h"
+    return f"{seconds / 86400:,.0f} days"
+
+
+def _cutover_section(cutover: dict | None, drill: dict | None) -> list[str]:
+    if not cutover:
+        return []
+    lines = [
+        "",
+        "## Cutover fidelity",
+        "",
+        "A copier that works like a managed migration tool does a full load with indexes and validators, keeps the source taking live writes, then applies change events. "
+        "A separate verifier reconciles: counts and content hashes, index and validator parity, the source oplog against the applied events, business rules, and day-one writes that MongoDB's constraints refuse. "
+        "The same copier, MongoDB to MongoDB, passes every check.",
+        "",
+        "| Check | Clean migration | Drill (faults injected) |",
+        "|---|---|---|",
+    ]
+    drill_by_name = {check["check"]: check for check in (drill or {}).get("checks", [])}
+    for check in cutover["checks"]:
+        other = drill_by_name.get(check["check"])
+        drill_cell = ("✅" if other["ok"] else "❌") if other else ""
+        lines.append(f"| {check['check']} | {'✅' if check['ok'] else '❌ ' + json.dumps(check['evidence'], default=str)[:120]} | {drill_cell} |")
+    for fault in (drill or {}).get("injected_faults", []):
+        lines.append(f"- Injected: {fault['fault']}. Caught: {'yes' if fault['caught'] else 'no'} ({fault['evidence']}).")
+    return lines
+
+
 def write(
     profile: str,
     ledger: dict,
@@ -231,14 +402,18 @@ def write(
     invalid_probes: list[dict],
     ferretdb_documented: dict | None = None,
     explain: dict | None = None,
+    cutover: dict | None = None,
+    drill: dict | None = None,
+    measured_bytes: int | None = None,
+    upgrade: dict | None = None,
 ) -> str:
     app = APP_NAME.get(profile, profile)
     ferretdb, documentdb = tco["targets"][FERRETDB], tco["targets"][DOCUMENTDB]
     engines = runs["engines"]
     subq = tco["subq"]
-    lines = [f"# Migration decision: {app}", "", _headline(profile, tco), ""]
+    lines = _brief(profile, ledger, runs, self_check, tco, cutover, drill, explain, measured_bytes, upgrade)
 
-    lines += ["| Target | Evidence | Blocking gaps | Net over 12 months (base) | Decision | SubQ Snap: P(net-positive) |", "|---|---|---|---|---|---|"]
+    lines += ["## Decision detail", "", "| Target | Evidence | Blocking gaps | Net over 12 months (base) | Decision | SubQ Snap: P(net-positive) |", "|---|---|---|---|---|---|"]
     for name, info in tco["targets"].items():
         probability = f"{subq['probabilities'][name]:.2f}" if subq.get("available") else f"unavailable ({subq.get('reason')})"
         lines.append(
@@ -280,6 +455,9 @@ def write(
             "FerretDB's own [compatibility page](https://docs.ferretdb.io/migration/compatibility/) says `commitTransaction` and `abortTransaction` aren't implemented yet, so that gap is documented rather than hidden. "
             "The risk for an application is what happens at runtime: pymongo follows the driver specification and ignores errors from abort, so nothing tells the application its rollback did nothing.",
         ]
+    lines += _cutover_section(cutover, drill)
+    if upgrade:
+        lines += ["", "## Upgrade check", "", upgrade["summary"], ""] + upgrade.get("table", [])
 
     overall = runs["replay"]["reads"]["overall"]
     writes = runs["replay"]["writes"]

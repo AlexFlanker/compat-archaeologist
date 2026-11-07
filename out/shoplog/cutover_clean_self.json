@@ -1,0 +1,460 @@
+{
+  "profile": "shoplog",
+  "scenario": "clean",
+  "self_check": true,
+  "target": "MongoDB (self-check)",
+  "full_load": {
+    "collections": {
+      "customers": 5000,
+      "orders": 50000,
+      "products": 500,
+      "carts": 2000,
+      "inventory": 500
+    },
+    "indexes": [
+      {
+        "collection": "customers",
+        "name": "email_ci_unique",
+        "ok": true
+      },
+      {
+        "collection": "orders",
+        "name": "customer_id_1_placed_at_-1",
+        "ok": true
+      },
+      {
+        "collection": "orders",
+        "name": "status_1_placed_at_-1",
+        "ok": true
+      },
+      {
+        "collection": "orders",
+        "name": "placed_at_1",
+        "ok": true
+      },
+      {
+        "collection": "orders",
+        "name": "coupon_once_per_customer",
+        "ok": true
+      },
+      {
+        "collection": "products",
+        "name": "product_search",
+        "ok": true
+      },
+      {
+        "collection": "products",
+        "name": "category_1",
+        "ok": true
+      },
+      {
+        "collection": "carts",
+        "name": "active_cart_expiry",
+        "ok": true
+      },
+      {
+        "collection": "carts",
+        "name": "customer_id_1",
+        "ok": true
+      }
+    ],
+    "validators": [
+      {
+        "collection": "orders",
+        "ok": true
+      }
+    ]
+  },
+  "cdc": {
+    "events_seen": 403,
+    "applied": 396,
+    "skipped_no_document": 7
+  },
+  "checks": [
+    {
+      "check": "carts: documents and content",
+      "area": "data",
+      "ok": true,
+      "evidence": {
+        "source_count": 1980,
+        "target_count": 1980,
+        "documents_differing": 0,
+        "examples": []
+      },
+      "severity": "pass"
+    },
+    {
+      "check": "carts.active_cart_expiry index (partialFilterExpression, expireAfterSeconds)",
+      "area": "constraints",
+      "ok": true,
+      "evidence": {
+        "source": {
+          "key": {
+            "expires_at": 1
+          },
+          "partialFilterExpression": {
+            "status": "active"
+          },
+          "expireAfterSeconds": 0
+        },
+        "target": {
+          "key": {
+            "expires_at": 1
+          },
+          "partialFilterExpression": {
+            "status": "active"
+          },
+          "expireAfterSeconds": 0
+        }
+      },
+      "severity": "pass"
+    },
+    {
+      "check": "carts.customer_id_1 index (plain)",
+      "area": "constraints",
+      "ok": true,
+      "evidence": {
+        "source": {
+          "key": {
+            "customer_id": 1
+          }
+        },
+        "target": {
+          "key": {
+            "customer_id": 1
+          }
+        }
+      },
+      "severity": "pass"
+    },
+    {
+      "check": "customers: documents and content",
+      "area": "data",
+      "ok": true,
+      "evidence": {
+        "source_count": 5017,
+        "target_count": 5017,
+        "documents_differing": 0,
+        "examples": []
+      },
+      "severity": "pass"
+    },
+    {
+      "check": "customers.email_ci_unique index (unique, collation)",
+      "area": "constraints",
+      "ok": true,
+      "evidence": {
+        "source": {
+          "key": {
+            "email": 1
+          },
+          "unique": true,
+          "collation": {
+            "locale": "en",
+            "caseLevel": false,
+            "caseFirst": "off",
+            "strength": 2,
+            "numericOrdering": false,
+            "alternate": "non-ignorable",
+            "maxVariable": "punct",
+            "normalization": false,
+            "backwards": false,
+            "version": "57.1"
+          }
+        },
+        "target": {
+          "key": {
+            "email": 1
+          },
+          "unique": true,
+          "collation": {
+            "locale": "en",
+            "caseLevel": false,
+            "caseFirst": "off",
+            "strength": 2,
+            "numericOrdering": false,
+            "alternate": "non-ignorable",
+            "maxVariable": "punct",
+            "normalization": false,
+            "backwards": false,
+            "version": "57.1"
+          }
+        }
+      },
+      "severity": "pass"
+    },
+    {
+      "check": "inventory: documents and content",
+      "area": "data",
+      "ok": true,
+      "evidence": {
+        "source_count": 500,
+        "target_count": 500,
+        "documents_differing": 0,
+        "examples": []
+      },
+      "severity": "pass"
+    },
+    {
+      "check": "orders: documents and content",
+      "area": "data",
+      "ok": true,
+      "evidence": {
+        "source_count": 50054,
+        "target_count": 50054,
+        "documents_differing": 0,
+        "examples": []
+      },
+      "severity": "pass"
+    },
+    {
+      "check": "orders.customer_id_1_placed_at_-1 index (plain)",
+      "area": "constraints",
+      "ok": true,
+      "evidence": {
+        "source": {
+          "key": {
+            "customer_id": 1,
+            "placed_at": -1
+          }
+        },
+        "target": {
+          "key": {
+            "customer_id": 1,
+            "placed_at": -1
+          }
+        }
+      },
+      "severity": "pass"
+    },
+    {
+      "check": "orders.status_1_placed_at_-1 index (plain)",
+      "area": "constraints",
+      "ok": true,
+      "evidence": {
+        "source": {
+          "key": {
+            "status": 1,
+            "placed_at": -1
+          }
+        },
+        "target": {
+          "key": {
+            "status": 1,
+            "placed_at": -1
+          }
+        }
+      },
+      "severity": "pass"
+    },
+    {
+      "check": "orders.placed_at_1 index (plain)",
+      "area": "constraints",
+      "ok": true,
+      "evidence": {
+        "source": {
+          "key": {
+            "placed_at": 1
+          }
+        },
+        "target": {
+          "key": {
+            "placed_at": 1
+          }
+        }
+      },
+      "severity": "pass"
+    },
+    {
+      "check": "orders.coupon_once_per_customer index (unique, partialFilterExpression)",
+      "area": "constraints",
+      "ok": true,
+      "evidence": {
+        "source": {
+          "key": {
+            "customer_id": 1,
+            "coupon_code": 1
+          },
+          "unique": true,
+          "partialFilterExpression": {
+            "coupon_code": {
+              "$exists": true
+            }
+          }
+        },
+        "target": {
+          "key": {
+            "customer_id": 1,
+            "coupon_code": 1
+          },
+          "unique": true,
+          "partialFilterExpression": {
+            "coupon_code": {
+              "$exists": true
+            }
+          }
+        }
+      },
+      "severity": "pass"
+    },
+    {
+      "check": "orders $jsonSchema validator",
+      "area": "constraints",
+      "ok": true,
+      "evidence": {
+        "source_has_validator": true,
+        "target_has_validator": true
+      },
+      "severity": "pass"
+    },
+    {
+      "check": "products: documents and content",
+      "area": "data",
+      "ok": true,
+      "evidence": {
+        "source_count": 500,
+        "target_count": 500,
+        "documents_differing": 0,
+        "examples": []
+      },
+      "severity": "pass"
+    },
+    {
+      "check": "products.product_search index (weights)",
+      "area": "constraints",
+      "ok": true,
+      "evidence": {
+        "source": {
+          "key": {
+            "_fts": "text",
+            "_ftsx": 1
+          },
+          "weights": {
+            "description": 1,
+            "name": 10,
+            "tags": 5
+          }
+        },
+        "target": {
+          "key": {
+            "_fts": "text",
+            "_ftsx": 1
+          },
+          "weights": {
+            "description": 1,
+            "name": 10,
+            "tags": 5
+          }
+        }
+      },
+      "severity": "pass"
+    },
+    {
+      "check": "products.category_1 index (plain)",
+      "area": "constraints",
+      "ok": true,
+      "evidence": {
+        "source": {
+          "key": {
+            "category": 1
+          }
+        },
+        "target": {
+          "key": {
+            "category": 1
+          }
+        }
+      },
+      "severity": "pass"
+    },
+    {
+      "check": "Change events applied vs writes in the source oplog",
+      "area": "cdc",
+      "ok": true,
+      "evidence": {
+        "source_oplog_writes": 403,
+        "events_applied": 396,
+        "events_skipped_no_document": 7,
+        "live_writes_issued": 297
+      },
+      "severity": "pass"
+    },
+    {
+      "check": "Business rule: customers who used the welcome coupon twice",
+      "area": "invariants",
+      "ok": true,
+      "evidence": {
+        "source": 0,
+        "target_at_cutover": 0,
+        "target_after_day_one_writes": 0
+      },
+      "severity": "pass"
+    },
+    {
+      "check": "Business rule: emails that collide when case is ignored",
+      "area": "invariants",
+      "ok": true,
+      "evidence": {
+        "source": 0,
+        "target_at_cutover": 0,
+        "target_after_day_one_writes": 0
+      },
+      "severity": "pass"
+    },
+    {
+      "check": "Business rule: orders whose refund total contradicts their status",
+      "area": "invariants",
+      "ok": true,
+      "evidence": {
+        "source": 0,
+        "target_at_cutover": 0,
+        "target_after_day_one_writes": 0
+      },
+      "severity": "pass"
+    },
+    {
+      "check": "Business rule: orders that break the order schema",
+      "area": "invariants",
+      "ok": true,
+      "evidence": {
+        "source": 0,
+        "target_at_cutover": 0,
+        "target_after_day_one_writes": 0
+      },
+      "severity": "pass"
+    },
+    {
+      "check": "Day-one write refused: Second use of the welcome coupon by the same customer",
+      "area": "constraints",
+      "ok": true,
+      "evidence": {
+        "source": "refused",
+        "target": "refused"
+      },
+      "severity": "pass"
+    },
+    {
+      "check": "Day-one write refused: Sign-up with an existing email in different case",
+      "area": "constraints",
+      "ok": true,
+      "evidence": {
+        "source": "refused",
+        "target": "refused"
+      },
+      "severity": "pass"
+    },
+    {
+      "check": "Day-one write refused: Order with an unknown status and a negative total",
+      "area": "constraints",
+      "ok": true,
+      "evidence": {
+        "source": "refused",
+        "target": "refused"
+      },
+      "severity": "pass"
+    }
+  ],
+  "failed": [],
+  "injected_faults": [],
+  "seconds": 10.8
+}
