@@ -267,6 +267,7 @@ def _brief(profile, ledger, runs, self_check, tco, cutover, drill, explain, meas
         "",
         _headline(profile, tco),
         "",
+        *_reversal_lines(tco.get("reversal")),
         "| | " + " | ".join(f"{name} ({info['evidence'].lower()})" for name, info in targets.items()) + " |",
         "|---|" + "---|" * len(targets),
         "| Recommendation | " + " | ".join(info["decision_text"] for info in targets.values()) + " |",
@@ -414,6 +415,24 @@ def _size(gb: float) -> str:
     if gb >= 1:
         return f"{gb:,.0f} GB"
     return f"{gb * 1000:,.0f} MB"
+
+
+def _reversal_lines(walk: dict | None) -> list[str]:
+    if not walk:
+        return []
+    steps = walk["steps"]
+    title = "**How the evidence reversed the decision** (FerretDB, 12-month net, base case)" if walk["flipped_at"] else "**What the evidence did to the paper case** (FerretDB, 12-month net, base case)"
+    lines = [title, "", "| Step | What the agent found | Change | Running net | Decision |", "|---|---|---|---|---|"]
+    for index, step in enumerate(steps):
+        change = "" if step["change"] is None else _money(step["change"])
+        decision = f"**{step['decision']}** ← flips here" if index == walk["flipped_at"] else step["decision"]
+        lines.append(f"| {index} | {step['step']} ({step['evidence']}) | {change} | {_money(step['net'])} | {decision} |")
+    subq = walk.get("subq") or {}
+    if subq.get("on_paper") is not None and subq.get("with_evidence") is not None:
+        lines += ["", f"SubQ Snap, asked the same question: P(net-positive) **{brief.probability(subq['on_paper'])}** with only the paper facts, **{brief.probability(subq['with_evidence'])}** with the evidence."]
+    if not walk["flipped_at"]:
+        lines += ["", "No finding blocked this app, so the evidence confirmed the paper case."]
+    return lines + [""]
 
 
 def _mb(measured_bytes) -> str:

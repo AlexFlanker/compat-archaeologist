@@ -337,6 +337,22 @@
           },
           "missing_rate": 0.0
         },
+        "history[]": {
+          "element_fields": {
+            "at": {
+              "types": {
+                "date": 98893
+              },
+              "missing_rate": 0.0
+            },
+            "status": {
+              "types": {
+                "string": 98893
+              },
+              "missing_rate": 0.0
+            }
+          }
+        },
         "items[]": {
           "element_fields": {
             "category": {
@@ -386,22 +402,6 @@
               "types": {
                 "int": 52314,
                 "double": 10167
-              },
-              "missing_rate": 0.0
-            }
-          }
-        },
-        "history[]": {
-          "element_fields": {
-            "at": {
-              "types": {
-                "date": 98893
-              },
-              "missing_rate": 0.0
-            },
-            "status": {
-              "types": {
-                "string": 98893
               },
               "missing_rate": 0.0
             }

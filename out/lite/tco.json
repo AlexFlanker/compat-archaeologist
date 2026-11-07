@@ -346,5 +346,32 @@
       "FerretDB": 0.9362964034080505,
       "AWS DocumentDB": 0.5043326616287231
     }
+  },
+  "reversal": {
+    "target": "FerretDB",
+    "steps": [
+      {
+        "step": "On paper",
+        "evidence": "Wire-compatible engine; infrastructure list prices; a standard migration effort",
+        "change": null,
+        "net": 20123.9,
+        "decision": "Migrate"
+      },
+      {
+        "step": "Running it yourself",
+        "evidence": "Self-managed operations (assumption)",
+        "change": -11520,
+        "net": 8603.9,
+        "decision": "Migrate"
+      }
+    ],
+    "flipped_at": null,
+    "adds_up": true,
+    "final_net": 8603.9,
+    "subq": {
+      "on_paper": 0.9995520710945129,
+      "with_evidence": 0.9362964034080505,
+      "model": "subq-snap-1.1"
+    }
   }
 }

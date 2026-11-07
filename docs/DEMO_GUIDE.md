@@ -69,6 +69,19 @@ Two apps were built today for the demo:
 | F10 | Plain CRUD | 504/504 same | Documented |
 | F11 | Atlas Search | Inferred: needs a separate search service | Inferred: needs a separate search service |
 
+## The reversal (the spine of the demo)
+
+The opening story is about a decision that looked right on paper. The run shows that decision being reversed, one finding at a time, in the same 12-month net:
+
+| # | What the agent found | Running net | Decision |
+|---|---|---|---|
+| 0 | On paper: wire-compatible, cheaper infrastructure, standard migration | +$20,124 | Migrate |
+| 1 | Transactions don't roll back | −$6,576 | **Stay ← flips here** |
+| 2–6 | Collation, validator, change streams, slow reports, no Atlas Search | −$87,303 | Stay |
+| 7 | Running it yourself | −$98,823 | Stay |
+
+SubQ Snap answers the same question twice: **>0.999** with only the paper facts, **<0.001** with the evidence. The control app doesn't flip: +$20,124 on paper, +$8,604 with evidence.
+
 ## The 3-minute loop
 
 Start `./run_demo.sh` in the first 10 seconds. It takes about 134 s, mostly a real 72-second TTL wait. Narrate from the previous memo while it runs, show the live decision table when it finishes, then run the 9-second control flip.
@@ -82,7 +95,7 @@ Start `./run_demo.sh` in the first 10 seconds. It takes about 134 s, mostly a re
 | 0:45 | "Muse writes 30 tests. MongoDB is the referee and overruled Muse 9 times. Then both engines run them." | Memo: Top risks | Behavioral equivalence · Trust but verify · Meta |
 | 1:20 | "The revenue report goes from 9 ms to 4 s. The MCP explain plan shows a sequential scan inside a nested loop. Projected, it hits a 30 s timeout near 100 MB, versus near 70 GB on MongoDB. That projection is inferred." | Memo: latency, "At production size" | Technical demo · MongoDB MCP |
 | 1:50 | "Even a clean copy loses the case-insensitive unique index and the validator. In the drill we inject a CDC gap and a dropped index, and both are caught. After one morning, 5 of 8 business numbers changed, and checkout said 'failed' while saving the order." | Memo: Cutover fidelity, Business questions | Impact · Creativity · Difficulty |
-| 2:20 | "Live result: stay. −$98,823, reversibility 15, SubQ 0.0001. DocumentDB isn't verified, so test it first." Then run `./run_demo.sh --profile lite`. "Migration is fine, +$8,604, SubQ 0.94. Same pipeline, same thresholds." | Decision table, then the Lite run | Fairness · TCO |
+| 2:20 | "Here is the decision the team made on paper: +$20k, migrate. SubQ agreed, at over 0.999. Watch it reverse: the first finding, transactions, flips it, and by the end it's −$98,823 and SubQ is under 0.001. Stay. Reversibility 15. DocumentDB isn't verified, so test it first." Then run `./run_demo.sh --profile lite`. "Migration is fine, +$8,604, SubQ 0.94. Same pipeline, same thresholds." | Decision table, then the Lite run | Fairness · TCO |
 | 2:45 | "It also runs inside ASI:One. Before you migrate a database, get the archaeology done." | ASI:One card screenshot | Fetch.ai · close |
 
 **1-minute video:**

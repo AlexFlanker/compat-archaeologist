@@ -373,10 +373,110 @@ def run(profile: str, runs: dict, ledger: dict, docdb: dict, ferretdb_documented
         }
 
     document = {"profile": profile, "assumptions": assumptions, "targets": targets, "subq": _ask_subq(profile, targets)}
+    document["reversal"] = reversal(assumptions, targets[FERRETDB], clusters, basis)
+    document["reversal"]["subq"] = _ask_subq_on_paper(profile, document["reversal"], document["subq"])
     out_dir = OUT_DIR / profile
     out_dir.mkdir(parents=True, exist_ok=True)
     (out_dir / "tco.json").write_text(json.dumps(document, indent=2, default=str))
     return document
+
+
+GAP_STORY = {
+    "F4": "Transactions don't roll back (checkout)",
+    "F5": "Change streams unsupported (inventory sync)",
+    "F6": "Case-insensitive email index refused (logins)",
+    "F8": "Schema validator silently ignored (orders)",
+    "F11": "No Atlas Search (storefront search)",
+}
+KIND_ORDER = {"silent": 0, "loud": 1, "performance": 2, "documented_conflict": 3, "cutover": 4}
+
+
+def reversal(assumptions: dict, info: dict, clusters: int, basis: str) -> dict:
+    """The same 12-month net, built step by step: from the paper case, through each finding.
+
+    The steps add up exactly to the base-case net, so the walk is a decomposition, not a second model.
+    """
+    lines = annual_cost_lines(assumptions, clusters, basis)
+    rate = assumptions["people"]["engineer_cost_per_hour"]
+    incident = assumptions["risk"]["incident_cost"]["base"]
+    probabilities = assumptions["risk"]["residual_incident_probability"]
+    base = info["economics"]["breakdown"]["base"]
+    paper = lines["MongoDB Atlas"]["infrastructure"] + lines["MongoDB Atlas"]["io"] - lines[FERRETDB]["infrastructure"] - lines[FERRETDB]["io"]
+    running = paper - base["migration_hours"] * rate
+    steps = [
+        {
+            "step": "On paper",
+            "evidence": "Wire-compatible engine; infrastructure list prices; a standard migration effort",
+            "change": None,
+            "net": round(running, 2),
+            "decision": "Migrate" if running > 0 else "Stay",
+        }
+    ]
+    blocking = sorted((gap for gap in info["gaps"] if gap["blocking"]), key=lambda gap: (KIND_ORDER.get(gap["kind"], 9), gap["feature"]))
+    for gap in blocking:
+        estimate = gap.get("estimate") or {}
+        cost = estimate.get("hours_base", 0) * rate + probabilities.get(gap["kind"], 0) * incident
+        if gap["feature"] == "F11":
+            cost += base["lines"]["extra_services"]
+        if gap["kind"] == "performance":
+            cost += base["lines"]["scale_ups"]
+        running -= cost
+        label = GAP_STORY.get(gap["feature"]) or (f"Reporting {gap['name'].split('(')[0].replace('Slow path on ', 'on ').strip()} far slower" if gap["kind"] == "performance" else gap["name"])
+        steps.append(
+            {
+                "step": label,
+                "evidence": f"{gap['kind'].replace('_', ' ')} · rewrite {estimate.get('hours_base', 0):.0f} h (Muse, inferred)",
+                "change": round(-cost, 2),
+                "net": round(running, 2),
+                "decision": "Migrate" if running > 0 else "Stay",
+            }
+        )
+    if base["ops_cost"]:
+        running -= base["ops_cost"]
+        steps.append({"step": "Running it yourself", "evidence": "Self-managed operations (assumption)", "change": round(-base["ops_cost"], 2), "net": round(running, 2), "decision": "Migrate" if running > 0 else "Stay"})
+    flip = next((index for index, step in enumerate(steps) if index and step["decision"] != steps[index - 1]["decision"]), None)
+    expected = info["economics"]["net"]["base"]
+    return {
+        "target": FERRETDB,
+        "steps": steps,
+        "flipped_at": flip,
+        "adds_up": abs(running - expected) < 1.0,
+        "final_net": round(running, 2),
+    }
+
+
+def _ask_subq_on_paper(profile: str, walk: dict, final: dict) -> dict:
+    """The same question SubQ answered at the end, asked with only what the team knew on paper."""
+    paper = walk["steps"][0]
+    state = {
+        "workload": "10-year-old e-commerce order system" if profile == "shoplog" else "Small order lookup service",
+        "horizon_months": 12,
+        "target": FERRETDB,
+        "known_facts": [
+            "The target engine is advertised as MongoDB wire-compatible",
+            f"Infrastructure saves ${paper['net'] + 4800:,.0f} per year at list prices",
+            "A standard migration is planned: data copy, cutover, regression tests",
+        ],
+        "net_12_months_usd": paper["net"],
+    }
+    answer = subq_client.ask_probabilities(
+        purpose="migration_decision_on_paper",
+        state=state,
+        questions={
+            "FerretDB": {
+                "instructions": f"Is migrating this workload to {FERRETDB} net-positive over 12 months?",
+                "criteria": {
+                    "true": "After rewrites, operating costs and incident risk, the migration leaves the company better off within 12 months",
+                    "false": "The migration costs more than it saves within 12 months, or risks outweigh the savings",
+                },
+            }
+        },
+    )
+    return {
+        "on_paper": answer["answers"]["FerretDB"] if answer.get("available") else None,
+        "with_evidence": (final.get("probabilities") or {}).get(FERRETDB) if final.get("available") else None,
+        "model": answer.get("model"),
+    }
 
 
 def _summary(assumptions, name, evidence, gaps, estimates, clusters, basis) -> dict:

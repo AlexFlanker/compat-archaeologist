@@ -45,6 +45,14 @@ def decision_card(profile: str, tco: dict, ledger: dict, scoreboard: dict | None
     subq = tco.get("subq", {})
     if subq.get("available"):
         rows.append({"label": "SubQ Snap: P(net-positive)", "value": ", ".join(f"{name} {format_probability(probability)}" for name, probability in subq["probabilities"].items())})
+    walk = tco.get("reversal")
+    if walk:
+        first, last = walk["steps"][0], walk["steps"][-1]
+        flip = walk["flipped_at"]
+        story = f"On paper {_money(first['net'])} ({first['decision']}) → with evidence {_money(last['net'])} ({last['decision']})"
+        if flip:
+            story += f"; flipped at: {walk['steps'][flip]['step']}"
+        rows.insert(0, {"label": "How the decision reversed" if flip else "Paper case vs evidence", "value": story})
     observed = sum(1 for item in ledger["items"] if item["status"] == "OBSERVED")
     rows.append({"label": "Usage spec reconstructed", "value": f"{len(ledger['items'])} items ({observed} observed), {len(ledger.get('behaviors', []))} business behaviors"})
     if scoreboard:

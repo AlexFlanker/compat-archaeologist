@@ -249,6 +249,7 @@ def main() -> int:
 
     _step("5. Cost and decision")
     result = tco.run(profile, runs, ledger, docdb, ferretdb_documented)
+    console.print(_reversal_table(result.get("reversal")))
     console.print(_decision_table(result))
 
     _step("6. Decision memo")
@@ -264,6 +265,27 @@ def main() -> int:
     console.print(f"[bold]Done in {time.perf_counter() - started:.0f}s[/]")
     _banner(profile, result)
     return 0
+
+
+def _reversal_table(walk: dict | None):
+    table = Table(title="On paper vs. with evidence: FerretDB, 12-month net", expand=True)
+    for column in ("#", "What the agent found", "Change", "Running net", "Decision"):
+        table.add_column(column)
+    if not walk:
+        return table
+    for index, step in enumerate(walk["steps"]):
+        change = "" if step["change"] is None else f"${step['change']:,.0f}"
+        net = f"${step['net']:,.0f}"
+        decision = step["decision"]
+        if index == walk["flipped_at"]:
+            decision = f"[bold red]{decision} ← flips here[/]"
+        elif decision == "Migrate":
+            decision = f"[green]{decision}[/]"
+        table.add_row(str(index), step["step"], change, net, decision)
+    subq = walk.get("subq") or {}
+    if subq.get("on_paper") is not None and subq.get("with_evidence") is not None:
+        table.caption = f"SubQ Snap P(net-positive): {brief.probability(subq['on_paper'])} on paper → {brief.probability(subq['with_evidence'])} with evidence"
+    return table
 
 
 def _call_summary(name: str) -> str:

@@ -390,8 +390,8 @@
                 "$unwind",
                 "$facet"
               ],
-              "source_p95_ms": 8.37,
-              "target_p95_ms": 4215.27,
+              "source_p95_ms": 7.28,
+              "target_p95_ms": 4080.87,
               "samples": 7
             }
           ],
@@ -716,6 +716,75 @@
     "probabilities": {
       "FerretDB": 9.573782153893262e-05,
       "AWS DocumentDB": 0.0002132709341822192
+    }
+  },
+  "reversal": {
+    "target": "FerretDB",
+    "steps": [
+      {
+        "step": "On paper",
+        "evidence": "Wire-compatible engine; infrastructure list prices; a standard migration effort",
+        "change": null,
+        "net": 20123.9,
+        "decision": "Migrate"
+      },
+      {
+        "step": "Transactions don't roll back (checkout)",
+        "evidence": "silent \u00b7 rewrite 160 h (Muse, inferred)",
+        "change": -26700.0,
+        "net": -6576.1,
+        "decision": "Stay"
+      },
+      {
+        "step": "Case-insensitive email index refused (logins)",
+        "evidence": "silent \u00b7 rewrite 48 h (Muse, inferred)",
+        "change": -13260.0,
+        "net": -19836.1,
+        "decision": "Stay"
+      },
+      {
+        "step": "Schema validator silently ignored (orders)",
+        "evidence": "silent \u00b7 rewrite 28 h (Muse, inferred)",
+        "change": -10860.0,
+        "net": -30696.1,
+        "decision": "Stay"
+      },
+      {
+        "step": "Change streams unsupported (inventory sync)",
+        "evidence": "loud \u00b7 rewrite 80 h (Muse, inferred)",
+        "change": -11100.0,
+        "net": -41796.1,
+        "decision": "Stay"
+      },
+      {
+        "step": "Reporting on orders far slower",
+        "evidence": "performance \u00b7 rewrite 48 h (Muse, inferred)",
+        "change": -15268.85,
+        "net": -57064.95,
+        "decision": "Stay"
+      },
+      {
+        "step": "No Atlas Search (storefront search)",
+        "evidence": "documented conflict \u00b7 rewrite 140 h (Muse, inferred)",
+        "change": -30237.6,
+        "net": -87302.55,
+        "decision": "Stay"
+      },
+      {
+        "step": "Running it yourself",
+        "evidence": "Self-managed operations (assumption)",
+        "change": -11520,
+        "net": -98822.55,
+        "decision": "Stay"
+      }
+    ],
+    "flipped_at": 1,
+    "adds_up": true,
+    "final_net": -98822.55,
+    "subq": {
+      "on_paper": 0.9992198944091797,
+      "with_evidence": 9.573782153893262e-05,
+      "model": "subq-snap-1.1"
     }
   }
 }

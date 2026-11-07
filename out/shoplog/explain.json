@@ -16,13 +16,13 @@
         "$facet"
       ],
       "replay_p95_ms": {
-        "source": 8.37,
-        "target": 4215.27
+        "source": 7.28,
+        "target": 4080.87
       },
       "source": {
         "engine_format": "MongoDB plan",
         "docs_examined": 306,
-        "time_ms": 20,
+        "time_ms": 21,
         "plan": "IXSCAN(status_1_placed_at_-1) \u2192 FETCH \u2192 PROJECTION_SIMPLE \u2192 $addFields \u2192 $lookup(indexes=['_id_'], collection scans=0, docs examined=309) \u2192 $facet",
         "full_scans": 0
       },
@@ -48,8 +48,8 @@
         "$project"
       ],
       "replay_p95_ms": {
-        "source": 1.05,
-        "target": 4.23
+        "source": 0.96,
+        "target": 4.59
       },
       "source": {
         "engine_format": "MongoDB plan",
@@ -68,30 +68,30 @@
       }
     },
     {
-      "shape_id": "Se780f2b8",
+      "shape_id": "Safd4d86d",
       "features": [
-        "F9"
+        "F10"
       ],
-      "collection": "products",
+      "collection": "orders",
       "stages": [],
       "replay_p95_ms": {
-        "source": 2.18,
-        "target": 3.81
+        "source": 3.1,
+        "target": 6.08
       },
       "source": {
         "engine_format": "MongoDB plan",
         "docs_examined": 98,
-        "keys_examined": 49,
+        "keys_examined": 98,
         "time_ms": 0,
-        "plan": "IXSCAN(product_search) \u2192 TEXT_OR \u2192 TEXT_MATCH(product_search) \u2192 FETCH \u2192 SORT \u2192 PROJECTION_DEFAULT",
+        "plan": "IXSCAN(status_1_placed_at_-1) \u2192 FETCH \u2192 SORT",
         "full_scans": 0
       },
       "target": {
         "engine_format": "Postgres plan (FerretDB)",
-        "plan": "Limit \u2192 Sort \u2192 Custom Scan \u2192 Index Scan(product_search)",
+        "plan": "Limit \u2192 Sort \u2192 Bitmap Heap Scan \u2192 Bitmap Index Scan(status_1_placed_at_-1)",
         "full_scans": 0,
         "nested_loops": 0,
-        "estimated_total_cost": 22.96,
+        "estimated_total_cost": 2441.38,
         "time_ms": null
       }
     }
