@@ -15,12 +15,14 @@ fi
 
 # Rule: the real values from .env must not appear in any tracked or staged file.
 if [[ -f .env ]]; then
-  for name in META_API_KEY MODEL_API_KEY SUBQ_API_KEY MONGODB_URI_ATLAS MDB_MCP_API_CLIENT_SECRET AGENT_SEED; do
-    value="$(grep -E "^${name}=" .env | head -1 | cut -d= -f2- || true)"
-    if [[ ${#value} -ge 12 ]] && git grep --cached -qF -- "$value"; then
-      echo "FAIL: value of $name found in a staged or tracked file"
-      failed=1
-    fi
+  for name in META_API_KEY MODEL_API_KEY SUBQ_API_KEY MONGODB_URI_ATLAS MDB_MCP_API_CLIENT_ID MDB_MCP_API_CLIENT_SECRET AGENT_SEED; do
+    # A name can appear more than once, for example a blank line plus an appended value, so check each one.
+    while IFS= read -r value; do
+      if [[ ${#value} -ge 12 ]] && git grep --cached -qF -- "$value"; then
+        echo "FAIL: value of $name found in a staged or tracked file"
+        failed=1
+      fi
+    done < <(grep -E "^${name}=" .env | cut -d= -f2- || true)
   done
 fi
 
