@@ -133,6 +133,7 @@ Everything in this repository was written today, after 10:45 AM PT, during the A
 - Upgrade mode, comparing two target versions (`archaeologist/upgrade.py`)
 - The CTO brief: top risks, path latency and timeouts, reversibility, production-size projection (`archaeologist/brief.py`)
 - Business-question replay and the blind scoreboard for hidden rules (`archaeologist/business_questions.py`, `archaeologist/scoreboard.py`)
+- A second fictional legacy app, **International Racking**, built by teammate Lev0gan: a deterministic data generator, an evidence pack, a checker and an answer key (`datasets/international_racking/`, `tools/international_racking/`, `docs/GROUND_TRUTH_INTERNATIONAL_RACKING.md`). It's optional and not yet wired into the pipeline. The generator was first written with Meta Muse (muse-wonder-1.0).
 - The DocumentDB documentation mapping, the cost model, the memo writer, Atlas storage and the pipeline (`archaeologist/`)
 - The ASI:One agent and its cards (`fetch_agent/`), plus tests (`tests/`)
 
