@@ -1,0 +1,1638 @@
+{
+  "profile": "shoplog",
+  "code_evidence_source": "static_scan_only",
+  "code_model": null,
+  "citations_dropped": 0,
+  "operators": {
+    "$set": 330,
+    "$sum": 235,
+    "$meta": 200,
+    "$inc": 179,
+    "$match": 165,
+    "$gte": 135,
+    "$in": 117,
+    "$text": 100,
+    "$search": 100,
+    "$eq": 100,
+    "$project": 100,
+    "$group": 95,
+    "$ne": 80,
+    "$addFields": 80,
+    "$cond": 80,
+    "$type": 80,
+    "$round": 80,
+    "$multiply": 80,
+    "$push": 71,
+    "$sort": 70,
+    "$setWindowFields": 60,
+    "$documentNumber": 60,
+    "$shift": 60,
+    "$elemMatch": 45,
+    "$nin": 45,
+    "$lt": 30,
+    "$lookup": 30,
+    "$expr": 30,
+    "$unwind": 20,
+    "$facet": 20,
+    "$dateToString": 20,
+    "$limit": 20,
+    "$exists": 10,
+    "$lte": 2
+  },
+  "stages": {
+    "$match": 186,
+    "$addFields": 80,
+    "$setWindowFields": 60,
+    "$project": 60,
+    "$group": 55,
+    "$changeStream": 51,
+    "$lookup": 30,
+    "$unwind": 20,
+    "$facet": 20,
+    "$sort": 10
+  },
+  "items": [
+    {
+      "id": "F1",
+      "feature": "$lookup sub-pipeline + $facet",
+      "behavior": "Code uses $lookup | Code uses $facet",
+      "why_risky": "Partial or different support across compatible engines",
+      "sources": [
+        {
+          "type": "querylog",
+          "ref": "evidence query log, shapes S78e856b9, S8d6c2ea8",
+          "count": 30,
+          "detail": "30 recorded operations across 2 shape(s)"
+        },
+        {
+          "type": "code",
+          "ref": "shoplog/analytics.py:21",
+          "token": "$lookup",
+          "detail": "Code uses $lookup",
+          "origin": "static_scan_only"
+        },
+        {
+          "type": "code",
+          "ref": "shoplog/analytics.py:33",
+          "token": "$facet",
+          "detail": "Code uses $facet",
+          "origin": "static_scan_only"
+        },
+        {
+          "type": "code",
+          "ref": "shoplog/analytics.py:61",
+          "token": "$lookup",
+          "detail": "Code uses $lookup",
+          "origin": "static_scan_only"
+        }
+      ],
+      "independent_sources": 2,
+      "status": "OBSERVED",
+      "confidence": 0.9,
+      "confidence_basis": "2 independent sources agree",
+      "sample_operations": [
+        {
+          "op": "command",
+          "ns": "shoplog_wl.orders",
+          "command": {
+            "aggregate": "orders",
+            "pipeline": [
+              {
+                "$match": {
+                  "placed_at": {
+                    "$gte": "2017-07-01 00:00:00",
+                    "$lt": "2017-08-01 00:00:00"
+                  },
+                  "status": {
+                    "$ne": "cancelled"
+                  }
+                }
+              },
+              {
+                "$addFields": {
+                  "total_cents": {
+                    "$cond": [
+                      {
+                        "$eq": [
+                          {
+                            "$type": "$total"
+                          },
+                          "double"
+                        ]
+                      },
+                      {
+                        "$round": [
+                          {
+                            "$multiply": [
+                              "$total",
+                              100
+                            ]
+                          },
+                          0
+                        ]
+                      },
+                      "$total"
+                    ]
+                  }
+                }
+              },
+              {
+                "$lookup": {
+                  "from": "customers",
+                  "let": {
+                    "cid": "$customer_id"
+                  },
+                  "pipeline": [
+                    {
+                      "$match": {
+                        "$expr": {
+                          "$eq": [
+                            "$_id",
+                            "$$cid"
+                          ]
+                        }
+                      }
+                    },
+                    {
+                      "$project": {
+                        "tier": 1,
+                        "_id": 0
+                      }
+                    }
+                  ],
+                  "as": "customer"
+                }
+              },
+              {
+                "$unwind": "$customer"
+              },
+              {
+                "$facet": {
+                  "by_tier": [
+                    {
+                      "$group": {
+                        "_id": "$customer.tier",
+                        "revenue": {
+                          "$sum": "$total_cents"
+                        },
+                        "orders": {
+                          "$sum": 1
+                        }
+                      }
+                    },
+                    {
+                      "$sort": {
+                        "_id": 1
+                      }
+                    }
+                  ],
+                  "by_month": [
+                    {
+                      "$group": {
+                        "_id": {
+                          "$dateToString": {
+                            "format": "%Y-%m",
+                            "date": "$placed_at"
+                          }
+                        },
+                        "revenue": {
+                          "$sum": "$total_cents"
+                        }
+                      }
+                    },
+                    {
+                      "$sort": {
+                        "_id": 1
+                      }
+                    }
+                  ],
+                  "largest": [
+                    {
+                      "$sort": {
+                        "total_cents": -1,
+                        "_id": 1
+                      }
+                    },
+                    {
+                      "$limit": 5
+                    },
+                    {
+                      "$project": {
+                        "total_cents": 1,
+                        "tier": "$customer.tier"
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "cursor": {}
+          }
+        },
+        {
+          "op": "command",
+          "ns": "shoplog_wl.products",
+          "command": {
+            "aggregate": "products",
+            "pipeline": [
+              {
+                "$lookup": {
+                  "from": "inventory",
+                  "localField": "_id",
+                  "foreignField": "_id",
+                  "pipeline": [
+                    {
+                      "$match": {
+                        "$expr": {
+                          "$lt": [
+                            "$on_hand",
+                            50
+                          ]
+                        }
+                      }
+                    }
+                  ],
+                  "as": "stock"
+                }
+              },
+              {
+                "$match": {
+                  "stock.0": {
+                    "$exists": true
+                  }
+                }
+              },
+              {
+                "$group": {
+                  "_id": "$category",
+                  "skus": {
+                    "$sum": 1
+                  }
+                }
+              },
+              {
+                "$sort": {
+                  "skus": -1,
+                  "_id": 1
+                }
+              }
+            ],
+            "cursor": {}
+          }
+        }
+      ]
+    },
+    {
+      "id": "F2",
+      "feature": "$setWindowFields",
+      "behavior": "Code uses $setWindowFields | Code uses $documentNumber | Code uses $shift",
+      "why_risky": "Newer stage, often missing or limited to some window operators",
+      "sources": [
+        {
+          "type": "querylog",
+          "ref": "evidence query log, shapes Sac78c80d",
+          "count": 60,
+          "detail": "60 recorded operations across 1 shape(s)"
+        },
+        {
+          "type": "code",
+          "ref": "shoplog/analytics.py:81",
+          "token": "$setWindowFields",
+          "detail": "Code uses $setWindowFields",
+          "origin": "static_scan_only"
+        },
+        {
+          "type": "code",
+          "ref": "shoplog/analytics.py:87",
+          "token": "$documentNumber",
+          "detail": "Code uses $documentNumber",
+          "origin": "static_scan_only"
+        },
+        {
+          "type": "code",
+          "ref": "shoplog/analytics.py:88",
+          "token": "$shift",
+          "detail": "Code uses $shift",
+          "origin": "static_scan_only"
+        }
+      ],
+      "independent_sources": 2,
+      "status": "OBSERVED",
+      "confidence": 0.9,
+      "confidence_basis": "2 independent sources agree",
+      "sample_operations": [
+        {
+          "op": "command",
+          "ns": "shoplog_wl.orders",
+          "command": {
+            "aggregate": "orders",
+            "pipeline": [
+              {
+                "$match": {
+                  "customer_id": "C002547",
+                  "status": {
+                    "$ne": "cancelled"
+                  }
+                }
+              },
+              {
+                "$addFields": {
+                  "total_cents": {
+                    "$cond": [
+                      {
+                        "$eq": [
+                          {
+                            "$type": "$total"
+                          },
+                          "double"
+                        ]
+                      },
+                      {
+                        "$round": [
+                          {
+                            "$multiply": [
+                              "$total",
+                              100
+                            ]
+                          },
+                          0
+                        ]
+                      },
+                      "$total"
+                    ]
+                  }
+                }
+              },
+              {
+                "$setWindowFields": {
+                  "partitionBy": "$customer_id",
+                  "sortBy": {
+                    "placed_at": 1
+                  },
+                  "output": {
+                    "running_total": {
+                      "$sum": "$total_cents",
+                      "window": {
+                        "documents": [
+                          "unbounded",
+                          "current"
+                        ]
+                      }
+                    },
+                    "rolling_90d": {
+                      "$sum": "$total_cents",
+                      "window": {
+                        "range": [
+                          -90,
+                          "current"
+                        ],
+                        "unit": "day"
+                      }
+                    },
+                    "order_seq": {
+                      "$documentNumber": {}
+                    },
+                    "previous_order_at": {
+                      "$shift": {
+                        "output": "$placed_at",
+                        "by": -1
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "$project": {
+                  "placed_at": 1,
+                  "total_cents": 1,
+                  "running_total": 1,
+                  "rolling_90d": 1,
+                  "order_seq": 1,
+                  "previous_order_at": 1
+                }
+              }
+            ],
+            "cursor": {}
+          }
+        }
+      ]
+    },
+    {
+      "id": "F3",
+      "feature": "arrayFilters / positional $[<id>] updates",
+      "behavior": "Code uses $[line] | Code uses array_filters | Code uses $[]",
+      "why_risky": "Semantic gaps in array element matching",
+      "sources": [
+        {
+          "type": "querylog",
+          "ref": "evidence query log, shapes Sdfb00aac, Se06fc905",
+          "count": 55,
+          "detail": "55 recorded operations across 2 shape(s)"
+        },
+        {
+          "type": "data",
+          "ref": "data:orders.items",
+          "detail": "920 sampled orders have elements of items in different states, so updates must target individual elements"
+        },
+        {
+          "type": "code",
+          "ref": "shoplog/refunds.py:40",
+          "token": "$[line]",
+          "detail": "Code uses $[line]",
+          "origin": "static_scan_only"
+        },
+        {
+          "type": "code",
+          "ref": "shoplog/refunds.py:41",
+          "token": "$[line]",
+          "detail": "Code uses $[line]",
+          "origin": "static_scan_only"
+        },
+        {
+          "type": "code",
+          "ref": "shoplog/refunds.py:46",
+          "token": "array_filters",
+          "detail": "Code uses array_filters",
+          "origin": "static_scan_only"
+        },
+        {
+          "type": "code",
+          "ref": "shoplog/refunds.py:69",
+          "token": "$[]",
+          "detail": "Code uses $[]",
+          "origin": "static_scan_only"
+        }
+      ],
+      "independent_sources": 3,
+      "status": "OBSERVED",
+      "confidence": 0.97,
+      "confidence_basis": "3 independent sources agree",
+      "sample_operations": [
+        {
+          "op": "update",
+          "ns": "shoplog_wl.orders",
+          "command": {
+            "q": {
+              "_id": "O00001434"
+            },
+            "u": {
+              "$set": {
+                "items.$[].reviewed_by": "qa-bot"
+              }
+            },
+            "multi": false,
+            "upsert": false
+          }
+        },
+        {
+          "op": "update",
+          "ns": "shoplog_wl.orders",
+          "command": {
+            "q": {
+              "_id": "O00001995",
+              "status": {
+                "$in": [
+                  "delivered",
+                  "partially_refunded"
+                ]
+              }
+            },
+            "u": {
+              "$set": {
+                "items.$[line].refund_status": "refunded",
+                "items.$[line].refunded_at": "2026-11-02 00:00:00",
+                "updated_at": "2026-11-02 00:00:00"
+              },
+              "$inc": {
+                "refund_total": 43800
+              }
+            },
+            "arrayFilters": [
+              {
+                "line.line_id": {
+                  "$in": [
+                    1
+                  ]
+                },
+                "line.refund_status": "none"
+              }
+            ],
+            "multi": false,
+            "upsert": false
+          }
+        }
+      ]
+    },
+    {
+      "id": "F4",
+      "feature": "Multi-document transactions",
+      "behavior": "Code uses start_transaction",
+      "why_risky": "Limits and rollback behavior differ",
+      "sources": [
+        {
+          "type": "querylog",
+          "ref": "evidence query log, shapes Scd0d89a3",
+          "count": 60,
+          "detail": "60 recorded operations across 1 shape(s)"
+        },
+        {
+          "type": "code",
+          "ref": "shoplog/checkout.py:57",
+          "token": "start_transaction",
+          "detail": "Code uses start_transaction",
+          "origin": "static_scan_only"
+        }
+      ],
+      "independent_sources": 2,
+      "status": "OBSERVED",
+      "confidence": 0.9,
+      "confidence_basis": "2 independent sources agree",
+      "sample_operations": [
+        {
+          "op": "insert",
+          "ns": "shoplog_wl.orders",
+          "command": {
+            "insert": "orders",
+            "ordered": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "F5",
+      "feature": "Change streams",
+      "behavior": "Code uses .watch(",
+      "why_risky": "Support, retention and event shape differ",
+      "sources": [
+        {
+          "type": "querylog",
+          "ref": "evidence query log, shapes Sf05e5fb0",
+          "count": 51,
+          "detail": "51 recorded operations across 1 shape(s)"
+        },
+        {
+          "type": "code",
+          "ref": "shoplog/inventory_sync.py:15",
+          "token": ".watch(",
+          "detail": "Code uses .watch(",
+          "origin": "static_scan_only"
+        }
+      ],
+      "independent_sources": 2,
+      "status": "OBSERVED",
+      "confidence": 0.9,
+      "confidence_basis": "2 independent sources agree",
+      "sample_operations": [
+        {
+          "op": "getmore",
+          "ns": "shoplog_wl.inventory",
+          "command": {
+            "getMore": 5351018646582498152,
+            "collection": "inventory",
+            "maxTimeMS": 200
+          }
+        }
+      ]
+    },
+    {
+      "id": "F6",
+      "feature": "Case-insensitive collation index",
+      "behavior": "Code uses collation= | Code uses Collation(",
+      "why_risky": "Often unsupported, which breaks uniqueness and lookups",
+      "sources": [
+        {
+          "type": "querylog",
+          "ref": "evidence query log, shapes Sb98d4c91",
+          "count": 110,
+          "detail": "110 recorded operations across 1 shape(s)"
+        },
+        {
+          "type": "data",
+          "ref": "catalog:customers.email_ci_unique",
+          "detail": "customers.email_ci_unique uses collation locale=en strength=2, unique=True"
+        },
+        {
+          "type": "data",
+          "ref": "data:customers.email",
+          "detail": "customers.email stores mixed case, yet no two values collide when case is ignored (5000 sampled)"
+        },
+        {
+          "type": "code",
+          "ref": "shoplog/customers.py:9",
+          "token": "collation=",
+          "detail": "Code uses collation=",
+          "origin": "static_scan_only"
+        },
+        {
+          "type": "code",
+          "ref": "shoplog/schema.py:9",
+          "token": "Collation(",
+          "detail": "Code uses Collation(",
+          "origin": "static_scan_only"
+        },
+        {
+          "type": "code",
+          "ref": "shoplog/schema.py:60",
+          "token": "collation=",
+          "detail": "Code uses collation=",
+          "origin": "static_scan_only"
+        }
+      ],
+      "independent_sources": 3,
+      "status": "OBSERVED",
+      "confidence": 0.97,
+      "confidence_basis": "3 independent sources agree",
+      "sample_operations": [
+        {
+          "op": "query",
+          "ns": "shoplog_wl.customers",
+          "command": {
+            "find": "customers",
+            "filter": {
+              "email": "User1655@example.com"
+            },
+            "limit": 1,
+            "singleBatch": true,
+            "collation": {
+              "locale": "en",
+              "strength": 2
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "F7",
+      "feature": "Partial index + TTL index",
+      "behavior": "Code uses partialFilterExpression | Code uses expireAfterSeconds",
+      "why_risky": "Filter expressions and expiry behavior differ",
+      "sources": [
+        {
+          "type": "querylog",
+          "ref": "query log, writes to carts.expires_at",
+          "count": 70,
+          "detail": "carts.expires_at was rewritten 70 times, which keeps a TTL-managed document alive"
+        },
+        {
+          "type": "data",
+          "ref": "catalog:carts.active_cart_expiry",
+          "detail": "carts.active_cart_expiry is partial on SON([('status', 'active')])"
+        },
+        {
+          "type": "data",
+          "ref": "catalog:carts.active_cart_expiry",
+          "detail": "carts.active_cart_expiry is TTL, expireAfterSeconds=0"
+        },
+        {
+          "type": "data",
+          "ref": "catalog:orders.coupon_once_per_customer",
+          "detail": "orders.coupon_once_per_customer is partial on SON([('coupon_code', SON([('$exists', True)]))])"
+        },
+        {
+          "type": "code",
+          "ref": "shoplog/schema.py:53",
+          "token": "partialFilterExpression",
+          "detail": "Code uses partialFilterExpression",
+          "origin": "static_scan_only"
+        },
+        {
+          "type": "code",
+          "ref": "shoplog/schema.py:67",
+          "token": "expireAfterSeconds",
+          "detail": "Code uses expireAfterSeconds",
+          "origin": "static_scan_only"
+        },
+        {
+          "type": "code",
+          "ref": "shoplog/schema.py:68",
+          "token": "partialFilterExpression",
+          "detail": "Code uses partialFilterExpression",
+          "origin": "static_scan_only"
+        }
+      ],
+      "independent_sources": 3,
+      "status": "OBSERVED",
+      "confidence": 0.97,
+      "confidence_basis": "3 independent sources agree",
+      "sample_operations": []
+    },
+    {
+      "id": "F8",
+      "feature": "$jsonSchema validator",
+      "behavior": "Code uses $jsonSchema | Code uses validator=",
+      "why_risky": "Validation may be limited or silently not enforced",
+      "sources": [
+        {
+          "type": "querylog",
+          "ref": "query log, ninserted=0 on orders",
+          "count": 5,
+          "detail": "5 inserts into orders were refused by the server at runtime"
+        },
+        {
+          "type": "data",
+          "ref": "catalog:orders",
+          "detail": "orders has a $jsonSchema validator (level=moderate)"
+        },
+        {
+          "type": "code",
+          "ref": "shoplog/schema.py:12",
+          "token": "$jsonSchema",
+          "detail": "Code uses $jsonSchema",
+          "origin": "static_scan_only"
+        },
+        {
+          "type": "code",
+          "ref": "shoplog/schema.py:42",
+          "token": "validator=",
+          "detail": "Code uses validator=",
+          "origin": "static_scan_only"
+        }
+      ],
+      "independent_sources": 3,
+      "status": "OBSERVED",
+      "confidence": 0.97,
+      "confidence_basis": "3 independent sources agree",
+      "sample_operations": []
+    },
+    {
+      "id": "F9",
+      "feature": "$text search",
+      "behavior": "Code uses $text | Code uses $meta",
+      "why_risky": "Scoring, exclusion terms and language handling differ",
+      "sources": [
+        {
+          "type": "querylog",
+          "ref": "evidence query log, shapes Se780f2b8",
+          "count": 100,
+          "detail": "100 recorded operations across 1 shape(s)"
+        },
+        {
+          "type": "data",
+          "ref": "catalog:products.product_search",
+          "detail": "products.product_search is a text index with weights SON([('description', 1), ('name', 10), ('tags', 5)])"
+        },
+        {
+          "type": "code",
+          "ref": "shoplog/catalog.py:9",
+          "token": "$text",
+          "detail": "Code uses $text",
+          "origin": "static_scan_only"
+        },
+        {
+          "type": "code",
+          "ref": "shoplog/catalog.py:10",
+          "token": "$meta",
+          "detail": "Code uses $meta",
+          "origin": "static_scan_only"
+        },
+        {
+          "type": "code",
+          "ref": "shoplog/catalog.py:12",
+          "token": "$meta",
+          "detail": "Code uses $meta",
+          "origin": "static_scan_only"
+        }
+      ],
+      "independent_sources": 3,
+      "status": "OBSERVED",
+      "confidence": 0.97,
+      "confidence_basis": "3 independent sources agree",
+      "sample_operations": [
+        {
+          "op": "query",
+          "ns": "shoplog_wl.products",
+          "command": {
+            "find": "products",
+            "filter": {
+              "$text": {
+                "$search": "rugged tent"
+              },
+              "active": true
+            },
+            "sort": {
+              "score": {
+                "$meta": "textScore"
+              },
+              "_id": 1
+            },
+            "projection": {
+              "name": 1,
+              "price": 1,
+              "category": 1,
+              "score": {
+                "$meta": "textScore"
+              }
+            },
+            "limit": 20
+          }
+        }
+      ]
+    },
+    {
+      "id": "F10",
+      "feature": "Plain CRUD by _id and simple filters",
+      "behavior": "Code uses update_one( | Code uses find_one( | Code uses insert_one( | Code uses delete_one( | Code uses count_documents(",
+      "why_risky": "Control group: expected to behave the same",
+      "sources": [
+        {
+          "type": "querylog",
+          "ref": "evidence query log, shapes S10aa717d, S181542d4, S38ca7604, S3a146702",
+          "count": 1001,
+          "detail": "1001 recorded operations across 18 shape(s)"
+        },
+        {
+          "type": "data",
+          "ref": "catalog:products.category_1",
+          "detail": "products.category_1 is a plain index on ['category']"
+        },
+        {
+          "type": "data",
+          "ref": "catalog:carts.customer_id_1",
+          "detail": "carts.customer_id_1 is a plain index on ['customer_id']"
+        },
+        {
+          "type": "data",
+          "ref": "catalog:orders.customer_id_1_placed_at_-1",
+          "detail": "orders.customer_id_1_placed_at_-1 is a plain index on ['customer_id', 'placed_at']"
+        },
+        {
+          "type": "data",
+          "ref": "catalog:orders.status_1_placed_at_-1",
+          "detail": "orders.status_1_placed_at_-1 is a plain index on ['status', 'placed_at']"
+        },
+        {
+          "type": "data",
+          "ref": "catalog:orders.placed_at_1",
+          "detail": "orders.placed_at_1 is a plain index on ['placed_at']"
+        },
+        {
+          "type": "code",
+          "ref": "shoplog/carts.py:11",
+          "token": "update_one(",
+          "detail": "Code uses update_one(",
+          "origin": "static_scan_only"
+        },
+        {
+          "type": "code",
+          "ref": "shoplog/carts.py:27",
+          "token": "find_one(",
+          "detail": "Code uses find_one(",
+          "origin": "static_scan_only"
+        },
+        {
+          "type": "code",
+          "ref": "shoplog/carts.py:31",
+          "token": "update_one(",
+          "detail": "Code uses update_one(",
+          "origin": "static_scan_only"
+        },
+        {
+          "type": "code",
+          "ref": "shoplog/checkout.py:59",
+          "token": "update_one(",
+          "detail": "Code uses update_one(",
+          "origin": "static_scan_only"
+        },
+        {
+          "type": "code",
+          "ref": "shoplog/checkout.py:66",
+          "token": "insert_one(",
+          "detail": "Code uses insert_one(",
+          "origin": "static_scan_only"
+        },
+        {
+          "type": "code",
+          "ref": "shoplog/checkout.py:68",
+          "token": "update_one(",
+          "detail": "Code uses update_one(",
+          "origin": "static_scan_only"
+        },
+        {
+          "type": "code",
+          "ref": "shoplog/crud.py:9",
+          "token": "find_one(",
+          "detail": "Code uses find_one(",
+          "origin": "static_scan_only"
+        },
+        {
+          "type": "code",
+          "ref": "shoplog/crud.py:21",
+          "token": "insert_one(",
+          "detail": "Code uses insert_one(",
+          "origin": "static_scan_only"
+        },
+        {
+          "type": "code",
+          "ref": "shoplog/crud.py:25",
+          "token": "update_one(",
+          "detail": "Code uses update_one(",
+          "origin": "static_scan_only"
+        },
+        {
+          "type": "code",
+          "ref": "shoplog/crud.py:29",
+          "token": "delete_one(",
+          "detail": "Code uses delete_one(",
+          "origin": "static_scan_only"
+        },
+        {
+          "type": "code",
+          "ref": "shoplog/crud.py:33",
+          "token": "count_documents(",
+          "detail": "Code uses count_documents(",
+          "origin": "static_scan_only"
+        },
+        {
+          "type": "code",
+          "ref": "shoplog/customers.py:9",
+          "token": "find_one(",
+          "detail": "Code uses find_one(",
+          "origin": "static_scan_only"
+        },
+        {
+          "type": "code",
+          "ref": "shoplog/customers.py:13",
+          "token": "insert_one(",
+          "detail": "Code uses insert_one(",
+          "origin": "static_scan_only"
+        },
+        {
+          "type": "code",
+          "ref": "shoplog/customers.py:19",
+          "token": "update_one(",
+          "detail": "Code uses update_one(",
+          "origin": "static_scan_only"
+        },
+        {
+          "type": "code",
+          "ref": "shoplog/inventory_sync.py:12",
+          "token": "find_one(",
+          "detail": "Code uses find_one(",
+          "origin": "static_scan_only"
+        },
+        {
+          "type": "code",
+          "ref": "shoplog/inventory_sync.py:27",
+          "token": "insert_one(",
+          "detail": "Code uses insert_one(",
+          "origin": "static_scan_only"
+        },
+        {
+          "type": "code",
+          "ref": "shoplog/orders.py:26",
+          "token": "update_one(",
+          "detail": "Code uses update_one(",
+          "origin": "static_scan_only"
+        },
+        {
+          "type": "code",
+          "ref": "shoplog/refunds.py:18",
+          "token": "find_one(",
+          "detail": "Code uses find_one(",
+          "origin": "static_scan_only"
+        },
+        {
+          "type": "code",
+          "ref": "shoplog/refunds.py:36",
+          "token": "update_one(",
+          "detail": "Code uses update_one(",
+          "origin": "static_scan_only"
+        },
+        {
+          "type": "code",
+          "ref": "shoplog/refunds.py:49",
+          "token": "count_documents(",
+          "detail": "Code uses count_documents(",
+          "origin": "static_scan_only"
+        },
+        {
+          "type": "code",
+          "ref": "shoplog/refunds.py:61",
+          "token": "update_one(",
+          "detail": "Code uses update_one(",
+          "origin": "static_scan_only"
+        },
+        {
+          "type": "code",
+          "ref": "shoplog/refunds.py:69",
+          "token": "update_one(",
+          "detail": "Code uses update_one(",
+          "origin": "static_scan_only"
+        }
+      ],
+      "independent_sources": 3,
+      "status": "OBSERVED",
+      "confidence": 0.97,
+      "confidence_basis": "3 independent sources agree",
+      "sample_operations": [
+        {
+          "op": "query",
+          "ns": "shoplog_wl.orders",
+          "command": {
+            "find": "orders",
+            "filter": {
+              "_id": {
+                "$lte": "O00002000"
+              },
+              "status": "delivered",
+              "delivered_at": {
+                "$gte": "2026-10-07 00:00:00"
+              }
+            },
+            "sort": {
+              "_id": 1
+            },
+            "projection": {
+              "_id": 1,
+              "customer_id": 1,
+              "items.line_id": 1
+            }
+          }
+        },
+        {
+          "op": "query",
+          "ns": "shoplog_wl.orders",
+          "command": {
+            "find": "orders",
+            "filter": {
+              "_id": {
+                "$lte": "O00002000"
+              },
+              "status": {
+                "$in": [
+                  "placed",
+                  "paid",
+                  "shipped"
+                ]
+              }
+            },
+            "sort": {
+              "_id": 1
+            },
+            "projection": {
+              "_id": 1,
+              "status": 1
+            }
+          }
+        },
+        {
+          "op": "query",
+          "ns": "shoplog_wl.sync_state",
+          "command": {
+            "find": "sync_state",
+            "filter": {
+              "_id": "inventory"
+            },
+            "limit": 1,
+            "singleBatch": true
+          }
+        },
+        {
+          "op": "query",
+          "ns": "shoplog_wl.orders",
+          "command": {
+            "find": "orders",
+            "filter": {
+              "_id": "O00024805"
+            },
+            "limit": 1,
+            "singleBatch": true
+          }
+        },
+        {
+          "op": "query",
+          "ns": "shoplog_wl.orders",
+          "command": {
+            "find": "orders",
+            "filter": {
+              "customer_id": "C002764"
+            },
+            "sort": {
+              "placed_at": -1,
+              "_id": 1
+            },
+            "projection": {
+              "status": 1,
+              "total": 1,
+              "placed_at": 1
+            },
+            "limit": 20
+          }
+        },
+        {
+          "op": "query",
+          "ns": "shoplog_wl.products",
+          "command": {
+            "find": "products",
+            "filter": {
+              "category": "kitchen",
+              "active": true
+            },
+            "sort": {
+              "_id": 1
+            },
+            "limit": 40
+          }
+        }
+      ]
+    },
+    {
+      "id": "X:graphLookup",
+      "feature": "graphLookup",
+      "behavior": "Code uses $graphLookup",
+      "why_risky": "Unusual stage outside the common subset",
+      "sources": [
+        {
+          "type": "code",
+          "ref": "shoplog/legacy_reports.py:10",
+          "token": "$graphLookup",
+          "detail": "Code uses $graphLookup",
+          "origin": "static_scan_only"
+        }
+      ],
+      "independent_sources": 1,
+      "status": "INFERRED",
+      "confidence": null,
+      "confidence_basis": "unknown: SUBQ_API_KEY is not set",
+      "sample_operations": []
+    }
+  ],
+  "behaviors": [
+    {
+      "id": "B01",
+      "statement": "status=cancelled \u21d2 refund_total = 0 [orders]",
+      "sources": [
+        {
+          "type": "data",
+          "ref": "INV-001",
+          "count": 1231,
+          "detail": "status=cancelled \u21d2 refund_total = 0 [orders], 0 counterexamples"
+        }
+      ],
+      "status": "OBSERVED",
+      "confidence": null,
+      "confidence_basis": "unknown: SUBQ_API_KEY is not set",
+      "independent_sources": 1
+    },
+    {
+      "id": "B02",
+      "statement": "status=cancelled \u21d2 delivered_at is absent [orders]",
+      "sources": [
+        {
+          "type": "data",
+          "ref": "INV-002",
+          "count": 1231,
+          "detail": "status=cancelled \u21d2 delivered_at is absent [orders], 0 counterexamples"
+        }
+      ],
+      "status": "OBSERVED",
+      "confidence": null,
+      "confidence_basis": "unknown: SUBQ_API_KEY is not set",
+      "independent_sources": 1
+    },
+    {
+      "id": "B03",
+      "statement": "status=delivered \u21d2 refund_total = 0 [orders]",
+      "sources": [
+        {
+          "type": "data",
+          "ref": "INV-003",
+          "count": 21681,
+          "detail": "status=delivered \u21d2 refund_total = 0 [orders], 0 counterexamples"
+        }
+      ],
+      "status": "OBSERVED",
+      "confidence": null,
+      "confidence_basis": "unknown: SUBQ_API_KEY is not set",
+      "independent_sources": 1
+    },
+    {
+      "id": "B04",
+      "statement": "status=delivered \u21d2 delivered_at is present [orders]",
+      "sources": [
+        {
+          "type": "data",
+          "ref": "INV-004",
+          "count": 21681,
+          "detail": "status=delivered \u21d2 delivered_at is present [orders], 0 counterexamples"
+        }
+      ],
+      "status": "OBSERVED",
+      "confidence": null,
+      "confidence_basis": "unknown: SUBQ_API_KEY is not set",
+      "independent_sources": 1
+    },
+    {
+      "id": "B05",
+      "statement": "status=paid \u21d2 delivered_at is absent [orders]",
+      "sources": [
+        {
+          "type": "data",
+          "ref": "INV-005",
+          "count": 43,
+          "detail": "status=paid \u21d2 delivered_at is absent [orders], 0 counterexamples"
+        }
+      ],
+      "status": "OBSERVED",
+      "confidence": null,
+      "confidence_basis": "unknown: SUBQ_API_KEY is not set",
+      "independent_sources": 1
+    },
+    {
+      "id": "B06",
+      "statement": "status=paid \u21d2 tax is present [orders]",
+      "sources": [
+        {
+          "type": "data",
+          "ref": "INV-006",
+          "count": 43,
+          "detail": "status=paid \u21d2 tax is present [orders], 0 counterexamples"
+        }
+      ],
+      "status": "OBSERVED",
+      "confidence": null,
+      "confidence_basis": "unknown: SUBQ_API_KEY is not set",
+      "independent_sources": 1
+    },
+    {
+      "id": "B07",
+      "statement": "status=partially_refunded \u21d2 shipping = 0 [orders]",
+      "sources": [
+        {
+          "type": "data",
+          "ref": "INV-007",
+          "count": 646,
+          "detail": "status=partially_refunded \u21d2 shipping = 0 [orders], 0 counterexamples"
+        }
+      ],
+      "status": "OBSERVED",
+      "confidence": null,
+      "confidence_basis": "unknown: SUBQ_API_KEY is not set",
+      "independent_sources": 1
+    },
+    {
+      "id": "B08",
+      "statement": "status=partially_refunded \u21d2 refund_total > 0 [orders]",
+      "sources": [
+        {
+          "type": "data",
+          "ref": "INV-008",
+          "count": 646,
+          "detail": "status=partially_refunded \u21d2 refund_total > 0 [orders], 0 counterexamples"
+        }
+      ],
+      "status": "OBSERVED",
+      "confidence": null,
+      "confidence_basis": "unknown: SUBQ_API_KEY is not set",
+      "independent_sources": 1
+    },
+    {
+      "id": "B09",
+      "statement": "status=partially_refunded \u21d2 delivered_at is present [orders]",
+      "sources": [
+        {
+          "type": "data",
+          "ref": "INV-009",
+          "count": 646,
+          "detail": "status=partially_refunded \u21d2 delivered_at is present [orders], 0 counterexamples"
+        }
+      ],
+      "status": "OBSERVED",
+      "confidence": null,
+      "confidence_basis": "unknown: SUBQ_API_KEY is not set",
+      "independent_sources": 1
+    },
+    {
+      "id": "B10",
+      "statement": "status=placed \u21d2 delivered_at is absent [orders]",
+      "sources": [
+        {
+          "type": "data",
+          "ref": "INV-010",
+          "count": 48,
+          "detail": "status=placed \u21d2 delivered_at is absent [orders], 0 counterexamples"
+        }
+      ],
+      "status": "OBSERVED",
+      "confidence": null,
+      "confidence_basis": "unknown: SUBQ_API_KEY is not set",
+      "independent_sources": 1
+    },
+    {
+      "id": "B11",
+      "statement": "status=placed \u21d2 tax is present [orders]",
+      "sources": [
+        {
+          "type": "data",
+          "ref": "INV-011",
+          "count": 48,
+          "detail": "status=placed \u21d2 tax is present [orders], 0 counterexamples"
+        }
+      ],
+      "status": "OBSERVED",
+      "confidence": null,
+      "confidence_basis": "unknown: SUBQ_API_KEY is not set",
+      "independent_sources": 1
+    },
+    {
+      "id": "B12",
+      "statement": "status=refunded \u21d2 refund_total > 0 [orders]",
+      "sources": [
+        {
+          "type": "data",
+          "ref": "INV-012",
+          "count": 1145,
+          "detail": "status=refunded \u21d2 refund_total > 0 [orders], 0 counterexamples"
+        }
+      ],
+      "status": "OBSERVED",
+      "confidence": null,
+      "confidence_basis": "unknown: SUBQ_API_KEY is not set",
+      "independent_sources": 1
+    },
+    {
+      "id": "B13",
+      "statement": "status=refunded \u21d2 delivered_at is present [orders]",
+      "sources": [
+        {
+          "type": "data",
+          "ref": "INV-013",
+          "count": 1145,
+          "detail": "status=refunded \u21d2 delivered_at is present [orders], 0 counterexamples"
+        }
+      ],
+      "status": "OBSERVED",
+      "confidence": null,
+      "confidence_basis": "unknown: SUBQ_API_KEY is not set",
+      "independent_sources": 1
+    },
+    {
+      "id": "B14",
+      "statement": "status=shipped \u21d2 refund_total = 0 [orders]",
+      "sources": [
+        {
+          "type": "data",
+          "ref": "INV-014",
+          "count": 206,
+          "detail": "status=shipped \u21d2 refund_total = 0 [orders], 0 counterexamples"
+        }
+      ],
+      "status": "OBSERVED",
+      "confidence": null,
+      "confidence_basis": "unknown: SUBQ_API_KEY is not set",
+      "independent_sources": 1
+    },
+    {
+      "id": "B15",
+      "statement": "status=shipped \u21d2 delivered_at is absent [orders]",
+      "sources": [
+        {
+          "type": "data",
+          "ref": "INV-015",
+          "count": 206,
+          "detail": "status=shipped \u21d2 delivered_at is absent [orders], 0 counterexamples"
+        }
+      ],
+      "status": "OBSERVED",
+      "confidence": null,
+      "confidence_basis": "unknown: SUBQ_API_KEY is not set",
+      "independent_sources": 1
+    },
+    {
+      "id": "B16",
+      "statement": "status=shipped \u21d2 tax is present [orders]",
+      "sources": [
+        {
+          "type": "data",
+          "ref": "INV-016",
+          "count": 206,
+          "detail": "status=shipped \u21d2 tax is present [orders], 0 counterexamples"
+        }
+      ],
+      "status": "OBSERVED",
+      "confidence": null,
+      "confidence_basis": "unknown: SUBQ_API_KEY is not set",
+      "independent_sources": 1
+    },
+    {
+      "id": "B17",
+      "statement": "customers.tier=gold \u21d2 discount > 0 [orders]",
+      "sources": [
+        {
+          "type": "data",
+          "ref": "INV-017",
+          "count": 3004,
+          "detail": "customers.tier=gold \u21d2 discount > 0 [orders], 0 counterexamples"
+        }
+      ],
+      "status": "OBSERVED",
+      "confidence": null,
+      "confidence_basis": "unknown: SUBQ_API_KEY is not set",
+      "independent_sources": 1
+    },
+    {
+      "id": "B18",
+      "statement": "customers.tier=legacy_vip \u21d2 discount > 0 [orders]",
+      "sources": [
+        {
+          "type": "data",
+          "ref": "INV-018",
+          "count": 681,
+          "detail": "customers.tier=legacy_vip \u21d2 discount > 0 [orders], 0 counterexamples"
+        }
+      ],
+      "status": "OBSERVED",
+      "confidence": null,
+      "confidence_basis": "unknown: SUBQ_API_KEY is not set",
+      "independent_sources": 1
+    },
+    {
+      "id": "B19",
+      "statement": "customers.tier=legacy_vip \u21d2 coupon_code is absent [orders]",
+      "sources": [
+        {
+          "type": "data",
+          "ref": "INV-019",
+          "count": 681,
+          "detail": "customers.tier=legacy_vip \u21d2 coupon_code is absent [orders], 0 counterexamples"
+        }
+      ],
+      "status": "OBSERVED",
+      "confidence": null,
+      "confidence_basis": "unknown: SUBQ_API_KEY is not set",
+      "independent_sources": 1
+    },
+    {
+      "id": "B20",
+      "statement": "customers.tier=silver \u21d2 discount > 0 [orders]",
+      "sources": [
+        {
+          "type": "data",
+          "ref": "INV-020",
+          "count": 6209,
+          "detail": "customers.tier=silver \u21d2 discount > 0 [orders], 0 counterexamples"
+        }
+      ],
+      "status": "OBSERVED",
+      "confidence": null,
+      "confidence_basis": "unknown: SUBQ_API_KEY is not set",
+      "independent_sources": 1
+    },
+    {
+      "id": "B21",
+      "statement": "subtotal is double before ~2018-01-01 and int from then on (placed_at) [orders]",
+      "sources": [
+        {
+          "type": "data",
+          "ref": "INV-021",
+          "count": 25000,
+          "detail": "subtotal is double before ~2018-01-01 and int from then on (placed_at) [orders], 0 counterexamples"
+        }
+      ],
+      "status": "OBSERVED",
+      "confidence": null,
+      "confidence_basis": "unknown: SUBQ_API_KEY is not set",
+      "independent_sources": 1
+    },
+    {
+      "id": "B22",
+      "statement": "discount is double before ~2018-01-01 and int from then on (placed_at) [orders]",
+      "sources": [
+        {
+          "type": "data",
+          "ref": "INV-022",
+          "count": 25000,
+          "detail": "discount is double before ~2018-01-01 and int from then on (placed_at) [orders], 0 counterexamples"
+        }
+      ],
+      "status": "OBSERVED",
+      "confidence": null,
+      "confidence_basis": "unknown: SUBQ_API_KEY is not set",
+      "independent_sources": 1
+    },
+    {
+      "id": "B23",
+      "statement": "shipping is double before ~2018-01-01 and int from then on (placed_at) [orders]",
+      "sources": [
+        {
+          "type": "data",
+          "ref": "INV-023",
+          "count": 25000,
+          "detail": "shipping is double before ~2018-01-01 and int from then on (placed_at) [orders], 0 counterexamples"
+        }
+      ],
+      "status": "OBSERVED",
+      "confidence": null,
+      "confidence_basis": "unknown: SUBQ_API_KEY is not set",
+      "independent_sources": 1
+    },
+    {
+      "id": "B24",
+      "statement": "total is double before ~2018-01-01 and int from then on (placed_at) [orders]",
+      "sources": [
+        {
+          "type": "data",
+          "ref": "INV-024",
+          "count": 25000,
+          "detail": "total is double before ~2018-01-01 and int from then on (placed_at) [orders], 0 counterexamples"
+        }
+      ],
+      "status": "OBSERVED",
+      "confidence": null,
+      "confidence_basis": "unknown: SUBQ_API_KEY is not set",
+      "independent_sources": 1
+    },
+    {
+      "id": "B25",
+      "statement": "refund_total is double before ~2018-01-01 and int from then on (placed_at) [orders]",
+      "sources": [
+        {
+          "type": "data",
+          "ref": "INV-025",
+          "count": 25000,
+          "detail": "refund_total is double before ~2018-01-01 and int from then on (placed_at) [orders], 0 counterexamples"
+        }
+      ],
+      "status": "OBSERVED",
+      "confidence": null,
+      "confidence_basis": "unknown: SUBQ_API_KEY is not set",
+      "independent_sources": 1
+    },
+    {
+      "id": "B26",
+      "statement": "tax is absent before ~2021-01-01 and int from then on (placed_at) [orders]",
+      "sources": [
+        {
+          "type": "data",
+          "ref": "INV-026",
+          "count": 25000,
+          "detail": "tax is absent before ~2021-01-01 and int from then on (placed_at) [orders], 0 counterexamples"
+        }
+      ],
+      "status": "OBSERVED",
+      "confidence": null,
+      "confidence_basis": "unknown: SUBQ_API_KEY is not set",
+      "independent_sources": 1
+    },
+    {
+      "id": "B27",
+      "statement": "shipping=0 when tax \u2265 637, otherwise shipping=795 [orders]",
+      "sources": [
+        {
+          "type": "data",
+          "ref": "INV-027",
+          "count": 14794,
+          "detail": "shipping=0 when tax \u2265 637, otherwise shipping=795 [orders], 0 counterexamples"
+        }
+      ],
+      "status": "OBSERVED",
+      "confidence": null,
+      "confidence_basis": "unknown: SUBQ_API_KEY is not set",
+      "independent_sources": 1
+    },
+    {
+      "id": "B28",
+      "statement": "shipping=0 when subtotal - discount \u2265 7500, otherwise shipping=795 [orders]",
+      "sources": [
+        {
+          "type": "data",
+          "ref": "INV-028",
+          "count": 20924,
+          "detail": "shipping=0 when subtotal - discount \u2265 7500, otherwise shipping=795 [orders], 0 counterexamples"
+        }
+      ],
+      "status": "OBSERVED",
+      "confidence": null,
+      "confidence_basis": "unknown: SUBQ_API_KEY is not set",
+      "independent_sources": 1
+    },
+    {
+      "id": "B29",
+      "statement": "category=clearance \u21d2 refund_status=none [orders.items[]]",
+      "sources": [
+        {
+          "type": "data",
+          "ref": "INV-029",
+          "count": 8399,
+          "detail": "category=clearance \u21d2 refund_status=none [orders.items[]], 0 counterexamples"
+        }
+      ],
+      "status": "OBSERVED",
+      "confidence": null,
+      "confidence_basis": "unknown: SUBQ_API_KEY is not set",
+      "independent_sources": 1
+    }
+  ],
+  "subq": {
+    "items": {
+      "available": false,
+      "asked": 1,
+      "reason": "SUBQ_API_KEY is not set"
+    },
+    "behaviors": {
+      "available": false,
+      "asked": 29,
+      "reason": "SUBQ_API_KEY is not set"
+    }
+  }
+}

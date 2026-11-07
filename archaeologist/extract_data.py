@@ -281,6 +281,9 @@ def feature_signals(catalog: dict, samples: dict[str, list[dict]]) -> dict[str, 
                 signals["F7"].append({"ref": f"{ref}.{index['name']}", "detail": f"{name}.{index['name']} is TTL, expireAfterSeconds={index['expireAfterSeconds']}"})
             if any(value == "text" for value in index["key"].values()):
                 signals["F9"].append({"ref": f"{ref}.{index['name']}", "detail": f"{name}.{index['name']} is a text index with weights {index.get('weights')}"})
+            special = {"collation", "partialFilterExpression", "expireAfterSeconds", "weights"} & set(index)
+            if index["name"] != "_id_" and not special and not any(value == "text" for value in index["key"].values()):
+                signals["F10"].append({"ref": f"{ref}.{index['name']}", "detail": f"{name}.{index['name']} is a plain index on {list(index['key'])}"})
 
     for name, rows in samples.items():
         for field in {key for row in rows[:500] for key, value in row.items() if isinstance(value, list)}:

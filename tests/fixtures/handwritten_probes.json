@@ -1,0 +1,94 @@
+[
+  {
+    "probe_id": "T.array_filters",
+    "feature_id": "F3",
+    "title": "arrayFilters updates only matching elements",
+    "behavior": "Only the elements selected by the filter change",
+    "steps": [
+      {"op": "command", "label": "seed", "command_ejson": "{\"insert\": \"o\", \"documents\": [{\"_id\": 1, \"items\": [{\"id\": 1, \"s\": \"none\"}, {\"id\": 2, \"s\": \"none\"}, {\"id\": 3, \"s\": \"done\"}]}]}"},
+      {"op": "command", "label": "update", "command_ejson": "{\"update\": \"o\", \"updates\": [{\"q\": {\"_id\": 1}, \"u\": {\"$set\": {\"items.$[x].s\": \"refunded\"}}, \"arrayFilters\": [{\"x.id\": {\"$in\": [1, 3]}, \"x.s\": \"none\"}]}]}"},
+      {"op": "command", "label": "read", "capture": true, "command_ejson": "{\"find\": \"o\", \"filter\": {\"_id\": 1}}", "expect_ejson": "{\"docs\": [{\"_id\": 1, \"items\": [{\"id\": 1, \"s\": \"refunded\"}, {\"id\": 2, \"s\": \"none\"}, {\"id\": 3, \"s\": \"done\"}]}]}"}
+    ]
+  },
+  {
+    "probe_id": "T.txn_abort",
+    "feature_id": "F4",
+    "title": "Aborted transaction leaves no trace",
+    "behavior": "A write inside an aborted transaction is rolled back",
+    "steps": [
+      {"op": "command", "label": "create", "command_ejson": "{\"create\": \"s\"}"},
+      {"op": "command", "label": "seed", "command_ejson": "{\"insert\": \"s\", \"documents\": [{\"_id\": 1, \"n\": 10}]}"},
+      {"op": "txn_start", "label": "begin"},
+      {"op": "command", "label": "decrement", "in_txn": true, "command_ejson": "{\"update\": \"s\", \"updates\": [{\"q\": {\"_id\": 1}, \"u\": {\"$inc\": {\"n\": -3}}}]}"},
+      {"op": "txn_abort", "label": "abort"},
+      {"op": "command", "label": "read", "capture": true, "command_ejson": "{\"find\": \"s\", \"filter\": {\"_id\": 1}}", "expect_ejson": "{\"docs\": [{\"_id\": 1, \"n\": 10}]}"}
+    ]
+  },
+  {
+    "probe_id": "T.collation_unique",
+    "feature_id": "F6",
+    "title": "Case-insensitive unique index rejects a case variant",
+    "behavior": "Two emails differing only by case collide",
+    "steps": [
+      {"op": "command", "label": "index", "command_ejson": "{\"createIndexes\": \"c\", \"indexes\": [{\"key\": {\"email\": 1}, \"name\": \"ci\", \"unique\": true, \"collation\": {\"locale\": \"en\", \"strength\": 2}}]}"},
+      {"op": "command", "label": "first", "command_ejson": "{\"insert\": \"c\", \"documents\": [{\"_id\": 1, \"email\": \"a@x.com\"}]}"},
+      {"op": "command", "label": "variant", "expect_error": true, "expect_error_code": 11000, "command_ejson": "{\"insert\": \"c\", \"documents\": [{\"_id\": 2, \"email\": \"A@X.COM\"}]}"}
+    ]
+  },
+  {
+    "probe_id": "T.validator",
+    "feature_id": "F8",
+    "title": "$jsonSchema validator rejects a bad document",
+    "behavior": "An insert violating the schema is refused",
+    "steps": [
+      {"op": "command", "label": "create", "command_ejson": "{\"create\": \"v\", \"validator\": {\"$jsonSchema\": {\"bsonType\": \"object\", \"required\": [\"total\"], \"properties\": {\"total\": {\"bsonType\": \"int\", \"minimum\": 0}}}}}"},
+      {"op": "command", "label": "bad", "expect_error": true, "expect_error_code": 121, "command_ejson": "{\"insert\": \"v\", \"documents\": [{\"_id\": 1, \"total\": -1}]}"}
+    ]
+  },
+  {
+    "probe_id": "T.text_exclusion",
+    "feature_id": "F9",
+    "title": "$text honors exclusion terms",
+    "behavior": "A term prefixed with a minus removes matching documents",
+    "steps": [
+      {"op": "command", "label": "index", "command_ejson": "{\"createIndexes\": \"p\", \"indexes\": [{\"key\": {\"name\": \"text\"}, \"name\": \"t\"}]}"},
+      {"op": "command", "label": "seed", "command_ejson": "{\"insert\": \"p\", \"documents\": [{\"_id\": 1, \"name\": \"wireless speaker\"}, {\"_id\": 2, \"name\": \"wireless speaker refurbished\"}, {\"_id\": 3, \"name\": \"desk lamp\"}]}"},
+      {"op": "command", "label": "search", "capture": true, "unordered": true, "command_ejson": "{\"find\": \"p\", \"filter\": {\"$text\": {\"$search\": \"wireless -refurbished\"}}, \"projection\": {\"_id\": 1}}", "expect_ejson": "{\"docs\": [{\"_id\": 1}]}"}
+    ]
+  },
+  {
+    "probe_id": "T.window",
+    "feature_id": "F2",
+    "title": "$setWindowFields computes a running total",
+    "behavior": "A running sum accumulates per partition in sort order",
+    "steps": [
+      {"op": "command", "label": "seed", "command_ejson": "{\"insert\": \"w\", \"documents\": [{\"_id\": 1, \"c\": \"a\", \"t\": 1, \"v\": 10}, {\"_id\": 2, \"c\": \"a\", \"t\": 2, \"v\": 5}, {\"_id\": 3, \"c\": \"b\", \"t\": 1, \"v\": 7}]}"},
+      {"op": "command", "label": "window", "capture": true, "unordered": true, "command_ejson": "{\"aggregate\": \"w\", \"cursor\": {}, \"pipeline\": [{\"$setWindowFields\": {\"partitionBy\": \"$c\", \"sortBy\": {\"t\": 1}, \"output\": {\"run\": {\"$sum\": \"$v\", \"window\": {\"documents\": [\"unbounded\", \"current\"]}}}}}, {\"$project\": {\"run\": 1}}]}", "expect_ejson": "{\"docs\": [{\"_id\": 1, \"run\": 10}, {\"_id\": 2, \"run\": 15}, {\"_id\": 3, \"run\": 7}]}"}
+    ]
+  },
+  {
+    "probe_id": "T.crud_control",
+    "feature_id": "F10",
+    "title": "Plain find, update and delete by _id",
+    "behavior": "Basic CRUD round trip",
+    "steps": [
+      {"op": "command", "label": "seed", "command_ejson": "{\"insert\": \"k\", \"documents\": [{\"_id\": \"a\", \"s\": \"placed\"}, {\"_id\": \"b\", \"s\": \"paid\"}]}"},
+      {"op": "command", "label": "update", "capture": true, "command_ejson": "{\"update\": \"k\", \"updates\": [{\"q\": {\"_id\": \"a\"}, \"u\": {\"$set\": {\"s\": \"paid\"}}}]}", "expect_ejson": "{\"n\": 1, \"nModified\": 1}"},
+      {"op": "command", "label": "delete", "capture": true, "command_ejson": "{\"delete\": \"k\", \"deletes\": [{\"q\": {\"_id\": \"b\"}, \"limit\": 1}]}", "expect_ejson": "{\"n\": 1}"},
+      {"op": "command", "label": "read", "capture": true, "command_ejson": "{\"find\": \"k\", \"filter\": {\"s\": \"paid\"}}", "expect_ejson": "{\"docs\": [{\"_id\": \"a\", \"s\": \"paid\"}]}"}
+    ]
+  },
+  {
+    "probe_id": "T.change_stream",
+    "feature_id": "F5",
+    "title": "A change stream delivers an update with the full document",
+    "behavior": "A watcher sees the update and the post-image via updateLookup",
+    "steps": [
+      {"op": "command", "label": "seed", "command_ejson": "{\"insert\": \"i\", \"documents\": [{\"_id\": 1, \"n\": 10}]}"},
+      {"op": "watch_open", "label": "open", "collection": "i", "pipeline_ejson": "[{\"$match\": {\"operationType\": \"update\"}}]", "full_document": "updateLookup"},
+      {"op": "command", "label": "update", "command_ejson": "{\"update\": \"i\", \"updates\": [{\"q\": {\"_id\": 1}, \"u\": {\"$inc\": {\"n\": -1}}}]}"},
+      {"op": "watch_next", "label": "next", "capture": true, "max_events": 1, "timeout_ms": 3000, "unordered": false, "expect_ejson": "[{\"documentKey\": {\"_id\": 1}, \"fullDocument\": {\"_id\": 1, \"n\": 9}, \"ns\": {\"coll\": \"i\"},\"operationType\": \"update\", \"updateDescription\": {\"removedFields\": [], \"truncatedArrays\": [], \"updatedFields\": {\"n\": 9}}}]"},
+      {"op": "watch_close", "label": "close"}
+    ]
+  }
+]

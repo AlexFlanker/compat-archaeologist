@@ -337,6 +337,22 @@
           },
           "missing_rate": 0.0
         },
+        "history[]": {
+          "element_fields": {
+            "at": {
+              "types": {
+                "date": 98893
+              },
+              "missing_rate": 0.0
+            },
+            "status": {
+              "types": {
+                "string": 98893
+              },
+              "missing_rate": 0.0
+            }
+          }
+        },
         "items[]": {
           "element_fields": {
             "category": {
@@ -386,22 +402,6 @@
               "types": {
                 "int": 52314,
                 "double": 10167
-              },
-              "missing_rate": 0.0
-            }
-          }
-        },
-        "history[]": {
-          "element_fields": {
-            "at": {
-              "types": {
-                "date": 98893
-              },
-              "missing_rate": 0.0
-            },
-            "status": {
-              "types": {
-                "string": 98893
               },
               "missing_rate": 0.0
             }
@@ -755,6 +755,28 @@
       {
         "ref": "catalog:products.product_search",
         "detail": "products.product_search is a text index with weights SON([('description', 1), ('name', 10), ('tags', 5)])"
+      }
+    ],
+    "F10": [
+      {
+        "ref": "catalog:products.category_1",
+        "detail": "products.category_1 is a plain index on ['category']"
+      },
+      {
+        "ref": "catalog:carts.customer_id_1",
+        "detail": "carts.customer_id_1 is a plain index on ['customer_id']"
+      },
+      {
+        "ref": "catalog:orders.customer_id_1_placed_at_-1",
+        "detail": "orders.customer_id_1_placed_at_-1 is a plain index on ['customer_id', 'placed_at']"
+      },
+      {
+        "ref": "catalog:orders.status_1_placed_at_-1",
+        "detail": "orders.status_1_placed_at_-1 is a plain index on ['status', 'placed_at']"
+      },
+      {
+        "ref": "catalog:orders.placed_at_1",
+        "detail": "orders.placed_at_1 is a plain index on ['placed_at']"
       }
     ],
     "F7": [

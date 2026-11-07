@@ -1,0 +1,1383 @@
+{
+  "run_id": "20261107T204203Z",
+  "profile": "shoplog",
+  "self_check": false,
+  "probe_origin": "handwritten_fixture",
+  "engines": {
+    "source": {
+      "reported_version": "8.0.34",
+      "ferretdb_version": null,
+      "git": "51db4515a6597aedcf6188ee4e48a27e65b065ae"
+    },
+    "target": {
+      "reported_version": "7.0.77",
+      "ferretdb_version": "v2.7.0",
+      "git": "0d5eb3343a50b800634cc08ace608bb6f3a3f74b"
+    }
+  },
+  "probes": [
+    {
+      "probe_id": "T.array_filters",
+      "feature_id": "F3",
+      "title": "arrayFilters updates only matching elements",
+      "behavior": "Only the elements selected by the filter change",
+      "source": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "seed",
+            "op": "command",
+            "ms": 55.25,
+            "status": "ok"
+          },
+          {
+            "label": "update",
+            "op": "command",
+            "ms": 1.79,
+            "status": "ok"
+          },
+          {
+            "label": "read",
+            "op": "command",
+            "ms": 1.21,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": 1,
+                  "items": [
+                    {
+                      "id": 1,
+                      "s": "refunded"
+                    },
+                    {
+                      "id": 2,
+                      "s": "none"
+                    },
+                    {
+                      "id": 3,
+                      "s": "done"
+                    }
+                  ]
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": "int",
+                  "items": [
+                    {
+                      "id": "int",
+                      "s": null
+                    },
+                    {
+                      "id": "int",
+                      "s": null
+                    },
+                    {
+                      "id": "int",
+                      "s": null
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ],
+        "seconds": 0.069
+      },
+      "target": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "seed",
+            "op": "command",
+            "ms": 9.75,
+            "status": "ok"
+          },
+          {
+            "label": "update",
+            "op": "command",
+            "ms": 2.14,
+            "status": "ok"
+          },
+          {
+            "label": "read",
+            "op": "command",
+            "ms": 0.96,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": 1,
+                  "items": [
+                    {
+                      "id": 1,
+                      "s": "refunded"
+                    },
+                    {
+                      "id": 2,
+                      "s": "none"
+                    },
+                    {
+                      "id": 3,
+                      "s": "done"
+                    }
+                  ]
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": "int",
+                  "items": [
+                    {
+                      "id": "int",
+                      "s": null
+                    },
+                    {
+                      "id": "int",
+                      "s": null
+                    },
+                    {
+                      "id": "int",
+                      "s": null
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ],
+        "seconds": 0.023
+      },
+      "verdict": "equal",
+      "detail": {}
+    },
+    {
+      "probe_id": "T.txn_abort",
+      "feature_id": "F4",
+      "title": "Aborted transaction leaves no trace",
+      "behavior": "A write inside an aborted transaction is rolled back",
+      "source": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "create",
+            "op": "command",
+            "ms": 56.98,
+            "status": "ok"
+          },
+          {
+            "label": "seed",
+            "op": "command",
+            "ms": 1.58,
+            "status": "ok"
+          },
+          {
+            "label": "begin",
+            "op": "txn_start",
+            "ms": 0.01,
+            "status": "ok"
+          },
+          {
+            "label": "decrement",
+            "op": "command",
+            "ms": 1.86,
+            "status": "ok"
+          },
+          {
+            "label": "abort",
+            "op": "txn_abort",
+            "ms": 2.07,
+            "status": "ok"
+          },
+          {
+            "label": "read",
+            "op": "command",
+            "ms": 0.98,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": 1,
+                  "n": 10
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": "int",
+                  "n": "int"
+                }
+              ]
+            }
+          }
+        ],
+        "seconds": 0.076
+      },
+      "target": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "create",
+            "op": "command",
+            "ms": 11.17,
+            "status": "ok"
+          },
+          {
+            "label": "seed",
+            "op": "command",
+            "ms": 3.15,
+            "status": "ok"
+          },
+          {
+            "label": "begin",
+            "op": "txn_start",
+            "ms": 0.02,
+            "status": "ok"
+          },
+          {
+            "label": "decrement",
+            "op": "command",
+            "ms": 2.88,
+            "status": "ok"
+          },
+          {
+            "label": "abort",
+            "op": "txn_abort",
+            "ms": 0.53,
+            "status": "ok"
+          },
+          {
+            "label": "read",
+            "op": "command",
+            "ms": 1.54,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": 1,
+                  "n": 7
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": "int",
+                  "n": "int"
+                }
+              ]
+            }
+          }
+        ],
+        "seconds": 0.03
+      },
+      "verdict": "result_diff",
+      "detail": {
+        "silent": true,
+        "at_step": "read",
+        "difference": {
+          "path": "$.docs[0].n",
+          "source": 10,
+          "target": 7
+        }
+      }
+    },
+    {
+      "probe_id": "T.collation_unique",
+      "feature_id": "F6",
+      "title": "Case-insensitive unique index rejects a case variant",
+      "behavior": "Two emails differing only by case collide",
+      "source": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "index",
+            "op": "command",
+            "ms": 55.35,
+            "status": "ok"
+          },
+          {
+            "label": "first",
+            "op": "command",
+            "ms": 1.36,
+            "status": "ok"
+          },
+          {
+            "label": "variant",
+            "op": "command",
+            "ms": 1.31,
+            "status": "ok",
+            "captured": {
+              "error_code": 11000
+            },
+            "capture": true,
+            "message": "write error"
+          }
+        ],
+        "seconds": 0.069
+      },
+      "target": {
+        "outcome": "failed",
+        "steps": [
+          {
+            "label": "index",
+            "op": "command",
+            "ms": 3.12,
+            "status": "error",
+            "code": 115,
+            "message": "Error in specification { \"key\" : { \"email\" : 1 }, \"name\" : \"ci\", \"unique\" : true, \"collation\" : { \"locale\" : \"en\", \"strength\" : 2 } } :: caused by :: createIndex.collation is not implemented yet, full error: {'ok': 0.0, 'errmsg': 'Error in specification { \"key\" : { \"email\" : 1 }, \"name\" : \"ci\", \"unique\" : true, \"collation\" : { \"locale\" : \"en\", \"strength\" : 2 } } :: caused by :: createIndex.collati"
+          }
+        ],
+        "seconds": 0.005
+      },
+      "verdict": "unsupported",
+      "detail": {
+        "at_step": "index",
+        "code": 115,
+        "message": "Error in specification { \"key\" : { \"email\" : 1 }, \"name\" : \"ci\", \"unique\" : true, \"collation\" : { \"locale\" : \"en\", \"strength\" : 2 } } :: caused by :: createIndex.collation is not implemented yet, full error: {'ok': 0.0, 'errmsg': 'Error in specification { \"key\" : { \"email\" : 1 }, \"name\" : \"ci\", \"unique\" : true, \"collation\" : { \"locale\" : \"en\", \"strength\" : 2 } } :: caused by :: createIndex.collati"
+      }
+    },
+    {
+      "probe_id": "T.validator",
+      "feature_id": "F8",
+      "title": "$jsonSchema validator rejects a bad document",
+      "behavior": "An insert violating the schema is refused",
+      "source": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "create",
+            "op": "command",
+            "ms": 57.37,
+            "status": "ok"
+          },
+          {
+            "label": "bad",
+            "op": "command",
+            "ms": 1.12,
+            "status": "ok",
+            "captured": {
+              "error_code": 121
+            },
+            "capture": true,
+            "message": "write error"
+          }
+        ],
+        "seconds": 0.061
+      },
+      "target": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "create",
+            "op": "command",
+            "ms": 12.44,
+            "status": "ok"
+          },
+          {
+            "label": "bad",
+            "op": "command",
+            "ms": 2.05,
+            "status": "unexpected_success",
+            "captured": {
+              "no_error": true
+            },
+            "capture": true
+          }
+        ],
+        "seconds": 0.024
+      },
+      "verdict": "result_diff",
+      "detail": {
+        "silent": true,
+        "at_step": "bad",
+        "difference": {
+          "path": "$.error_code",
+          "source": 121,
+          "target": "<absent>"
+        }
+      }
+    },
+    {
+      "probe_id": "T.text_exclusion",
+      "feature_id": "F9",
+      "title": "$text honors exclusion terms",
+      "behavior": "A term prefixed with a minus removes matching documents",
+      "source": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "index",
+            "op": "command",
+            "ms": 59.22,
+            "status": "ok"
+          },
+          {
+            "label": "seed",
+            "op": "command",
+            "ms": 1.52,
+            "status": "ok"
+          },
+          {
+            "label": "search",
+            "op": "command",
+            "ms": 0.91,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": 1
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": "int"
+                }
+              ]
+            }
+          }
+        ],
+        "seconds": 0.064
+      },
+      "target": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "index",
+            "op": "command",
+            "ms": 16.03,
+            "status": "ok"
+          },
+          {
+            "label": "seed",
+            "op": "command",
+            "ms": 4.1,
+            "status": "ok"
+          },
+          {
+            "label": "search",
+            "op": "command",
+            "ms": 26.69,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": 1
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": "int"
+                }
+              ]
+            }
+          }
+        ],
+        "seconds": 0.053
+      },
+      "verdict": "equal",
+      "detail": {}
+    },
+    {
+      "probe_id": "T.window",
+      "feature_id": "F2",
+      "title": "$setWindowFields computes a running total",
+      "behavior": "A running sum accumulates per partition in sort order",
+      "source": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "seed",
+            "op": "command",
+            "ms": 59.09,
+            "status": "ok"
+          },
+          {
+            "label": "window",
+            "op": "command",
+            "ms": 0.8,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": 1,
+                  "run": 10
+                },
+                {
+                  "_id": 2,
+                  "run": 15
+                },
+                {
+                  "_id": 3,
+                  "run": 7
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": "int",
+                  "run": "int"
+                },
+                {
+                  "_id": "int",
+                  "run": "int"
+                },
+                {
+                  "_id": "int",
+                  "run": "int"
+                }
+              ]
+            }
+          }
+        ],
+        "seconds": 0.061
+      },
+      "target": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "seed",
+            "op": "command",
+            "ms": 16.09,
+            "status": "ok"
+          },
+          {
+            "label": "window",
+            "op": "command",
+            "ms": 2.1,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": 1,
+                  "run": 10
+                },
+                {
+                  "_id": 2,
+                  "run": 15
+                },
+                {
+                  "_id": 3,
+                  "run": 7
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": "int",
+                  "run": "int"
+                },
+                {
+                  "_id": "int",
+                  "run": "int"
+                },
+                {
+                  "_id": "int",
+                  "run": "int"
+                }
+              ]
+            }
+          }
+        ],
+        "seconds": 0.028
+      },
+      "verdict": "equal",
+      "detail": {}
+    },
+    {
+      "probe_id": "T.crud_control",
+      "feature_id": "F10",
+      "title": "Plain find, update and delete by _id",
+      "behavior": "Basic CRUD round trip",
+      "source": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "seed",
+            "op": "command",
+            "ms": 14.84,
+            "status": "ok"
+          },
+          {
+            "label": "update",
+            "op": "command",
+            "ms": 1.08,
+            "status": "ok",
+            "captured": {
+              "n": 1,
+              "nModified": 1
+            },
+            "capture": true,
+            "types": {
+              "n": "int",
+              "nModified": "int"
+            }
+          },
+          {
+            "label": "delete",
+            "op": "command",
+            "ms": 0.86,
+            "status": "ok",
+            "captured": {
+              "n": 1
+            },
+            "capture": true,
+            "types": {
+              "n": "int"
+            }
+          },
+          {
+            "label": "read",
+            "op": "command",
+            "ms": 0.34,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": "a",
+                  "s": "paid"
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": null,
+                  "s": null
+                }
+              ]
+            }
+          }
+        ],
+        "seconds": 0.125
+      },
+      "target": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "seed",
+            "op": "command",
+            "ms": 5.99,
+            "status": "ok"
+          },
+          {
+            "label": "update",
+            "op": "command",
+            "ms": 1.5,
+            "status": "ok",
+            "captured": {
+              "n": 1,
+              "nModified": 1
+            },
+            "capture": true,
+            "types": {
+              "n": "int",
+              "nModified": "int"
+            }
+          },
+          {
+            "label": "delete",
+            "op": "command",
+            "ms": 0.9,
+            "status": "ok",
+            "captured": {
+              "n": 1
+            },
+            "capture": true,
+            "types": {
+              "n": "int"
+            }
+          },
+          {
+            "label": "read",
+            "op": "command",
+            "ms": 3.14,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": "a",
+                  "s": "paid"
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": null,
+                  "s": null
+                }
+              ]
+            }
+          }
+        ],
+        "seconds": 0.017
+      },
+      "verdict": "equal",
+      "detail": {}
+    },
+    {
+      "probe_id": "T.change_stream",
+      "feature_id": "F5",
+      "title": "A change stream delivers an update with the full document",
+      "behavior": "A watcher sees the update and the post-image via updateLookup",
+      "source": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "seed",
+            "op": "command",
+            "ms": 12.87,
+            "status": "ok"
+          },
+          {
+            "label": "open",
+            "op": "watch_open",
+            "ms": 1.22,
+            "status": "ok"
+          },
+          {
+            "label": "update",
+            "op": "command",
+            "ms": 0.68,
+            "status": "ok"
+          },
+          {
+            "label": "next",
+            "op": "watch_next",
+            "ms": 0.47,
+            "status": "ok",
+            "captured": [
+              {
+                "documentKey": {
+                  "_id": 1
+                },
+                "fullDocument": {
+                  "_id": 1,
+                  "n": 9
+                },
+                "ns": {
+                  "coll": "i"
+                },
+                "operationType": "update",
+                "updateDescription": {
+                  "removedFields": [],
+                  "truncatedArrays": [],
+                  "updatedFields": {
+                    "n": 9
+                  }
+                }
+              }
+            ],
+            "capture": true,
+            "types": [
+              {
+                "documentKey": {
+                  "_id": "int"
+                },
+                "fullDocument": {
+                  "_id": "int",
+                  "n": "int"
+                },
+                "ns": {
+                  "coll": null
+                },
+                "operationType": null,
+                "updateDescription": {
+                  "removedFields": [],
+                  "truncatedArrays": [],
+                  "updatedFields": {
+                    "n": "int"
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "label": "close",
+            "op": "watch_close",
+            "ms": 0.97,
+            "status": "ok"
+          }
+        ],
+        "seconds": 0.123
+      },
+      "target": {
+        "outcome": "failed",
+        "steps": [
+          {
+            "label": "seed",
+            "op": "command",
+            "ms": 4.65,
+            "status": "ok"
+          },
+          {
+            "label": "open",
+            "op": "watch_open",
+            "ms": 1.1,
+            "status": "error",
+            "code": 115,
+            "message": "Stage $changeStream is not supported yet in native pipeline, full error: {'ok': 0.0, 'errmsg': 'Stage $changeStream is not supported yet in native pipeline', 'code': 115, 'codeName': 'CommandNotSupported'}"
+          }
+        ],
+        "seconds": 0.012
+      },
+      "verdict": "unsupported",
+      "detail": {
+        "at_step": "open",
+        "code": 115,
+        "message": "Stage $changeStream is not supported yet in native pipeline, full error: {'ok': 0.0, 'errmsg': 'Stage $changeStream is not supported yet in native pipeline', 'code': 115, 'codeName': 'CommandNotSupported'}"
+      }
+    }
+  ],
+  "replay": {
+    "reads": {
+      "shapes": [
+        {
+          "shape_id": "S4b871cdf",
+          "collection": "orders",
+          "features": [
+            "F10"
+          ],
+          "stages": [],
+          "replayed": 40,
+          "in_log": 270,
+          "equal": 40,
+          "different": 0,
+          "target_errors": 0,
+          "source_errors": 0,
+          "budget_exhausted": false,
+          "source_p50_ms": 0.29,
+          "source_p95_ms": 0.36,
+          "target_p50_ms": 0.38,
+          "target_p95_ms": 0.48,
+          "first_difference": null,
+          "difference_kinds": {},
+          "ranking_only": false,
+          "first_error": null
+        },
+        {
+          "shape_id": "Sb98d4c91",
+          "collection": "customers",
+          "features": [
+            "F6"
+          ],
+          "stages": [],
+          "replayed": 40,
+          "in_log": 110,
+          "equal": 25,
+          "different": 15,
+          "target_errors": 0,
+          "source_errors": 0,
+          "budget_exhausted": false,
+          "source_p50_ms": 0.28,
+          "source_p95_ms": 0.31,
+          "target_p50_ms": 0.71,
+          "target_p95_ms": 1.79,
+          "first_difference": {
+            "path": "$.docs.length",
+            "source": 1,
+            "target": 0
+          },
+          "difference_kinds": {
+            "different number of documents": 15
+          },
+          "ranking_only": false,
+          "first_error": null
+        },
+        {
+          "shape_id": "Se780f2b8",
+          "collection": "products",
+          "features": [
+            "F9"
+          ],
+          "stages": [],
+          "replayed": 40,
+          "in_log": 100,
+          "equal": 0,
+          "different": 40,
+          "target_errors": 0,
+          "source_errors": 0,
+          "budget_exhausted": false,
+          "source_p50_ms": 0.61,
+          "source_p95_ms": 0.84,
+          "target_p50_ms": 1.59,
+          "target_p95_ms": 1.74,
+          "first_difference": {
+            "path": "$.docs[0]._id",
+            "source": "SKU-0144",
+            "target": "SKU-0024"
+          },
+          "difference_kinds": {
+            "same matches, ranked differently": 40
+          },
+          "ranking_only": true,
+          "first_error": null
+        },
+        {
+          "shape_id": "Sf0f8b779",
+          "collection": "orders",
+          "features": [
+            "F10"
+          ],
+          "stages": [],
+          "replayed": 40,
+          "in_log": 100,
+          "equal": 40,
+          "different": 0,
+          "target_errors": 0,
+          "source_errors": 0,
+          "budget_exhausted": false,
+          "source_p50_ms": 0.51,
+          "source_p95_ms": 0.81,
+          "target_p50_ms": 0.47,
+          "target_p95_ms": 0.6,
+          "first_difference": null,
+          "difference_kinds": {},
+          "ranking_only": false,
+          "first_error": null
+        },
+        {
+          "shape_id": "Sb578dda4",
+          "collection": "carts",
+          "features": [
+            "F10"
+          ],
+          "stages": [],
+          "replayed": 40,
+          "in_log": 70,
+          "equal": 40,
+          "different": 0,
+          "target_errors": 0,
+          "source_errors": 0,
+          "budget_exhausted": false,
+          "source_p50_ms": 0.27,
+          "source_p95_ms": 0.3,
+          "target_p50_ms": 0.35,
+          "target_p95_ms": 1.42,
+          "first_difference": null,
+          "difference_kinds": {},
+          "ranking_only": false,
+          "first_error": null
+        },
+        {
+          "shape_id": "Sac78c80d",
+          "collection": "orders",
+          "features": [
+            "F2"
+          ],
+          "stages": [
+            "$match",
+            "$addFields",
+            "$setWindowFields",
+            "$project"
+          ],
+          "replayed": 40,
+          "in_log": 60,
+          "equal": 40,
+          "different": 0,
+          "target_errors": 0,
+          "source_errors": 0,
+          "budget_exhausted": false,
+          "source_p50_ms": 0.51,
+          "source_p95_ms": 1.12,
+          "target_p50_ms": 3.41,
+          "target_p95_ms": 4.61,
+          "first_difference": null,
+          "difference_kinds": {},
+          "ranking_only": false,
+          "first_error": null
+        },
+        {
+          "shape_id": "S04aefdf6",
+          "collection": "orders",
+          "features": [],
+          "stages": [
+            "$match",
+            "$group"
+          ],
+          "replayed": 40,
+          "in_log": 45,
+          "equal": 40,
+          "different": 0,
+          "target_errors": 0,
+          "source_errors": 0,
+          "budget_exhausted": false,
+          "source_p50_ms": 0.35,
+          "source_p95_ms": 0.51,
+          "target_p50_ms": 0.39,
+          "target_p95_ms": 0.52,
+          "first_difference": null,
+          "difference_kinds": {},
+          "ranking_only": false,
+          "first_error": null
+        },
+        {
+          "shape_id": "Safd4d86d",
+          "collection": "orders",
+          "features": [
+            "F10"
+          ],
+          "stages": [],
+          "replayed": 40,
+          "in_log": 40,
+          "equal": 40,
+          "different": 0,
+          "target_errors": 0,
+          "source_errors": 0,
+          "budget_exhausted": false,
+          "source_p50_ms": 0.88,
+          "source_p95_ms": 1.47,
+          "target_p50_ms": 1.03,
+          "target_p95_ms": 2.25,
+          "first_difference": null,
+          "difference_kinds": {},
+          "ranking_only": false,
+          "first_error": null
+        },
+        {
+          "shape_id": "S7338d59e",
+          "collection": "products",
+          "features": [
+            "F10"
+          ],
+          "stages": [],
+          "replayed": 30,
+          "in_log": 30,
+          "equal": 30,
+          "different": 0,
+          "target_errors": 0,
+          "source_errors": 0,
+          "budget_exhausted": false,
+          "source_p50_ms": 0.45,
+          "source_p95_ms": 0.63,
+          "target_p50_ms": 0.56,
+          "target_p95_ms": 0.71,
+          "first_difference": null,
+          "difference_kinds": {},
+          "ranking_only": false,
+          "first_error": null
+        },
+        {
+          "shape_id": "S78e856b9",
+          "collection": "orders",
+          "features": [
+            "F1"
+          ],
+          "stages": [
+            "$match",
+            "$addFields",
+            "$lookup",
+            "$unwind",
+            "$facet"
+          ],
+          "replayed": 7,
+          "in_log": 20,
+          "equal": 7,
+          "different": 0,
+          "target_errors": 0,
+          "source_errors": 0,
+          "budget_exhausted": true,
+          "source_p50_ms": 7.13,
+          "source_p95_ms": 11.32,
+          "target_p50_ms": 4067.03,
+          "target_p95_ms": 4620.97,
+          "first_difference": null,
+          "difference_kinds": {},
+          "ranking_only": false,
+          "first_error": null
+        },
+        {
+          "shape_id": "S8d6c2ea8",
+          "collection": "products",
+          "features": [
+            "F1"
+          ],
+          "stages": [
+            "$lookup",
+            "$match",
+            "$group",
+            "$sort"
+          ],
+          "replayed": 10,
+          "in_log": 10,
+          "equal": 10,
+          "different": 0,
+          "target_errors": 0,
+          "source_errors": 0,
+          "budget_exhausted": false,
+          "source_p50_ms": 6.59,
+          "source_p95_ms": 6.91,
+          "target_p50_ms": 1.74,
+          "target_p95_ms": 2.74,
+          "first_difference": null,
+          "difference_kinds": {},
+          "ranking_only": false,
+          "first_error": null
+        },
+        {
+          "shape_id": "S181542d4",
+          "collection": "orders",
+          "features": [
+            "F10"
+          ],
+          "stages": [],
+          "replayed": 1,
+          "in_log": 1,
+          "equal": 1,
+          "different": 0,
+          "target_errors": 0,
+          "source_errors": 0,
+          "budget_exhausted": false,
+          "source_p50_ms": 1.48,
+          "source_p95_ms": 1.48,
+          "target_p50_ms": 3.03,
+          "target_p95_ms": 3.03,
+          "first_difference": null,
+          "difference_kinds": {},
+          "ranking_only": false,
+          "first_error": null
+        },
+        {
+          "shape_id": "Se8433e70",
+          "collection": "orders",
+          "features": [
+            "F10"
+          ],
+          "stages": [],
+          "replayed": 1,
+          "in_log": 1,
+          "equal": 1,
+          "different": 0,
+          "target_errors": 0,
+          "source_errors": 0,
+          "budget_exhausted": false,
+          "source_p50_ms": 0.81,
+          "source_p95_ms": 0.81,
+          "target_p50_ms": 0.67,
+          "target_p95_ms": 0.67,
+          "first_difference": null,
+          "difference_kinds": {},
+          "ranking_only": false,
+          "first_error": null
+        }
+      ],
+      "overall": {
+        "source_p50_ms": 0.44,
+        "source_p95_ms": 1.61,
+        "target_p50_ms": 0.57,
+        "target_p95_ms": 3.48,
+        "compared_on_both": 369
+      }
+    },
+    "writes": {
+      "replayed": 350,
+      "equal": 350,
+      "different": 0,
+      "target_errors": 0,
+      "source_errors": 0,
+      "first_difference": null,
+      "first_error": null,
+      "source_p50_ms": 1.29,
+      "source_p95_ms": 1.87,
+      "target_p50_ms": 0.62,
+      "target_p95_ms": 0.89,
+      "by_feature": {
+        "F10": {
+          "equal": 295
+        },
+        "F3": {
+          "equal": 55
+        }
+      },
+      "final_state_differences": {}
+    },
+    "excluded": {
+      "sync worker bookkeeping": 189,
+      "inside a transaction (covered by probes)": 60,
+      "change stream (covered by probes)": 51,
+      "insert: the profiler doesn't keep the documents": 5,
+      "cursor maintenance": 1
+    },
+    "in_log": 1513
+  },
+  "schema_rejections": [
+    {
+      "step": "customers.email_ci",
+      "ok": false,
+      "code": 115,
+      "error": "Error in specification { \"unique\" : true, \"name\" : \"email_ci_unique\", \"key\" : { \"email\" : 1 }, \"collation\" : { \"locale\" : \"en\", \"strength\" : 2 } } :: caused by :: createIndex.collation is not implemented yet, full error: {'ok': 0.0, 'errmsg': 'Error in specification { \"unique\" : true, \"name\" : \"emai"
+    }
+  ],
+  "features": {
+    "F1": {
+      "verdict": "equal",
+      "probes": [],
+      "replay": {
+        "replayed": 17,
+        "equal": 17,
+        "different": 0,
+        "errors": 0
+      },
+      "schema_rejections": []
+    },
+    "F2": {
+      "verdict": "equal",
+      "probes": [
+        {
+          "probe_id": "T.window",
+          "verdict": "equal"
+        }
+      ],
+      "replay": {
+        "replayed": 40,
+        "equal": 40,
+        "different": 0,
+        "errors": 0
+      },
+      "schema_rejections": []
+    },
+    "F3": {
+      "verdict": "equal",
+      "probes": [
+        {
+          "probe_id": "T.array_filters",
+          "verdict": "equal"
+        }
+      ],
+      "replay": {
+        "replayed": 55,
+        "equal": 55,
+        "different": 0,
+        "errors": 0
+      },
+      "schema_rejections": []
+    },
+    "F4": {
+      "verdict": "result_diff",
+      "probes": [
+        {
+          "probe_id": "T.txn_abort",
+          "verdict": "result_diff"
+        }
+      ],
+      "replay": {
+        "replayed": 0,
+        "equal": 0,
+        "different": 0,
+        "errors": 0
+      },
+      "schema_rejections": []
+    },
+    "F5": {
+      "verdict": "unsupported",
+      "probes": [
+        {
+          "probe_id": "T.change_stream",
+          "verdict": "unsupported"
+        }
+      ],
+      "replay": {
+        "replayed": 0,
+        "equal": 0,
+        "different": 0,
+        "errors": 0
+      },
+      "schema_rejections": []
+    },
+    "F6": {
+      "verdict": "unsupported",
+      "probes": [
+        {
+          "probe_id": "T.collation_unique",
+          "verdict": "unsupported"
+        }
+      ],
+      "replay": {
+        "replayed": 40,
+        "equal": 25,
+        "different": 15,
+        "errors": 0
+      },
+      "schema_rejections": [
+        {
+          "step": "customers.email_ci",
+          "ok": false,
+          "code": 115,
+          "error": "Error in specification { \"unique\" : true, \"name\" : \"email_ci_unique\", \"key\" : { \"email\" : 1 }, \"collation\" : { \"locale\" : \"en\", \"strength\" : 2 } } :: caused by :: createIndex.collation is not implemented yet, full error: {'ok': 0.0, 'errmsg': 'Error in specification { \"unique\" : true, \"name\" : \"emai"
+        }
+      ]
+    },
+    "F8": {
+      "verdict": "result_diff",
+      "probes": [
+        {
+          "probe_id": "T.validator",
+          "verdict": "result_diff"
+        }
+      ],
+      "replay": {
+        "replayed": 0,
+        "equal": 0,
+        "different": 0,
+        "errors": 0
+      },
+      "schema_rejections": []
+    },
+    "F9": {
+      "verdict": "ranking_diff",
+      "probes": [
+        {
+          "probe_id": "T.text_exclusion",
+          "verdict": "equal"
+        }
+      ],
+      "replay": {
+        "replayed": 40,
+        "equal": 0,
+        "different": 40,
+        "errors": 0
+      },
+      "schema_rejections": []
+    },
+    "F10": {
+      "verdict": "equal",
+      "probes": [
+        {
+          "probe_id": "T.crud_control",
+          "verdict": "equal"
+        }
+      ],
+      "replay": {
+        "replayed": 487,
+        "equal": 487,
+        "different": 0,
+        "errors": 0
+      },
+      "schema_rejections": []
+    }
+  },
+  "seconds": 36.3
+}

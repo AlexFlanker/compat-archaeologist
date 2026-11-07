@@ -1,0 +1,446 @@
+{
+  "profile": "shoplog",
+  "assumptions": {
+    "as_of": "2026-11-07",
+    "horizon_months": 12,
+    "hours_per_month": 730,
+    "deployment": {
+      "clusters": 4,
+      "nodes_per_cluster": 3,
+      "dataset_gb_per_cluster": 80,
+      "average_iops_per_cluster": 200
+    },
+    "pricing": {
+      "atlas_m40": {
+        "per_hour": 1.04,
+        "specification": "4 vCPU, 16 GB RAM, 80 GB storage included",
+        "url": "https://www.mongodb.com/pricing",
+        "basis": "covers_default_cluster",
+        "alternative_basis": "per_node",
+        "basis_urls": [
+          "https://www.mongodb.com/pricing",
+          "https://www.mongodb.com/docs/atlas/billing/cluster-configuration-costs/"
+        ]
+      },
+      "documentdb_r6g_large": {
+        "specification": "2 vCPU, 16 GiB RAM (RAM-matched to M40; half the vCPUs, which favors migrating)",
+        "url": "https://pricing.us-east-1.amazonaws.com/offers/v1.0/aws/AmazonDocDB/current/us-east-1/index.json",
+        "standard": {
+          "per_hour": 0.26315,
+          "storage_per_gb_month": 0.1,
+          "per_million_io": 0.2
+        },
+        "io_optimized": {
+          "per_hour": 0.289465,
+          "storage_per_gb_month": 0.3
+        }
+      },
+      "ec2_r6g_large": {
+        "per_hour": 0.1008,
+        "specification": "2 vCPU, 16 GiB RAM",
+        "url": "https://instances.vantage.sh/aws/ec2/r6g.large"
+      },
+      "ebs_gp3": {
+        "per_gb_month": 0.08,
+        "note": "Not confirmed for us-east-1. AWS's EBS page uses this figure in a worked example without naming a region.",
+        "url": "https://aws.amazon.com/ebs/pricing/"
+      }
+    },
+    "people": {
+      "engineer_cost_per_hour": 120
+    },
+    "migration_baseline_hours": {
+      "low": 24,
+      "base": 40,
+      "high": 80
+    },
+    "self_managed_ops_hours_per_month_per_cluster": {
+      "low": 1,
+      "base": 2,
+      "high": 4
+    },
+    "risk": {
+      "incident_cost": {
+        "low": 5000,
+        "base": 15000,
+        "high": 50000
+      },
+      "residual_incident_probability": {
+        "silent": 0.5,
+        "loud": 0.1,
+        "performance": 0.25,
+        "documented_conflict": 0.1
+      }
+    },
+    "decision": {
+      "blocking_verdicts": [
+        "unsupported",
+        "error",
+        "result_diff",
+        "timeout"
+      ],
+      "minimum_confidence_to_block": 0.7,
+      "performance_regression": {
+        "minimum_ratio": 2.0,
+        "minimum_added_ms": 50
+      }
+    }
+  },
+  "targets": {
+    "FerretDB": {
+      "evidence": "OBSERVED",
+      "gaps": [
+        {
+          "key": "behavior:F4",
+          "feature": "F4",
+          "name": "Multi-document transactions",
+          "kind": "silent",
+          "verdict": "result_diff",
+          "confidence": 0.9,
+          "blocking": true,
+          "evidence": [
+            {
+              "probe_id": "T.txn_abort",
+              "verdict": "result_diff",
+              "title": "Aborted transaction leaves no trace",
+              "detail": {
+                "silent": true,
+                "at_step": "read",
+                "difference": {
+                  "path": "$.docs[0].n",
+                  "source": 10,
+                  "target": 7
+                }
+              }
+            }
+          ],
+          "replay": {
+            "replayed": 0,
+            "equal": 0,
+            "different": 0,
+            "errors": 0
+          },
+          "schema_rejections": [],
+          "estimate": null
+        },
+        {
+          "key": "behavior:F5",
+          "feature": "F5",
+          "name": "Change streams",
+          "kind": "loud",
+          "verdict": "unsupported",
+          "confidence": 0.9,
+          "blocking": true,
+          "evidence": [
+            {
+              "probe_id": "T.change_stream",
+              "verdict": "unsupported",
+              "title": "A change stream delivers an update with the full document",
+              "detail": {
+                "at_step": "open",
+                "code": 115,
+                "message": "Stage $changeStream is not supported yet in native pipeline, full error: {'ok': 0.0, 'errmsg': 'Stage $changeStream is not supported yet in native pipeline', 'code': 115, 'codeName': 'CommandNotSupported'}"
+              }
+            }
+          ],
+          "replay": {
+            "replayed": 0,
+            "equal": 0,
+            "different": 0,
+            "errors": 0
+          },
+          "schema_rejections": [],
+          "estimate": null
+        },
+        {
+          "key": "behavior:F6",
+          "feature": "F6",
+          "name": "Case-insensitive collation index",
+          "kind": "silent",
+          "verdict": "unsupported",
+          "confidence": 0.97,
+          "blocking": true,
+          "evidence": [
+            {
+              "probe_id": "T.collation_unique",
+              "verdict": "unsupported",
+              "title": "Case-insensitive unique index rejects a case variant",
+              "detail": {
+                "at_step": "index",
+                "code": 115,
+                "message": "Error in specification { \"key\" : { \"email\" : 1 }, \"name\" : \"ci\", \"unique\" : true, \"collation\" : { \"locale\" : \"en\", \"strength\" : 2 } } :: caused by :: createIndex.collation is not implemented yet, full error: {'ok': 0.0, 'errmsg': 'Error in specification { \"key\" : { \"email\" : 1 }, \"name\" : \"ci\", \"unique\" : true, \"collation\" : { \"locale\" : \"en\", \"strength\" : 2 } } :: caused by :: createIndex.collati"
+              }
+            }
+          ],
+          "replay": {
+            "replayed": 40,
+            "equal": 25,
+            "different": 15,
+            "errors": 0
+          },
+          "schema_rejections": [
+            {
+              "step": "customers.email_ci",
+              "ok": false,
+              "code": 115,
+              "error": "Error in specification { \"unique\" : true, \"name\" : \"email_ci_unique\", \"key\" : { \"email\" : 1 }, \"collation\" : { \"locale\" : \"en\", \"strength\" : 2 } } :: caused by :: createIndex.collation is not implemented yet, full error: {'ok': 0.0, 'errmsg': 'Error in specification { \"unique\" : true, \"name\" : \"emai"
+            }
+          ],
+          "estimate": null
+        },
+        {
+          "key": "behavior:F8",
+          "feature": "F8",
+          "name": "$jsonSchema validator",
+          "kind": "silent",
+          "verdict": "result_diff",
+          "confidence": 0.97,
+          "blocking": true,
+          "evidence": [
+            {
+              "probe_id": "T.validator",
+              "verdict": "result_diff",
+              "title": "$jsonSchema validator rejects a bad document",
+              "detail": {
+                "silent": true,
+                "at_step": "bad",
+                "difference": {
+                  "path": "$.error_code",
+                  "source": 121,
+                  "target": "<absent>"
+                }
+              }
+            }
+          ],
+          "replay": {
+            "replayed": 0,
+            "equal": 0,
+            "different": 0,
+            "errors": 0
+          },
+          "schema_rejections": [],
+          "estimate": null
+        },
+        {
+          "key": "performance:S78e856b9",
+          "feature": "F1",
+          "name": "Slow path on orders ($lookup sub-pipeline + $facet)",
+          "kind": "performance",
+          "verdict": "performance",
+          "confidence": 0.9,
+          "blocking": true,
+          "evidence": [
+            {
+              "shape_id": "S78e856b9",
+              "stages": [
+                "$match",
+                "$addFields",
+                "$lookup",
+                "$unwind",
+                "$facet"
+              ],
+              "source_p95_ms": 11.32,
+              "target_p95_ms": 4620.97,
+              "samples": 7
+            }
+          ],
+          "estimate": null
+        }
+      ],
+      "economics": {
+        "annual_costs": {
+          "MongoDB Atlas": 36441.6,
+          "FerretDB": 11517.7,
+          "AWS DocumentDB": 31580.56
+        },
+        "infra_savings": 24923.9,
+        "net": {
+          "best": 7033.9,
+          "base": -19146.1,
+          "worst": -100216.1
+        },
+        "breakdown": {
+          "best": {
+            "ops_cost": 5760,
+            "migration_hours": 24,
+            "rewrite_hours": 0,
+            "one_time_cost": 2880,
+            "residual_risk_cost": 9250.0
+          },
+          "base": {
+            "ops_cost": 11520,
+            "migration_hours": 40,
+            "rewrite_hours": 0,
+            "one_time_cost": 4800,
+            "residual_risk_cost": 27750.0
+          },
+          "worst": {
+            "ops_cost": 23040,
+            "migration_hours": 80,
+            "rewrite_hours": 0,
+            "one_time_cost": 9600,
+            "residual_risk_cost": 92500.0
+          }
+        },
+        "payback_months": null,
+        "break_even_rewrite_hours": 0,
+        "rewrite_estimates_missing": [
+          "behavior:F4",
+          "behavior:F5",
+          "behavior:F6",
+          "behavior:F8",
+          "performance:S78e856b9"
+        ]
+      },
+      "decision": "STAY_UNPRICED",
+      "decision_text": "Stay for now: blocking gaps exist, and the rewrite isn't priced yet",
+      "sensitivity": {
+        "atlas_per_node": {
+          "net_base": 53737.1,
+          "infra_savings": 97807.1,
+          "decision": "STAY_UNPRICED"
+        },
+        "clusters": {
+          "1": {
+            "net_base": -29199.02,
+            "infra_savings": 6230.98,
+            "decision": "STAY_UNPRICED"
+          },
+          "4": {
+            "net_base": -19146.1,
+            "infra_savings": 24923.9,
+            "decision": "STAY_UNPRICED"
+          },
+          "10": {
+            "net_base": 959.76,
+            "infra_savings": 62309.76,
+            "decision": "STAY_UNPRICED"
+          },
+          "25": {
+            "net_base": 51224.4,
+            "infra_savings": 155774.4,
+            "decision": "STAY_UNPRICED"
+          }
+        }
+      }
+    },
+    "AWS DocumentDB": {
+      "evidence": "INFERRED",
+      "gaps": [
+        {
+          "key": "documented:F2",
+          "feature": "F2",
+          "name": "$setWindowFields",
+          "kind": "documented_conflict",
+          "verdict": "documented_conflict",
+          "confidence": 0.9,
+          "blocking": true,
+          "evidence": [
+            {
+              "conflict": "The app uses $shift, which the docs list as unsupported",
+              "url": "https://docs.aws.amazon.com/documentdb/latest/developerguide/setWindowFields.html"
+            }
+          ],
+          "estimate": null
+        },
+        {
+          "key": "documented:F9",
+          "feature": "F9",
+          "name": "$text search",
+          "kind": "documented_conflict",
+          "verdict": "documented_conflict",
+          "confidence": 0.97,
+          "blocking": true,
+          "evidence": [
+            {
+              "conflict": "The app searches with exclusion terms (for example -refurbished), which the docs say aren't supported",
+              "url": "https://docs.aws.amazon.com/documentdb/latest/developerguide/text-search.html"
+            },
+            {
+              "conflict": "The app's text index covers an array field, which the docs say isn't supported",
+              "url": "https://docs.aws.amazon.com/documentdb/latest/developerguide/text-search.html"
+            }
+          ],
+          "estimate": null
+        }
+      ],
+      "economics": {
+        "annual_costs": {
+          "MongoDB Atlas": 36441.6,
+          "FerretDB": 11517.7,
+          "AWS DocumentDB": 31580.56
+        },
+        "infra_savings": 4861.04,
+        "net": {
+          "best": 981.04,
+          "base": -2938.96,
+          "worst": -14738.96
+        },
+        "breakdown": {
+          "best": {
+            "ops_cost": 0,
+            "migration_hours": 24,
+            "rewrite_hours": 0,
+            "one_time_cost": 2880,
+            "residual_risk_cost": 1000.0
+          },
+          "base": {
+            "ops_cost": 0,
+            "migration_hours": 40,
+            "rewrite_hours": 0,
+            "one_time_cost": 4800,
+            "residual_risk_cost": 3000.0
+          },
+          "worst": {
+            "ops_cost": 0,
+            "migration_hours": 80,
+            "rewrite_hours": 0,
+            "one_time_cost": 9600,
+            "residual_risk_cost": 10000.0
+          }
+        },
+        "payback_months": 31.0,
+        "break_even_rewrite_hours": 0,
+        "rewrite_estimates_missing": [
+          "documented:F2",
+          "documented:F9"
+        ]
+      },
+      "decision": "VERIFY_FIRST",
+      "decision_text": "Not verified: test on a real cluster before deciding",
+      "sensitivity": {
+        "atlas_per_node": {
+          "net_base": 69944.24,
+          "infra_savings": 77744.24,
+          "decision": "VERIFY_FIRST"
+        },
+        "clusters": {
+          "1": {
+            "net_base": -6584.74,
+            "infra_savings": 1215.26,
+            "decision": "VERIFY_FIRST"
+          },
+          "4": {
+            "net_base": -2938.96,
+            "infra_savings": 4861.04,
+            "decision": "VERIFY_FIRST"
+          },
+          "10": {
+            "net_base": 4352.6,
+            "infra_savings": 12152.6,
+            "decision": "VERIFY_FIRST"
+          },
+          "25": {
+            "net_base": 22581.5,
+            "infra_savings": 30381.5,
+            "decision": "VERIFY_FIRST"
+          }
+        }
+      }
+    }
+  },
+  "subq": {
+    "available": false,
+    "reason": "SUBQ_API_KEY is not set"
+  }
+}

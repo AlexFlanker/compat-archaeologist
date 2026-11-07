@@ -61,5 +61,16 @@
     }
   },
   "invariants": [],
-  "feature_signals": {}
+  "feature_signals": {
+    "F10": [
+      {
+        "ref": "catalog:orders.customer_id_1",
+        "detail": "orders.customer_id_1 is a plain index on ['customer_id']"
+      },
+      {
+        "ref": "catalog:orders.status_1",
+        "detail": "orders.status_1 is a plain index on ['status']"
+      }
+    ]
+  }
 }

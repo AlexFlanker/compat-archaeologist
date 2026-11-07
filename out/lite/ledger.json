@@ -1,0 +1,169 @@
+{
+  "profile": "lite",
+  "code_evidence_source": "static_scan_only",
+  "code_model": null,
+  "citations_dropped": 0,
+  "operators": {
+    "$set": 60,
+    "$match": 30,
+    "$group": 30,
+    "$sum": 30
+  },
+  "stages": {
+    "$match": 30,
+    "$group": 30
+  },
+  "items": [
+    {
+      "id": "F10",
+      "feature": "Plain CRUD by _id and simple filters",
+      "behavior": "Code uses find_one( | Code uses insert_one( | Code uses update_one( | Code uses delete_one( | Code uses count_documents(",
+      "why_risky": "Control group: expected to behave the same",
+      "sources": [
+        {
+          "type": "querylog",
+          "ref": "evidence query log, shapes S003befd8, S4b871cdf, S6629c94b, Scd0d89a3",
+          "count": 610,
+          "detail": "610 recorded operations across 6 shape(s)"
+        },
+        {
+          "type": "data",
+          "ref": "catalog:orders.customer_id_1",
+          "detail": "orders.customer_id_1 is a plain index on ['customer_id']"
+        },
+        {
+          "type": "data",
+          "ref": "catalog:orders.status_1",
+          "detail": "orders.status_1 is a plain index on ['status']"
+        },
+        {
+          "type": "code",
+          "ref": "shoplog/crud.py:9",
+          "token": "find_one(",
+          "detail": "Code uses find_one(",
+          "origin": "static_scan_only"
+        },
+        {
+          "type": "code",
+          "ref": "shoplog/crud.py:21",
+          "token": "insert_one(",
+          "detail": "Code uses insert_one(",
+          "origin": "static_scan_only"
+        },
+        {
+          "type": "code",
+          "ref": "shoplog/crud.py:25",
+          "token": "update_one(",
+          "detail": "Code uses update_one(",
+          "origin": "static_scan_only"
+        },
+        {
+          "type": "code",
+          "ref": "shoplog/crud.py:29",
+          "token": "delete_one(",
+          "detail": "Code uses delete_one(",
+          "origin": "static_scan_only"
+        },
+        {
+          "type": "code",
+          "ref": "shoplog/crud.py:33",
+          "token": "count_documents(",
+          "detail": "Code uses count_documents(",
+          "origin": "static_scan_only"
+        }
+      ],
+      "independent_sources": 3,
+      "status": "OBSERVED",
+      "confidence": 0.97,
+      "confidence_basis": "3 independent sources agree",
+      "sample_operations": [
+        {
+          "op": "insert",
+          "ns": "lite_wl.orders",
+          "command": {
+            "insert": "orders",
+            "ordered": true
+          }
+        },
+        {
+          "op": "query",
+          "ns": "lite_wl.orders",
+          "command": {
+            "find": "orders",
+            "filter": {
+              "_id": "O00003113"
+            },
+            "limit": 1,
+            "singleBatch": true
+          }
+        },
+        {
+          "op": "query",
+          "ns": "lite_wl.orders",
+          "command": {
+            "find": "orders",
+            "filter": {
+              "status": "delivered"
+            },
+            "sort": {
+              "_id": 1
+            },
+            "limit": 20
+          }
+        },
+        {
+          "op": "update",
+          "ns": "lite_wl.orders",
+          "command": {
+            "q": {
+              "_id": "O00000317"
+            },
+            "u": {
+              "$set": {
+                "status": "paid",
+                "updated_at": "2026-11-01 00:00:00"
+              }
+            },
+            "multi": false,
+            "upsert": false
+          }
+        },
+        {
+          "op": "query",
+          "ns": "lite_wl.orders",
+          "command": {
+            "find": "orders",
+            "filter": {
+              "customer_id": "C000441"
+            },
+            "sort": {
+              "_id": 1
+            },
+            "limit": 20
+          }
+        },
+        {
+          "op": "remove",
+          "ns": "lite_wl.orders",
+          "command": {
+            "q": {
+              "_id": "O00000939"
+            },
+            "limit": 1
+          }
+        }
+      ]
+    }
+  ],
+  "behaviors": [],
+  "subq": {
+    "items": {
+      "available": true,
+      "asked": 0
+    },
+    "behaviors": {
+      "available": true,
+      "asked": 0
+    }
+  }
+}
