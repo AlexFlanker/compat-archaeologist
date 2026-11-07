@@ -5,29 +5,29 @@
   "target": "FerretDB",
   "full_load": {
     "collections": {
-      "carts": 2000,
       "customers": 5000,
-      "orders": 50000,
+      "inventory": 500,
       "products": 500,
-      "inventory": 500
+      "orders": 50000,
+      "carts": 2000
     },
     "indexes": [
-      {
-        "collection": "carts",
-        "name": "active_cart_expiry",
-        "ok": true
-      },
-      {
-        "collection": "carts",
-        "name": "customer_id_1",
-        "ok": true
-      },
       {
         "collection": "customers",
         "name": "email_ci_unique",
         "ok": false,
         "code": 115,
         "error": "Error in specification { \"name\" : \"email_ci_unique\", \"unique\" : true, \"key\" : { \"email\" : 1 }, \"collation\" : { \"locale\" : \"en\", \"caseLevel\" : false, \"caseFirst\" : \"off\", \"strength\" : 2, \"numericOrderi"
+      },
+      {
+        "collection": "products",
+        "name": "product_search",
+        "ok": true
+      },
+      {
+        "collection": "products",
+        "name": "category_1",
+        "ok": true
       },
       {
         "collection": "orders",
@@ -51,13 +51,13 @@
         "skipped_by_copier": true
       },
       {
-        "collection": "products",
-        "name": "product_search",
+        "collection": "carts",
+        "name": "active_cart_expiry",
         "ok": true
       },
       {
-        "collection": "products",
-        "name": "category_1",
+        "collection": "carts",
+        "name": "customer_id_1",
         "ok": true
       }
     ],
@@ -771,5 +771,5 @@
       "explanation": "bronze: customers 3,040 \u2192 3,039"
     }
   ],
-  "seconds": 9.9
+  "seconds": 10.3
 }

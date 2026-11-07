@@ -1,5 +1,5 @@
 {
-  "run_id": "20261107T233018Z",
+  "run_id": "20261107T234555Z",
   "profile": "lite",
   "self_check": false,
   "probe_origin": "muse",
@@ -27,13 +27,13 @@
           {
             "label": "insert-seed",
             "op": "command",
-            "ms": 23.03,
+            "ms": 23.59,
             "status": "ok"
           },
           {
             "label": "find-by-id",
             "op": "command",
-            "ms": 0.97,
+            "ms": 1.0,
             "status": "ok",
             "captured": {
               "docs": [
@@ -60,13 +60,13 @@
           {
             "label": "update-status",
             "op": "command",
-            "ms": 1.72,
+            "ms": 3.25,
             "status": "ok"
           },
           {
             "label": "verify-update",
             "op": "command",
-            "ms": 0.78,
+            "ms": 0.95,
             "status": "ok",
             "captured": {
               "docs": [
@@ -93,13 +93,13 @@
           {
             "label": "delete-by-id",
             "op": "command",
-            "ms": 1.89,
+            "ms": 2.32,
             "status": "ok"
           },
           {
             "label": "verify-deleted",
             "op": "command",
-            "ms": 1.19,
+            "ms": 0.95,
             "status": "ok",
             "captured": {
               "docs": []
@@ -110,7 +110,7 @@
             }
           }
         ],
-        "seconds": 0.135
+        "seconds": 0.137
       },
       "target": {
         "outcome": "completed",
@@ -118,13 +118,13 @@
           {
             "label": "insert-seed",
             "op": "command",
-            "ms": 11.29,
+            "ms": 12.87,
             "status": "ok"
           },
           {
             "label": "find-by-id",
             "op": "command",
-            "ms": 2.26,
+            "ms": 1.57,
             "status": "ok",
             "captured": {
               "docs": [
@@ -151,13 +151,13 @@
           {
             "label": "update-status",
             "op": "command",
-            "ms": 2.72,
+            "ms": 1.92,
             "status": "ok"
           },
           {
             "label": "verify-update",
             "op": "command",
-            "ms": 1.65,
+            "ms": 0.95,
             "status": "ok",
             "captured": {
               "docs": [
@@ -184,13 +184,13 @@
           {
             "label": "delete-by-id",
             "op": "command",
-            "ms": 1.7,
+            "ms": 1.53,
             "status": "ok"
           },
           {
             "label": "verify-deleted",
             "op": "command",
-            "ms": 1.24,
+            "ms": 1.49,
             "status": "ok",
             "captured": {
               "docs": []
@@ -201,7 +201,7 @@
             }
           }
         ],
-        "seconds": 0.034
+        "seconds": 0.032
       },
       "verdict": "equal",
       "detail": {}
@@ -217,13 +217,13 @@
           {
             "label": "insert-seed",
             "op": "command",
-            "ms": 22.33,
+            "ms": 23.14,
             "status": "ok"
           },
           {
             "label": "find-by-customer",
             "op": "command",
-            "ms": 1.27,
+            "ms": 1.11,
             "status": "ok",
             "captured": {
               "docs": [
@@ -268,7 +268,7 @@
           {
             "label": "find-by-status",
             "op": "command",
-            "ms": 0.99,
+            "ms": 1.48,
             "status": "ok",
             "captured": {
               "docs": [
@@ -313,7 +313,7 @@
           {
             "label": "count-delivered",
             "op": "command",
-            "ms": 1.09,
+            "ms": 0.88,
             "status": "ok",
             "captured": {
               "n": 3
@@ -326,135 +326,7 @@
           {
             "label": "count-paid",
             "op": "command",
-            "ms": 0.98,
-            "status": "ok",
-            "captured": {
-              "n": 1
-            },
-            "capture": true,
-            "types": {
-              "n": "int"
-            }
-          }
-        ],
-        "seconds": 0.135
-      },
-      "target": {
-        "outcome": "completed",
-        "steps": [
-          {
-            "label": "insert-seed",
-            "op": "command",
-            "ms": 11.31,
-            "status": "ok"
-          },
-          {
-            "label": "find-by-customer",
-            "op": "command",
-            "ms": 2.46,
-            "status": "ok",
-            "captured": {
-              "docs": [
-                {
-                  "_id": "O00000001",
-                  "customer_id": "C000441",
-                  "status": "delivered"
-                },
-                {
-                  "_id": "O00000002",
-                  "customer_id": "C000441",
-                  "status": "paid"
-                },
-                {
-                  "_id": "O00000004",
-                  "customer_id": "C000441",
-                  "status": "delivered"
-                }
-              ]
-            },
-            "capture": true,
-            "types": {
-              "docs": [
-                {
-                  "_id": null,
-                  "customer_id": null,
-                  "status": null
-                },
-                {
-                  "_id": null,
-                  "customer_id": null,
-                  "status": null
-                },
-                {
-                  "_id": null,
-                  "customer_id": null,
-                  "status": null
-                }
-              ]
-            }
-          },
-          {
-            "label": "find-by-status",
-            "op": "command",
-            "ms": 2.01,
-            "status": "ok",
-            "captured": {
-              "docs": [
-                {
-                  "_id": "O00000001",
-                  "customer_id": "C000441",
-                  "status": "delivered"
-                },
-                {
-                  "_id": "O00000003",
-                  "customer_id": "C000999",
-                  "status": "delivered"
-                },
-                {
-                  "_id": "O00000004",
-                  "customer_id": "C000441",
-                  "status": "delivered"
-                }
-              ]
-            },
-            "capture": true,
-            "types": {
-              "docs": [
-                {
-                  "_id": null,
-                  "customer_id": null,
-                  "status": null
-                },
-                {
-                  "_id": null,
-                  "customer_id": null,
-                  "status": null
-                },
-                {
-                  "_id": null,
-                  "customer_id": null,
-                  "status": null
-                }
-              ]
-            }
-          },
-          {
-            "label": "count-delivered",
-            "op": "command",
-            "ms": 1.28,
-            "status": "ok",
-            "captured": {
-              "n": 3
-            },
-            "capture": true,
-            "types": {
-              "n": "int"
-            }
-          },
-          {
-            "label": "count-paid",
-            "op": "command",
-            "ms": 1.69,
+            "ms": 1.2,
             "status": "ok",
             "captured": {
               "n": 1
@@ -466,6 +338,134 @@
           }
         ],
         "seconds": 0.033
+      },
+      "target": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "insert-seed",
+            "op": "command",
+            "ms": 13.32,
+            "status": "ok"
+          },
+          {
+            "label": "find-by-customer",
+            "op": "command",
+            "ms": 1.47,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": "O00000001",
+                  "customer_id": "C000441",
+                  "status": "delivered"
+                },
+                {
+                  "_id": "O00000002",
+                  "customer_id": "C000441",
+                  "status": "paid"
+                },
+                {
+                  "_id": "O00000004",
+                  "customer_id": "C000441",
+                  "status": "delivered"
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": null,
+                  "customer_id": null,
+                  "status": null
+                },
+                {
+                  "_id": null,
+                  "customer_id": null,
+                  "status": null
+                },
+                {
+                  "_id": null,
+                  "customer_id": null,
+                  "status": null
+                }
+              ]
+            }
+          },
+          {
+            "label": "find-by-status",
+            "op": "command",
+            "ms": 1.69,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": "O00000001",
+                  "customer_id": "C000441",
+                  "status": "delivered"
+                },
+                {
+                  "_id": "O00000003",
+                  "customer_id": "C000999",
+                  "status": "delivered"
+                },
+                {
+                  "_id": "O00000004",
+                  "customer_id": "C000441",
+                  "status": "delivered"
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": null,
+                  "customer_id": null,
+                  "status": null
+                },
+                {
+                  "_id": null,
+                  "customer_id": null,
+                  "status": null
+                },
+                {
+                  "_id": null,
+                  "customer_id": null,
+                  "status": null
+                }
+              ]
+            }
+          },
+          {
+            "label": "count-delivered",
+            "op": "command",
+            "ms": 1.43,
+            "status": "ok",
+            "captured": {
+              "n": 3
+            },
+            "capture": true,
+            "types": {
+              "n": "int"
+            }
+          },
+          {
+            "label": "count-paid",
+            "op": "command",
+            "ms": 1.64,
+            "status": "ok",
+            "captured": {
+              "n": 1
+            },
+            "capture": true,
+            "types": {
+              "n": "int"
+            }
+          }
+        ],
+        "seconds": 0.032
       },
       "verdict": "equal",
       "detail": {}
@@ -482,88 +482,88 @@
             "F10"
           ],
           "source_ms_samples": [
-            0.39,
+            0.68,
+            0.65,
+            0.59,
+            0.61,
+            0.52,
+            0.64,
+            0.57,
+            0.58,
+            0.56,
+            0.51,
             0.49,
-            0.3,
+            0.38,
+            0.39,
+            0.38,
+            0.38,
+            0.41,
+            0.43,
+            0.41,
+            0.44,
+            0.44,
             0.42,
-            0.35,
-            0.28,
-            0.27,
-            0.28,
-            0.27,
-            0.24,
-            0.25,
-            0.26,
-            0.27,
-            0.25,
-            0.25,
-            0.32,
-            0.3,
-            0.28,
-            0.27,
-            0.28,
-            0.28,
-            0.27,
-            0.25,
-            0.27,
-            0.27,
-            0.26,
-            0.26,
-            0.33,
+            0.41,
+            0.44,
+            0.42,
+            0.43,
+            0.43,
             0.4,
-            0.29,
-            0.26,
-            0.27,
-            0.26,
-            0.3,
-            0.24,
-            0.25,
-            0.26,
-            0.27,
-            0.26,
-            0.32
+            0.41,
+            0.4,
+            0.4,
+            0.43,
+            0.39,
+            0.35,
+            0.41,
+            0.39,
+            0.36,
+            0.36,
+            0.42,
+            0.37,
+            0.39
           ],
           "target_ms_samples": [
-            0.51,
-            0.47,
-            0.54,
-            0.57,
-            0.46,
-            0.37,
-            0.39,
-            0.35,
-            0.37,
-            0.35,
-            0.35,
-            0.37,
-            0.38,
-            0.31,
-            0.33,
-            0.32,
-            0.43,
-            0.44,
-            0.37,
-            0.32,
-            0.38,
-            0.37,
-            0.39,
-            0.4,
-            0.39,
-            0.34,
-            0.36,
-            0.34,
+            0.84,
+            0.81,
+            0.85,
+            0.88,
+            0.75,
+            0.71,
+            0.77,
+            0.72,
+            0.8,
+            0.58,
+            0.58,
+            0.53,
+            0.52,
             0.56,
-            0.39,
-            0.37,
-            0.34,
-            0.39,
-            0.41,
-            0.38,
-            0.37,
-            0.39,
-            0.33,
-            0.41,
-            0.36
+            0.56,
+            0.54,
+            0.55,
+            0.51,
+            0.56,
+            0.57,
+            0.56,
+            0.52,
+            0.56,
+            0.5,
+            0.56,
+            0.52,
+            0.62,
+            0.52,
+            0.56,
+            0.54,
+            0.56,
+            0.51,
+            0.48,
+            0.44,
+            0.52,
+            0.52,
+            0.54,
+            0.52,
+            1.23,
+            0.44
           ],
           "target_timeouts": 0,
           "stages": [],
@@ -574,10 +574,10 @@
           "target_errors": 0,
           "source_errors": 0,
           "budget_exhausted": false,
-          "source_p50_ms": 0.27,
-          "source_p95_ms": 0.42,
-          "target_p50_ms": 0.38,
-          "target_p95_ms": 0.56,
+          "source_p50_ms": 0.42,
+          "source_p95_ms": 0.65,
+          "target_p50_ms": 0.56,
+          "target_p95_ms": 0.88,
           "first_difference": null,
           "difference_kinds": {},
           "ranking_only": false,
@@ -591,88 +591,88 @@
             "F10"
           ],
           "source_ms_samples": [
-            0.39,
-            0.41,
-            0.32,
-            0.36,
-            0.33,
-            0.36,
-            0.34,
-            0.83,
-            0.42,
-            0.36,
-            0.3,
-            0.33,
-            0.33,
-            0.32,
-            0.3,
-            0.54,
-            0.35,
-            0.31,
-            0.39,
-            0.32,
-            0.32,
-            0.32,
-            0.33,
-            0.37,
-            0.69,
-            0.31,
-            0.33,
-            0.31,
-            0.33,
-            0.33,
-            0.29,
-            0.31,
-            0.31,
-            0.32,
-            0.41,
-            0.34,
-            0.3,
-            0.32,
-            0.32,
-            0.3
-          ],
-          "target_ms_samples": [
             0.44,
-            0.52,
+            0.51,
             0.49,
-            0.44,
             0.48,
-            0.5,
-            0.73,
-            0.74,
-            0.64,
-            0.44,
-            0.44,
             0.46,
-            0.46,
+            0.42,
+            0.44,
+            0.39,
+            0.47,
+            0.44,
+            0.39,
+            0.45,
+            0.45,
             0.41,
-            0.48,
-            0.55,
-            0.52,
-            0.41,
+            0.44,
             0.47,
             0.42,
             0.43,
-            0.39,
-            0.39,
-            0.42,
-            0.58,
-            0.39,
-            0.44,
-            0.39,
-            0.45,
-            0.36,
             0.4,
             0.39,
-            0.51,
-            0.46,
-            0.59,
-            0.43,
+            0.4,
             0.41,
-            0.45,
+            0.5,
+            0.46,
+            0.41,
+            0.4,
+            0.42,
+            0.37,
+            0.35,
+            0.48,
             0.44,
-            0.41
+            0.36,
+            0.38,
+            0.43,
+            1.08,
+            0.42,
+            0.39,
+            0.45,
+            0.4,
+            0.39
+          ],
+          "target_ms_samples": [
+            0.58,
+            0.65,
+            0.58,
+            0.6,
+            0.66,
+            0.66,
+            0.6,
+            0.57,
+            0.67,
+            0.54,
+            0.58,
+            0.56,
+            0.55,
+            0.56,
+            0.5,
+            0.56,
+            0.55,
+            0.49,
+            0.57,
+            0.56,
+            0.56,
+            0.57,
+            1.11,
+            0.53,
+            0.61,
+            0.57,
+            0.54,
+            0.51,
+            0.49,
+            0.48,
+            0.57,
+            0.47,
+            0.49,
+            0.47,
+            0.57,
+            0.56,
+            0.55,
+            0.51,
+            0.53,
+            0.49
           ],
           "target_timeouts": 0,
           "stages": [],
@@ -683,10 +683,10 @@
           "target_errors": 0,
           "source_errors": 0,
           "budget_exhausted": false,
-          "source_p50_ms": 0.33,
-          "source_p95_ms": 0.69,
-          "target_p50_ms": 0.44,
-          "target_p95_ms": 0.73,
+          "source_p50_ms": 0.43,
+          "source_p95_ms": 0.51,
+          "target_p50_ms": 0.56,
+          "target_p95_ms": 0.67,
           "first_difference": null,
           "difference_kinds": {},
           "ranking_only": false,
@@ -700,88 +700,88 @@
             "F10"
           ],
           "source_ms_samples": [
-            0.35,
-            0.54,
-            0.33,
-            0.32,
-            0.32,
-            0.35,
-            0.34,
-            0.4,
-            0.33,
-            0.31,
-            0.32,
-            0.35,
-            0.36,
-            0.34,
-            0.34,
-            0.32,
-            0.31,
+            0.48,
+            0.68,
+            0.76,
+            0.46,
+            0.49,
+            0.49,
+            0.49,
+            0.49,
+            0.46,
+            0.49,
+            0.45,
+            0.44,
+            0.45,
+            0.53,
+            0.46,
+            0.46,
+            0.46,
+            0.43,
+            0.45,
+            0.46,
+            0.43,
+            0.43,
             0.38,
-            0.38,
-            0.32,
-            0.32,
-            0.33,
-            0.32,
-            0.35,
-            0.38,
-            0.33,
-            0.32,
-            0.31,
-            0.31,
+            0.43,
             0.37,
-            0.32,
-            0.34,
-            0.29,
-            0.31,
-            0.32,
+            0.42,
+            0.38,
+            0.43,
+            0.38,
+            0.48,
+            0.37,
+            0.48,
+            0.4,
             0.39,
-            0.34,
+            0.36,
             0.33,
-            0.31,
-            0.65
+            0.32,
+            0.33,
+            0.32,
+            0.34
           ],
           "target_ms_samples": [
-            0.94,
+            1.4,
+            1.49,
+            1.43,
+            1.41,
+            1.35,
+            1.34,
+            1.26,
+            1.27,
+            1.24,
+            1.22,
+            1.2,
+            1.28,
+            1.24,
+            1.24,
+            1.19,
+            1.21,
+            1.17,
+            1.29,
+            1.21,
+            1.22,
+            1.15,
+            1.2,
+            1.26,
+            1.16,
+            1.19,
+            1.14,
+            1.21,
+            1.17,
+            1.2,
             1.18,
-            1.07,
-            0.92,
-            1.03,
-            0.98,
-            1.08,
+            1.23,
+            1.17,
+            1.18,
+            1.14,
             1.06,
-            1.0,
-            0.95,
-            0.99,
-            0.95,
+            1.06,
             1.04,
-            0.93,
-            0.99,
-            0.93,
-            0.92,
-            0.93,
-            1.05,
-            0.93,
-            0.94,
-            0.94,
-            0.96,
-            0.89,
-            1.08,
-            0.93,
-            0.93,
-            0.95,
-            0.96,
-            0.89,
-            1.03,
-            0.93,
-            0.9,
-            0.93,
-            0.97,
+            1.02,
             1.06,
-            0.99,
-            0.94,
-            1.81,
-            0.88
+            1.05
           ],
           "target_timeouts": 0,
           "stages": [],
@@ -792,10 +792,10 @@
           "target_errors": 0,
           "source_errors": 0,
           "budget_exhausted": false,
-          "source_p50_ms": 0.33,
-          "source_p95_ms": 0.54,
-          "target_p50_ms": 0.95,
-          "target_p95_ms": 1.18,
+          "source_p50_ms": 0.45,
+          "source_p95_ms": 0.68,
+          "target_p50_ms": 1.21,
+          "target_p95_ms": 1.43,
           "first_difference": null,
           "difference_kinds": {},
           "ranking_only": false,
@@ -807,68 +807,68 @@
           "path": "reporting",
           "features": [],
           "source_ms_samples": [
-            0.82,
-            0.69,
-            0.75,
-            0.58,
-            0.6,
-            0.67,
-            0.65,
-            0.67,
-            0.58,
-            0.57,
-            0.53,
-            0.64,
-            0.56,
-            0.53,
-            0.56,
+            0.72,
+            0.61,
+            0.68,
             0.59,
-            0.53,
+            0.65,
             0.55,
-            0.65,
-            0.59,
-            0.54,
-            0.56,
-            0.58,
-            0.57,
             0.53,
+            0.66,
+            0.57,
+            0.52,
+            0.55,
+            0.57,
+            0.55,
+            0.61,
+            0.54,
+            0.54,
+            0.55,
+            0.52,
+            0.55,
+            0.57,
+            0.52,
+            0.51,
+            0.5,
+            0.54,
+            0.57,
+            0.52,
+            0.51,
             0.54,
             0.52,
-            0.56,
-            0.53,
-            0.54
+            0.53
           ],
           "target_ms_samples": [
-            0.73,
-            0.65,
-            0.76,
-            0.64,
-            0.73,
-            0.73,
-            0.71,
             0.7,
-            0.67,
-            0.64,
-            0.65,
             0.68,
-            0.65,
-            0.62,
-            0.69,
-            0.67,
-            0.6,
-            0.64,
-            0.68,
-            0.6,
-            0.7,
             0.71,
-            0.69,
-            0.62,
-            0.68,
             0.66,
+            0.69,
+            0.59,
+            0.61,
+            0.66,
+            0.66,
+            0.6,
+            0.63,
+            0.63,
+            0.64,
+            0.66,
+            0.67,
+            0.58,
+            0.63,
+            0.6,
             0.64,
             0.6,
-            0.68,
-            0.63
+            0.64,
+            0.58,
+            0.61,
+            0.59,
+            0.61,
+            0.61,
+            0.61,
+            0.58,
+            0.62,
+            0.62
           ],
           "target_timeouts": 0,
           "stages": [
@@ -882,10 +882,10 @@
           "target_errors": 0,
           "source_errors": 0,
           "budget_exhausted": false,
-          "source_p50_ms": 0.57,
-          "source_p95_ms": 0.75,
-          "target_p50_ms": 0.67,
-          "target_p95_ms": 0.73,
+          "source_p50_ms": 0.55,
+          "source_p95_ms": 0.68,
+          "target_p50_ms": 0.63,
+          "target_p95_ms": 0.7,
           "first_difference": null,
           "difference_kinds": {},
           "ranking_only": false,
@@ -893,10 +893,10 @@
         }
       ],
       "overall": {
-        "source_p50_ms": 0.33,
+        "source_p50_ms": 0.44,
         "source_p95_ms": 0.65,
-        "target_p50_ms": 0.58,
-        "target_p95_ms": 1.05,
+        "target_p50_ms": 0.61,
+        "target_p95_ms": 1.28,
         "compared_on_both": 150
       }
     },
@@ -908,10 +908,10 @@
       "source_errors": 0,
       "first_difference": null,
       "first_error": null,
-      "source_p50_ms": 0.6,
-      "source_p95_ms": 1.87,
-      "target_p50_ms": 0.62,
-      "target_p95_ms": 0.9,
+      "source_p50_ms": 1.27,
+      "source_p95_ms": 1.65,
+      "target_p50_ms": 0.59,
+      "target_p95_ms": 0.79,
       "by_feature": {
         "F10": {
           "equal": 70
@@ -947,5 +947,5 @@
       "schema_rejections": []
     }
   },
-  "seconds": 0.5
+  "seconds": 0.7
 }

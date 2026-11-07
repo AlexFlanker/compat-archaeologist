@@ -10,14 +10,14 @@
       "collection": "orders",
       "stages": [],
       "replay_p95_ms": {
-        "source": 0.54,
-        "target": 1.18
+        "source": 0.68,
+        "target": 1.43
       },
       "source": {
         "engine_format": "MongoDB plan",
         "docs_examined": 94,
         "keys_examined": 94,
-        "time_ms": 2,
+        "time_ms": 1,
         "plan": "IXSCAN(_id_) \u2192 FETCH \u2192 LIMIT",
         "full_scans": 0
       },
@@ -38,8 +38,8 @@
       "collection": "orders",
       "stages": [],
       "replay_p95_ms": {
-        "source": 0.42,
-        "target": 0.56
+        "source": 0.65,
+        "target": 0.88
       },
       "source": {
         "engine_format": "MongoDB plan",
@@ -66,8 +66,8 @@
       "collection": "orders",
       "stages": [],
       "replay_p95_ms": {
-        "source": 0.69,
-        "target": 0.73
+        "source": 0.51,
+        "target": 0.67
       },
       "source": {
         "engine_format": "MongoDB plan",

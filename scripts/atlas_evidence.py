@@ -111,13 +111,13 @@ def _advisor_arguments(schema: dict, project_id: str, cluster: str, operation: s
 
 
 def collect() -> int:
-    project_id, cluster = env("ATLAS_PROJECT_ID"), env("ATLAS_CLUSTER_NAME")
-    if not (project_id and cluster):
-        raise SystemExit("ATLAS_PROJECT_ID and ATLAS_CLUSTER_NAME must be set in .env")
+    project_id, cluster = env("ATLAS_PROJECT_ID"), env("ATLAS_CLUSTER_NAME", "ca-evidence")
     uri = env("MONGODB_URI_ATLAS")
+    # Performance Advisor needs an Atlas API service account; without one, collect what the cluster itself shows.
+    with_api = bool(project_id and env("MDB_MCP_API_CLIENT_ID") and env("MDB_MCP_API_CLIENT_SECRET"))
 
-    schemas = mcp_tools.list_tool_schemas(uri, with_atlas_api=True)
-    advisor_schema = schemas.get("atlas-get-performance-advisor")
+    schemas = mcp_tools.list_tool_schemas(uri, with_atlas_api=with_api)
+    advisor_schema = schemas.get("atlas-get-performance-advisor") if with_api else None
     calls: list[tuple[str, dict]] = []
     if advisor_schema:
         calls.append(("atlas-get-performance-advisor", _advisor_arguments(advisor_schema, project_id, cluster, None)))
@@ -126,7 +126,7 @@ def collect() -> int:
         ("aggregate", {"connectionId": "preconfigured", "database": DATABASE, "collection": "products", "pipeline": [{"$listSearchIndexes": {}}]}),
         ("mongodb-logs", {"connectionId": "preconfigured", "type": "global", "limit": 200}),
     ]
-    results = mcp_tools.call_tools(uri, calls, label="Atlas", with_atlas_api=True)
+    results = mcp_tools.call_tools(uri, calls, label="Atlas", with_atlas_api=with_api)
 
     document = {"cluster": cluster, "advisor_tool_available": bool(advisor_schema), "results": {}}
     for (name, _), result in zip(calls, results):

@@ -1,0 +1,21 @@
+{
+  "cluster": "ca-evidence",
+  "advisor_available": false,
+  "slow_operations": 0,
+  "slow_by_feature": {},
+  "suggested_indexes": [],
+  "schema_advice": [],
+  "search_indexes": [
+    {
+      "name": "storefront",
+      "status": "READY",
+      "queryable": true,
+      "fields": [
+        "active",
+        "description",
+        "name",
+        "tags"
+      ]
+    }
+  ]
+}

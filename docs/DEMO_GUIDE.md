@@ -22,7 +22,7 @@ Two apps were built today for the demo:
 - **Data and catalog** (observed): field types, indexes and validators, plus 29 invariants mined from 58,000 documents.
 - **Query log** (observed): 1,554 profiler operations in 29 shapes, each tagged online, reporting or event-driven.
 - **Code**: Meta Muse reads every file and cites file:line. A program checks each citation; 0 were wrong today. Code-only items are INFERRED.
-- **Atlas Performance Advisor**: collected through the MongoDB MCP Server. It's wired in, but wasn't collected today because there was no M10 cluster.
+- **Atlas**: an M10 cluster runs the workload, including Atlas Search. Its search index is read through the MongoDB MCP Server, which makes F11 OBSERVED. Performance Advisor wasn't collected, because there's no API service account.
 
 **Pipeline**
 
@@ -131,7 +131,7 @@ Start `./run_demo.sh` in the first 10 seconds. It takes about 134 s, mostly a re
 | Fetch.ai judging: payment protocol | **Not built** | Don't claim it |
 | Fetch.ai: README name, address, badges | Done | README |
 | Fetch.ai: ASI:One Submission Agent | **To do** | Alex |
-| MongoDB as hero | Partly | Oracle, MongoDB MCP Server (120 calls), Atlas Search in ShopLog. Atlas M10 and Performance Advisor not collected |
+| MongoDB as hero | Done (minus Performance Advisor) | Oracle, MongoDB MCP Server, Atlas M10 as evidence source and results store, Atlas Search index observed (F11 OBSERVED). Performance Advisor not collected |
 | Hard rules | Done | README sections, pre-push secret check, synthetic data, memo plus cards instead of a dashboard |
 
 ## Guardrails for Q&A
@@ -143,7 +143,7 @@ Start `./run_demo.sh` in the first 10 seconds. It takes about 134 s, mostly a re
 - **10/10 has a footnote:** one pattern was fixed after the first run.
 - **TB-scale numbers are projections** (INFERRED).
 - **International Racking isn't wired into the pipeline yet.**
-- **We didn't build** the payment protocol, and **didn't collect** Atlas Performance Advisor evidence.
+- **We didn't build** the payment protocol, and **didn't collect** Atlas Performance Advisor output (no API service account).
 - **"Isn't this MongoDB marketing?"** No. The same pipeline tells the control app migration is fine, and it reports where FerretDB matches or is faster.
 
 ## Left to do

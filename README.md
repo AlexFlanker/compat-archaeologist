@@ -50,6 +50,8 @@ FerretDB's own [compatibility page](https://docs.ferretdb.io/migration/compatibi
 
 **Edge cases.** SubQ's generative model, `subq-preview`, designed 48 awkward documents for ShopLog's real fields: dates before 1970 and in year 9999, int64 beyond 2^53, -0.0, NaN, Decimal128 money, Unicode, and null versus missing. MongoDB refereed, and round-trips were compared with BSON types kept exactly. FerretDB stored, matched, sorted and typed all 48 the same as MongoDB, and MongoDB matched itself on all 48 too. So the gaps are in behavior (transactions, validators, collation, change streams), not in storing data.
 
+**MongoDB Atlas.** A dedicated M10 cluster served as an evidence source and results store, never as part of the latency comparison. ShopLog was seeded there (every index and validator accepted, including the case-insensitive unique index FerretDB refuses), an Atlas Search index was built, and the workload ran storefront `$search` queries. The MongoDB MCP Server read the search index back, which upgrades F11 (Atlas Search) from INFERRED to OBSERVED. Every assessment is saved to `compat_archaeologist.assessments` in Atlas. Performance Advisor wasn't collected, because it needs an Atlas API service account.
+
 **Hidden rules, scored blind.** ShopLog has 10 planted business rules ([docs/RULES.md](docs/RULES.md)) that the pipeline never reads. A separate scorer matches the recovered evidence against fixed patterns, not a model's judgment.
 - **From data and the catalog alone:** 8 of 10 found, plus 1 partly.
 - **With Muse reading the code:** 10 of 10 found and 10 of 10 labeled correctly. That includes the refund window, which exists only in code and is correctly labeled INFERRED.

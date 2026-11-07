@@ -3,7 +3,27 @@
   "code_evidence_source": "muse_cached",
   "code_model": "muse-spark-1.3",
   "citations_dropped": 0,
-  "atlas": null,
+  "atlas": {
+    "cluster": "ca-evidence",
+    "advisor_available": false,
+    "slow_operations": 0,
+    "slow_by_feature": {},
+    "suggested_indexes": [],
+    "schema_advice": [],
+    "search_indexes": [
+      {
+        "name": "storefront",
+        "status": "READY",
+        "queryable": true,
+        "fields": [
+          "active",
+          "description",
+          "name",
+          "tags"
+        ]
+      }
+    ]
+  },
   "operators": {
     "$set": 333,
     "$sum": 236,
@@ -1204,6 +1224,12 @@
       "why_risky": "Atlas-only: other engines need a separate search service",
       "sources": [
         {
+          "type": "data",
+          "ref": "atlas:products.storefront",
+          "detail": "Atlas Search index 'storefront' on fields ['active', 'description', 'name', 'tags'] (status READY)",
+          "origin": "atlas"
+        },
+        {
           "type": "code",
           "ref": "shoplog/catalog.py:10",
           "token": "$search",
@@ -1225,10 +1251,10 @@
           "origin": "muse_cached"
         }
       ],
-      "independent_sources": 1,
-      "status": "INFERRED",
-      "confidence": 0.959,
-      "confidence_basis": "subq-snap-1.1, single source",
+      "independent_sources": 2,
+      "status": "OBSERVED",
+      "confidence": 0.9,
+      "confidence_basis": "2 independent sources agree",
       "sample_operations": []
     },
     {
@@ -1247,7 +1273,7 @@
       ],
       "independent_sources": 1,
       "status": "INFERRED",
-      "confidence": 0.575,
+      "confidence": 0.854,
       "confidence_basis": "subq-snap-1.1, single source",
       "sample_operations": []
     }
@@ -2157,7 +2183,7 @@
   "subq": {
     "items": {
       "available": true,
-      "asked": 2,
+      "asked": 1,
       "reason": null
     },
     "behaviors": {

@@ -390,8 +390,8 @@
                 "$unwind",
                 "$facet"
               ],
-              "source_p95_ms": 7.28,
-              "target_p95_ms": 4080.87,
+              "source_p95_ms": 8.07,
+              "target_p95_ms": 4225.34,
               "samples": 7
             }
           ],
@@ -408,7 +408,7 @@
           "name": "Atlas Search ($search with a search index)",
           "kind": "documented_conflict",
           "verdict": "documented_conflict",
-          "confidence": 0.959,
+          "confidence": 0.9,
           "blocking": true,
           "evidence": [
             {
@@ -586,7 +586,7 @@
           "name": "Atlas Search ($search with a search index)",
           "kind": "documented_conflict",
           "verdict": "documented_conflict",
-          "confidence": 0.959,
+          "confidence": 0.9,
           "blocking": true,
           "evidence": [
             {
