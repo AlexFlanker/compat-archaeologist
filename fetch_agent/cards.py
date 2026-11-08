@@ -121,6 +121,7 @@ def gaps_card(profile: str, tco: dict) -> tuple[str, dict]:
             if estimate:
                 children.append({"type": "text", "value": f"Rewrite estimate (Muse, inferred): {estimate['hours_base']:.0f} h. {estimate['approach']}", "style": "muted"})
             items.append({"children": children})
+    found = len(items)
     if not items:
         items.append({"children": [{"type": "text", "value": "No blocking gaps. Every probe and replayed operation matched.", "style": "emphasis"}]})
     root = _section(
@@ -128,7 +129,8 @@ def gaps_card(profile: str, tco: dict) -> tuple[str, dict]:
         "FerretDB rows are observed by probes and replay. DocumentDB rows are inferred from AWS docs.",
         [{"type": "list", "items": items[:12]}, {"type": "divider"}, _back_button(profile)],
     )
-    return f"{len(items)} blocking gap(s) found.", metadata("custom", {"root": root}, 680)
+    narration = f"{found} blocking gap(s) found." if found else "No blocking gaps found."
+    return narration, metadata("custom", {"root": root}, 680)
 
 
 def _gap_detail(gap: dict) -> str:

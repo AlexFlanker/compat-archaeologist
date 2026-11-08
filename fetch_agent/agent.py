@@ -69,6 +69,9 @@ def _intent(text: str) -> dict:
             pass
     lowered = stripped.lower()
     profile = "lite" if any(word in lowered for word in ("lite", "control", "simple", "crud")) else "shoplog"
+    # The "Run the control app" button can arrive as prose that also carries the selected radio option.
+    if "run the control app" in lowered or "assess" in lowered:
+        return {"action": "assess", "profile": profile}
     for view in ("gaps", "ledger", "latency"):
         if view in lowered or (view == "gaps" and "break" in lowered):
             return {"action": "view", "view": view, "profile": profile}
