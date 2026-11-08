@@ -70,7 +70,11 @@ def _intent(text: str) -> dict:
     lowered = stripped.lower()
     profile = "lite" if any(word in lowered for word in ("lite", "control", "simple", "crud")) else "shoplog"
     # The "Run the control app" button can arrive as prose that also carries the selected radio option.
-    if "run the control app" in lowered or "assess" in lowered:
+    if "run the control app" in lowered:
+        return {"action": "assess", "profile": profile}
+    if any(word in lowered for word in ("revers", "flip", "on paper", "paper case")):
+        return {"action": "view", "view": "reversal", "profile": profile}
+    if "assess" in lowered:
         return {"action": "assess", "profile": profile}
     for view in ("gaps", "ledger", "latency"):
         if view in lowered or (view == "gaps" and "break" in lowered):
@@ -103,7 +107,9 @@ async def _send_decision(ctx: Context, sender: str, profile: str) -> None:
 
 
 async def _send_view(ctx: Context, sender: str, profile: str, view: str) -> None:
-    if view == "gaps":
+    if view == "reversal":
+        narration, card = cards.reversal_card(profile, _read(profile, "tco.json"))
+    elif view == "gaps":
         narration, card = cards.gaps_card(profile, _read(profile, "tco.json"))
     elif view == "ledger":
         narration, card = cards.ledger_card(profile, _read(profile, "ledger.json"))

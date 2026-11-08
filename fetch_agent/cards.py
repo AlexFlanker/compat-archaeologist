@@ -69,6 +69,7 @@ def decision_card(profile: str, tco: dict, ledger: dict, scoreboard: dict | None
             "kind": "radio",
             "label": "Show me",
             "choices": [
+                {"value": "reversal", "label": "How the evidence reversed it", "secondary_text": "Paper case, then each finding, step by step"},
                 {"value": "gaps", "label": "What breaks", "secondary_text": "Each gap with its evidence"},
                 {"value": "ledger", "label": "Usage-Spec Ledger", "secondary_text": "What the app really depends on"},
                 {"value": "latency", "label": "Latency and query plans", "secondary_text": "Replay on both engines"},
@@ -195,6 +196,41 @@ def latency_card(profile: str, runs: dict, explain: dict | None) -> tuple[str, d
     children += [{"type": "divider"}, _back_button(profile)]
     root = _section("Latency and query plans", "Both engines in Docker on one machine, same limits, alternating order.", children)
     return "Replay latency and the query plans behind the slowest paths.", metadata("custom", {"root": root}, 720)
+
+
+def reversal_card(profile: str, tco: dict) -> tuple[str, dict]:
+    """The paper case, then each finding as a step that moves the 12-month net, with the flip marked."""
+    walk = tco.get("reversal")
+    if not walk:
+        root = _section("How the evidence reversed it", "No reversal data for this assessment.", [_back_button(profile)])
+        return "No reversal data for this assessment.", metadata("custom", {"root": root}, 680)
+    flip = walk["flipped_at"]
+    items = []
+    for index, step in enumerate(walk["steps"]):
+        flipped = flip is not None and index == flip
+        badges = [{"type": "badge", "label": f"Step {index}", "variant": "info"},
+                  {"type": "badge", "label": step["decision"], "variant": "success" if step["decision"] == "Migrate" else "warning"}]
+        if flipped:
+            badges.append({"type": "badge", "label": "Decision flips here", "variant": "warning"})
+        change = "" if step["change"] is None else f"{_money(step['change'])} → "
+        items.append({"children": [
+            {"type": "group", "direction": "row", "gap": 8, "children": badges},
+            {"type": "heading", "value": step["step"], "level": 3},
+            {"type": "text", "value": f"{change}running net {_money(step['net'])} over 12 months", "style": "emphasis" if flipped else "body"},
+            {"type": "text", "value": step["evidence"], "style": "muted"},
+        ]})
+    children = [{"type": "list", "items": items}]
+    subq = walk.get("subq") or {}
+    if subq.get("on_paper") is not None and subq.get("with_evidence") is not None:
+        children += [{"type": "divider"}, {"type": "heading", "value": "Same question to SubQ, twice", "level": 3},
+                     {"type": "text", "value": f"Paper facts only: P(net-positive) {format_probability(subq['on_paper'])}. With our evidence: {format_probability(subq['with_evidence'])}. SubQ is only as good as its facts; this is the evidence that changed its answer.", "style": "body"}]
+    children += [{"type": "divider"}, _back_button(profile)]
+    first, last = walk["steps"][0], walk["steps"][-1]
+    subtitle = f"{walk['target']}: {_money(first['net'])} ({first['decision']}) on paper → {_money(last['net'])} ({last['decision']}) with evidence"
+    root = _section("How the evidence reversed the decision", subtitle, children)
+    narration = (f"On paper {_money(first['net'])}, migrate. First finding: {walk['steps'][flip]['step']}, and the decision flips. Final: {_money(last['net'])}, {last['decision'].lower()}."
+                 if flip else f"The evidence kept the decision: {_money(first['net'])} on paper, {_money(last['net'])} with evidence.")
+    return narration, metadata("custom", {"root": root}, 720)
 
 
 def _back_button(profile: str) -> dict:

@@ -54,3 +54,23 @@ def test_headline_says_migration_is_fine_for_control():
 def test_oversized_payload_is_refused():
     with pytest.raises(ValueError):
         cards.metadata("custom", {"root": {"type": "text", "value": "x" * (70 * 1024)}})
+
+
+def test_reversal_card_marks_the_flip():
+    import json as _json
+    from fetch_agent import cards as _cards
+    tco = {"reversal": {"target": "FerretDB", "flipped_at": 1, "steps": [
+        {"step": "On paper", "evidence": "list prices", "change": None, "net": 20000.0, "decision": "Migrate"},
+        {"step": "Transactions don't roll back", "evidence": "silent", "change": -26000.0, "net": -6000.0, "decision": "Stay"},
+    ], "subq": {"on_paper": 0.9995, "with_evidence": 0.0001}}}
+    narration, card = _cards.reversal_card("shoplog", tco)
+    payload = card["card_payload"]
+    assert "flips" in narration and "Decision flips here" in payload
+    assert ">0.999" in payload and "<0.001" in payload
+    assert _json.loads(payload)["root"]["type"] == "section"
+
+
+def test_reversal_intent():
+    from fetch_agent.agent import _intent
+    assert _intent("Show: How the evidence reversed it")["view"] == "reversal"
+    assert _intent("Run the control app (view: How the evidence reversed it)") == {"action": "assess", "profile": "lite"}
