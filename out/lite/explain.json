@@ -10,14 +10,14 @@
       "collection": "orders",
       "stages": [],
       "replay_p95_ms": {
-        "source": 0.39,
-        "target": 1.84
+        "source": 0.46,
+        "target": 1.23
       },
       "source": {
         "engine_format": "MongoDB plan",
         "docs_examined": 94,
         "keys_examined": 94,
-        "time_ms": 0,
+        "time_ms": 2,
         "plan": "IXSCAN(_id_) \u2192 FETCH \u2192 LIMIT",
         "full_scans": 0
       },
@@ -31,31 +31,30 @@
       }
     },
     {
-      "shape_id": "S70f34912",
-      "features": [],
-      "collection": "orders",
-      "stages": [
-        "$match",
-        "$group"
+      "shape_id": "S003befd8",
+      "features": [
+        "F10"
       ],
+      "collection": "orders",
+      "stages": [],
       "replay_p95_ms": {
-        "source": 0.6,
-        "target": 1.84
+        "source": 0.5,
+        "target": 0.7
       },
       "source": {
         "engine_format": "MongoDB plan",
-        "docs_examined": 0,
-        "keys_examined": 2524,
-        "time_ms": 4,
-        "plan": "COUNT_SCAN(status_1) \u2192 GROUP",
+        "docs_examined": 20,
+        "keys_examined": 20,
+        "time_ms": 0,
+        "plan": "IXSCAN(customer_id_1) \u2192 FETCH \u2192 SORT",
         "full_scans": 0
       },
       "target": {
         "engine_format": "Postgres plan (FerretDB)",
-        "plan": "Subquery Scan \u2192 Aggregate \u2192 Bitmap Heap Scan \u2192 Bitmap Index Scan(status_1)",
+        "plan": "Limit \u2192 Sort \u2192 Bitmap Heap Scan \u2192 Bitmap Index Scan(customer_id_1)",
         "full_scans": 0,
         "nested_loops": 0,
-        "estimated_total_cost": 183.48,
+        "estimated_total_cost": 316.56,
         "time_ms": null
       }
     },
@@ -67,8 +66,8 @@
       "collection": "orders",
       "stages": [],
       "replay_p95_ms": {
-        "source": 0.41,
-        "target": 0.77
+        "source": 0.56,
+        "target": 0.71
       },
       "source": {
         "engine_format": "MongoDB plan",

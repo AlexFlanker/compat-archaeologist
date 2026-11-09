@@ -1,5 +1,5 @@
 {
-  "run_id": "20261109T112723Z",
+  "run_id": "20261109T124841Z",
   "profile": "shoplog",
   "self_check": false,
   "probe_origin": "muse",
@@ -27,19 +27,19 @@
           {
             "label": "seed customers",
             "op": "command",
-            "ms": 41.01,
+            "ms": 51.22,
             "status": "ok"
           },
           {
             "label": "seed orders",
             "op": "command",
-            "ms": 12.67,
+            "ms": 14.38,
             "status": "ok"
           },
           {
             "label": "confirm customers",
             "op": "command",
-            "ms": 1.15,
+            "ms": 0.57,
             "status": "ok",
             "captured": {
               "docs": [
@@ -70,7 +70,7 @@
           {
             "label": "revenue facet with lookup",
             "op": "command",
-            "ms": 1.77,
+            "ms": 0.93,
             "status": "ok",
             "captured": {
               "docs": [
@@ -149,7 +149,7 @@
             }
           }
         ],
-        "seconds": 0.067
+        "seconds": 0.079
       },
       "target": {
         "outcome": "completed",
@@ -157,19 +157,19 @@
           {
             "label": "seed customers",
             "op": "command",
-            "ms": 14.62,
+            "ms": 13.35,
             "status": "ok"
           },
           {
             "label": "seed orders",
             "op": "command",
-            "ms": 4.65,
+            "ms": 5.99,
             "status": "ok"
           },
           {
             "label": "confirm customers",
             "op": "command",
-            "ms": 1.3,
+            "ms": 1.79,
             "status": "ok",
             "captured": {
               "docs": [
@@ -200,7 +200,7 @@
           {
             "label": "revenue facet with lookup",
             "op": "command",
-            "ms": 4.67,
+            "ms": 7.33,
             "status": "ok",
             "captured": {
               "docs": [
@@ -279,7 +279,7 @@
             }
           }
         ],
-        "seconds": 0.072
+        "seconds": 0.042
       },
       "verdict": "equal",
       "detail": {}
@@ -295,19 +295,19 @@
           {
             "label": "seed customers",
             "op": "command",
-            "ms": 44.24,
+            "ms": 48.21,
             "status": "ok"
           },
           {
             "label": "seed orders",
             "op": "command",
-            "ms": 11.82,
+            "ms": 14.97,
             "status": "ok"
           },
           {
             "label": "confirm orders",
             "op": "command",
-            "ms": 0.73,
+            "ms": 0.57,
             "status": "ok",
             "captured": {
               "docs": [
@@ -350,7 +350,7 @@
           {
             "label": "lookup preserves empty array",
             "op": "command",
-            "ms": 1.56,
+            "ms": 1.33,
             "status": "ok",
             "captured": {
               "docs": [
@@ -403,7 +403,7 @@
           {
             "label": "facet with empty branch",
             "op": "command",
-            "ms": 1.04,
+            "ms": 1.19,
             "status": "ok",
             "captured": {
               "docs": [
@@ -448,7 +448,7 @@
             }
           }
         ],
-        "seconds": 0.071
+        "seconds": 0.083
       },
       "target": {
         "outcome": "completed",
@@ -456,19 +456,19 @@
           {
             "label": "seed customers",
             "op": "command",
-            "ms": 12.75,
+            "ms": 11.82,
             "status": "ok"
           },
           {
             "label": "seed orders",
             "op": "command",
-            "ms": 5.48,
+            "ms": 5.16,
             "status": "ok"
           },
           {
             "label": "confirm orders",
             "op": "command",
-            "ms": 1.01,
+            "ms": 2.12,
             "status": "ok",
             "captured": {
               "docs": [
@@ -511,7 +511,7 @@
           {
             "label": "lookup preserves empty array",
             "op": "command",
-            "ms": 6.66,
+            "ms": 5.96,
             "status": "ok",
             "captured": {
               "docs": [
@@ -564,7 +564,7 @@
           {
             "label": "facet with empty branch",
             "op": "command",
-            "ms": 2.35,
+            "ms": 6.37,
             "status": "ok",
             "captured": {
               "docs": [
@@ -609,7 +609,7 @@
             }
           }
         ],
-        "seconds": 0.075
+        "seconds": 0.041
       },
       "verdict": "equal",
       "detail": {}
@@ -625,19 +625,19 @@
           {
             "label": "seed products",
             "op": "command",
-            "ms": 41.44,
+            "ms": 52.44,
             "status": "ok"
           },
           {
             "label": "seed inventory",
             "op": "command",
-            "ms": 12.42,
+            "ms": 15.0,
             "status": "ok"
           },
           {
             "label": "confirm products",
             "op": "command",
-            "ms": 0.44,
+            "ms": 0.6,
             "status": "ok",
             "captured": {
               "docs": [
@@ -682,7 +682,7 @@
           {
             "label": "lookup keeps empty stock",
             "op": "command",
-            "ms": 1.15,
+            "ms": 1.34,
             "status": "ok",
             "captured": {
               "docs": [
@@ -747,7 +747,7 @@
           {
             "label": "group facet with cents",
             "op": "command",
-            "ms": 1.44,
+            "ms": 1.15,
             "status": "ok",
             "captured": {
               "docs": [
@@ -790,7 +790,7 @@
             }
           }
         ],
-        "seconds": 0.068
+        "seconds": 0.087
       },
       "target": {
         "outcome": "completed",
@@ -798,19 +798,19 @@
           {
             "label": "seed products",
             "op": "command",
-            "ms": 10.35,
+            "ms": 14.48,
             "status": "ok"
           },
           {
             "label": "seed inventory",
             "op": "command",
-            "ms": 5.4,
+            "ms": 6.74,
             "status": "ok"
           },
           {
             "label": "confirm products",
             "op": "command",
-            "ms": 1.69,
+            "ms": 1.45,
             "status": "ok",
             "captured": {
               "docs": [
@@ -855,7 +855,7 @@
           {
             "label": "lookup keeps empty stock",
             "op": "command",
-            "ms": 1.47,
+            "ms": 2.31,
             "status": "ok",
             "captured": {
               "docs": [
@@ -920,7 +920,7 @@
           {
             "label": "group facet with cents",
             "op": "command",
-            "ms": 1.66,
+            "ms": 1.81,
             "status": "ok",
             "captured": {
               "docs": [
@@ -963,7 +963,7 @@
             }
           }
         ],
-        "seconds": 0.07
+        "seconds": 0.036
       },
       "verdict": "equal",
       "detail": {}
@@ -979,13 +979,13 @@
           {
             "label": "seed-orders",
             "op": "command",
-            "ms": 43.79,
+            "ms": 52.95,
             "status": "ok"
           },
           {
             "label": "running-total-seq",
             "op": "command",
-            "ms": 0.94,
+            "ms": 0.85,
             "status": "ok",
             "captured": {
               "docs": [
@@ -1040,7 +1040,7 @@
             }
           }
         ],
-        "seconds": 0.056
+        "seconds": 0.069
       },
       "target": {
         "outcome": "completed",
@@ -1048,13 +1048,13 @@
           {
             "label": "seed-orders",
             "op": "command",
-            "ms": 9.83,
+            "ms": 11.2,
             "status": "ok"
           },
           {
             "label": "running-total-seq",
             "op": "command",
-            "ms": 4.01,
+            "ms": 6.16,
             "status": "ok",
             "captured": {
               "docs": [
@@ -1125,13 +1125,13 @@
           {
             "label": "seed-orders",
             "op": "command",
-            "ms": 40.84,
+            "ms": 48.38,
             "status": "ok"
           },
           {
             "label": "rolling-90d",
             "op": "command",
-            "ms": 0.93,
+            "ms": 1.2,
             "status": "ok",
             "captured": {
               "docs": [
@@ -1180,7 +1180,7 @@
             }
           }
         ],
-        "seconds": 0.054
+        "seconds": 0.064
       },
       "target": {
         "outcome": "completed",
@@ -1188,13 +1188,13 @@
           {
             "label": "seed-orders",
             "op": "command",
-            "ms": 14.44,
+            "ms": 15.24,
             "status": "ok"
           },
           {
             "label": "rolling-90d",
             "op": "command",
-            "ms": 5.2,
+            "ms": 5.87,
             "status": "ok",
             "captured": {
               "docs": [
@@ -1243,7 +1243,7 @@
             }
           }
         ],
-        "seconds": 0.029
+        "seconds": 0.032
       },
       "verdict": "equal",
       "detail": {}
@@ -1259,13 +1259,13 @@
           {
             "label": "seed-orders",
             "op": "command",
-            "ms": 42.32,
+            "ms": 50.86,
             "status": "ok"
           },
           {
             "label": "prev-order-shift",
             "op": "command",
-            "ms": 1.03,
+            "ms": 0.86,
             "status": "ok",
             "captured": {
               "docs": [
@@ -1314,7 +1314,7 @@
             }
           }
         ],
-        "seconds": 0.056
+        "seconds": 0.066
       },
       "target": {
         "outcome": "completed",
@@ -1322,13 +1322,13 @@
           {
             "label": "seed-orders",
             "op": "command",
-            "ms": 10.85,
+            "ms": 14.5,
             "status": "ok"
           },
           {
             "label": "prev-order-shift",
             "op": "command",
-            "ms": 4.41,
+            "ms": 6.47,
             "status": "ok",
             "captured": {
               "docs": [
@@ -1377,7 +1377,7 @@
             }
           }
         ],
-        "seconds": 0.026
+        "seconds": 0.032
       },
       "verdict": "equal",
       "detail": {}
@@ -1393,13 +1393,13 @@
           {
             "label": "seed order with 2 lines",
             "op": "command",
-            "ms": 10.81,
+            "ms": 17.35,
             "status": "ok"
           },
           {
             "label": "confirm seed",
             "op": "command",
-            "ms": 0.43,
+            "ms": 1.08,
             "status": "ok",
             "captured": {
               "docs": [
@@ -1454,7 +1454,7 @@
           {
             "label": "no-match arrayFilter no-op",
             "op": "command",
-            "ms": 1.02,
+            "ms": 0.85,
             "status": "ok",
             "captured": {
               "n": 1,
@@ -1469,7 +1469,7 @@
           {
             "label": "read back unchanged",
             "op": "command",
-            "ms": 1.51,
+            "ms": 0.55,
             "status": "ok",
             "captured": {
               "docs": [
@@ -1524,7 +1524,7 @@
           {
             "label": "two identifiers only line A",
             "op": "command",
-            "ms": 0.79,
+            "ms": 13.41,
             "status": "ok",
             "captured": {
               "n": 1,
@@ -1539,7 +1539,7 @@
           {
             "label": "read back only A changed",
             "op": "command",
-            "ms": 0.26,
+            "ms": 0.66,
             "status": "ok",
             "captured": {
               "docs": [
@@ -1596,7 +1596,7 @@
           {
             "label": "all-positional reviewed",
             "op": "command",
-            "ms": 0.69,
+            "ms": 3.64,
             "status": "ok",
             "captured": {
               "n": 1,
@@ -1611,7 +1611,7 @@
           {
             "label": "read back all reviewed",
             "op": "command",
-            "ms": 0.23,
+            "ms": 0.33,
             "status": "ok",
             "captured": {
               "docs": [
@@ -1668,7 +1668,7 @@
           {
             "label": "cents from double total",
             "op": "command",
-            "ms": 0.84,
+            "ms": 0.71,
             "status": "ok",
             "captured": {
               "docs": [
@@ -1689,7 +1689,7 @@
             }
           }
         ],
-        "seconds": 0.024
+        "seconds": 0.042
       },
       "target": {
         "outcome": "completed",
@@ -1697,13 +1697,13 @@
           {
             "label": "seed order with 2 lines",
             "op": "command",
-            "ms": 9.56,
+            "ms": 6.49,
             "status": "ok"
           },
           {
             "label": "confirm seed",
             "op": "command",
-            "ms": 1.83,
+            "ms": 0.86,
             "status": "ok",
             "captured": {
               "docs": [
@@ -1758,7 +1758,7 @@
           {
             "label": "no-match arrayFilter no-op",
             "op": "command",
-            "ms": 2.25,
+            "ms": 0.82,
             "status": "ok",
             "captured": {
               "n": 1,
@@ -1773,7 +1773,7 @@
           {
             "label": "read back unchanged",
             "op": "command",
-            "ms": 0.74,
+            "ms": 0.6,
             "status": "ok",
             "captured": {
               "docs": [
@@ -1828,7 +1828,7 @@
           {
             "label": "two identifiers only line A",
             "op": "command",
-            "ms": 3.4,
+            "ms": 2.58,
             "status": "ok",
             "captured": {
               "n": 1,
@@ -1843,7 +1843,7 @@
           {
             "label": "read back only A changed",
             "op": "command",
-            "ms": 0.7,
+            "ms": 0.6,
             "status": "ok",
             "captured": {
               "docs": [
@@ -1900,7 +1900,7 @@
           {
             "label": "all-positional reviewed",
             "op": "command",
-            "ms": 2.12,
+            "ms": 2.39,
             "status": "ok",
             "captured": {
               "n": 1,
@@ -1915,7 +1915,7 @@
           {
             "label": "read back all reviewed",
             "op": "command",
-            "ms": 0.52,
+            "ms": 0.79,
             "status": "ok",
             "captured": {
               "docs": [
@@ -1972,7 +1972,7 @@
           {
             "label": "cents from double total",
             "op": "command",
-            "ms": 3.01,
+            "ms": 0.67,
             "status": "ok",
             "captured": {
               "docs": [
@@ -1993,7 +1993,7 @@
             }
           }
         ],
-        "seconds": 0.033
+        "seconds": 0.024
       },
       "verdict": "result_diff",
       "detail": {
@@ -2017,13 +2017,13 @@
           {
             "label": "seed 2-line order",
             "op": "command",
-            "ms": 9.98,
+            "ms": 16.07,
             "status": "ok"
           },
           {
             "label": "confirm seed",
             "op": "command",
-            "ms": 0.62,
+            "ms": 0.76,
             "status": "ok",
             "captured": {
               "docs": [
@@ -2078,7 +2078,7 @@
           {
             "label": "no-match arrayFilter no-op",
             "op": "command",
-            "ms": 0.61,
+            "ms": 1.03,
             "status": "ok",
             "captured": {
               "n": 1,
@@ -2093,7 +2093,7 @@
           {
             "label": "read back unchanged",
             "op": "command",
-            "ms": 0.41,
+            "ms": 1.07,
             "status": "ok",
             "captured": {
               "docs": [
@@ -2148,7 +2148,7 @@
           {
             "label": "two identifiers same element",
             "op": "command",
-            "ms": 1.49,
+            "ms": 12.55,
             "status": "ok",
             "captured": {
               "n": 1,
@@ -2163,7 +2163,7 @@
           {
             "label": "read back only line 1 changed",
             "op": "command",
-            "ms": 0.36,
+            "ms": 0.4,
             "status": "ok",
             "captured": {
               "docs": [
@@ -2220,7 +2220,7 @@
           {
             "label": "all-positional reviewed",
             "op": "command",
-            "ms": 0.48,
+            "ms": 3.85,
             "status": "ok",
             "captured": {
               "n": 1,
@@ -2235,7 +2235,7 @@
           {
             "label": "read back after all-positional",
             "op": "command",
-            "ms": 0.24,
+            "ms": 0.39,
             "status": "ok",
             "captured": {
               "docs": [
@@ -2292,7 +2292,7 @@
           {
             "label": "cents from double total",
             "op": "command",
-            "ms": 0.49,
+            "ms": 0.58,
             "status": "ok",
             "captured": {
               "docs": [
@@ -2313,7 +2313,7 @@
             }
           }
         ],
-        "seconds": 0.023
+        "seconds": 0.04
       },
       "target": {
         "outcome": "completed",
@@ -2321,13 +2321,13 @@
           {
             "label": "seed 2-line order",
             "op": "command",
-            "ms": 9.28,
+            "ms": 6.68,
             "status": "ok"
           },
           {
             "label": "confirm seed",
             "op": "command",
-            "ms": 1.59,
+            "ms": 0.69,
             "status": "ok",
             "captured": {
               "docs": [
@@ -2382,7 +2382,7 @@
           {
             "label": "no-match arrayFilter no-op",
             "op": "command",
-            "ms": 1.52,
+            "ms": 1.1,
             "status": "ok",
             "captured": {
               "n": 1,
@@ -2397,7 +2397,7 @@
           {
             "label": "read back unchanged",
             "op": "command",
-            "ms": 1.48,
+            "ms": 0.51,
             "status": "ok",
             "captured": {
               "docs": [
@@ -2452,7 +2452,7 @@
           {
             "label": "two identifiers same element",
             "op": "command",
-            "ms": 2.25,
+            "ms": 1.62,
             "status": "ok",
             "captured": {
               "n": 1,
@@ -2467,7 +2467,7 @@
           {
             "label": "read back only line 1 changed",
             "op": "command",
-            "ms": 0.64,
+            "ms": 0.75,
             "status": "ok",
             "captured": {
               "docs": [
@@ -2524,7 +2524,7 @@
           {
             "label": "all-positional reviewed",
             "op": "command",
-            "ms": 1.35,
+            "ms": 1.24,
             "status": "ok",
             "captured": {
               "n": 1,
@@ -2539,7 +2539,7 @@
           {
             "label": "read back after all-positional",
             "op": "command",
-            "ms": 0.68,
+            "ms": 0.82,
             "status": "ok",
             "captured": {
               "docs": [
@@ -2596,7 +2596,7 @@
           {
             "label": "cents from double total",
             "op": "command",
-            "ms": 0.8,
+            "ms": 0.72,
             "status": "ok",
             "captured": {
               "docs": [
@@ -2617,7 +2617,7 @@
             }
           }
         ],
-        "seconds": 0.029
+        "seconds": 0.025
       },
       "verdict": "result_diff",
       "detail": {
@@ -2641,13 +2641,13 @@
           {
             "label": "seed order with two lines",
             "op": "command",
-            "ms": 9.66,
+            "ms": 16.42,
             "status": "ok"
           },
           {
             "label": "confirm seed",
             "op": "command",
-            "ms": 0.4,
+            "ms": 0.89,
             "status": "ok",
             "captured": {
               "docs": [
@@ -2702,7 +2702,7 @@
           {
             "label": "no-match arrayfilter no-op",
             "op": "command",
-            "ms": 0.59,
+            "ms": 1.58,
             "status": "ok",
             "captured": {
               "n": 1,
@@ -2717,7 +2717,7 @@
           {
             "label": "read back unchanged after no-op",
             "op": "command",
-            "ms": 0.44,
+            "ms": 0.66,
             "status": "ok",
             "captured": {
               "docs": [
@@ -2772,7 +2772,7 @@
           {
             "label": "two-identifier filtered update line 1",
             "op": "command",
-            "ms": 1.53,
+            "ms": 11.43,
             "status": "ok",
             "captured": {
               "n": 1,
@@ -2787,7 +2787,7 @@
           {
             "label": "read back only line 1 changed",
             "op": "command",
-            "ms": 0.52,
+            "ms": 0.8,
             "status": "ok",
             "captured": {
               "docs": [
@@ -2844,7 +2844,7 @@
           {
             "label": "mark all reviewed with $[]",
             "op": "command",
-            "ms": 1.1,
+            "ms": 3.48,
             "status": "ok",
             "captured": {
               "n": 1,
@@ -2859,7 +2859,7 @@
           {
             "label": "read back all reviewed",
             "op": "command",
-            "ms": 0.29,
+            "ms": 0.5,
             "status": "ok",
             "captured": {
               "docs": [
@@ -2916,7 +2916,7 @@
           {
             "label": "cents from double total",
             "op": "command",
-            "ms": 0.64,
+            "ms": 0.5,
             "status": "ok",
             "captured": {
               "docs": [
@@ -2937,7 +2937,7 @@
             }
           }
         ],
-        "seconds": 0.023
+        "seconds": 0.04
       },
       "target": {
         "outcome": "completed",
@@ -2945,13 +2945,13 @@
           {
             "label": "seed order with two lines",
             "op": "command",
-            "ms": 8.95,
+            "ms": 6.25,
             "status": "ok"
           },
           {
             "label": "confirm seed",
             "op": "command",
-            "ms": 1.22,
+            "ms": 0.74,
             "status": "ok",
             "captured": {
               "docs": [
@@ -3006,7 +3006,7 @@
           {
             "label": "no-match arrayfilter no-op",
             "op": "command",
-            "ms": 6.7,
+            "ms": 3.51,
             "status": "ok",
             "captured": {
               "n": 1,
@@ -3021,7 +3021,7 @@
           {
             "label": "read back unchanged after no-op",
             "op": "command",
-            "ms": 0.76,
+            "ms": 0.68,
             "status": "ok",
             "captured": {
               "docs": [
@@ -3076,7 +3076,7 @@
           {
             "label": "two-identifier filtered update line 1",
             "op": "command",
-            "ms": 2.49,
+            "ms": 1.28,
             "status": "ok",
             "captured": {
               "n": 1,
@@ -3091,7 +3091,7 @@
           {
             "label": "read back only line 1 changed",
             "op": "command",
-            "ms": 0.65,
+            "ms": 0.78,
             "status": "ok",
             "captured": {
               "docs": [
@@ -3148,7 +3148,7 @@
           {
             "label": "mark all reviewed with $[]",
             "op": "command",
-            "ms": 1.07,
+            "ms": 1.03,
             "status": "ok",
             "captured": {
               "n": 1,
@@ -3163,7 +3163,7 @@
           {
             "label": "read back all reviewed",
             "op": "command",
-            "ms": 0.93,
+            "ms": 0.8,
             "status": "ok",
             "captured": {
               "docs": [
@@ -3220,7 +3220,7 @@
           {
             "label": "cents from double total",
             "op": "command",
-            "ms": 2.86,
+            "ms": 4.37,
             "status": "ok",
             "captured": {
               "docs": [
@@ -3241,7 +3241,7 @@
             }
           }
         ],
-        "seconds": 0.038
+        "seconds": 0.062
       },
       "verdict": "result_diff",
       "detail": {
@@ -3265,7 +3265,7 @@
           {
             "label": "seed-inv",
             "op": "command",
-            "ms": 6.83,
+            "ms": 15.4,
             "status": "ok"
           },
           {
@@ -3277,25 +3277,25 @@
           {
             "label": "reserve-in-txn",
             "op": "command",
-            "ms": 2.34,
+            "ms": 0.77,
             "status": "ok"
           },
           {
             "label": "insert-order-in-txn",
             "op": "command",
-            "ms": 13.65,
+            "ms": 5.74,
             "status": "ok"
           },
           {
             "label": "abort",
             "op": "txn_abort",
-            "ms": 6.65,
+            "ms": 2.24,
             "status": "ok"
           },
           {
             "label": "check-inv-rolled-back",
             "op": "command",
-            "ms": 0.5,
+            "ms": 1.17,
             "status": "ok",
             "captured": {
               "docs": [
@@ -3330,7 +3330,7 @@
           {
             "label": "check-orders-rolled-back",
             "op": "command",
-            "ms": 0.43,
+            "ms": 0.5,
             "status": "ok",
             "captured": {
               "docs": []
@@ -3341,7 +3341,7 @@
             }
           }
         ],
-        "seconds": 0.045
+        "seconds": 0.03
       },
       "target": {
         "outcome": "completed",
@@ -3349,7 +3349,7 @@
           {
             "label": "seed-inv",
             "op": "command",
-            "ms": 8.51,
+            "ms": 4.22,
             "status": "ok"
           },
           {
@@ -3361,25 +3361,25 @@
           {
             "label": "reserve-in-txn",
             "op": "command",
-            "ms": 1.81,
+            "ms": 2.25,
             "status": "ok"
           },
           {
             "label": "insert-order-in-txn",
             "op": "command",
-            "ms": 6.0,
+            "ms": 5.92,
             "status": "ok"
           },
           {
             "label": "abort",
             "op": "txn_abort",
-            "ms": 0.49,
+            "ms": 0.76,
             "status": "ok"
           },
           {
             "label": "check-inv-rolled-back",
             "op": "command",
-            "ms": 0.71,
+            "ms": 0.95,
             "status": "ok",
             "captured": {
               "docs": [
@@ -3414,7 +3414,7 @@
           {
             "label": "check-orders-rolled-back",
             "op": "command",
-            "ms": 0.94,
+            "ms": 0.64,
             "status": "ok",
             "captured": {
               "docs": [
@@ -3455,7 +3455,7 @@
             }
           }
         ],
-        "seconds": 0.03
+        "seconds": 0.057
       },
       "verdict": "result_diff",
       "detail": {
@@ -3479,13 +3479,13 @@
           {
             "label": "seed-inv",
             "op": "command",
-            "ms": 21.04,
+            "ms": 13.63,
             "status": "ok"
           },
           {
             "label": "seed-cart",
             "op": "command",
-            "ms": 16.24,
+            "ms": 5.5,
             "status": "ok"
           },
           {
@@ -3497,31 +3497,31 @@
           {
             "label": "reserve-in-txn",
             "op": "command",
-            "ms": 0.57,
+            "ms": 0.58,
             "status": "ok"
           },
           {
             "label": "insert-order-in-txn",
             "op": "command",
-            "ms": 6.59,
+            "ms": 3.26,
             "status": "ok"
           },
           {
             "label": "convert-cart-in-txn",
             "op": "command",
-            "ms": 0.34,
+            "ms": 0.81,
             "status": "ok"
           },
           {
             "label": "commit",
             "op": "txn_commit",
-            "ms": 2.18,
+            "ms": 3.78,
             "status": "ok"
           },
           {
             "label": "check-inv-committed",
             "op": "command",
-            "ms": 0.5,
+            "ms": 0.28,
             "status": "ok",
             "captured": {
               "docs": [
@@ -3556,7 +3556,7 @@
           {
             "label": "check-order-committed",
             "op": "command",
-            "ms": 0.44,
+            "ms": 0.28,
             "status": "ok",
             "captured": {
               "docs": [
@@ -3599,7 +3599,7 @@
           {
             "label": "check-cart-committed",
             "op": "command",
-            "ms": 0.86,
+            "ms": 0.54,
             "status": "ok",
             "captured": {
               "docs": [
@@ -3634,7 +3634,7 @@
             }
           }
         ],
-        "seconds": 0.053
+        "seconds": 0.033
       },
       "target": {
         "outcome": "failed",
@@ -3642,49 +3642,49 @@
           {
             "label": "seed-inv",
             "op": "command",
-            "ms": 6.75,
+            "ms": 7.0,
             "status": "ok"
           },
           {
             "label": "seed-cart",
             "op": "command",
-            "ms": 3.09,
+            "ms": 34.08,
             "status": "ok"
           },
           {
             "label": "start",
             "op": "txn_start",
-            "ms": 0.0,
+            "ms": 0.01,
             "status": "ok"
           },
           {
             "label": "reserve-in-txn",
             "op": "command",
-            "ms": 1.28,
+            "ms": 3.15,
             "status": "ok"
           },
           {
             "label": "insert-order-in-txn",
             "op": "command",
-            "ms": 3.28,
+            "ms": 3.72,
             "status": "ok"
           },
           {
             "label": "convert-cart-in-txn",
             "op": "command",
-            "ms": 1.28,
+            "ms": 2.46,
             "status": "ok"
           },
           {
             "label": "commit",
             "op": "txn_commit",
-            "ms": 0.41,
+            "ms": 0.66,
             "status": "error",
             "code": 59,
             "message": "no such command: 'commitTransaction', full error: {'ok': 0.0, 'errmsg': \"no such command: 'commitTransaction'\", 'code': 59, 'codeName': 'CommandNotFound'}"
           }
         ],
-        "seconds": 0.034
+        "seconds": 0.069
       },
       "verdict": "unsupported",
       "detail": {
@@ -3704,7 +3704,7 @@
           {
             "label": "seed-inv",
             "op": "command",
-            "ms": 21.4,
+            "ms": 13.41,
             "status": "ok"
           },
           {
@@ -3716,13 +3716,13 @@
           {
             "label": "reserve-in-txn",
             "op": "command",
-            "ms": 1.31,
+            "ms": 0.58,
             "status": "ok"
           },
           {
             "label": "read-outside-sees-old",
             "op": "command",
-            "ms": 0.45,
+            "ms": 0.68,
             "status": "ok",
             "captured": {
               "docs": [
@@ -3747,7 +3747,7 @@
           {
             "label": "read-inside-sees-new",
             "op": "command",
-            "ms": 0.47,
+            "ms": 0.25,
             "status": "ok",
             "captured": {
               "docs": [
@@ -3772,13 +3772,13 @@
           {
             "label": "abort",
             "op": "txn_abort",
-            "ms": 12.0,
+            "ms": 3.2,
             "status": "ok"
           },
           {
             "label": "read-after-abort",
             "op": "command",
-            "ms": 0.73,
+            "ms": 0.43,
             "status": "ok",
             "captured": {
               "docs": [
@@ -3801,7 +3801,7 @@
             }
           }
         ],
-        "seconds": 0.041
+        "seconds": 0.023
       },
       "target": {
         "outcome": "completed",
@@ -3809,7 +3809,7 @@
           {
             "label": "seed-inv",
             "op": "command",
-            "ms": 7.2,
+            "ms": 7.33,
             "status": "ok"
           },
           {
@@ -3821,13 +3821,13 @@
           {
             "label": "reserve-in-txn",
             "op": "command",
-            "ms": 1.93,
+            "ms": 33.74,
             "status": "ok"
           },
           {
             "label": "read-outside-sees-old",
             "op": "command",
-            "ms": 0.8,
+            "ms": 1.99,
             "status": "ok",
             "captured": {
               "docs": [
@@ -3852,7 +3852,7 @@
           {
             "label": "read-inside-sees-new",
             "op": "command",
-            "ms": 0.88,
+            "ms": 0.55,
             "status": "ok",
             "captured": {
               "docs": [
@@ -3877,13 +3877,13 @@
           {
             "label": "abort",
             "op": "txn_abort",
-            "ms": 0.5,
+            "ms": 0.47,
             "status": "ok"
           },
           {
             "label": "read-after-abort",
             "op": "command",
-            "ms": 0.79,
+            "ms": 0.66,
             "status": "ok",
             "captured": {
               "docs": [
@@ -3906,7 +3906,7 @@
             }
           }
         ],
-        "seconds": 0.024
+        "seconds": 0.057
       },
       "verdict": "result_diff",
       "detail": {
@@ -3930,37 +3930,37 @@
           {
             "label": "seed",
             "op": "command",
-            "ms": 16.14,
+            "ms": 4.57,
             "status": "ok"
           },
           {
             "label": "open-filtered",
             "op": "watch_open",
-            "ms": 1.07,
+            "ms": 1.13,
             "status": "ok"
           },
           {
             "label": "update-one",
             "op": "command",
-            "ms": 1.56,
+            "ms": 2.42,
             "status": "ok"
           },
           {
             "label": "insert-filtered-out",
             "op": "command",
-            "ms": 6.86,
+            "ms": 1.15,
             "status": "ok"
           },
           {
             "label": "replace-one",
             "op": "command",
-            "ms": 5.76,
+            "ms": 1.1,
             "status": "ok"
           },
           {
             "label": "poll-two-events",
             "op": "watch_next",
-            "ms": 0.76,
+            "ms": 0.42,
             "status": "ok",
             "captured": [
               {
@@ -4041,11 +4041,11 @@
           {
             "label": "close",
             "op": "watch_close",
-            "ms": 0.35,
+            "ms": 0.23,
             "status": "ok"
           }
         ],
-        "seconds": 0.038
+        "seconds": 0.022
       },
       "target": {
         "outcome": "failed",
@@ -4053,19 +4053,19 @@
           {
             "label": "seed",
             "op": "command",
-            "ms": 8.93,
+            "ms": 7.67,
             "status": "ok"
           },
           {
             "label": "open-filtered",
             "op": "watch_open",
-            "ms": 1.31,
+            "ms": 1.66,
             "status": "error",
             "code": 115,
             "message": "Stage $changeStream is not supported yet in native pipeline, full error: {'ok': 0.0, 'errmsg': 'Stage $changeStream is not supported yet in native pipeline', 'code': 115, 'codeName': 'CommandNotSupported'}"
           }
         ],
-        "seconds": 0.074
+        "seconds": 0.024
       },
       "verdict": "unsupported",
       "detail": {
@@ -4085,25 +4085,25 @@
           {
             "label": "seed",
             "op": "command",
-            "ms": 16.61,
+            "ms": 4.53,
             "status": "ok"
           },
           {
             "label": "open-lookup",
             "op": "watch_open",
-            "ms": 0.82,
+            "ms": 0.71,
             "status": "ok"
           },
           {
             "label": "update-qty",
             "op": "command",
-            "ms": 6.41,
+            "ms": 0.88,
             "status": "ok"
           },
           {
             "label": "poll-fullDocument",
             "op": "watch_next",
-            "ms": 0.52,
+            "ms": 0.36,
             "status": "ok",
             "captured": [
               {
@@ -4156,11 +4156,11 @@
           {
             "label": "close",
             "op": "watch_close",
-            "ms": 0.32,
+            "ms": 0.27,
             "status": "ok"
           }
         ],
-        "seconds": 0.03
+        "seconds": 0.018
       },
       "target": {
         "outcome": "failed",
@@ -4168,7 +4168,7 @@
           {
             "label": "seed",
             "op": "command",
-            "ms": 4.72,
+            "ms": 7.26,
             "status": "ok"
           },
           {
@@ -4180,7 +4180,7 @@
             "message": "Stage $changeStream is not supported yet in native pipeline, full error: {'ok': 0.0, 'errmsg': 'Stage $changeStream is not supported yet in native pipeline', 'code': 115, 'codeName': 'CommandNotSupported'}"
           }
         ],
-        "seconds": 0.068
+        "seconds": 0.021
       },
       "verdict": "unsupported",
       "detail": {
@@ -4200,37 +4200,37 @@
           {
             "label": "seed",
             "op": "command",
-            "ms": 4.81,
+            "ms": 14.17,
             "status": "ok"
           },
           {
             "label": "open-filtered",
             "op": "watch_open",
-            "ms": 0.79,
+            "ms": 1.66,
             "status": "ok"
           },
           {
             "label": "insert-filtered",
             "op": "command",
-            "ms": 6.27,
+            "ms": 8.91,
             "status": "ok"
           },
           {
             "label": "replace-first",
             "op": "command",
-            "ms": 5.36,
+            "ms": 11.54,
             "status": "ok"
           },
           {
             "label": "replace-second",
             "op": "command",
-            "ms": 1.46,
+            "ms": 11.71,
             "status": "ok"
           },
           {
             "label": "poll-two-changes",
             "op": "watch_next",
-            "ms": 1.11,
+            "ms": 1.34,
             "status": "ok",
             "captured": [
               {
@@ -4297,7 +4297,7 @@
           {
             "label": "poll-empty-nonblocking",
             "op": "watch_next",
-            "ms": 621.75,
+            "ms": 611.01,
             "status": "ok",
             "captured": [],
             "capture": true,
@@ -4306,11 +4306,11 @@
           {
             "label": "close",
             "op": "watch_close",
-            "ms": 1.06,
+            "ms": 1.39,
             "status": "ok"
           }
         ],
-        "seconds": 0.696
+        "seconds": 0.753
       },
       "target": {
         "outcome": "failed",
@@ -4318,19 +4318,19 @@
           {
             "label": "seed",
             "op": "command",
-            "ms": 58.5,
+            "ms": 8.24,
             "status": "ok"
           },
           {
             "label": "open-filtered",
             "op": "watch_open",
-            "ms": 1.33,
+            "ms": 1.8,
             "status": "error",
             "code": 115,
             "message": "Stage $changeStream is not supported yet in native pipeline, full error: {'ok': 0.0, 'errmsg': 'Stage $changeStream is not supported yet in native pipeline', 'code': 115, 'codeName': 'CommandNotSupported'}"
           }
         ],
-        "seconds": 0.073
+        "seconds": 0.02
       },
       "verdict": "unsupported",
       "detail": {
@@ -4350,13 +4350,13 @@
           {
             "label": "insert-seed",
             "op": "command",
-            "ms": 7.08,
+            "ms": 8.54,
             "status": "ok"
           },
           {
             "label": "find-upper-with-collation",
             "op": "command",
-            "ms": 0.49,
+            "ms": 0.61,
             "status": "ok",
             "captured": {
               "docs": [
@@ -4381,7 +4381,7 @@
           {
             "label": "find-lower-with-collation",
             "op": "command",
-            "ms": 0.29,
+            "ms": 0.62,
             "status": "ok",
             "captured": {
               "docs": [
@@ -4404,7 +4404,7 @@
             }
           }
         ],
-        "seconds": 0.013
+        "seconds": 0.02
       },
       "target": {
         "outcome": "completed",
@@ -4412,13 +4412,13 @@
           {
             "label": "insert-seed",
             "op": "command",
-            "ms": 55.55,
+            "ms": 6.98,
             "status": "ok"
           },
           {
             "label": "find-upper-with-collation",
             "op": "command",
-            "ms": 0.86,
+            "ms": 2.51,
             "status": "ok",
             "captured": {
               "docs": []
@@ -4431,7 +4431,7 @@
           {
             "label": "find-lower-with-collation",
             "op": "command",
-            "ms": 1.45,
+            "ms": 0.92,
             "status": "ok",
             "captured": {
               "docs": []
@@ -4442,7 +4442,7 @@
             }
           }
         ],
-        "seconds": 0.067
+        "seconds": 0.019
       },
       "verdict": "result_diff",
       "detail": {
@@ -4466,19 +4466,19 @@
           {
             "label": "create-ci-unique-index",
             "op": "command",
-            "ms": 5.88,
+            "ms": 10.36,
             "status": "ok"
           },
           {
             "label": "insert-base",
             "op": "command",
-            "ms": 1.23,
+            "ms": 11.5,
             "status": "ok"
           },
           {
             "label": "insert-case-variant-duplicate",
             "op": "command",
-            "ms": 3.13,
+            "ms": 8.46,
             "status": "ok",
             "captured": {
               "error_code": 11000
@@ -4489,13 +4489,13 @@
           {
             "label": "insert-distinct-allowed",
             "op": "command",
-            "ms": 2.18,
+            "ms": 3.35,
             "status": "ok"
           },
           {
             "label": "read-all-after-unique-check",
             "op": "command",
-            "ms": 0.29,
+            "ms": 0.38,
             "status": "ok",
             "captured": {
               "docs": [
@@ -4524,7 +4524,7 @@
             }
           }
         ],
-        "seconds": 0.048
+        "seconds": 0.037
       },
       "target": {
         "outcome": "failed",
@@ -4532,13 +4532,13 @@
           {
             "label": "create-ci-unique-index",
             "op": "command",
-            "ms": 0.53,
+            "ms": 2.04,
             "status": "error",
             "code": 115,
             "message": "Error in specification { \"key\" : { \"email\" : 1 }, \"name\" : \"email_ci_unique\", \"unique\" : true, \"collation\" : { \"locale\" : \"en\", \"strength\" : 2 } } :: caused by :: createIndex.collation is not implemented yet, full error: {'ok': 0.0, 'errmsg': 'Error in specification { \"key\" : { \"email\" : 1 }, \"name\" : \"email_ci_unique\", \"unique\" : true, \"collation\" : { \"locale\" : \"en\", \"strength\" : 2 } } :: caused"
           }
         ],
-        "seconds": 0.046
+        "seconds": 0.003
       },
       "verdict": "unsupported",
       "detail": {
@@ -4558,13 +4558,13 @@
           {
             "label": "insert-seed",
             "op": "command",
-            "ms": 5.27,
+            "ms": 19.95,
             "status": "ok"
           },
           {
             "label": "find-without-collation-no-match",
             "op": "command",
-            "ms": 0.34,
+            "ms": 0.44,
             "status": "ok",
             "captured": {
               "docs": []
@@ -4577,7 +4577,7 @@
           {
             "label": "find-with-collation-matches",
             "op": "command",
-            "ms": 0.31,
+            "ms": 0.25,
             "status": "ok",
             "captured": {
               "docs": [
@@ -4598,7 +4598,7 @@
             }
           }
         ],
-        "seconds": 0.041
+        "seconds": 0.024
       },
       "target": {
         "outcome": "completed",
@@ -4606,13 +4606,13 @@
           {
             "label": "insert-seed",
             "op": "command",
-            "ms": 6.39,
+            "ms": 5.58,
             "status": "ok"
           },
           {
             "label": "find-without-collation-no-match",
             "op": "command",
-            "ms": 4.29,
+            "ms": 3.52,
             "status": "ok",
             "captured": {
               "docs": []
@@ -4636,7 +4636,7 @@
             }
           }
         ],
-        "seconds": 0.028
+        "seconds": 0.016
       },
       "verdict": "result_diff",
       "detail": {
@@ -4660,19 +4660,19 @@
           {
             "label": "create-partial-unique-index",
             "op": "command",
-            "ms": 40.55,
+            "ms": 22.99,
             "status": "ok"
           },
           {
             "label": "insert-first-coupon",
             "op": "command",
-            "ms": 1.47,
+            "ms": 1.3,
             "status": "ok"
           },
           {
             "label": "insert-duplicate-same-customer-coupon",
             "op": "command",
-            "ms": 0.94,
+            "ms": 1.41,
             "status": "ok",
             "captured": {
               "error_code": 11000
@@ -4683,19 +4683,19 @@
           {
             "label": "insert-no-coupon-first",
             "op": "command",
-            "ms": 0.57,
+            "ms": 1.02,
             "status": "ok"
           },
           {
             "label": "insert-no-coupon-second",
             "op": "command",
-            "ms": 1.43,
+            "ms": 3.73,
             "status": "ok"
           },
           {
             "label": "verify-missing-exempt-duplicate-rejected",
             "op": "command",
-            "ms": 0.36,
+            "ms": 0.6,
             "status": "ok",
             "captured": {
               "docs": [
@@ -4734,7 +4734,7 @@
             }
           }
         ],
-        "seconds": 0.15
+        "seconds": 0.038
       },
       "target": {
         "outcome": "completed",
@@ -4742,19 +4742,19 @@
           {
             "label": "create-partial-unique-index",
             "op": "command",
-            "ms": 8.19,
+            "ms": 6.24,
             "status": "ok"
           },
           {
             "label": "insert-first-coupon",
             "op": "command",
-            "ms": 2.13,
+            "ms": 1.15,
             "status": "ok"
           },
           {
             "label": "insert-duplicate-same-customer-coupon",
             "op": "command",
-            "ms": 10.8,
+            "ms": 2.87,
             "status": "ok",
             "captured": {
               "error_code": 11000
@@ -4765,19 +4765,19 @@
           {
             "label": "insert-no-coupon-first",
             "op": "command",
-            "ms": 1.67,
+            "ms": 1.31,
             "status": "ok"
           },
           {
             "label": "insert-no-coupon-second",
             "op": "command",
-            "ms": 1.53,
+            "ms": 1.26,
             "status": "ok"
           },
           {
             "label": "verify-missing-exempt-duplicate-rejected",
             "op": "command",
-            "ms": 1.52,
+            "ms": 0.97,
             "status": "ok",
             "captured": {
               "docs": [
@@ -4816,7 +4816,7 @@
             }
           }
         ],
-        "seconds": 0.034
+        "seconds": 0.021
       },
       "verdict": "equal",
       "detail": {}
@@ -4832,7 +4832,77 @@
           {
             "label": "create-partial-unique-index",
             "op": "command",
-            "ms": 39.9,
+            "ms": 22.24,
+            "status": "ok"
+          },
+          {
+            "label": "insert-custA-coupon",
+            "op": "command",
+            "ms": 1.45,
+            "status": "ok"
+          },
+          {
+            "label": "insert-custB-same-coupon",
+            "op": "command",
+            "ms": 1.18,
+            "status": "ok"
+          },
+          {
+            "label": "insert-duplicate-same-customer",
+            "op": "command",
+            "ms": 1.0,
+            "status": "ok",
+            "captured": {
+              "error_code": 11000
+            },
+            "capture": true,
+            "message": "write error"
+          },
+          {
+            "label": "verify-per-customer-uniqueness",
+            "op": "command",
+            "ms": 0.45,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": 1,
+                  "coupon_code": "SAVE10",
+                  "customer_id": "custA"
+                },
+                {
+                  "_id": 2,
+                  "coupon_code": "SAVE10",
+                  "customer_id": "custB"
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": "int",
+                  "coupon_code": null,
+                  "customer_id": null
+                },
+                {
+                  "_id": "int",
+                  "coupon_code": null,
+                  "customer_id": null
+                }
+              ]
+            }
+          }
+        ],
+        "seconds": 0.03
+      },
+      "target": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "create-partial-unique-index",
+            "op": "command",
+            "ms": 5.37,
             "status": "ok"
           },
           {
@@ -4844,13 +4914,13 @@
           {
             "label": "insert-custB-same-coupon",
             "op": "command",
-            "ms": 0.95,
+            "ms": 1.11,
             "status": "ok"
           },
           {
             "label": "insert-duplicate-same-customer",
             "op": "command",
-            "ms": 1.04,
+            "ms": 2.18,
             "status": "ok",
             "captured": {
               "error_code": 11000
@@ -4861,7 +4931,7 @@
           {
             "label": "verify-per-customer-uniqueness",
             "op": "command",
-            "ms": 0.74,
+            "ms": 0.66,
             "status": "ok",
             "captured": {
               "docs": [
@@ -4894,77 +4964,7 @@
             }
           }
         ],
-        "seconds": 0.148
-      },
-      "target": {
-        "outcome": "completed",
-        "steps": [
-          {
-            "label": "create-partial-unique-index",
-            "op": "command",
-            "ms": 9.95,
-            "status": "ok"
-          },
-          {
-            "label": "insert-custA-coupon",
-            "op": "command",
-            "ms": 4.95,
-            "status": "ok"
-          },
-          {
-            "label": "insert-custB-same-coupon",
-            "op": "command",
-            "ms": 5.05,
-            "status": "ok"
-          },
-          {
-            "label": "insert-duplicate-same-customer",
-            "op": "command",
-            "ms": 4.16,
-            "status": "ok",
-            "captured": {
-              "error_code": 11000
-            },
-            "capture": true,
-            "message": "write error"
-          },
-          {
-            "label": "verify-per-customer-uniqueness",
-            "op": "command",
-            "ms": 0.59,
-            "status": "ok",
-            "captured": {
-              "docs": [
-                {
-                  "_id": 1,
-                  "coupon_code": "SAVE10",
-                  "customer_id": "custA"
-                },
-                {
-                  "_id": 2,
-                  "coupon_code": "SAVE10",
-                  "customer_id": "custB"
-                }
-              ]
-            },
-            "capture": true,
-            "types": {
-              "docs": [
-                {
-                  "_id": "int",
-                  "coupon_code": null,
-                  "customer_id": null
-                },
-                {
-                  "_id": "int",
-                  "coupon_code": null,
-                  "customer_id": null
-                }
-              ]
-            }
-          }
-        ],
-        "seconds": 0.032
+        "seconds": 0.017
       },
       "verdict": "equal",
       "detail": {}
@@ -4980,19 +4980,19 @@
           {
             "label": "create-partial-ttl-index",
             "op": "command",
-            "ms": 39.06,
+            "ms": 11.52,
             "status": "ok"
           },
           {
             "label": "insert-active-expired-cart",
             "op": "command",
-            "ms": 1.12,
+            "ms": 0.95,
             "status": "ok"
           },
           {
             "label": "insert-inactive-expired-cart",
             "op": "command",
-            "ms": 0.87,
+            "ms": 2.15,
             "status": "ok"
           },
           {
@@ -5004,7 +5004,7 @@
           {
             "label": "verify-only-active-expired",
             "op": "command",
-            "ms": 1.76,
+            "ms": 2.39,
             "status": "ok",
             "captured": {
               "docs": [
@@ -5027,7 +5027,7 @@
             }
           }
         ],
-        "seconds": 72.142
+        "seconds": 72.062
       },
       "target": {
         "outcome": "completed",
@@ -5035,31 +5035,31 @@
           {
             "label": "create-partial-ttl-index",
             "op": "command",
-            "ms": 17.3,
+            "ms": 5.49,
             "status": "ok"
           },
           {
             "label": "insert-active-expired-cart",
             "op": "command",
-            "ms": 1.83,
+            "ms": 1.87,
             "status": "ok"
           },
           {
             "label": "insert-inactive-expired-cart",
             "op": "command",
-            "ms": 1.14,
+            "ms": 1.12,
             "status": "ok"
           },
           {
             "label": "wait-for-ttl",
             "op": "wait_ttl",
-            "ms": 72010.1,
+            "ms": 72010.12,
             "status": "ok"
           },
           {
             "label": "verify-only-active-expired",
             "op": "command",
-            "ms": 7.4,
+            "ms": 13.94,
             "status": "ok",
             "captured": {
               "docs": [
@@ -5082,7 +5082,7 @@
             }
           }
         ],
-        "seconds": 72.052
+        "seconds": 72.053
       },
       "verdict": "equal",
       "detail": {}
@@ -5098,19 +5098,19 @@
           {
             "label": "create orders with validator",
             "op": "command",
-            "ms": 29.67,
+            "ms": 4.73,
             "status": "ok"
           },
           {
             "label": "insert valid order",
             "op": "command",
-            "ms": 1.25,
+            "ms": 6.99,
             "status": "ok"
           },
           {
             "label": "insert missing customer_id fails",
             "op": "command",
-            "ms": 0.46,
+            "ms": 4.12,
             "status": "ok",
             "captured": {
               "error_code": 121
@@ -5121,7 +5121,7 @@
           {
             "label": "insert missing total fails",
             "op": "command",
-            "ms": 0.63,
+            "ms": 0.6,
             "status": "ok",
             "captured": {
               "error_code": 121
@@ -5132,7 +5132,7 @@
           {
             "label": "read back orders",
             "op": "command",
-            "ms": 1.22,
+            "ms": 0.33,
             "status": "ok",
             "captured": {
               "docs": [
@@ -5171,7 +5171,7 @@
             }
           }
         ],
-        "seconds": 0.138
+        "seconds": 0.023
       },
       "target": {
         "outcome": "completed",
@@ -5179,19 +5179,19 @@
           {
             "label": "create orders with validator",
             "op": "command",
-            "ms": 9.69,
+            "ms": 4.0,
             "status": "ok"
           },
           {
             "label": "insert valid order",
             "op": "command",
-            "ms": 1.02,
+            "ms": 1.48,
             "status": "ok"
           },
           {
             "label": "insert missing customer_id fails",
             "op": "command",
-            "ms": 1.16,
+            "ms": 1.19,
             "status": "unexpected_success",
             "captured": {
               "no_error": true
@@ -5201,7 +5201,7 @@
           {
             "label": "insert missing total fails",
             "op": "command",
-            "ms": 1.73,
+            "ms": 0.75,
             "status": "unexpected_success",
             "captured": {
               "no_error": true
@@ -5211,7 +5211,7 @@
           {
             "label": "read back orders",
             "op": "command",
-            "ms": 1.02,
+            "ms": 0.47,
             "status": "ok",
             "captured": {
               "docs": [
@@ -5298,7 +5298,7 @@
             }
           }
         ],
-        "seconds": 0.022
+        "seconds": 0.048
       },
       "verdict": "result_diff",
       "detail": {
@@ -5322,19 +5322,19 @@
           {
             "label": "create orders with validator",
             "op": "command",
-            "ms": 18.71,
+            "ms": 7.14,
             "status": "ok"
           },
           {
             "label": "insert valid order",
             "op": "command",
-            "ms": 1.19,
+            "ms": 4.15,
             "status": "ok"
           },
           {
             "label": "insert bad status fails",
             "op": "command",
-            "ms": 0.84,
+            "ms": 0.55,
             "status": "ok",
             "captured": {
               "error_code": 121
@@ -5345,7 +5345,7 @@
           {
             "label": "insert negative total fails",
             "op": "command",
-            "ms": 0.95,
+            "ms": 0.44,
             "status": "ok",
             "captured": {
               "error_code": 121
@@ -5356,7 +5356,7 @@
           {
             "label": "read back orders",
             "op": "command",
-            "ms": 0.33,
+            "ms": 0.38,
             "status": "ok",
             "captured": {
               "docs": [
@@ -5395,7 +5395,7 @@
             }
           }
         ],
-        "seconds": 0.127
+        "seconds": 0.018
       },
       "target": {
         "outcome": "completed",
@@ -5403,19 +5403,19 @@
           {
             "label": "create orders with validator",
             "op": "command",
-            "ms": 3.98,
+            "ms": 3.04,
             "status": "ok"
           },
           {
             "label": "insert valid order",
             "op": "command",
-            "ms": 1.17,
+            "ms": 1.18,
             "status": "ok"
           },
           {
             "label": "insert bad status fails",
             "op": "command",
-            "ms": 0.88,
+            "ms": 0.73,
             "status": "unexpected_success",
             "captured": {
               "no_error": true
@@ -5425,7 +5425,7 @@
           {
             "label": "insert negative total fails",
             "op": "command",
-            "ms": 0.94,
+            "ms": 0.55,
             "status": "unexpected_success",
             "captured": {
               "no_error": true
@@ -5435,7 +5435,7 @@
           {
             "label": "read back orders",
             "op": "command",
-            "ms": 0.6,
+            "ms": 0.51,
             "status": "ok",
             "captured": {
               "docs": [
@@ -5526,7 +5526,7 @@
             }
           }
         ],
-        "seconds": 0.016
+        "seconds": 0.045
       },
       "verdict": "result_diff",
       "detail": {
@@ -5550,19 +5550,19 @@
           {
             "label": "create orders with validator",
             "op": "command",
-            "ms": 18.18,
+            "ms": 3.79,
             "status": "ok"
           },
           {
             "label": "insert valid order",
             "op": "command",
-            "ms": 11.32,
+            "ms": 0.62,
             "status": "ok"
           },
           {
             "label": "insert items not array fails",
             "op": "command",
-            "ms": 1.93,
+            "ms": 0.32,
             "status": "ok",
             "captured": {
               "error_code": 121
@@ -5573,7 +5573,7 @@
           {
             "label": "insert placed_at string fails",
             "op": "command",
-            "ms": 0.69,
+            "ms": 0.47,
             "status": "ok",
             "captured": {
               "error_code": 121
@@ -5584,7 +5584,7 @@
           {
             "label": "invalid update total fails",
             "op": "command",
-            "ms": 2.55,
+            "ms": 4.56,
             "status": "ok",
             "captured": {
               "error_code": 121
@@ -5595,13 +5595,13 @@
           {
             "label": "valid update status succeeds",
             "op": "command",
-            "ms": 1.96,
+            "ms": 1.53,
             "status": "ok"
           },
           {
             "label": "read back orders",
             "op": "command",
-            "ms": 0.83,
+            "ms": 0.27,
             "status": "ok",
             "captured": {
               "docs": [
@@ -5640,7 +5640,7 @@
             }
           }
         ],
-        "seconds": 0.051
+        "seconds": 0.039
       },
       "target": {
         "outcome": "completed",
@@ -5648,19 +5648,19 @@
           {
             "label": "create orders with validator",
             "op": "command",
-            "ms": 8.3,
+            "ms": 3.38,
             "status": "ok"
           },
           {
             "label": "insert valid order",
             "op": "command",
-            "ms": 2.01,
+            "ms": 1.9,
             "status": "ok"
           },
           {
             "label": "insert items not array fails",
             "op": "command",
-            "ms": 1.36,
+            "ms": 33.55,
             "status": "unexpected_success",
             "captured": {
               "no_error": true
@@ -5670,7 +5670,7 @@
           {
             "label": "insert placed_at string fails",
             "op": "command",
-            "ms": 1.14,
+            "ms": 2.54,
             "status": "unexpected_success",
             "captured": {
               "no_error": true
@@ -5680,7 +5680,7 @@
           {
             "label": "invalid update total fails",
             "op": "command",
-            "ms": 1.87,
+            "ms": 1.05,
             "status": "unexpected_success",
             "captured": {
               "no_error": true
@@ -5690,13 +5690,13 @@
           {
             "label": "valid update status succeeds",
             "op": "command",
-            "ms": 2.83,
+            "ms": 1.34,
             "status": "ok"
           },
           {
             "label": "read back orders",
             "op": "command",
-            "ms": 1.36,
+            "ms": 0.75,
             "status": "ok",
             "captured": {
               "docs": [
@@ -5781,7 +5781,7 @@
             }
           }
         ],
-        "seconds": 0.027
+        "seconds": 0.051
       },
       "verdict": "result_diff",
       "detail": {
@@ -5805,19 +5805,19 @@
           {
             "label": "create-text-index",
             "op": "command",
-            "ms": 27.51,
+            "ms": 5.96,
             "status": "ok"
           },
           {
             "label": "seed-products",
             "op": "command",
-            "ms": 2.16,
+            "ms": 1.31,
             "status": "ok"
           },
           {
             "label": "search-premium-ranked",
             "op": "command",
-            "ms": 0.47,
+            "ms": 0.35,
             "status": "ok",
             "captured": {
               "docs": [
@@ -5856,128 +5856,6 @@
                   "name": null,
                   "price": "int"
                 },
-                {
-                  "_id": "int",
-                  "category": null,
-                  "name": null,
-                  "price": "int"
-                }
-              ]
-            }
-          }
-        ],
-        "seconds": 0.033
-      },
-      "target": {
-        "outcome": "completed",
-        "steps": [
-          {
-            "label": "create-text-index",
-            "op": "command",
-            "ms": 8.58,
-            "status": "ok"
-          },
-          {
-            "label": "seed-products",
-            "op": "command",
-            "ms": 2.47,
-            "status": "ok"
-          },
-          {
-            "label": "search-premium-ranked",
-            "op": "command",
-            "ms": 4.65,
-            "status": "ok",
-            "captured": {
-              "docs": [
-                {
-                  "_id": 3,
-                  "category": "jackets",
-                  "name": "premium jacket",
-                  "price": 99
-                },
-                {
-                  "_id": 2,
-                  "category": "jackets",
-                  "name": "basic jacket",
-                  "price": 79
-                },
-                {
-                  "_id": 1,
-                  "category": "jackets",
-                  "name": "basic jacket",
-                  "price": 69
-                }
-              ]
-            },
-            "capture": true,
-            "types": {
-              "docs": [
-                {
-                  "_id": "int",
-                  "category": null,
-                  "name": null,
-                  "price": "int"
-                },
-                {
-                  "_id": "int",
-                  "category": null,
-                  "name": null,
-                  "price": "int"
-                },
-                {
-                  "_id": "int",
-                  "category": null,
-                  "name": null,
-                  "price": "int"
-                }
-              ]
-            }
-          }
-        ],
-        "seconds": 0.021
-      },
-      "verdict": "equal",
-      "detail": {}
-    },
-    {
-      "probe_id": "F9.text_exclusion_term",
-      "feature_id": "F9",
-      "title": "Text search exclusion term with active filter",
-      "behavior": "Product search supports $text exclusion terms (e.g. premium -jacket) combined with active:true filter and textScore sort; excluded-term documents must not match.",
-      "source": {
-        "outcome": "completed",
-        "steps": [
-          {
-            "label": "create-text-index",
-            "op": "command",
-            "ms": 28.42,
-            "status": "ok"
-          },
-          {
-            "label": "seed-products",
-            "op": "command",
-            "ms": 2.07,
-            "status": "ok"
-          },
-          {
-            "label": "search-exclusion",
-            "op": "command",
-            "ms": 0.59,
-            "status": "ok",
-            "captured": {
-              "docs": [
-                {
-                  "_id": 2,
-                  "category": "boots",
-                  "name": "premium boots",
-                  "price": 89
-                }
-              ]
-            },
-            "capture": true,
-            "types": {
-              "docs": [
                 {
                   "_id": "int",
                   "category": null,
@@ -5996,19 +5874,96 @@
           {
             "label": "create-text-index",
             "op": "command",
-            "ms": 9.49,
+            "ms": 35.9,
             "status": "ok"
           },
           {
             "label": "seed-products",
             "op": "command",
-            "ms": 2.75,
+            "ms": 2.07,
+            "status": "ok"
+          },
+          {
+            "label": "search-premium-ranked",
+            "op": "command",
+            "ms": 3.75,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": 3,
+                  "category": "jackets",
+                  "name": "premium jacket",
+                  "price": 99
+                },
+                {
+                  "_id": 2,
+                  "category": "jackets",
+                  "name": "basic jacket",
+                  "price": 79
+                },
+                {
+                  "_id": 1,
+                  "category": "jackets",
+                  "name": "basic jacket",
+                  "price": 69
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": "int",
+                  "category": null,
+                  "name": null,
+                  "price": "int"
+                },
+                {
+                  "_id": "int",
+                  "category": null,
+                  "name": null,
+                  "price": "int"
+                },
+                {
+                  "_id": "int",
+                  "category": null,
+                  "name": null,
+                  "price": "int"
+                }
+              ]
+            }
+          }
+        ],
+        "seconds": 0.049
+      },
+      "verdict": "equal",
+      "detail": {}
+    },
+    {
+      "probe_id": "F9.text_exclusion_term",
+      "feature_id": "F9",
+      "title": "Text search exclusion term with active filter",
+      "behavior": "Product search supports $text exclusion terms (e.g. premium -jacket) combined with active:true filter and textScore sort; excluded-term documents must not match.",
+      "source": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "create-text-index",
+            "op": "command",
+            "ms": 18.24,
+            "status": "ok"
+          },
+          {
+            "label": "seed-products",
+            "op": "command",
+            "ms": 7.08,
             "status": "ok"
           },
           {
             "label": "search-exclusion",
             "op": "command",
-            "ms": 4.14,
+            "ms": 0.79,
             "status": "ok",
             "captured": {
               "docs": [
@@ -6033,7 +5988,52 @@
             }
           }
         ],
-        "seconds": 0.023
+        "seconds": 0.028
+      },
+      "target": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "create-text-index",
+            "op": "command",
+            "ms": 4.74,
+            "status": "ok"
+          },
+          {
+            "label": "seed-products",
+            "op": "command",
+            "ms": 2.35,
+            "status": "ok"
+          },
+          {
+            "label": "search-exclusion",
+            "op": "command",
+            "ms": 2.94,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": 2,
+                  "category": "boots",
+                  "name": "premium boots",
+                  "price": 89
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": "int",
+                  "category": null,
+                  "name": null,
+                  "price": "int"
+                }
+              ]
+            }
+          }
+        ],
+        "seconds": 0.015
       },
       "verdict": "equal",
       "detail": {}
@@ -6049,19 +6049,19 @@
           {
             "label": "create-text-index",
             "op": "command",
-            "ms": 27.86,
+            "ms": 25.62,
             "status": "ok"
           },
           {
             "label": "seed-products",
             "op": "command",
-            "ms": 2.13,
+            "ms": 0.98,
             "status": "ok"
           },
           {
             "label": "search-premium-active-ranked",
             "op": "command",
-            "ms": 0.58,
+            "ms": 0.48,
             "status": "ok",
             "captured": {
               "docs": [
@@ -6098,7 +6098,7 @@
             }
           }
         ],
-        "seconds": 0.034
+        "seconds": 0.029
       },
       "target": {
         "outcome": "completed",
@@ -6106,19 +6106,19 @@
           {
             "label": "create-text-index",
             "op": "command",
-            "ms": 8.67,
+            "ms": 6.23,
             "status": "ok"
           },
           {
             "label": "seed-products",
             "op": "command",
-            "ms": 2.47,
+            "ms": 1.39,
             "status": "ok"
           },
           {
             "label": "search-premium-active-ranked",
             "op": "command",
-            "ms": 3.53,
+            "ms": 3.32,
             "status": "ok",
             "captured": {
               "docs": [
@@ -6155,7 +6155,7 @@
             }
           }
         ],
-        "seconds": 0.021
+        "seconds": 0.018
       },
       "verdict": "equal",
       "detail": {}
@@ -6171,13 +6171,13 @@
           {
             "label": "seed carts",
             "op": "command",
-            "ms": 13.68,
+            "ms": 15.76,
             "status": "ok"
           },
           {
             "label": "confirm seed",
             "op": "command",
-            "ms": 0.62,
+            "ms": 0.77,
             "status": "ok",
             "captured": {
               "docs": [
@@ -6248,13 +6248,13 @@
           {
             "label": "touch upsert new cart",
             "op": "command",
-            "ms": 0.97,
+            "ms": 2.16,
             "status": "ok"
           },
           {
             "label": "fetch active cart",
             "op": "command",
-            "ms": 0.92,
+            "ms": 0.79,
             "status": "ok",
             "captured": {
               "docs": [
@@ -6293,7 +6293,7 @@
           {
             "label": "fetch no-match empty",
             "op": "command",
-            "ms": 0.38,
+            "ms": 0.42,
             "status": "ok",
             "captured": {
               "docs": []
@@ -6306,7 +6306,7 @@
           {
             "label": "cents total",
             "op": "command",
-            "ms": 0.5,
+            "ms": 0.58,
             "status": "ok",
             "captured": {
               "docs": [
@@ -6329,7 +6329,305 @@
           {
             "label": "convert with two arrayFilters",
             "op": "command",
-            "ms": 0.84,
+            "ms": 3.92,
+            "status": "ok"
+          },
+          {
+            "label": "read back converted",
+            "op": "command",
+            "ms": 0.32,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": "K0000022",
+                  "customer_id": "C004233",
+                  "items": [
+                    {
+                      "qty": 5,
+                      "sku": "SKU-0001"
+                    },
+                    {
+                      "qty": 9,
+                      "sku": "SKU-0318"
+                    }
+                  ],
+                  "order_id": "O0000001",
+                  "status": "converted",
+                  "total": 10
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": null,
+                  "customer_id": null,
+                  "items": [
+                    {
+                      "qty": "int",
+                      "sku": null
+                    },
+                    {
+                      "qty": "int",
+                      "sku": null
+                    }
+                  ],
+                  "order_id": null,
+                  "status": null,
+                  "total": "int"
+                }
+              ]
+            }
+          },
+          {
+            "label": "discard active plus no-op",
+            "op": "command",
+            "ms": 1.88,
+            "status": "ok"
+          },
+          {
+            "label": "final carts",
+            "op": "command",
+            "ms": 0.93,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": "K0000022",
+                  "customer_id": "C004233",
+                  "items": [
+                    {
+                      "qty": 5,
+                      "sku": "SKU-0001"
+                    },
+                    {
+                      "qty": 9,
+                      "sku": "SKU-0318"
+                    }
+                  ],
+                  "order_id": "O0000001",
+                  "status": "converted",
+                  "total": 10
+                },
+                {
+                  "_id": "K0000099",
+                  "customer_id": "C009999",
+                  "items": [
+                    {
+                      "qty": 1,
+                      "sku": "SKU-0318"
+                    }
+                  ],
+                  "status": "active",
+                  "total": 5.5
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": null,
+                  "customer_id": null,
+                  "items": [
+                    {
+                      "qty": "int",
+                      "sku": null
+                    },
+                    {
+                      "qty": "int",
+                      "sku": null
+                    }
+                  ],
+                  "order_id": null,
+                  "status": null,
+                  "total": "int"
+                },
+                {
+                  "_id": null,
+                  "customer_id": null,
+                  "items": [
+                    {
+                      "qty": "int",
+                      "sku": null
+                    }
+                  ],
+                  "status": null,
+                  "total": "double"
+                }
+              ]
+            }
+          }
+        ],
+        "seconds": 0.129
+      },
+      "target": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "seed carts",
+            "op": "command",
+            "ms": 4.48,
+            "status": "ok"
+          },
+          {
+            "label": "confirm seed",
+            "op": "command",
+            "ms": 0.61,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": "K0000021",
+                  "customer_id": "C004233",
+                  "items": [
+                    {
+                      "qty": 1,
+                      "sku": "SKU-0318"
+                    }
+                  ],
+                  "status": "active",
+                  "total": 19.99
+                },
+                {
+                  "_id": "K0000022",
+                  "customer_id": "C004233",
+                  "items": [
+                    {
+                      "qty": 2,
+                      "sku": "SKU-0001"
+                    },
+                    {
+                      "qty": 1,
+                      "sku": "SKU-0318"
+                    }
+                  ],
+                  "status": "active",
+                  "total": 10
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": null,
+                  "customer_id": null,
+                  "items": [
+                    {
+                      "qty": "int",
+                      "sku": null
+                    }
+                  ],
+                  "status": null,
+                  "total": "double"
+                },
+                {
+                  "_id": null,
+                  "customer_id": null,
+                  "items": [
+                    {
+                      "qty": "int",
+                      "sku": null
+                    },
+                    {
+                      "qty": "int",
+                      "sku": null
+                    }
+                  ],
+                  "status": null,
+                  "total": "int"
+                }
+              ]
+            }
+          },
+          {
+            "label": "touch upsert new cart",
+            "op": "command",
+            "ms": 0.87,
+            "status": "ok"
+          },
+          {
+            "label": "fetch active cart",
+            "op": "command",
+            "ms": 0.68,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": "K0000099",
+                  "customer_id": "C009999",
+                  "items": [
+                    {
+                      "qty": 1,
+                      "sku": "SKU-0318"
+                    }
+                  ],
+                  "status": "active",
+                  "total": 5.5
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": null,
+                  "customer_id": null,
+                  "items": [
+                    {
+                      "qty": "int",
+                      "sku": null
+                    }
+                  ],
+                  "status": null,
+                  "total": "double"
+                }
+              ]
+            }
+          },
+          {
+            "label": "fetch no-match empty",
+            "op": "command",
+            "ms": 0.88,
+            "status": "ok",
+            "captured": {
+              "docs": []
+            },
+            "capture": true,
+            "types": {
+              "docs": []
+            }
+          },
+          {
+            "label": "cents total",
+            "op": "command",
+            "ms": 0.82,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "n": 3,
+                  "totalCents": 3549
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "n": "int",
+                  "totalCents": "double"
+                }
+              ]
+            }
+          },
+          {
+            "label": "convert with two arrayFilters",
+            "op": "command",
+            "ms": 0.72,
             "status": "ok"
           },
           {
@@ -6384,13 +6682,13 @@
           {
             "label": "discard active plus no-op",
             "op": "command",
-            "ms": 2.03,
+            "ms": 1.23,
             "status": "ok"
           },
           {
             "label": "final carts",
             "op": "command",
-            "ms": 0.31,
+            "ms": 0.37,
             "status": "ok",
             "captured": {
               "docs": [
@@ -6461,305 +6759,7 @@
             }
           }
         ],
-        "seconds": 0.125
-      },
-      "target": {
-        "outcome": "completed",
-        "steps": [
-          {
-            "label": "seed carts",
-            "op": "command",
-            "ms": 5.65,
-            "status": "ok"
-          },
-          {
-            "label": "confirm seed",
-            "op": "command",
-            "ms": 1.0,
-            "status": "ok",
-            "captured": {
-              "docs": [
-                {
-                  "_id": "K0000021",
-                  "customer_id": "C004233",
-                  "items": [
-                    {
-                      "qty": 1,
-                      "sku": "SKU-0318"
-                    }
-                  ],
-                  "status": "active",
-                  "total": 19.99
-                },
-                {
-                  "_id": "K0000022",
-                  "customer_id": "C004233",
-                  "items": [
-                    {
-                      "qty": 2,
-                      "sku": "SKU-0001"
-                    },
-                    {
-                      "qty": 1,
-                      "sku": "SKU-0318"
-                    }
-                  ],
-                  "status": "active",
-                  "total": 10
-                }
-              ]
-            },
-            "capture": true,
-            "types": {
-              "docs": [
-                {
-                  "_id": null,
-                  "customer_id": null,
-                  "items": [
-                    {
-                      "qty": "int",
-                      "sku": null
-                    }
-                  ],
-                  "status": null,
-                  "total": "double"
-                },
-                {
-                  "_id": null,
-                  "customer_id": null,
-                  "items": [
-                    {
-                      "qty": "int",
-                      "sku": null
-                    },
-                    {
-                      "qty": "int",
-                      "sku": null
-                    }
-                  ],
-                  "status": null,
-                  "total": "int"
-                }
-              ]
-            }
-          },
-          {
-            "label": "touch upsert new cart",
-            "op": "command",
-            "ms": 1.04,
-            "status": "ok"
-          },
-          {
-            "label": "fetch active cart",
-            "op": "command",
-            "ms": 0.65,
-            "status": "ok",
-            "captured": {
-              "docs": [
-                {
-                  "_id": "K0000099",
-                  "customer_id": "C009999",
-                  "items": [
-                    {
-                      "qty": 1,
-                      "sku": "SKU-0318"
-                    }
-                  ],
-                  "status": "active",
-                  "total": 5.5
-                }
-              ]
-            },
-            "capture": true,
-            "types": {
-              "docs": [
-                {
-                  "_id": null,
-                  "customer_id": null,
-                  "items": [
-                    {
-                      "qty": "int",
-                      "sku": null
-                    }
-                  ],
-                  "status": null,
-                  "total": "double"
-                }
-              ]
-            }
-          },
-          {
-            "label": "fetch no-match empty",
-            "op": "command",
-            "ms": 0.56,
-            "status": "ok",
-            "captured": {
-              "docs": []
-            },
-            "capture": true,
-            "types": {
-              "docs": []
-            }
-          },
-          {
-            "label": "cents total",
-            "op": "command",
-            "ms": 1.24,
-            "status": "ok",
-            "captured": {
-              "docs": [
-                {
-                  "n": 3,
-                  "totalCents": 3549
-                }
-              ]
-            },
-            "capture": true,
-            "types": {
-              "docs": [
-                {
-                  "n": "int",
-                  "totalCents": "double"
-                }
-              ]
-            }
-          },
-          {
-            "label": "convert with two arrayFilters",
-            "op": "command",
-            "ms": 1.12,
-            "status": "ok"
-          },
-          {
-            "label": "read back converted",
-            "op": "command",
-            "ms": 0.36,
-            "status": "ok",
-            "captured": {
-              "docs": [
-                {
-                  "_id": "K0000022",
-                  "customer_id": "C004233",
-                  "items": [
-                    {
-                      "qty": 5,
-                      "sku": "SKU-0001"
-                    },
-                    {
-                      "qty": 9,
-                      "sku": "SKU-0318"
-                    }
-                  ],
-                  "order_id": "O0000001",
-                  "status": "converted",
-                  "total": 10
-                }
-              ]
-            },
-            "capture": true,
-            "types": {
-              "docs": [
-                {
-                  "_id": null,
-                  "customer_id": null,
-                  "items": [
-                    {
-                      "qty": "int",
-                      "sku": null
-                    },
-                    {
-                      "qty": "int",
-                      "sku": null
-                    }
-                  ],
-                  "order_id": null,
-                  "status": null,
-                  "total": "int"
-                }
-              ]
-            }
-          },
-          {
-            "label": "discard active plus no-op",
-            "op": "command",
-            "ms": 0.96,
-            "status": "ok"
-          },
-          {
-            "label": "final carts",
-            "op": "command",
-            "ms": 0.57,
-            "status": "ok",
-            "captured": {
-              "docs": [
-                {
-                  "_id": "K0000022",
-                  "customer_id": "C004233",
-                  "items": [
-                    {
-                      "qty": 5,
-                      "sku": "SKU-0001"
-                    },
-                    {
-                      "qty": 9,
-                      "sku": "SKU-0318"
-                    }
-                  ],
-                  "order_id": "O0000001",
-                  "status": "converted",
-                  "total": 10
-                },
-                {
-                  "_id": "K0000099",
-                  "customer_id": "C009999",
-                  "items": [
-                    {
-                      "qty": 1,
-                      "sku": "SKU-0318"
-                    }
-                  ],
-                  "status": "active",
-                  "total": 5.5
-                }
-              ]
-            },
-            "capture": true,
-            "types": {
-              "docs": [
-                {
-                  "_id": null,
-                  "customer_id": null,
-                  "items": [
-                    {
-                      "qty": "int",
-                      "sku": null
-                    },
-                    {
-                      "qty": "int",
-                      "sku": null
-                    }
-                  ],
-                  "order_id": null,
-                  "status": null,
-                  "total": "int"
-                },
-                {
-                  "_id": null,
-                  "customer_id": null,
-                  "items": [
-                    {
-                      "qty": "int",
-                      "sku": null
-                    }
-                  ],
-                  "status": null,
-                  "total": "double"
-                }
-              ]
-            }
-          }
-        ],
-        "seconds": 0.02
+        "seconds": 0.017
       },
       "verdict": "equal",
       "detail": {}
@@ -6775,13 +6775,13 @@
           {
             "label": "seed orders",
             "op": "command",
-            "ms": 14.25,
+            "ms": 11.91,
             "status": "ok"
           },
           {
             "label": "confirm seed",
             "op": "command",
-            "ms": 0.64,
+            "ms": 0.77,
             "status": "ok",
             "captured": {
               "docs": [
@@ -6890,13 +6890,13 @@
           {
             "label": "cas paid to shipped",
             "op": "command",
-            "ms": 0.99,
+            "ms": 2.19,
             "status": "ok"
           },
           {
             "label": "read back transitioned",
             "op": "command",
-            "ms": 0.58,
+            "ms": 0.8,
             "status": "ok",
             "captured": {
               "docs": [
@@ -6959,7 +6959,7 @@
           {
             "label": "cas wrong prior no-op",
             "op": "command",
-            "ms": 1.15,
+            "ms": 0.43,
             "status": "ok",
             "captured": {
               "n": 0,
@@ -6974,7 +6974,7 @@
           {
             "label": "customer history page",
             "op": "command",
-            "ms": 0.43,
+            "ms": 0.51,
             "status": "ok",
             "captured": {
               "docs": [
@@ -7009,7 +7009,7 @@
           {
             "label": "history empty",
             "op": "command",
-            "ms": 0.44,
+            "ms": 0.42,
             "status": "ok",
             "captured": {
               "docs": []
@@ -7022,7 +7022,7 @@
           {
             "label": "totals to cents",
             "op": "command",
-            "ms": 0.52,
+            "ms": 0.42,
             "status": "ok",
             "captured": {
               "docs": [
@@ -7053,7 +7053,7 @@
           {
             "label": "second arrayFilter identifier",
             "op": "command",
-            "ms": 1.63,
+            "ms": 2.81,
             "status": "ok",
             "captured": {
               "n": 1,
@@ -7068,7 +7068,7 @@
           {
             "label": "read back arrayfilter",
             "op": "command",
-            "ms": 0.28,
+            "ms": 0.31,
             "status": "ok",
             "captured": {
               "docs": [
@@ -7111,7 +7111,7 @@
             }
           }
         ],
-        "seconds": 0.126
+        "seconds": 0.023
       },
       "target": {
         "outcome": "completed",
@@ -7119,13 +7119,13 @@
           {
             "label": "seed orders",
             "op": "command",
-            "ms": 5.59,
+            "ms": 4.01,
             "status": "ok"
           },
           {
             "label": "confirm seed",
             "op": "command",
-            "ms": 1.21,
+            "ms": 0.84,
             "status": "ok",
             "captured": {
               "docs": [
@@ -7234,13 +7234,13 @@
           {
             "label": "cas paid to shipped",
             "op": "command",
-            "ms": 1.12,
+            "ms": 0.67,
             "status": "ok"
           },
           {
             "label": "read back transitioned",
             "op": "command",
-            "ms": 0.47,
+            "ms": 0.33,
             "status": "ok",
             "captured": {
               "docs": [
@@ -7303,7 +7303,7 @@
           {
             "label": "cas wrong prior no-op",
             "op": "command",
-            "ms": 0.74,
+            "ms": 1.09,
             "status": "ok",
             "captured": {
               "n": 0,
@@ -7318,7 +7318,7 @@
           {
             "label": "customer history page",
             "op": "command",
-            "ms": 0.64,
+            "ms": 0.41,
             "status": "ok",
             "captured": {
               "docs": [
@@ -7353,7 +7353,7 @@
           {
             "label": "history empty",
             "op": "command",
-            "ms": 0.57,
+            "ms": 1.43,
             "status": "ok",
             "captured": {
               "docs": []
@@ -7366,7 +7366,7 @@
           {
             "label": "totals to cents",
             "op": "command",
-            "ms": 0.55,
+            "ms": 0.39,
             "status": "ok",
             "captured": {
               "docs": [
@@ -7397,7 +7397,7 @@
           {
             "label": "second arrayFilter identifier",
             "op": "command",
-            "ms": 1.87,
+            "ms": 0.55,
             "status": "ok",
             "captured": {
               "n": 1,
@@ -7412,7 +7412,7 @@
           {
             "label": "read back arrayfilter",
             "op": "command",
-            "ms": 0.56,
+            "ms": 0.48,
             "status": "ok",
             "captured": {
               "docs": [
@@ -7455,7 +7455,7 @@
             }
           }
         ],
-        "seconds": 0.019
+        "seconds": 0.018
       },
       "verdict": "equal",
       "detail": {}
@@ -7471,13 +7471,13 @@
           {
             "label": "seed customers chain",
             "op": "command",
-            "ms": 13.61,
+            "ms": 4.51,
             "status": "ok"
           },
           {
             "label": "graphLookup ancestors with depth",
             "op": "command",
-            "ms": 0.74,
+            "ms": 0.6,
             "status": "ok",
             "captured": {
               "docs": [
@@ -7514,7 +7514,7 @@
             }
           }
         ],
-        "seconds": 0.018
+        "seconds": 0.008
       },
       "target": {
         "outcome": "completed",
@@ -7522,13 +7522,13 @@
           {
             "label": "seed customers chain",
             "op": "command",
-            "ms": 5.65,
+            "ms": 3.76,
             "status": "ok"
           },
           {
             "label": "graphLookup ancestors with depth",
             "op": "command",
-            "ms": 3.76,
+            "ms": 3.73,
             "status": "ok",
             "captured": {
               "docs": [
@@ -7565,7 +7565,7 @@
             }
           }
         ],
-        "seconds": 0.015
+        "seconds": 0.011
       },
       "verdict": "equal",
       "detail": {}
@@ -7583,88 +7583,88 @@
             "F10"
           ],
           "source_ms_samples": [
-            0.56,
-            0.75,
-            0.53,
-            0.53,
-            0.42,
+            0.61,
+            0.5,
+            0.48,
             0.49,
             0.45,
-            0.79,
-            0.49,
             0.51,
+            0.4,
+            0.42,
+            0.44,
+            0.46,
+            0.42,
+            0.41,
+            0.37,
             0.47,
-            0.43,
             0.34,
-            0.39,
-            0.28,
-            0.35,
-            0.33,
-            0.31,
-            0.3,
-            0.37,
-            0.37,
-            0.28,
-            0.34,
-            0.33,
-            0.31,
-            0.37,
-            0.34,
-            0.29,
-            0.31,
-            0.27,
-            0.29,
+            0.38,
             0.29,
             0.3,
-            0.28,
-            0.28,
-            0.27,
-            1.72,
+            0.36,
             0.29,
-            0.31,
-            0.31
+            0.3,
+            0.29,
+            0.29,
+            0.29,
+            0.28,
+            0.26,
+            0.27,
+            0.3,
+            0.26,
+            0.3,
+            0.28,
+            0.26,
+            0.28,
+            0.28,
+            0.28,
+            0.26,
+            0.25,
+            0.26,
+            0.27,
+            0.28
           ],
           "target_ms_samples": [
-            1.06,
-            0.95,
-            0.87,
-            0.81,
-            0.64,
-            0.65,
-            0.71,
-            0.99,
-            0.79,
-            0.66,
-            1.97,
-            0.73,
+            0.94,
+            0.74,
+            0.91,
+            0.53,
+            0.68,
+            0.7,
             0.67,
+            0.51,
+            0.53,
+            0.53,
+            0.66,
+            0.51,
             0.52,
-            0.43,
-            0.38,
-            0.46,
-            0.38,
-            0.4,
-            0.41,
-            0.41,
+            0.47,
+            0.53,
             0.39,
             0.45,
-            0.41,
-            0.48,
-            0.37,
-            0.41,
+            0.39,
+            0.43,
+            0.38,
+            0.35,
+            0.36,
+            0.38,
             0.4,
+            0.41,
+            0.33,
+            0.35,
             0.38,
-            0.42,
-            0.42,
+            0.35,
+            0.4,
+            0.4,
             0.34,
+            0.36,
+            0.36,
+            0.4,
+            0.32,
+            0.38,
             0.39,
             0.41,
-            0.37,
-            0.37,
-            0.39,
-            0.38,
-            0.42,
-            0.46
+            0.39
           ],
           "target_timeouts": 0,
           "stages": [],
@@ -7675,10 +7675,10 @@
           "target_errors": 0,
           "source_errors": 0,
           "budget_exhausted": false,
-          "source_p50_ms": 0.34,
-          "source_p95_ms": 0.79,
-          "target_p50_ms": 0.42,
-          "target_p95_ms": 1.06,
+          "source_p50_ms": 0.3,
+          "source_p95_ms": 0.51,
+          "target_p50_ms": 0.4,
+          "target_p95_ms": 0.91,
           "first_difference": null,
           "difference_kinds": {},
           "ranking_only": false,
@@ -7693,88 +7693,88 @@
             "F6"
           ],
           "source_ms_samples": [
-            0.32,
-            0.35,
             0.3,
-            0.35,
-            0.31,
-            0.36,
+            0.3,
+            0.29,
+            0.26,
             0.28,
-            0.32,
-            0.31,
             0.3,
             0.29,
             0.27,
-            0.28,
-            0.33,
-            0.27,
-            0.28,
             0.29,
-            0.29,
-            0.37,
-            0.33,
-            0.36,
-            0.38,
-            0.86,
-            0.3,
-            0.29,
-            0.32,
+            0.34,
             0.28,
             0.28,
-            0.36,
-            0.32,
-            0.31,
-            0.31,
-            0.31,
+            0.26,
+            0.25,
+            0.26,
             0.27,
             0.26,
-            0.59,
-            0.61,
-            0.44,
-            0.34,
-            0.37
+            0.25,
+            0.28,
+            0.28,
+            0.27,
+            0.24,
+            0.27,
+            0.25,
+            0.27,
+            0.35,
+            0.28,
+            0.28,
+            0.27,
+            0.31,
+            0.26,
+            0.25,
+            0.26,
+            0.26,
+            0.26,
+            0.26,
+            0.28,
+            0.26,
+            0.35,
+            0.29
           ],
           "target_ms_samples": [
-            0.93,
-            0.79,
-            0.42,
-            0.6,
-            0.79,
-            0.65,
-            0.88,
-            0.64,
-            0.96,
-            0.52,
-            0.77,
-            0.52,
-            0.41,
-            0.88,
-            0.5,
-            0.6,
-            0.83,
-            0.47,
-            0.78,
-            0.46,
-            0.45,
-            0.49,
+            0.81,
             0.75,
-            0.8,
+            0.38,
+            0.51,
+            0.72,
+            0.5,
+            0.87,
+            0.43,
+            0.68,
+            0.47,
+            0.81,
+            0.39,
+            0.41,
+            0.74,
+            0.5,
+            0.64,
+            0.71,
             0.45,
-            0.66,
-            0.59,
+            0.8,
+            0.38,
+            0.41,
+            0.4,
+            0.67,
+            0.79,
+            0.38,
+            0.62,
+            0.56,
+            0.79,
+            0.78,
+            0.75,
+            0.78,
+            0.78,
+            0.55,
+            0.71,
+            0.8,
+            0.7,
             0.74,
             0.75,
-            0.69,
-            0.78,
-            0.75,
-            0.59,
-            0.71,
-            0.9,
-            1.5,
-            1.42,
-            1.19,
-            1.37,
-            0.92
+            0.73,
+            0.77
           ],
           "target_timeouts": 0,
           "stages": [],
@@ -7785,10 +7785,10 @@
           "target_errors": 0,
           "source_errors": 0,
           "budget_exhausted": false,
-          "source_p50_ms": 0.31,
-          "source_p95_ms": 0.61,
-          "target_p50_ms": 0.75,
-          "target_p95_ms": 1.42,
+          "source_p50_ms": 0.27,
+          "source_p95_ms": 0.35,
+          "target_p50_ms": 0.71,
+          "target_p95_ms": 0.81,
           "first_difference": {
             "path": "$.docs.length",
             "source": 1,
@@ -7810,87 +7810,87 @@
           ],
           "source_ms_samples": [
             0.58,
-            1.95,
-            0.92,
-            0.8,
-            0.81,
-            0.65,
-            0.81,
-            0.68,
-            0.54,
+            1.06,
+            0.76,
+            1.41,
             0.82,
-            0.56,
-            0.52,
-            0.59,
-            0.64,
-            0.83,
             0.51,
-            0.96,
-            0.71,
-            0.65,
-            0.53,
-            0.52,
+            0.77,
+            0.67,
+            0.58,
+            0.86,
+            0.6,
             0.54,
             0.57,
-            0.66,
+            0.52,
+            0.68,
+            0.51,
+            0.54,
+            0.76,
+            0.58,
             0.57,
-            0.91,
-            0.9,
-            0.67,
-            0.79,
-            0.45,
-            0.75,
+            0.54,
+            0.59,
+            0.58,
+            0.71,
+            0.53,
+            0.82,
+            0.66,
             0.64,
-            0.52,
-            0.65,
-            0.55,
-            0.6,
-            0.75,
-            0.52,
-            0.77,
-            0.49
+            0.61,
+            0.5,
+            0.69,
+            0.74,
+            0.58,
+            0.69,
+            0.67,
+            0.86,
+            0.85,
+            0.56,
+            0.58,
+            0.6
           ],
           "target_ms_samples": [
-            1.28,
-            2.02,
-            1.86,
-            1.67,
-            1.63,
-            1.26,
-            1.59,
-            1.55,
-            1.64,
+            1.2,
+            3.47,
             1.66,
-            1.61,
-            1.55,
-            1.58,
-            1.64,
-            1.61,
-            1.61,
+            3.02,
             1.74,
-            1.58,
-            1.13,
-            1.62,
+            1.08,
+            1.6,
             1.53,
-            1.9,
-            1.49,
-            1.47,
-            1.54,
-            1.68,
-            1.59,
-            1.56,
-            1.67,
-            2.2,
-            1.69,
-            1.56,
-            1.5,
-            1.46,
-            1.52,
-            1.48,
+            1.61,
+            1.62,
+            1.73,
+            1.62,
+            1.57,
+            1.61,
+            1.51,
+            1.6,
             1.64,
-            1.52,
-            1.66,
-            1.6
+            1.76,
+            1.07,
+            1.64,
+            1.54,
+            1.49,
+            1.58,
+            1.65,
+            2.95,
+            1.6,
+            1.51,
+            1.5,
+            1.41,
+            1.02,
+            1.59,
+            1.5,
+            1.54,
+            1.6,
+            1.88,
+            1.78,
+            1.72,
+            1.58,
+            1.56,
+            1.67
           ],
           "target_timeouts": 0,
           "stages": [],
@@ -7901,10 +7901,10 @@
           "target_errors": 0,
           "source_errors": 0,
           "budget_exhausted": false,
-          "source_p50_ms": 0.65,
-          "source_p95_ms": 0.96,
+          "source_p50_ms": 0.61,
+          "source_p95_ms": 1.06,
           "target_p50_ms": 1.6,
-          "target_p95_ms": 2.02,
+          "target_p95_ms": 3.02,
           "first_difference": {
             "path": "$.docs[0]._id",
             "source": "SKU-0062",
@@ -7925,88 +7925,88 @@
             "F10"
           ],
           "source_ms_samples": [
-            0.44,
-            0.5,
-            0.55,
-            0.41,
-            0.54,
+            0.36,
+            0.48,
             0.49,
-            0.55,
-            0.53,
-            0.48,
-            0.46,
-            0.46,
-            0.42,
-            0.42,
-            0.47,
-            0.44,
-            0.62,
             0.4,
-            0.43,
-            0.48,
-            0.43,
-            0.48,
-            0.37,
+            0.46,
+            1.69,
+            0.51,
             0.5,
+            0.42,
+            0.45,
+            1.39,
+            0.44,
+            0.38,
+            0.4,
+            0.36,
+            0.43,
+            0.36,
+            0.36,
+            0.39,
             0.36,
             0.42,
-            0.42,
             0.46,
-            0.45,
-            0.47,
-            0.42,
-            0.45,
-            0.47,
-            0.39,
-            0.51,
-            0.44,
+            0.59,
+            0.56,
             0.58,
-            0.81,
-            0.58,
+            0.46,
             0.5,
+            0.59,
+            0.53,
+            0.39,
+            0.44,
+            0.38,
+            0.34,
+            0.49,
+            0.39,
+            0.45,
+            0.42,
+            0.49,
+            0.44,
             0.36
           ],
           "target_ms_samples": [
-            0.53,
-            3.43,
-            0.61,
-            0.48,
-            0.6,
-            0.49,
-            0.6,
-            0.58,
-            0.46,
-            0.47,
-            0.49,
-            0.51,
-            0.44,
-            0.48,
-            0.5,
-            0.56,
-            0.48,
-            0.49,
-            0.64,
-            0.5,
             0.45,
+            0.49,
             0.47,
-            0.51,
             0.48,
-            0.46,
-            0.49,
-            0.46,
-            0.46,
-            0.5,
-            0.5,
-            0.49,
-            1.57,
-            0.67,
-            0.52,
-            0.49,
-            0.63,
-            0.57,
             0.54,
+            0.52,
+            0.54,
+            0.46,
+            0.45,
+            0.49,
+            0.45,
+            0.43,
+            0.44,
+            0.39,
+            0.45,
+            0.48,
+            0.45,
+            0.46,
+            0.49,
+            0.45,
+            0.6,
+            0.52,
+            0.52,
+            0.39,
+            0.6,
+            0.55,
             0.53,
-            0.44
+            0.49,
+            0.55,
+            0.45,
+            0.49,
+            0.42,
+            0.41,
+            0.53,
+            0.42,
+            0.52,
+            0.46,
+            0.51,
+            0.46,
+            0.42
           ],
           "target_timeouts": 0,
           "stages": [],
@@ -8017,10 +8017,10 @@
           "target_errors": 0,
           "source_errors": 0,
           "budget_exhausted": false,
-          "source_p50_ms": 0.46,
-          "source_p95_ms": 0.62,
-          "target_p50_ms": 0.5,
-          "target_p95_ms": 1.57,
+          "source_p50_ms": 0.44,
+          "source_p95_ms": 1.39,
+          "target_p50_ms": 0.48,
+          "target_p95_ms": 0.6,
           "first_difference": null,
           "difference_kinds": {},
           "ranking_only": false,
@@ -8035,88 +8035,88 @@
             "F10"
           ],
           "source_ms_samples": [
-            0.29,
+            0.76,
             0.32,
-            0.29,
-            0.34,
-            0.34,
-            0.28,
-            0.28,
-            0.28,
-            0.29,
-            0.29,
+            0.25,
             0.3,
-            0.31,
             0.28,
-            0.29,
-            0.28,
-            0.34,
-            0.29,
-            0.33,
-            0.31,
-            0.29,
-            0.28,
+            0.67,
+            0.36,
             0.32,
             0.27,
-            0.29,
-            0.29,
-            0.28,
-            0.26,
             0.3,
-            0.27,
-            0.26,
-            0.26,
+            0.32,
+            0.3,
+            0.32,
+            0.36,
+            0.31,
+            0.32,
+            0.35,
+            0.32,
             0.28,
-            0.27,
+            0.32,
+            0.32,
+            0.44,
+            0.29,
+            0.31,
+            0.28,
             0.3,
             0.28,
+            0.27,
+            0.28,
+            0.29,
+            0.34,
+            0.27,
             0.28,
             0.27,
+            0.26,
             0.29,
             0.27,
-            0.29
+            0.28,
+            0.38,
+            0.28
           ],
           "target_ms_samples": [
-            0.41,
-            0.59,
-            0.59,
-            0.67,
-            0.68,
-            0.41,
-            0.39,
-            0.37,
-            0.55,
-            0.56,
-            0.67,
-            0.6,
-            0.57,
-            0.47,
-            0.55,
-            0.54,
-            0.68,
-            0.33,
-            0.48,
-            0.36,
-            0.56,
-            0.36,
-            0.35,
-            0.33,
-            0.37,
-            0.61,
-            0.35,
-            0.53,
-            0.39,
-            0.46,
-            0.58,
             0.34,
-            0.45,
+            0.35,
             0.36,
-            0.34,
-            0.41,
+            0.37,
+            0.4,
+            0.39,
+            0.42,
             0.38,
-            0.31,
+            0.45,
+            0.42,
+            0.39,
+            0.39,
+            0.38,
+            0.37,
+            0.39,
+            0.4,
+            0.51,
+            0.43,
+            0.41,
+            0.45,
             0.46,
-            0.35
+            2.34,
+            3.96,
+            0.67,
+            0.43,
+            0.35,
+            0.4,
+            0.37,
+            0.47,
+            0.49,
+            0.38,
+            0.34,
+            0.36,
+            0.36,
+            1.91,
+            0.36,
+            0.37,
+            0.32,
+            0.43,
+            0.34
           ],
           "target_timeouts": 0,
           "stages": [],
@@ -8127,10 +8127,10 @@
           "target_errors": 0,
           "source_errors": 0,
           "budget_exhausted": false,
-          "source_p50_ms": 0.29,
-          "source_p95_ms": 0.34,
-          "target_p50_ms": 0.46,
-          "target_p95_ms": 0.68,
+          "source_p50_ms": 0.3,
+          "source_p95_ms": 0.67,
+          "target_p50_ms": 0.39,
+          "target_p95_ms": 2.34,
           "first_difference": null,
           "difference_kinds": {},
           "ranking_only": false,
@@ -8145,88 +8145,88 @@
             "F2"
           ],
           "source_ms_samples": [
-            0.59,
-            0.47,
-            0.54,
-            0.56,
-            0.54,
-            0.48,
-            0.53,
-            0.52,
-            0.6,
-            0.53,
-            0.53,
             0.46,
-            0.54,
-            0.52,
-            0.56,
-            0.6,
-            0.55,
-            0.47,
-            0.52,
-            0.54,
-            0.45,
             0.48,
-            0.52,
-            0.51,
+            0.73,
+            0.63,
+            0.72,
             0.47,
-            0.53,
+            0.66,
             0.46,
-            0.45,
-            0.44,
+            0.57,
+            0.47,
+            0.64,
             0.43,
+            0.5,
+            0.47,
             0.51,
-            0.43,
+            0.56,
+            0.72,
             0.41,
             0.46,
+            0.49,
+            0.47,
+            0.62,
+            0.53,
             0.48,
-            0.47,
+            0.63,
+            0.44,
+            0.56,
+            0.44,
+            1.76,
+            0.48,
+            0.56,
             0.42,
-            0.46,
+            0.51,
+            0.44,
+            0.59,
+            0.5,
+            0.53,
             0.47,
-            0.42
+            0.57,
+            0.41
           ],
           "target_ms_samples": [
-            3.35,
-            3.34,
-            3.36,
-            3.32,
-            3.3,
-            3.37,
-            3.35,
-            3.27,
-            3.23,
+            3.45,
+            3.39,
+            3.48,
+            3.71,
+            3.42,
+            3.44,
+            3.47,
+            3.42,
+            3.44,
             3.33,
-            3.29,
-            3.27,
-            3.23,
-            3.35,
-            4.16,
-            3.31,
-            3.36,
-            3.26,
-            3.29,
             3.3,
-            3.24,
-            3.29,
-            3.31,
-            3.25,
-            3.19,
-            3.36,
-            3.38,
-            4.67,
-            3.25,
-            3.18,
+            3.28,
             3.35,
+            3.4,
+            3.29,
+            3.28,
+            3.6,
+            3.36,
+            3.4,
+            3.38,
+            3.68,
+            3.62,
             3.27,
-            3.25,
-            3.21,
-            3.23,
-            4.83,
-            4.63,
-            3.27,
-            3.18,
-            3.13
+            3.35,
+            3.4,
+            3.35,
+            3.33,
+            3.37,
+            3.34,
+            3.34,
+            3.41,
+            3.38,
+            3.34,
+            3.28,
+            3.32,
+            3.44,
+            3.26,
+            3.32,
+            3.31,
+            3.28
           ],
           "target_timeouts": 0,
           "stages": [
@@ -8242,10 +8242,10 @@
           "target_errors": 0,
           "source_errors": 0,
           "budget_exhausted": false,
-          "source_p50_ms": 0.51,
-          "source_p95_ms": 0.6,
-          "target_p50_ms": 3.3,
-          "target_p95_ms": 4.67,
+          "source_p50_ms": 0.5,
+          "source_p95_ms": 0.73,
+          "target_p50_ms": 3.37,
+          "target_p95_ms": 3.68,
           "first_difference": null,
           "difference_kinds": {},
           "ranking_only": false,
@@ -8258,88 +8258,88 @@
           "path": "online",
           "features": [],
           "source_ms_samples": [
-            0.38,
+            0.48,
             0.4,
-            0.37,
-            0.36,
-            0.35,
-            0.37,
             0.44,
-            0.35,
-            0.41,
-            0.34,
             0.36,
             0.34,
-            0.34,
-            0.39,
-            0.34,
-            0.38,
-            0.36,
-            0.35,
-            0.33,
-            0.35,
-            0.35,
+            0.54,
+            0.5,
             0.37,
-            0.34,
-            0.34,
-            0.34,
-            0.38,
-            1.35,
-            0.34,
-            0.33,
-            0.34,
-            0.34,
             0.32,
             0.34,
+            0.32,
+            0.32,
+            0.32,
+            0.3,
             0.33,
-            0.34,
-            0.34,
-            0.35,
             0.36,
+            0.35,
+            0.5,
+            0.33,
+            0.32,
+            0.35,
+            0.33,
+            0.33,
+            0.32,
             0.34,
+            0.32,
+            0.31,
+            0.32,
+            0.33,
+            0.33,
+            0.32,
+            0.31,
+            0.34,
+            0.33,
+            0.32,
+            0.31,
+            0.3,
+            0.34,
+            0.31,
             0.33
           ],
           "target_ms_samples": [
             0.4,
-            0.45,
-            0.4,
             0.39,
-            0.38,
-            0.4,
+            0.53,
+            0.36,
             0.44,
-            0.4,
-            0.41,
-            0.41,
-            0.42,
-            0.38,
-            0.39,
-            0.38,
-            0.4,
-            0.38,
-            0.42,
+            0.46,
+            0.51,
             0.37,
-            0.39,
-            0.4,
-            0.42,
-            0.39,
-            0.38,
-            0.44,
-            0.4,
-            0.42,
             0.41,
+            0.37,
             0.43,
-            0.38,
+            0.35,
+            0.42,
+            0.36,
+            0.39,
             0.4,
-            0.37,
-            0.41,
-            0.41,
+            0.44,
+            0.57,
+            0.45,
             0.34,
-            0.42,
+            0.38,
+            0.38,
+            0.36,
+            0.35,
+            0.48,
             0.38,
             0.4,
+            0.36,
+            0.37,
+            0.37,
             0.43,
-            0.45,
-            0.34
+            0.41,
+            0.36,
+            0.34,
+            0.35,
+            0.41,
+            0.42,
+            0.42,
+            0.4,
+            0.4
           ],
           "target_timeouts": 0,
           "stages": [
@@ -8353,10 +8353,10 @@
           "target_errors": 0,
           "source_errors": 0,
           "budget_exhausted": false,
-          "source_p50_ms": 0.35,
-          "source_p95_ms": 0.44,
+          "source_p50_ms": 0.33,
+          "source_p95_ms": 0.5,
           "target_p50_ms": 0.4,
-          "target_p95_ms": 0.45,
+          "target_p95_ms": 0.53,
           "first_difference": null,
           "difference_kinds": {},
           "ranking_only": false,
@@ -8371,88 +8371,88 @@
             "F10"
           ],
           "source_ms_samples": [
-            0.68,
-            1.19,
-            2.1,
-            1.34,
-            0.82,
-            0.76,
-            0.72,
-            0.61,
-            1.13,
-            1.66,
-            0.99,
-            0.74,
-            0.56,
-            1.04,
-            0.58,
-            0.63,
-            0.71,
-            1.09,
-            0.62,
-            0.57,
-            0.61,
-            1.11,
+            1.21,
+            1.31,
+            2.47,
+            1.23,
+            0.83,
+            0.64,
+            0.65,
+            0.9,
+            1.54,
             0.73,
-            0.69,
-            0.57,
-            0.75,
-            0.69,
-            0.71,
-            0.69,
-            1.24,
-            0.69,
-            2.28,
-            1.14,
-            0.77,
+            0.91,
             0.68,
-            1.11,
-            1.03,
-            1.22,
-            0.99,
-            1.13
+            0.62,
+            0.93,
+            0.61,
+            0.59,
+            0.87,
+            1.01,
+            0.52,
+            0.58,
+            0.54,
+            1.02,
+            0.59,
+            0.53,
+            0.63,
+            0.61,
+            0.55,
+            0.6,
+            0.61,
+            1.07,
+            0.59,
+            0.98,
+            0.62,
+            0.64,
+            0.63,
+            1.87,
+            1.01,
+            1.06,
+            0.92,
+            1.03
           ],
           "target_ms_samples": [
-            0.81,
-            1.37,
-            2.41,
-            1.17,
-            0.85,
-            0.89,
-            0.81,
-            1.06,
-            1.18,
-            1.15,
-            1.17,
-            0.78,
-            0.71,
             0.98,
+            1.48,
+            2.53,
+            1.2,
+            0.9,
+            0.82,
+            0.86,
+            0.7,
+            1.41,
+            0.91,
+            1.08,
+            0.78,
+            0.77,
+            0.92,
+            0.67,
+            0.69,
+            0.9,
+            1.07,
+            1.97,
+            0.86,
+            0.64,
+            1.08,
+            0.74,
+            0.63,
             0.73,
             0.72,
-            0.88,
+            0.75,
+            0.65,
+            0.77,
             1.21,
-            0.79,
-            0.69,
+            0.75,
+            1.16,
+            0.77,
             0.76,
-            1.22,
-            0.89,
-            0.83,
-            0.88,
-            0.85,
-            0.89,
-            0.8,
-            0.88,
-            1.49,
-            0.92,
-            1.51,
-            1.07,
-            0.87,
-            0.88,
-            1.43,
-            2.8,
-            1.17,
-            1.23,
-            1.15
+            0.73,
+            1.02,
+            1.2,
+            1.12,
+            1.19,
+            1.12
           ],
           "target_timeouts": 0,
           "stages": [],
@@ -8463,10 +8463,10 @@
           "target_errors": 0,
           "source_errors": 0,
           "budget_exhausted": false,
-          "source_p50_ms": 0.76,
-          "source_p95_ms": 2.1,
-          "target_p50_ms": 0.89,
-          "target_p95_ms": 2.41,
+          "source_p50_ms": 0.73,
+          "source_p95_ms": 1.87,
+          "target_p50_ms": 0.9,
+          "target_p95_ms": 1.97,
           "first_difference": null,
           "difference_kinds": {},
           "ranking_only": false,
@@ -8481,67 +8481,67 @@
             "F10"
           ],
           "source_ms_samples": [
+            0.46,
+            0.46,
             0.47,
-            0.51,
-            0.46,
-            0.45,
-            0.42,
-            0.8,
             0.48,
-            0.46,
-            0.44,
-            0.44,
-            0.46,
-            0.46,
-            0.44,
+            0.41,
             0.43,
-            0.48,
+            0.42,
             0.44,
+            0.41,
+            0.41,
+            0.41,
+            0.4,
+            0.4,
+            0.4,
             0.45,
-            0.47,
-            0.53,
-            0.48,
-            0.45,
-            0.44,
-            0.47,
-            0.53,
-            0.44,
-            0.53,
+            0.43,
+            0.4,
+            0.41,
+            0.42,
+            0.39,
+            0.4,
+            0.41,
+            0.4,
+            0.38,
+            0.39,
             0.52,
-            0.52,
-            0.45,
-            0.44
+            0.73,
+            1.92,
+            0.68,
+            0.47
           ],
           "target_ms_samples": [
-            0.58,
             0.57,
-            0.6,
-            0.56,
-            0.53,
-            0.85,
-            0.53,
+            0.58,
+            1.08,
+            0.91,
+            0.52,
+            0.52,
+            0.52,
             0.55,
-            0.56,
-            0.56,
-            0.56,
-            0.58,
-            0.56,
-            0.56,
-            1.98,
+            0.52,
+            0.5,
+            0.51,
+            0.51,
+            0.48,
             0.54,
-            0.58,
-            0.67,
-            0.66,
+            0.56,
             0.6,
-            0.7,
-            0.59,
+            0.51,
+            0.47,
             0.56,
             0.53,
-            0.54,
-            0.58,
-            0.64,
-            0.62,
-            0.54,
+            0.46,
+            0.52,
+            0.51,
+            0.51,
+            0.45,
+            0.57,
+            0.74,
+            0.73,
+            0.95,
             0.6
           ],
           "target_timeouts": 0,
@@ -8553,10 +8553,10 @@
           "target_errors": 0,
           "source_errors": 0,
           "budget_exhausted": false,
-          "source_p50_ms": 0.46,
-          "source_p95_ms": 0.53,
-          "target_p50_ms": 0.58,
-          "target_p95_ms": 0.85,
+          "source_p50_ms": 0.42,
+          "source_p95_ms": 0.73,
+          "target_p50_ms": 0.53,
+          "target_p95_ms": 0.95,
           "first_difference": null,
           "difference_kinds": {},
           "ranking_only": false,
@@ -8571,22 +8571,22 @@
             "F1"
           ],
           "source_ms_samples": [
-            6.48,
-            7.95,
-            6.56,
-            7.24,
-            6.3,
-            9.19,
-            7.55
+            6.61,
+            7.02,
+            6.36,
+            6.98,
+            6.12,
+            6.46,
+            5.41
           ],
           "target_ms_samples": [
-            3468.67,
-            3750.44,
-            3865.89,
-            3847.86,
-            3999.24,
-            3899.77,
-            3441.14
+            3456.66,
+            3753.66,
+            3984.32,
+            3862.15,
+            4076.61,
+            3880.7,
+            3540.52
           ],
           "target_timeouts": 0,
           "stages": [
@@ -8603,10 +8603,10 @@
           "target_errors": 0,
           "source_errors": 0,
           "budget_exhausted": true,
-          "source_p50_ms": 7.24,
-          "source_p95_ms": 9.19,
-          "target_p50_ms": 3847.86,
-          "target_p95_ms": 3999.24,
+          "source_p50_ms": 6.46,
+          "source_p95_ms": 7.02,
+          "target_p50_ms": 3862.15,
+          "target_p95_ms": 4076.61,
           "first_difference": null,
           "difference_kinds": {},
           "ranking_only": false,
@@ -8621,38 +8621,38 @@
             "F10"
           ],
           "source_ms_samples": [
-            6.55,
-            5.61,
-            39.18,
-            6.97,
-            9.27,
-            44.6,
-            10.13,
-            6.48,
-            40.37,
-            8.33,
-            8.62,
-            7.95,
-            6.48,
-            5.58,
-            6.04
+            6.72,
+            5.72,
+            39.34,
+            5.7,
+            8.55,
+            37.5,
+            10.2,
+            6.89,
+            39.01,
+            8.3,
+            9.55,
+            8.19,
+            6.22,
+            5.57,
+            5.86
           ],
           "target_ms_samples": [
-            6.4,
-            6.01,
-            32.34,
-            6.77,
-            7.96,
-            35.82,
-            11.41,
-            6.75,
-            30.41,
-            8.66,
-            7.61,
-            8.17,
-            6.0,
-            5.73,
-            5.31
+            7.05,
+            7.46,
+            31.73,
+            6.58,
+            7.73,
+            29.22,
+            8.47,
+            9.88,
+            30.76,
+            8.41,
+            7.98,
+            8.57,
+            5.31,
+            5.65,
+            5.12
           ],
           "target_timeouts": 0,
           "stages": [],
@@ -8663,10 +8663,10 @@
           "target_errors": 0,
           "source_errors": 0,
           "budget_exhausted": false,
-          "source_p50_ms": 7.95,
-          "source_p95_ms": 44.6,
-          "target_p50_ms": 7.61,
-          "target_p95_ms": 35.82,
+          "source_p50_ms": 8.19,
+          "source_p95_ms": 39.34,
+          "target_p50_ms": 7.98,
+          "target_p95_ms": 31.73,
           "first_difference": null,
           "difference_kinds": {},
           "ranking_only": false,
@@ -8681,28 +8681,28 @@
             "F1"
           ],
           "source_ms_samples": [
-            6.39,
+            6.38,
+            6.51,
+            6.42,
+            6.43,
+            6.44,
+            6.23,
             6.31,
-            6.5,
-            6.64,
-            6.8,
-            6.36,
-            6.52,
-            6.4,
-            6.39,
-            6.31
+            6.26,
+            6.16,
+            6.22
           ],
           "target_ms_samples": [
-            1.79,
+            1.68,
             1.57,
-            1.79,
-            1.7,
-            1.79,
-            1.56,
-            1.72,
+            1.61,
             1.67,
             1.66,
-            1.65
+            1.6,
+            1.7,
+            1.58,
+            1.52,
+            1.54
           ],
           "target_timeouts": 0,
           "stages": [
@@ -8718,10 +8718,10 @@
           "target_errors": 0,
           "source_errors": 0,
           "budget_exhausted": false,
-          "source_p50_ms": 6.4,
-          "source_p95_ms": 6.8,
-          "target_p50_ms": 1.7,
-          "target_p95_ms": 1.79,
+          "source_p50_ms": 6.38,
+          "source_p95_ms": 6.51,
+          "target_p50_ms": 1.61,
+          "target_p95_ms": 1.7,
           "first_difference": null,
           "difference_kinds": {},
           "ranking_only": false,
@@ -8736,10 +8736,10 @@
             "F10"
           ],
           "source_ms_samples": [
-            1.67
+            1.34
           ],
           "target_ms_samples": [
-            3.36
+            2.91
           ],
           "target_timeouts": 0,
           "stages": [],
@@ -8750,10 +8750,10 @@
           "target_errors": 0,
           "source_errors": 0,
           "budget_exhausted": false,
-          "source_p50_ms": 1.67,
-          "source_p95_ms": 1.67,
-          "target_p50_ms": 3.36,
-          "target_p95_ms": 3.36,
+          "source_p50_ms": 1.34,
+          "source_p95_ms": 1.34,
+          "target_p50_ms": 2.91,
+          "target_p95_ms": 2.91,
           "first_difference": null,
           "difference_kinds": {},
           "ranking_only": false,
@@ -8768,10 +8768,10 @@
             "F10"
           ],
           "source_ms_samples": [
-            0.71
+            0.67
           ],
           "target_ms_samples": [
-            0.47
+            0.52
           ],
           "target_timeouts": 0,
           "stages": [],
@@ -8782,10 +8782,10 @@
           "target_errors": 0,
           "source_errors": 0,
           "budget_exhausted": false,
-          "source_p50_ms": 0.71,
-          "source_p95_ms": 0.71,
-          "target_p50_ms": 0.47,
-          "target_p95_ms": 0.47,
+          "source_p50_ms": 0.67,
+          "source_p95_ms": 0.67,
+          "target_p50_ms": 0.52,
+          "target_p95_ms": 0.52,
           "first_difference": null,
           "difference_kinds": {},
           "ranking_only": false,
@@ -8800,10 +8800,10 @@
         "errors": 0
       },
       "overall": {
-        "source_p50_ms": 0.46,
-        "source_p95_ms": 6.48,
-        "target_p50_ms": 0.68,
-        "target_p95_ms": 6.0,
+        "source_p50_ms": 0.44,
+        "source_p95_ms": 6.36,
+        "target_p50_ms": 0.64,
+        "target_p95_ms": 5.65,
         "compared_on_both": 384
       }
     },
@@ -8815,10 +8815,10 @@
       "source_errors": 0,
       "first_difference": null,
       "first_error": null,
-      "source_p50_ms": 1.28,
-      "source_p95_ms": 1.93,
-      "target_p50_ms": 0.58,
-      "target_p95_ms": 1.07,
+      "source_p50_ms": 1.36,
+      "source_p95_ms": 1.96,
+      "target_p50_ms": 0.6,
+      "target_p95_ms": 0.9,
       "by_feature": {
         "F10": {
           "equal": 297
@@ -9107,5 +9107,5 @@
       "schema_rejections": []
     }
   },
-  "seconds": 105.9
+  "seconds": 105.7
 }

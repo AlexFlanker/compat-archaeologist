@@ -26,14 +26,14 @@ Headline results, each with the committed file it comes from:
 
 | Result | Number | Source |
 |---|---|---|
-| Probes for ShopLog | 30 valid, 0 invalid (strategy v005) | `probes/shoplog.json` |
+| Probes for ShopLog | 30 valid, 0 invalid (strategy v005); 11 needed more than one attempt (15 extra in all) | `probes/shoplog.json` (`status`, `generation.attempts`) |
 | Planted incompatibilities caught | 10 of 10 (train 6/6, held-out 4/4); 0 false flips with nothing planted; 3 repeats | `out/shoplog/mutation_test.json` |
 | Replay on operations the model never saw | 97 recorded operations across 5 shapes: 97 equal, 0 different | `out/shoplog/runs.json` (`replay.reads.unseen_only`) |
 | Probe strategy versions | 1 adopted (v005), 6 rolled back (v001-v004, v006, v007); the starting v000 caught 9 of 10 | `strategy/roster.json` |
 | Cutover checks | Clean copy: 6 of 23 checks fail. Drill: 2 of 2 injected faults caught | `out/shoplog/cutover_clean.json`, `out/shoplog/cutover_drill.json` |
 | 12-month net, ShopLog to FerretDB | +$20,124 on paper, -$113,043 with the evidence (flips at the transactions finding) | `out/shoplog/tco.json` |
 
-The roster, in order (held-out catch counts the 4 planted gaps the strategy editor never saw; train counts the 6 it did see):
+The roster, in order (held-out catch counts the 4 planted gaps the strategy editor never saw; train counts the 6 it did see). Rows marked "not measured" carry `"measured": false` in `strategy/roster.json`: their numbers are the parent's, copied when no candidate was measured, and the evidence site's Strategy page shows them as "not measured":
 
 | Version | Decision | Held-out | Train | Why |
 |---|---|---|---|---|
@@ -84,7 +84,7 @@ FerretDB's own [compatibility page](https://docs.ferretdb.io/migration/compatibi
 
 **Fairness check.** The same pipeline, thresholds and assumptions run on a control app, ShopLog Lite, which uses only plain CRUD. Its verdict is *the migration is fine*: FerretDB matched MongoDB on everything it does, with a 12-month net of +$8,604.
 
-**Probes.** Meta Muse wrote 30 behavioral probes for ShopLog (strategy v005). 11 of them needed more than one generation attempt (15 extra attempts in all): MongoDB, acting as the oracle, rejected Muse's first prediction and Muse repaired it. No probe had to be excluded. MongoDB against itself matched on all 30.
+**Probes.** Meta Muse wrote 30 behavioral probes for ShopLog (strategy v005). 11 of them needed more than one generation attempt (15 extra attempts in all, from each probe's `generation.attempts` in `probes/shoplog.json`): MongoDB, acting as the oracle, rejected Muse's first prediction and Muse repaired it. No probe had to be excluded. MongoDB against itself matched on all 30.
 
 **Second opinion.** SubQ Snap's probability that migrating is net-positive within 12 months, given the same facts: ShopLog to FerretDB **0.0002**, control app to FerretDB **0.94**.
 
@@ -94,10 +94,10 @@ FerretDB's own [compatibility page](https://docs.ferretdb.io/migration/compatibi
 
 A probe suite that finds gaps is only trustworthy if it also finds gaps we know are there, and if it is not graded on what the model already saw.
 
-- **Held out from the model.** A slice of the recorded workload was sealed on 2026-11-09, before the improvement rounds: the model saw the code; it never saw how these operations ran in production. The sealed slice (`out/shoplog/heldout.json`) is replayed on both engines as the "unseen-only" row above. Which probes are held out from it: the F1 and F3 probes were written after the seal (v005). The two F10 probes were regenerated after the seal on 2026-11-09, because their 2026-11-07 prompt carried three held-out shapes. The remaining 22 probes were written on 2026-11-07 from prompts whose ledger samples and sources contained no held-out shape (checked against the pre-seal ledger at commit 6b69027).
+- **Held out from the model.** A slice of the recorded workload was sealed on 2026-11-09, before the improvement rounds: the model saw the code; it never saw how these operations ran in production. The sealed slice (`out/shoplog/heldout.json`) is replayed on both engines as the "unseen-only" row above. The memo and the evidence site print that sentence only when every probe's prompt is accounted for (`probes.provenance`); otherwise they say how many probes predate the seal unchecked and make no claim. For the 30 ShopLog probes: the 22 carried from 2026-11-07 now carry a `pre_seal_check` stamp recorded by a programmatic check against the pre-seal ledger at commit 6b69027 (the ledger item each prompt was built from holds no sealed shape string or sealed command). The six F1 and F3 probes were written after the seal (v005) from that same ledger and carry the same stamp. The two F10 probes were regenerated after the seal, because their 2026-11-07 prompt carried sealed operations; they carry the stamp against the ledger they were written from (7448e65). For those eight, the prompt rebuilt from the named ledger matches the hash recorded for the call in `logs/meta_calls.jsonl`. Probes written from now on carry `generated_at` and `prompt_guarded` instead. The ShopLog Lite control probes were regenerated after the seal on 2026-11-09, under the guard. A prompt's query-log source line can still name a sealed shape by its hash id (S181542d4 for ShopLog F10); the id carries no part of the operation.
 - **Planted gaps.** A proxy sits in front of MongoDB and breaks one behavior at a time (for example, abort that commits, validator dropped, `$lookup` that drops unmatched rows). 10 such mutants are in `mutants/catalog.json`, split into 6 train and 4 held-out. The probes run against each mutant; a mutant is caught if any probe differs from the unmodified MongoDB. With zero mutations the proxy must produce zero differences (the false-flip check). Everything repeats 3 times, so a flaky catch is reported as flaky, not as caught (`archaeologist/mutation_test.py`).
 - **Adoption rule.** A new probe strategy is adopted only if it adds no false flips and no more than one more invalid probe than the active strategy, and catches more held-out mutants (or the same number and more train mutants); the decision is made in code (`improve.decide`), not by the model, and Muse only ever sees the train mutants that escaped.
-- **Evidence site.** `python -m archaeologist.evidence_site.serve --profile shoplog --port 8791`, then open http://localhost:8791. It shows the coloured query log, one page per finding with its status history, and the planted-gap results. The Challenge button on a finding re-runs that probe live on both engines and refreshes the difference and verdict. For a static copy: `python -m archaeologist.evidence_site.build --profile shoplog --out site/` (the Challenge button needs the live server).
+- **Evidence site.** `python -m archaeologist.evidence_site.serve --profile shoplog --port 8791`, then open http://localhost:8791. The server's default port is 8765; the guide uses 8791 because 8765 was taken on the demo machine (a taken port prints `port <n> in use; pass --port`). It shows the coloured query log, one page per finding with its status history, and the planted-gap results. The Challenge button on a finding re-runs that probe live on both engines and refreshes the difference and verdict. For a static copy: `python -m archaeologist.evidence_site.build --profile shoplog --out site/` (the Challenge button needs the live server).
 
 ## How it works
 
@@ -133,7 +133,7 @@ Design choices that keep the results honest:
 
 ## Run it
 
-Requirements: Docker, Python 3.11, [uv](https://docs.astral.sh/uv/), Node 22+ (for the MongoDB MCP Server).
+Requirements: Docker, Python 3.11 or newer (`run_demo.sh` creates a 3.11 venv; the committed results were produced with 3.12), [uv](https://docs.astral.sh/uv/), Node 22+ (for the MongoDB MCP Server).
 
 ```bash
 cp .env.example .env     # add META_API_KEY (or MODEL_API_KEY), SUBQ_API_KEY, optional Atlas values

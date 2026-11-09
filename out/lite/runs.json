@@ -1,5 +1,5 @@
 {
-  "run_id": "20261109T120932Z",
+  "run_id": "20261109T124701Z",
   "profile": "lite",
   "self_check": false,
   "probe_origin": "muse",
@@ -17,64 +17,103 @@
   },
   "probes": [
     {
-      "probe_id": "F10.orders-crud-by-id",
+      "probe_id": "F10.crud-reads-filter-sort",
       "feature_id": "F10",
-      "title": "Plain CRUD by _id with status update",
-      "behavior": "Insert then find_one by _id, update status and updated_at by _id and verify, delete by _id and verify gone",
+      "title": "Plain CRUD reads by _id customer status and counts",
+      "behavior": "retrieves single order by _id, lists by customer_id sorted _id limit 20, lists by status sorted _id limit 20, counts by status",
       "source": {
         "outcome": "completed",
         "steps": [
           {
-            "label": "insert-seed",
+            "label": "seed-insert",
             "op": "command",
-            "ms": 20.86,
+            "ms": 19.1,
             "status": "ok"
+          },
+          {
+            "label": "seed-confirm",
+            "op": "command",
+            "ms": 1.31,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": "O00000001",
+                  "customer_id": "C001",
+                  "status": "pending",
+                  "total": 19.99,
+                  "updated_at": "2026-10-01T00:00:00.000+00:00"
+                },
+                {
+                  "_id": "O00000002",
+                  "customer_id": "C001",
+                  "status": "paid",
+                  "total": 5.5,
+                  "updated_at": "2026-10-02T00:00:00.000+00:00"
+                },
+                {
+                  "_id": "O00000003",
+                  "customer_id": "C002",
+                  "status": "delivered",
+                  "total": 10,
+                  "updated_at": "2026-10-03T00:00:00.000+00:00"
+                },
+                {
+                  "_id": "O00000004",
+                  "customer_id": "C002",
+                  "status": "delivered",
+                  "total": 3.25,
+                  "updated_at": "2026-10-04T00:00:00.000+00:00"
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": null,
+                  "customer_id": null,
+                  "status": null,
+                  "total": "double",
+                  "updated_at": null
+                },
+                {
+                  "_id": null,
+                  "customer_id": null,
+                  "status": null,
+                  "total": "double",
+                  "updated_at": null
+                },
+                {
+                  "_id": null,
+                  "customer_id": null,
+                  "status": null,
+                  "total": "double",
+                  "updated_at": null
+                },
+                {
+                  "_id": null,
+                  "customer_id": null,
+                  "status": null,
+                  "total": "double",
+                  "updated_at": null
+                }
+              ]
+            }
           },
           {
             "label": "find-by-id",
             "op": "command",
-            "ms": 1.12,
+            "ms": 0.75,
             "status": "ok",
             "captured": {
               "docs": [
                 {
-                  "_id": "O00003113",
-                  "customer_id": "C000441",
-                  "status": "created",
-                  "updated_at": "2026-10-01T00:00:00.000+00:00"
-                }
-              ]
-            },
-            "capture": true,
-            "types": {
-              "docs": [
-                {
-                  "_id": null,
-                  "customer_id": null,
-                  "status": null,
-                  "updated_at": null
-                }
-              ]
-            }
-          },
-          {
-            "label": "update-status",
-            "op": "command",
-            "ms": 1.89,
-            "status": "ok"
-          },
-          {
-            "label": "verify-update",
-            "op": "command",
-            "ms": 0.54,
-            "status": "ok",
-            "captured": {
-              "docs": [
-                {
-                  "_id": "O00000317",
-                  "customer_id": "C000441",
+                  "_id": "O00000002",
+                  "customer_id": "C001",
                   "status": "paid",
-                  "updated_at": "2026-11-01T00:00:00.000+00:00"
+                  "total": 5.5,
+                  "updated_at": "2026-10-02T00:00:00.000+00:00"
                 }
               ]
             },
@@ -85,21 +124,166 @@
                   "_id": null,
                   "customer_id": null,
                   "status": null,
+                  "total": "double",
                   "updated_at": null
                 }
               ]
             }
           },
           {
-            "label": "delete-by-id",
+            "label": "find-by-customer",
             "op": "command",
-            "ms": 2.01,
-            "status": "ok"
+            "ms": 0.91,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": "O00000001",
+                  "customer_id": "C001",
+                  "status": "pending",
+                  "total": 19.99,
+                  "updated_at": "2026-10-01T00:00:00.000+00:00"
+                },
+                {
+                  "_id": "O00000002",
+                  "customer_id": "C001",
+                  "status": "paid",
+                  "total": 5.5,
+                  "updated_at": "2026-10-02T00:00:00.000+00:00"
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": null,
+                  "customer_id": null,
+                  "status": null,
+                  "total": "double",
+                  "updated_at": null
+                },
+                {
+                  "_id": null,
+                  "customer_id": null,
+                  "status": null,
+                  "total": "double",
+                  "updated_at": null
+                }
+              ]
+            }
           },
           {
-            "label": "verify-deleted",
+            "label": "find-by-status",
             "op": "command",
-            "ms": 0.5,
+            "ms": 0.67,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": "O00000003",
+                  "customer_id": "C002",
+                  "status": "delivered",
+                  "total": 10,
+                  "updated_at": "2026-10-03T00:00:00.000+00:00"
+                },
+                {
+                  "_id": "O00000004",
+                  "customer_id": "C002",
+                  "status": "delivered",
+                  "total": 3.25,
+                  "updated_at": "2026-10-04T00:00:00.000+00:00"
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": null,
+                  "customer_id": null,
+                  "status": null,
+                  "total": "double",
+                  "updated_at": null
+                },
+                {
+                  "_id": null,
+                  "customer_id": null,
+                  "status": null,
+                  "total": "double",
+                  "updated_at": null
+                }
+              ]
+            }
+          },
+          {
+            "label": "find-empty-comparison",
+            "op": "command",
+            "ms": 0.66,
+            "status": "ok",
+            "captured": {
+              "docs": []
+            },
+            "capture": true,
+            "types": {
+              "docs": []
+            }
+          },
+          {
+            "label": "count-delivered",
+            "op": "command",
+            "ms": 0.76,
+            "status": "ok",
+            "captured": {
+              "n": 2
+            },
+            "capture": true,
+            "types": {
+              "n": "int"
+            }
+          },
+          {
+            "label": "count-empty",
+            "op": "command",
+            "ms": 0.99,
+            "status": "ok",
+            "captured": {
+              "n": 0
+            },
+            "capture": true,
+            "types": {
+              "n": "int"
+            }
+          },
+          {
+            "label": "cents-delivered",
+            "op": "command",
+            "ms": 2.61,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": "delivered",
+                  "n": 2,
+                  "totalCents": 1325
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": null,
+                  "n": "int",
+                  "totalCents": "double"
+                }
+              ]
+            }
+          },
+          {
+            "label": "cents-empty",
+            "op": "command",
+            "ms": 0.9,
             "status": "ok",
             "captured": {
               "docs": []
@@ -110,62 +294,101 @@
             }
           }
         ],
-        "seconds": 0.029
+        "seconds": 0.033
       },
       "target": {
         "outcome": "completed",
         "steps": [
           {
-            "label": "insert-seed",
+            "label": "seed-insert",
             "op": "command",
-            "ms": 13.65,
+            "ms": 13.93,
             "status": "ok"
+          },
+          {
+            "label": "seed-confirm",
+            "op": "command",
+            "ms": 2.19,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": "O00000001",
+                  "customer_id": "C001",
+                  "status": "pending",
+                  "total": 19.99,
+                  "updated_at": "2026-10-01T00:00:00.000+00:00"
+                },
+                {
+                  "_id": "O00000002",
+                  "customer_id": "C001",
+                  "status": "paid",
+                  "total": 5.5,
+                  "updated_at": "2026-10-02T00:00:00.000+00:00"
+                },
+                {
+                  "_id": "O00000003",
+                  "customer_id": "C002",
+                  "status": "delivered",
+                  "total": 10,
+                  "updated_at": "2026-10-03T00:00:00.000+00:00"
+                },
+                {
+                  "_id": "O00000004",
+                  "customer_id": "C002",
+                  "status": "delivered",
+                  "total": 3.25,
+                  "updated_at": "2026-10-04T00:00:00.000+00:00"
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": null,
+                  "customer_id": null,
+                  "status": null,
+                  "total": "double",
+                  "updated_at": null
+                },
+                {
+                  "_id": null,
+                  "customer_id": null,
+                  "status": null,
+                  "total": "double",
+                  "updated_at": null
+                },
+                {
+                  "_id": null,
+                  "customer_id": null,
+                  "status": null,
+                  "total": "double",
+                  "updated_at": null
+                },
+                {
+                  "_id": null,
+                  "customer_id": null,
+                  "status": null,
+                  "total": "double",
+                  "updated_at": null
+                }
+              ]
+            }
           },
           {
             "label": "find-by-id",
             "op": "command",
-            "ms": 1.76,
+            "ms": 1.03,
             "status": "ok",
             "captured": {
               "docs": [
                 {
-                  "_id": "O00003113",
-                  "customer_id": "C000441",
-                  "status": "created",
-                  "updated_at": "2026-10-01T00:00:00.000+00:00"
-                }
-              ]
-            },
-            "capture": true,
-            "types": {
-              "docs": [
-                {
-                  "_id": null,
-                  "customer_id": null,
-                  "status": null,
-                  "updated_at": null
-                }
-              ]
-            }
-          },
-          {
-            "label": "update-status",
-            "op": "command",
-            "ms": 1.67,
-            "status": "ok"
-          },
-          {
-            "label": "verify-update",
-            "op": "command",
-            "ms": 0.66,
-            "status": "ok",
-            "captured": {
-              "docs": [
-                {
-                  "_id": "O00000317",
-                  "customer_id": "C000441",
+                  "_id": "O00000002",
+                  "customer_id": "C001",
                   "status": "paid",
-                  "updated_at": "2026-11-01T00:00:00.000+00:00"
+                  "total": 5.5,
+                  "updated_at": "2026-10-02T00:00:00.000+00:00"
                 }
               ]
             },
@@ -176,21 +399,166 @@
                   "_id": null,
                   "customer_id": null,
                   "status": null,
+                  "total": "double",
                   "updated_at": null
                 }
               ]
             }
           },
           {
-            "label": "delete-by-id",
+            "label": "find-by-customer",
             "op": "command",
-            "ms": 1.54,
-            "status": "ok"
+            "ms": 1.1,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": "O00000001",
+                  "customer_id": "C001",
+                  "status": "pending",
+                  "total": 19.99,
+                  "updated_at": "2026-10-01T00:00:00.000+00:00"
+                },
+                {
+                  "_id": "O00000002",
+                  "customer_id": "C001",
+                  "status": "paid",
+                  "total": 5.5,
+                  "updated_at": "2026-10-02T00:00:00.000+00:00"
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": null,
+                  "customer_id": null,
+                  "status": null,
+                  "total": "double",
+                  "updated_at": null
+                },
+                {
+                  "_id": null,
+                  "customer_id": null,
+                  "status": null,
+                  "total": "double",
+                  "updated_at": null
+                }
+              ]
+            }
           },
           {
-            "label": "verify-deleted",
+            "label": "find-by-status",
             "op": "command",
-            "ms": 0.65,
+            "ms": 1.19,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": "O00000003",
+                  "customer_id": "C002",
+                  "status": "delivered",
+                  "total": 10,
+                  "updated_at": "2026-10-03T00:00:00.000+00:00"
+                },
+                {
+                  "_id": "O00000004",
+                  "customer_id": "C002",
+                  "status": "delivered",
+                  "total": 3.25,
+                  "updated_at": "2026-10-04T00:00:00.000+00:00"
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": null,
+                  "customer_id": null,
+                  "status": null,
+                  "total": "double",
+                  "updated_at": null
+                },
+                {
+                  "_id": null,
+                  "customer_id": null,
+                  "status": null,
+                  "total": "double",
+                  "updated_at": null
+                }
+              ]
+            }
+          },
+          {
+            "label": "find-empty-comparison",
+            "op": "command",
+            "ms": 2.18,
+            "status": "ok",
+            "captured": {
+              "docs": []
+            },
+            "capture": true,
+            "types": {
+              "docs": []
+            }
+          },
+          {
+            "label": "count-delivered",
+            "op": "command",
+            "ms": 1.08,
+            "status": "ok",
+            "captured": {
+              "n": 2
+            },
+            "capture": true,
+            "types": {
+              "n": "int"
+            }
+          },
+          {
+            "label": "count-empty",
+            "op": "command",
+            "ms": 1.24,
+            "status": "ok",
+            "captured": {
+              "n": 0
+            },
+            "capture": true,
+            "types": {
+              "n": "int"
+            }
+          },
+          {
+            "label": "cents-delivered",
+            "op": "command",
+            "ms": 1.2,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": "delivered",
+                  "n": 2,
+                  "totalCents": 1325
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": null,
+                  "n": "int",
+                  "totalCents": "double"
+                }
+              ]
+            }
+          },
+          {
+            "label": "cents-empty",
+            "op": "command",
+            "ms": 1.14,
             "status": "ok",
             "captured": {
               "docs": []
@@ -201,46 +569,69 @@
             }
           }
         ],
-        "seconds": 0.029
+        "seconds": 0.039
       },
       "verdict": "equal",
       "detail": {}
     },
     {
-      "probe_id": "F10.orders-filter-sort-count",
+      "probe_id": "F10.crud-writes-insert-update-delete",
       "feature_id": "F10",
-      "title": "Filter by customer and status with sort limit and count",
-      "behavior": "Lists orders for customer_id sorted by _id with limit, lists orders for status sorted by _id with limit, counts orders by status",
+      "title": "Plain CRUD writes insert update delete",
+      "behavior": "inserts new order, updates status and updated_at by _id, deletes single order by _id with arrayFilter boundary",
       "source": {
         "outcome": "completed",
         "steps": [
           {
-            "label": "insert-seed",
+            "label": "seed-insert",
             "op": "command",
-            "ms": 20.48,
+            "ms": 20.34,
             "status": "ok"
           },
           {
-            "label": "find-by-customer",
+            "label": "seed-confirm",
             "op": "command",
-            "ms": 1.58,
+            "ms": 0.75,
             "status": "ok",
             "captured": {
               "docs": [
                 {
-                  "_id": "O00000001",
-                  "customer_id": "C000441",
-                  "status": "delivered"
+                  "_id": "O00000101",
+                  "customer_id": "C010",
+                  "items": [
+                    {
+                      "qty": 1,
+                      "sku": "a"
+                    },
+                    {
+                      "qty": 2,
+                      "sku": "b"
+                    }
+                  ],
+                  "status": "pending",
+                  "total": 9.99,
+                  "updated_at": "2026-10-01T00:00:00.000+00:00"
                 },
                 {
-                  "_id": "O00000002",
-                  "customer_id": "C000441",
-                  "status": "paid"
+                  "_id": "O00000102",
+                  "customer_id": "C010",
+                  "items": [
+                    {
+                      "qty": 5,
+                      "sku": "a"
+                    }
+                  ],
+                  "status": "paid",
+                  "total": 2.5,
+                  "updated_at": "2026-10-02T00:00:00.000+00:00"
                 },
                 {
-                  "_id": "O00000004",
-                  "customer_id": "C000441",
-                  "status": "delivered"
+                  "_id": "O00000103",
+                  "customer_id": "C011",
+                  "items": [],
+                  "status": "delivered",
+                  "total": 7,
+                  "updated_at": "2026-10-03T00:00:00.000+00:00"
                 }
               ]
             },
@@ -250,83 +641,48 @@
                 {
                   "_id": null,
                   "customer_id": null,
-                  "status": null
+                  "items": [
+                    {
+                      "qty": "int",
+                      "sku": null
+                    },
+                    {
+                      "qty": "int",
+                      "sku": null
+                    }
+                  ],
+                  "status": null,
+                  "total": "double",
+                  "updated_at": null
                 },
                 {
                   "_id": null,
                   "customer_id": null,
-                  "status": null
+                  "items": [
+                    {
+                      "qty": "int",
+                      "sku": null
+                    }
+                  ],
+                  "status": null,
+                  "total": "double",
+                  "updated_at": null
                 },
                 {
                   "_id": null,
                   "customer_id": null,
-                  "status": null
+                  "items": [],
+                  "status": null,
+                  "total": "double",
+                  "updated_at": null
                 }
               ]
             }
           },
           {
-            "label": "find-by-status",
+            "label": "insert-new",
             "op": "command",
-            "ms": 0.66,
-            "status": "ok",
-            "captured": {
-              "docs": [
-                {
-                  "_id": "O00000001",
-                  "customer_id": "C000441",
-                  "status": "delivered"
-                },
-                {
-                  "_id": "O00000003",
-                  "customer_id": "C000999",
-                  "status": "delivered"
-                },
-                {
-                  "_id": "O00000004",
-                  "customer_id": "C000441",
-                  "status": "delivered"
-                }
-              ]
-            },
-            "capture": true,
-            "types": {
-              "docs": [
-                {
-                  "_id": null,
-                  "customer_id": null,
-                  "status": null
-                },
-                {
-                  "_id": null,
-                  "customer_id": null,
-                  "status": null
-                },
-                {
-                  "_id": null,
-                  "customer_id": null,
-                  "status": null
-                }
-              ]
-            }
-          },
-          {
-            "label": "count-delivered",
-            "op": "command",
-            "ms": 0.45,
-            "status": "ok",
-            "captured": {
-              "n": 3
-            },
-            "capture": true,
-            "types": {
-              "n": "int"
-            }
-          },
-          {
-            "label": "count-paid",
-            "op": "command",
-            "ms": 0.47,
+            "ms": 2.44,
             "status": "ok",
             "captured": {
               "n": 1
@@ -335,40 +691,276 @@
             "types": {
               "n": "int"
             }
+          },
+          {
+            "label": "update-status",
+            "op": "command",
+            "ms": 1.73,
+            "status": "ok",
+            "captured": {
+              "n": 1,
+              "nModified": 1
+            },
+            "capture": true,
+            "types": {
+              "n": "int",
+              "nModified": "int"
+            }
+          },
+          {
+            "label": "read-after-write",
+            "op": "command",
+            "ms": 2.27,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": "O00000101",
+                  "customer_id": "C010",
+                  "items": [
+                    {
+                      "qty": 1,
+                      "sku": "a"
+                    },
+                    {
+                      "qty": 2,
+                      "sku": "b"
+                    }
+                  ],
+                  "status": "paid",
+                  "total": 9.99,
+                  "updated_at": "2026-11-01T00:00:00.000+00:00"
+                },
+                {
+                  "_id": "O00000104",
+                  "customer_id": "C011",
+                  "items": [
+                    {
+                      "qty": 1,
+                      "sku": "a"
+                    },
+                    {
+                      "qty": 3,
+                      "sku": "b"
+                    }
+                  ],
+                  "status": "pending",
+                  "total": 12.34,
+                  "updated_at": "2026-11-01T00:00:00.000+00:00"
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": null,
+                  "customer_id": null,
+                  "items": [
+                    {
+                      "qty": "int",
+                      "sku": null
+                    },
+                    {
+                      "qty": "int",
+                      "sku": null
+                    }
+                  ],
+                  "status": null,
+                  "total": "double",
+                  "updated_at": null
+                },
+                {
+                  "_id": null,
+                  "customer_id": null,
+                  "items": [
+                    {
+                      "qty": "int",
+                      "sku": null
+                    },
+                    {
+                      "qty": "int",
+                      "sku": null
+                    }
+                  ],
+                  "status": null,
+                  "total": "double",
+                  "updated_at": null
+                }
+              ]
+            }
+          },
+          {
+            "label": "update-two-filters",
+            "op": "command",
+            "ms": 1.13,
+            "status": "ok",
+            "captured": {
+              "n": 1,
+              "nModified": 1
+            },
+            "capture": true,
+            "types": {
+              "n": "int",
+              "nModified": "int"
+            }
+          },
+          {
+            "label": "read-boundary",
+            "op": "command",
+            "ms": 1.19,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": "O00000104",
+                  "customer_id": "C011",
+                  "items": [
+                    {
+                      "qty": 99,
+                      "sku": "a"
+                    },
+                    {
+                      "qty": 88,
+                      "sku": "b"
+                    }
+                  ],
+                  "status": "pending",
+                  "total": 12.34,
+                  "updated_at": "2026-11-01T00:00:00.000+00:00"
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": null,
+                  "customer_id": null,
+                  "items": [
+                    {
+                      "qty": "int",
+                      "sku": null
+                    },
+                    {
+                      "qty": "int",
+                      "sku": null
+                    }
+                  ],
+                  "status": null,
+                  "total": "double",
+                  "updated_at": null
+                }
+              ]
+            }
+          },
+          {
+            "label": "delete-one",
+            "op": "command",
+            "ms": 2.03,
+            "status": "ok",
+            "captured": {
+              "n": 1
+            },
+            "capture": true,
+            "types": {
+              "n": "int"
+            }
+          },
+          {
+            "label": "read-deleted-empty",
+            "op": "command",
+            "ms": 2.09,
+            "status": "ok",
+            "captured": {
+              "docs": []
+            },
+            "capture": true,
+            "types": {
+              "docs": []
+            }
+          },
+          {
+            "label": "cents-totals",
+            "op": "command",
+            "ms": 1.02,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": null,
+                  "n": 3,
+                  "totalCents": 2933
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": null,
+                  "n": "int",
+                  "totalCents": "double"
+                }
+              ]
+            }
           }
         ],
-        "seconds": 0.028
+        "seconds": 0.142
       },
       "target": {
         "outcome": "completed",
         "steps": [
           {
-            "label": "insert-seed",
+            "label": "seed-insert",
             "op": "command",
-            "ms": 12.01,
+            "ms": 16.03,
             "status": "ok"
           },
           {
-            "label": "find-by-customer",
+            "label": "seed-confirm",
             "op": "command",
-            "ms": 2.12,
+            "ms": 2.2,
             "status": "ok",
             "captured": {
               "docs": [
                 {
-                  "_id": "O00000001",
-                  "customer_id": "C000441",
-                  "status": "delivered"
+                  "_id": "O00000101",
+                  "customer_id": "C010",
+                  "items": [
+                    {
+                      "qty": 1,
+                      "sku": "a"
+                    },
+                    {
+                      "qty": 2,
+                      "sku": "b"
+                    }
+                  ],
+                  "status": "pending",
+                  "total": 9.99,
+                  "updated_at": "2026-10-01T00:00:00.000+00:00"
                 },
                 {
-                  "_id": "O00000002",
-                  "customer_id": "C000441",
-                  "status": "paid"
+                  "_id": "O00000102",
+                  "customer_id": "C010",
+                  "items": [
+                    {
+                      "qty": 5,
+                      "sku": "a"
+                    }
+                  ],
+                  "status": "paid",
+                  "total": 2.5,
+                  "updated_at": "2026-10-02T00:00:00.000+00:00"
                 },
                 {
-                  "_id": "O00000004",
-                  "customer_id": "C000441",
-                  "status": "delivered"
+                  "_id": "O00000103",
+                  "customer_id": "C011",
+                  "items": [],
+                  "status": "delivered",
+                  "total": 7,
+                  "updated_at": "2026-10-03T00:00:00.000+00:00"
                 }
               ]
             },
@@ -378,83 +970,48 @@
                 {
                   "_id": null,
                   "customer_id": null,
-                  "status": null
+                  "items": [
+                    {
+                      "qty": "int",
+                      "sku": null
+                    },
+                    {
+                      "qty": "int",
+                      "sku": null
+                    }
+                  ],
+                  "status": null,
+                  "total": "double",
+                  "updated_at": null
                 },
                 {
                   "_id": null,
                   "customer_id": null,
-                  "status": null
+                  "items": [
+                    {
+                      "qty": "int",
+                      "sku": null
+                    }
+                  ],
+                  "status": null,
+                  "total": "double",
+                  "updated_at": null
                 },
                 {
                   "_id": null,
                   "customer_id": null,
-                  "status": null
+                  "items": [],
+                  "status": null,
+                  "total": "double",
+                  "updated_at": null
                 }
               ]
             }
           },
           {
-            "label": "find-by-status",
+            "label": "insert-new",
             "op": "command",
-            "ms": 0.89,
-            "status": "ok",
-            "captured": {
-              "docs": [
-                {
-                  "_id": "O00000001",
-                  "customer_id": "C000441",
-                  "status": "delivered"
-                },
-                {
-                  "_id": "O00000003",
-                  "customer_id": "C000999",
-                  "status": "delivered"
-                },
-                {
-                  "_id": "O00000004",
-                  "customer_id": "C000441",
-                  "status": "delivered"
-                }
-              ]
-            },
-            "capture": true,
-            "types": {
-              "docs": [
-                {
-                  "_id": null,
-                  "customer_id": null,
-                  "status": null
-                },
-                {
-                  "_id": null,
-                  "customer_id": null,
-                  "status": null
-                },
-                {
-                  "_id": null,
-                  "customer_id": null,
-                  "status": null
-                }
-              ]
-            }
-          },
-          {
-            "label": "count-delivered",
-            "op": "command",
-            "ms": 1.1,
-            "status": "ok",
-            "captured": {
-              "n": 3
-            },
-            "capture": true,
-            "types": {
-              "n": "int"
-            }
-          },
-          {
-            "label": "count-paid",
-            "op": "command",
-            "ms": 0.62,
+            "ms": 1.39,
             "status": "ok",
             "captured": {
               "n": 1
@@ -463,9 +1020,222 @@
             "types": {
               "n": "int"
             }
+          },
+          {
+            "label": "update-status",
+            "op": "command",
+            "ms": 1.95,
+            "status": "ok",
+            "captured": {
+              "n": 1,
+              "nModified": 1
+            },
+            "capture": true,
+            "types": {
+              "n": "int",
+              "nModified": "int"
+            }
+          },
+          {
+            "label": "read-after-write",
+            "op": "command",
+            "ms": 2.54,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": "O00000101",
+                  "customer_id": "C010",
+                  "items": [
+                    {
+                      "qty": 1,
+                      "sku": "a"
+                    },
+                    {
+                      "qty": 2,
+                      "sku": "b"
+                    }
+                  ],
+                  "status": "paid",
+                  "total": 9.99,
+                  "updated_at": "2026-11-01T00:00:00.000+00:00"
+                },
+                {
+                  "_id": "O00000104",
+                  "customer_id": "C011",
+                  "items": [
+                    {
+                      "qty": 1,
+                      "sku": "a"
+                    },
+                    {
+                      "qty": 3,
+                      "sku": "b"
+                    }
+                  ],
+                  "status": "pending",
+                  "total": 12.34,
+                  "updated_at": "2026-11-01T00:00:00.000+00:00"
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": null,
+                  "customer_id": null,
+                  "items": [
+                    {
+                      "qty": "int",
+                      "sku": null
+                    },
+                    {
+                      "qty": "int",
+                      "sku": null
+                    }
+                  ],
+                  "status": null,
+                  "total": "double",
+                  "updated_at": null
+                },
+                {
+                  "_id": null,
+                  "customer_id": null,
+                  "items": [
+                    {
+                      "qty": "int",
+                      "sku": null
+                    },
+                    {
+                      "qty": "int",
+                      "sku": null
+                    }
+                  ],
+                  "status": null,
+                  "total": "double",
+                  "updated_at": null
+                }
+              ]
+            }
+          },
+          {
+            "label": "update-two-filters",
+            "op": "command",
+            "ms": 1.54,
+            "status": "ok",
+            "captured": {
+              "n": 1,
+              "nModified": 1
+            },
+            "capture": true,
+            "types": {
+              "n": "int",
+              "nModified": "int"
+            }
+          },
+          {
+            "label": "read-boundary",
+            "op": "command",
+            "ms": 0.77,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": "O00000104",
+                  "customer_id": "C011",
+                  "items": [
+                    {
+                      "qty": 99,
+                      "sku": "a"
+                    },
+                    {
+                      "qty": 88,
+                      "sku": "b"
+                    }
+                  ],
+                  "status": "pending",
+                  "total": 12.34,
+                  "updated_at": "2026-11-01T00:00:00.000+00:00"
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": null,
+                  "customer_id": null,
+                  "items": [
+                    {
+                      "qty": "int",
+                      "sku": null
+                    },
+                    {
+                      "qty": "int",
+                      "sku": null
+                    }
+                  ],
+                  "status": null,
+                  "total": "double",
+                  "updated_at": null
+                }
+              ]
+            }
+          },
+          {
+            "label": "delete-one",
+            "op": "command",
+            "ms": 1.54,
+            "status": "ok",
+            "captured": {
+              "n": 1
+            },
+            "capture": true,
+            "types": {
+              "n": "int"
+            }
+          },
+          {
+            "label": "read-deleted-empty",
+            "op": "command",
+            "ms": 2.39,
+            "status": "ok",
+            "captured": {
+              "docs": []
+            },
+            "capture": true,
+            "types": {
+              "docs": []
+            }
+          },
+          {
+            "label": "cents-totals",
+            "op": "command",
+            "ms": 1.04,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": null,
+                  "n": 3,
+                  "totalCents": 2933
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": null,
+                  "n": "int",
+                  "totalCents": "double"
+                }
+              ]
+            }
           }
         ],
-        "seconds": 0.026
+        "seconds": 0.041
       },
       "verdict": "equal",
       "detail": {}
@@ -483,88 +1253,88 @@
             "F10"
           ],
           "source_ms_samples": [
-            0.35,
-            0.37,
-            0.27,
-            0.29,
-            0.27,
-            0.3,
-            0.28,
-            0.28,
-            0.27,
-            0.31,
-            0.29,
-            0.26,
-            0.29,
-            0.29,
-            0.24,
-            0.27,
-            1.03,
-            0.27,
-            0.26,
+            0.54,
+            0.45,
+            0.46,
             0.41,
-            0.26,
-            0.28,
-            0.26,
-            0.26,
-            0.26,
-            0.25,
-            0.25,
-            0.25,
-            0.26,
-            0.28,
-            0.27,
+            0.36,
+            0.44,
+            0.45,
+            0.39,
+            0.36,
+            0.69,
+            0.56,
+            0.4,
+            0.35,
+            0.44,
+            0.33,
+            0.37,
+            0.36,
             0.31,
-            0.27,
-            0.27,
-            0.29,
-            0.28,
-            0.24,
-            0.28,
-            0.25,
-            0.25
+            0.33,
+            0.36,
+            0.3,
+            0.33,
+            0.33,
+            0.34,
+            0.35,
+            0.36,
+            0.33,
+            0.32,
+            0.31,
+            0.33,
+            0.32,
+            0.34,
+            0.3,
+            0.33,
+            0.38,
+            0.36,
+            0.36,
+            0.31,
+            0.33,
+            0.31
           ],
           "target_ms_samples": [
+            0.66,
+            0.71,
+            0.66,
+            0.6,
+            0.6,
+            0.57,
+            0.65,
+            0.51,
+            0.53,
+            0.51,
+            0.73,
+            0.48,
+            0.5,
+            0.61,
+            0.49,
             0.46,
+            0.47,
             0.42,
+            0.53,
             0.42,
-            0.39,
-            0.35,
-            0.33,
-            0.36,
-            0.36,
-            0.74,
-            0.36,
-            0.77,
-            0.37,
-            0.36,
-            0.34,
-            0.37,
-            0.39,
-            0.4,
-            0.36,
-            0.37,
-            0.68,
-            0.36,
-            0.4,
-            0.36,
-            0.32,
-            0.33,
-            0.3,
-            0.39,
-            0.29,
-            0.32,
-            0.35,
-            0.83,
-            0.34,
-            0.36,
+            0.52,
+            0.38,
+            0.44,
+            0.45,
+            0.53,
+            0.46,
+            0.45,
+            0.48,
+            0.46,
+            0.46,
+            0.5,
+            0.44,
+            0.46,
+            0.5,
+            0.46,
             0.43,
-            0.38,
-            0.36,
-            0.35,
-            0.33,
-            0.38,
-            0.35
+            0.44,
+            0.43,
+            0.43,
+            0.4
           ],
           "target_timeouts": 0,
           "stages": [],
@@ -575,10 +1345,10 @@
           "target_errors": 0,
           "source_errors": 0,
           "budget_exhausted": false,
-          "source_p50_ms": 0.27,
-          "source_p95_ms": 0.41,
-          "target_p50_ms": 0.36,
-          "target_p95_ms": 0.77,
+          "source_p50_ms": 0.36,
+          "source_p95_ms": 0.56,
+          "target_p50_ms": 0.48,
+          "target_p95_ms": 0.71,
           "first_difference": null,
           "difference_kinds": {},
           "ranking_only": false,
@@ -593,88 +1363,88 @@
             "F10"
           ],
           "source_ms_samples": [
-            0.36,
-            0.55,
-            0.34,
-            0.38,
-            0.35,
-            0.37,
-            0.35,
-            0.33,
-            0.36,
-            0.3,
-            0.33,
-            1.22,
-            0.37,
-            0.32,
-            0.35,
-            0.34,
-            0.31,
-            0.32,
-            0.31,
-            0.32,
-            0.36,
-            0.28,
-            0.32,
-            0.31,
-            0.31,
-            0.34,
-            0.34,
-            0.32,
-            0.3,
-            0.33,
-            0.31,
-            0.28,
-            0.31,
-            0.29,
-            0.29,
-            0.3,
-            0.29,
-            0.34,
-            2.4,
-            0.29
-          ],
-          "target_ms_samples": [
-            0.48,
-            0.59,
-            0.46,
             0.44,
-            0.5,
-            0.45,
+            0.49,
             0.47,
-            0.42,
-            0.46,
-            0.41,
+            0.45,
             0.43,
-            0.56,
-            0.45,
-            0.41,
             0.42,
-            0.47,
-            0.47,
-            0.47,
-            0.48,
+            0.42,
+            0.39,
+            0.45,
+            0.4,
+            0.38,
+            0.39,
+            0.38,
+            0.41,
+            0.38,
+            0.46,
             0.39,
             0.42,
-            0.37,
-            0.38,
+            0.41,
+            0.36,
+            0.42,
+            0.36,
             0.45,
-            0.37,
-            0.49,
-            0.44,
+            0.99,
+            0.34,
+            0.42,
+            0.38,
             0.43,
-            0.44,
-            0.37,
+            0.36,
             0.42,
             0.4,
-            0.4,
-            0.44,
-            0.38,
-            0.38,
-            0.43,
-            0.85,
+            0.37,
+            0.42,
+            0.5,
+            0.39,
+            0.39,
+            0.36,
+            0.36,
+            0.34,
+            0.34
+          ],
+          "target_ms_samples": [
+            0.56,
+            0.58,
+            0.7,
+            0.59,
+            0.63,
+            0.59,
+            0.61,
+            0.53,
+            0.57,
+            0.53,
+            0.54,
+            0.52,
+            0.57,
+            0.45,
+            0.58,
+            0.52,
+            0.65,
+            0.51,
+            0.51,
+            0.53,
+            0.51,
+            0.48,
+            0.47,
+            0.51,
+            0.5,
+            0.52,
+            0.51,
+            0.51,
+            0.48,
+            0.5,
+            0.49,
+            0.49,
+            1.72,
+            0.55,
+            0.53,
+            0.49,
             0.46,
-            0.4
+            0.49,
+            0.51,
+            0.49
           ],
           "target_timeouts": 0,
           "stages": [],
@@ -685,10 +1455,10 @@
           "target_errors": 0,
           "source_errors": 0,
           "budget_exhausted": false,
-          "source_p50_ms": 0.33,
-          "source_p95_ms": 1.22,
-          "target_p50_ms": 0.44,
-          "target_p95_ms": 0.59,
+          "source_p50_ms": 0.41,
+          "source_p95_ms": 0.5,
+          "target_p50_ms": 0.52,
+          "target_p95_ms": 0.7,
           "first_difference": null,
           "difference_kinds": {},
           "ranking_only": false,
@@ -703,88 +1473,88 @@
             "F10"
           ],
           "source_ms_samples": [
-            0.35,
-            0.36,
-            0.31,
-            0.34,
-            0.33,
-            0.39,
-            0.35,
-            0.35,
-            0.31,
-            0.3,
-            0.29,
-            0.35,
-            0.32,
-            0.32,
-            0.32,
-            0.32,
-            0.35,
-            0.33,
-            0.31,
-            0.29,
-            0.3,
-            0.34,
-            0.3,
-            0.34,
-            0.32,
-            0.31,
-            0.34,
-            0.31,
-            0.3,
             0.37,
+            0.36,
             0.33,
-            0.32,
-            0.31,
-            0.34,
-            0.3,
-            0.34,
-            0.3,
             0.35,
             0.33,
-            0.41
+            0.32,
+            0.32,
+            0.46,
+            0.33,
+            0.36,
+            0.29,
+            0.32,
+            0.3,
+            0.35,
+            0.32,
+            0.35,
+            0.31,
+            0.32,
+            0.31,
+            0.31,
+            0.29,
+            0.34,
+            0.29,
+            0.37,
+            0.32,
+            0.35,
+            0.32,
+            0.3,
+            0.33,
+            0.31,
+            0.3,
+            0.33,
+            0.29,
+            0.3,
+            0.31,
+            0.33,
+            0.35,
+            0.34,
+            0.36,
+            0.47
           ],
           "target_ms_samples": [
-            1.0,
-            1.09,
-            0.99,
-            0.99,
-            1.27,
-            2.24,
-            1.06,
-            0.96,
-            1.04,
-            0.95,
-            1.0,
-            0.93,
-            0.89,
-            0.91,
-            0.93,
-            0.92,
-            0.92,
-            0.9,
-            0.94,
-            0.89,
-            0.96,
-            0.92,
-            1.01,
-            0.99,
-            0.99,
-            0.88,
-            0.94,
-            0.93,
-            0.9,
-            1.0,
-            1.03,
-            0.89,
-            1.84,
             1.11,
+            1.14,
+            1.12,
+            1.06,
+            1.07,
+            1.07,
+            0.99,
+            1.04,
+            1.05,
+            1.0,
             0.98,
-            0.95,
-            0.98,
-            0.9,
+            0.99,
+            1.04,
+            1.07,
+            1.1,
+            1.02,
+            0.96,
+            0.97,
+            0.92,
+            0.91,
+            0.96,
             0.94,
-            0.96
+            2.84,
+            1.23,
+            1.02,
+            0.96,
+            0.97,
+            0.97,
+            0.92,
+            0.92,
+            0.94,
+            0.96,
+            0.96,
+            0.94,
+            0.93,
+            0.89,
+            0.94,
+            0.94,
+            1.21,
+            1.13
           ],
           "target_timeouts": 0,
           "stages": [],
@@ -796,9 +1566,9 @@
           "source_errors": 0,
           "budget_exhausted": false,
           "source_p50_ms": 0.33,
-          "source_p95_ms": 0.39,
-          "target_p50_ms": 0.96,
-          "target_p95_ms": 1.84,
+          "source_p95_ms": 0.46,
+          "target_p50_ms": 0.99,
+          "target_p95_ms": 1.23,
           "first_difference": null,
           "difference_kinds": {},
           "ranking_only": false,
@@ -812,67 +1582,67 @@
           "features": [],
           "source_ms_samples": [
             0.59,
-            0.53,
-            0.56,
-            0.56,
-            0.6,
-            0.57,
-            0.59,
-            0.56,
-            0.5,
-            0.52,
-            0.5,
-            0.59,
-            0.55,
+            0.61,
+            0.72,
+            0.74,
+            0.76,
             0.62,
-            0.5,
-            0.51,
-            0.53,
-            0.52,
-            0.52,
-            0.56,
+            0.58,
+            0.68,
             0.54,
-            0.52,
+            0.53,
+            0.53,
             0.55,
             0.5,
+            0.57,
+            0.53,
+            0.52,
+            0.56,
+            0.58,
+            0.53,
+            0.57,
+            0.54,
+            0.68,
+            0.56,
             0.54,
             0.53,
-            0.54,
-            0.52,
-            0.5,
-            0.56
+            0.59,
+            0.55,
+            0.57,
+            0.55,
+            0.52
           ],
           "target_ms_samples": [
             0.62,
-            0.59,
-            0.63,
-            0.61,
-            0.68,
-            0.57,
-            0.67,
             0.64,
+            0.78,
+            0.72,
+            0.81,
+            0.79,
+            0.7,
+            0.76,
+            0.72,
             0.6,
-            0.58,
-            0.61,
-            0.54,
-            0.67,
+            0.71,
             0.65,
-            0.66,
-            0.54,
-            0.56,
-            0.61,
-            0.66,
-            0.64,
-            0.64,
-            0.55,
-            0.62,
-            0.58,
-            1.84,
+            0.6,
+            0.59,
+            0.69,
+            0.6,
             0.6,
             0.63,
-            0.58,
-            2.07,
-            0.56
+            0.76,
+            0.61,
+            0.69,
+            0.67,
+            0.75,
+            0.64,
+            0.65,
+            0.61,
+            0.65,
+            0.57,
+            0.65,
+            0.63
           ],
           "target_timeouts": 0,
           "stages": [
@@ -886,10 +1656,10 @@
           "target_errors": 0,
           "source_errors": 0,
           "budget_exhausted": false,
-          "source_p50_ms": 0.54,
-          "source_p95_ms": 0.6,
-          "target_p50_ms": 0.62,
-          "target_p95_ms": 1.84,
+          "source_p50_ms": 0.56,
+          "source_p95_ms": 0.74,
+          "target_p50_ms": 0.65,
+          "target_p95_ms": 0.79,
           "first_difference": null,
           "difference_kinds": {},
           "ranking_only": false,
@@ -904,10 +1674,10 @@
         "errors": 0
       },
       "overall": {
-        "source_p50_ms": 0.32,
-        "source_p95_ms": 0.59,
-        "target_p50_ms": 0.55,
-        "target_p95_ms": 1.06,
+        "source_p50_ms": 0.38,
+        "source_p95_ms": 0.62,
+        "target_p50_ms": 0.61,
+        "target_p95_ms": 1.11,
         "compared_on_both": 150
       }
     },
@@ -919,10 +1689,10 @@
       "source_errors": 0,
       "first_difference": null,
       "first_error": null,
-      "source_p50_ms": 1.3,
-      "source_p95_ms": 1.77,
-      "target_p50_ms": 0.63,
-      "target_p95_ms": 1.21,
+      "source_p50_ms": 1.35,
+      "source_p95_ms": 1.89,
+      "target_p50_ms": 0.6,
+      "target_p95_ms": 0.99,
       "by_feature": {
         "F10": {
           "equal": 70
@@ -941,11 +1711,11 @@
       "verdict": "equal",
       "probes": [
         {
-          "probe_id": "F10.orders-crud-by-id",
+          "probe_id": "F10.crud-reads-filter-sort",
           "verdict": "equal"
         },
         {
-          "probe_id": "F10.orders-filter-sort-count",
+          "probe_id": "F10.crud-writes-insert-update-delete",
           "verdict": "equal"
         }
       ],
@@ -958,5 +1728,5 @@
       "schema_rejections": []
     }
   },
-  "seconds": 0.6
+  "seconds": 0.7
 }

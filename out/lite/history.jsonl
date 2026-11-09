@@ -1,2 +1,3 @@
 {"run_id": "20261109T104951Z", "at": "2026-11-09T10:49:51+00:00", "strategy_version": "v000", "verdicts": {"F10.orders-crud-by-id": "equal", "F10.orders-filter-sort-count": "equal"}}
 {"run_id": "20261109T120932Z", "at": "2026-11-09T12:09:33+00:00", "strategy_version": "v000", "verdicts": {"F10.orders-crud-by-id": "equal", "F10.orders-filter-sort-count": "equal"}}
+{"run_id": "20261109T124701Z", "at": "2026-11-09T12:47:02+00:00", "strategy_version": "v005", "verdicts": {"F10.crud-reads-filter-sort": "equal", "F10.crud-writes-insert-update-delete": "equal"}}

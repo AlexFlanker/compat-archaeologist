@@ -33,7 +33,7 @@ Two apps were built today for the demo:
 | 3. Probe | Muse writes declarative tests. MongoDB is the referee: a test counts only if MongoDB agrees with Muse's prediction | 30 probes · 11 needed a repair · 0 excluded |
 | 4. Prove | Same tests and same recorded workload on MongoDB 8.0 and FerretDB 2.7, with plans from the MongoDB MCP Server. DocumentDB is checked from its docs only | 384 reads · 353 writes · self-check 30/30 |
 | 5. Rehearse | Simulate full-load + CDC while the app writes; audit what arrived; ask the business questions again. Also run the upgrade check, FerretDB 2.2 → 2.7 | clean: 6/23 checks fail · drill: 2/2 injected faults caught |
-| 6. Decide | One-page CTO memo: top risks, 12-month TCO, latency, reversibility, SubQ second opinion | `out/shoplog/memo.md` · ASI:One cards · 2,602 s end to end with self-check and mutation test (`out/shoplog/timing.json`) |
+| 6. Decide | One-page CTO memo: top risks, 12-month TCO, latency, reversibility, SubQ second opinion | `out/shoplog/memo.md` · ASI:One cards · 2,601 s end to end with self-check and mutation test (`out/shoplog/timing.json`) |
 
 **Safety nets**
 
@@ -49,7 +49,7 @@ Two apps were built today for the demo:
 
 - **10/10** hidden rules recovered blind, all labeled correctly. One scoring pattern was fixed after the first run; before the fix, the score was 9 found and 8 labeled.
 - **5 of 8** business answers changed after a clean cutover and one morning of traffic.
-- **9 ms → 4.0 s**: revenue report p95 (9.19 ms against 3,999 ms), about 530× slower at p50.
+- **7 ms → 4.1 s**: revenue report p95 (7.02 ms against 4,077 ms), about 598× slower at p50.
 - **2/2** injected cutover faults caught.
 - **ShopLog → FerretDB**: −$113,043 over 12 months; SubQ gives 0.0002 that it pays off; reversibility 15/100.
 - **48/48** edge-case documents designed by SubQ Preview behaved the same on FerretDB. The gaps are behavior, not data.
@@ -57,7 +57,7 @@ Two apps were built today for the demo:
 
 | # | ShopLog depends on | FerretDB 2.7 (measured) | DocumentDB 8.0.2 (docs only) |
 |---|---|---|---|
-| F1 | $lookup sub-pipeline + $facet | Same results, ~530× slower | Documented |
+| F1 | $lookup sub-pipeline + $facet | Same results, ~598× slower | Documented |
 | F2 | $setWindowFields | Same | $shift not supported |
 | F3 | arrayFilters | **Silent**: two identifiers in one `$set` apply the first and drop the second's field (`modified_count` still 1) | Documented |
 | F4 | Transactions | **Silent**: abort doesn't roll back, and commit errors after the write | Documented, with limits |
@@ -86,7 +86,7 @@ SubQ Snap answers the same question twice: **>0.999** with only the paper facts,
 
 ## The 3-minute loop
 
-Open the evidence site first. The full ShopLog run with self-check and the mutation test took 2,602 s (`out/shoplog/timing.json`), so narrate from the committed memo and run the control app live: `./run_demo.sh --profile lite` took 18 s (`out/lite/timing.json`).
+Open the evidence site first. The full ShopLog run with self-check and the mutation test took 2,601 s (`out/shoplog/timing.json`), so narrate from the committed memo and run the control app live: `./run_demo.sh --profile lite` took 18 s (`out/lite/timing.json`).
 
 **Loop:** Dig → Label → Probe → Prove → Rehearse → Decide → Flip → Score
 
@@ -95,7 +95,7 @@ Open the evidence site first. The full ShopLog run with self-check and the mutat
 | 0:00 | "Everything here was built today after 10:45." Then the story in one breath. Start the evidence site (`python -m archaeologist.evidence_site.serve --profile shoplog --port 8791`). For the first 15 seconds, stay on the query log page: "This is how the app really ran. A slice of it was sealed: the model saw the code; it never saw how these operations ran in production." Then one Challenge on an F4 finding: the probe re-runs on both engines live. | Evidence site: query log, then an F4 finding page and its Challenge button | Hard rule: built today · Impact |
 | 0:20 | "The agent writes the spec nobody wrote: 11 features, each observed or inferred, with a confidence. It even finds dead code." | Ledger table, then "hidden rules recovered blind: 10/10" | Software Archaeology · Meta |
 | 0:45 | (Results table and roster in the README: 10 of 10 planted gaps caught, one strategy adopted, six rolled back, and why.) "Muse writes 30 tests. MongoDB is the referee and overruled Muse's first try on 11 probes. Then both engines run them." | Memo: Top risks | Behavioral equivalence · Trust but verify · Meta |
-| 1:20 | "The revenue report goes from 9 ms to 4 s. The MCP explain plan shows a sequential scan inside a nested loop. Projected, it hits a 30 s timeout near 110 MB, versus near 125 GB on MongoDB. That projection is inferred." | Memo: latency, "At production size" | Technical demo · MongoDB MCP |
+| 1:20 | "The revenue report goes from 7 ms to 4 s. The MCP explain plan shows a sequential scan inside a nested loop. Projected, it hits a 30 s timeout near 100 MB, versus near 164 GB on MongoDB. That projection is inferred." | Memo: latency, "At production size" | Technical demo · MongoDB MCP |
 | 1:50 | "Even a clean copy loses the case-insensitive unique index and the validator. In the drill we inject a CDC gap and a dropped index, and both are caught. After one morning, 5 of 8 business numbers changed, and checkout said 'failed' while saving the order." | Memo: Cutover fidelity, Business questions | Impact · Creativity · Difficulty |
 | 2:20 | "Here is the decision the team made on paper: +$20k, migrate. SubQ agreed, at over 0.999. Watch it reverse: the first finding, arrayFilters, still says migrate; the second, transactions, flips it, and by the end it's −$113,043 and SubQ is under 0.001. Stay. Reversibility 15. DocumentDB isn't verified, so test it first." Then run `./run_demo.sh --profile lite`. "Migration is fine, +$8,604, SubQ 0.94. Same pipeline, same thresholds." | Decision table, then the Lite run | Fairness · TCO |
 | 2:45 | "It also runs inside ASI:One. Before you migrate a database, get the archaeology done." | ASI:One card screenshot | Fetch.ai · close |
@@ -125,7 +125,7 @@ Open the evidence site first. The full ShopLog run with self-check and the mutat
 | Judging: Technical Demo 35% | Done | Live control run (18 s), flip from the committed run, ASI:One card |
 | Judging: Creativity 15% | Done | Database as referee for an LLM, fault-injection drill, plan-shape projection, blind scoreboard |
 | Judging: Implementation Difficulty 30% | Done | Probe language, differential runner, replay, CDC copier and verifier, 135 tests |
-| Best Use of Meta Model API | Done | muse-spark-1.3 for code evidence, reconciliation, 30 probes with repair, rewrite estimates; 140 calls in `logs/meta_calls.jsonl` |
+| Best Use of Meta Model API | Done | muse-spark-1.3 for code evidence, reconciliation, 30 probes with repair, rewrite estimates; 141 calls in `logs/meta_calls.jsonl` |
 | Fetch.ai: Agentverse registration | Done | Active · ASI Available · Mailbox |
 | Fetch.ai: Chat Protocol | Done | Manifest published |
 | Fetch.ai: discoverable, workflow inside ASI:One, tool execution | Done | Tested today: message received, pipeline ran, card rendered |

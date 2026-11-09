@@ -6,10 +6,10 @@
   "full_load": {
     "collections": {
       "products": 500,
-      "carts": 2000,
-      "orders": 50000,
       "customers": 5000,
-      "inventory": 500
+      "inventory": 500,
+      "carts": 2000,
+      "orders": 50000
     },
     "indexes": [
       {
@@ -21,6 +21,13 @@
         "collection": "products",
         "name": "category_1",
         "ok": true
+      },
+      {
+        "collection": "customers",
+        "name": "email_ci_unique",
+        "ok": false,
+        "code": 115,
+        "error": "Error in specification { \"name\" : \"email_ci_unique\", \"unique\" : true, \"key\" : { \"email\" : 1 }, \"collation\" : { \"locale\" : \"en\", \"caseLevel\" : false, \"caseFirst\" : \"off\", \"strength\" : 2, \"numericOrderi"
       },
       {
         "collection": "carts",
@@ -51,13 +58,6 @@
         "collection": "orders",
         "name": "coupon_once_per_customer",
         "ok": true
-      },
-      {
-        "collection": "customers",
-        "name": "email_ci_unique",
-        "ok": false,
-        "code": 115,
-        "error": "Error in specification { \"name\" : \"email_ci_unique\", \"unique\" : true, \"key\" : { \"email\" : 1 }, \"collation\" : { \"locale\" : \"en\", \"caseLevel\" : false, \"caseFirst\" : \"off\", \"strength\" : 2, \"numericOrderi"
       }
     ],
     "validators": [
@@ -622,5 +622,5 @@
       "explanation": "bronze: customers 3,040 \u2192 3,041"
     }
   ],
-  "seconds": 9.9
+  "seconds": 9.8
 }

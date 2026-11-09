@@ -50,7 +50,11 @@
     },
     "status": "valid",
     "probe_hash": "23179a4b",
-    "strategy_version": "v005"
+    "strategy_version": "v005",
+    "pre_seal_check": {
+      "ledger_commit": "6b69027",
+      "heldout_shapes_in_prompt": 0
+    }
   },
   {
     "probe_id": "F1.empty-join-empty-facet",
@@ -113,7 +117,11 @@
     },
     "status": "valid",
     "probe_hash": "b9845fb6",
-    "strategy_version": "v005"
+    "strategy_version": "v005",
+    "pre_seal_check": {
+      "ledger_commit": "6b69027",
+      "heldout_shapes_in_prompt": 0
+    }
   },
   {
     "probe_id": "F1.inventory-lookup-group",
@@ -176,7 +184,11 @@
     },
     "status": "valid",
     "probe_hash": "53a53ee0",
-    "strategy_version": "v005"
+    "strategy_version": "v005",
+    "pre_seal_check": {
+      "ledger_commit": "6b69027",
+      "heldout_shapes_in_prompt": 0
+    }
   },
   {
     "probe_id": "F2.swf-running-total-seq",
@@ -210,7 +222,11 @@
     },
     "status": "valid",
     "probe_hash": "1f913e96",
-    "strategy_version": "v005"
+    "strategy_version": "v005",
+    "pre_seal_check": {
+      "ledger_commit": "6b69027",
+      "heldout_shapes_in_prompt": 0
+    }
   },
   {
     "probe_id": "F2.swf-rolling-90d",
@@ -244,7 +260,11 @@
     },
     "status": "valid",
     "probe_hash": "b01758e3",
-    "strategy_version": "v005"
+    "strategy_version": "v005",
+    "pre_seal_check": {
+      "ledger_commit": "6b69027",
+      "heldout_shapes_in_prompt": 0
+    }
   },
   {
     "probe_id": "F2.swf-prev-order-shift",
@@ -278,7 +298,11 @@
     },
     "status": "valid",
     "probe_hash": "0664fdb2",
-    "strategy_version": "v005"
+    "strategy_version": "v005",
+    "pre_seal_check": {
+      "ledger_commit": "6b69027",
+      "heldout_shapes_in_prompt": 0
+    }
   },
   {
     "probe_id": "F3.arrayfilters-refund-reviewed",
@@ -382,7 +406,11 @@
     },
     "status": "valid",
     "probe_hash": "5947a409",
-    "strategy_version": "v005"
+    "strategy_version": "v005",
+    "pre_seal_check": {
+      "ledger_commit": "6b69027",
+      "heldout_shapes_in_prompt": 0
+    }
   },
   {
     "probe_id": "F3.arrayfilters-two-ids-allpos",
@@ -486,7 +514,11 @@
     },
     "status": "valid",
     "probe_hash": "eb3b7930",
-    "strategy_version": "v005"
+    "strategy_version": "v005",
+    "pre_seal_check": {
+      "ledger_commit": "6b69027",
+      "heldout_shapes_in_prompt": 0
+    }
   },
   {
     "probe_id": "F3.arrayfilters-pos-updates",
@@ -590,7 +622,11 @@
     },
     "status": "valid",
     "probe_hash": "fb834cae",
-    "strategy_version": "v005"
+    "strategy_version": "v005",
+    "pre_seal_check": {
+      "ledger_commit": "6b69027",
+      "heldout_shapes_in_prompt": 0
+    }
   },
   {
     "probe_id": "F4.txn-abort-rollback",
@@ -668,7 +704,11 @@
     },
     "status": "valid",
     "probe_hash": "6fa2dafb",
-    "strategy_version": "v005"
+    "strategy_version": "v005",
+    "pre_seal_check": {
+      "ledger_commit": "6b69027",
+      "heldout_shapes_in_prompt": 0
+    }
   },
   {
     "probe_id": "F4.txn-commit-atomic",
@@ -774,7 +814,11 @@
     },
     "status": "valid",
     "probe_hash": "3525dbc0",
-    "strategy_version": "v005"
+    "strategy_version": "v005",
+    "pre_seal_check": {
+      "ledger_commit": "6b69027",
+      "heldout_shapes_in_prompt": 0
+    }
   },
   {
     "probe_id": "F4.txn-isolation-uncommitted",
@@ -853,7 +897,11 @@
     },
     "status": "valid",
     "probe_hash": "71f24419",
-    "strategy_version": "v005"
+    "strategy_version": "v005",
+    "pre_seal_check": {
+      "ledger_commit": "6b69027",
+      "heldout_shapes_in_prompt": 0
+    }
   },
   {
     "probe_id": "F5.cs-filter-update-replace",
@@ -940,7 +988,11 @@
     },
     "status": "valid",
     "probe_hash": "744dd751",
-    "strategy_version": "v005"
+    "strategy_version": "v005",
+    "pre_seal_check": {
+      "ledger_commit": "6b69027",
+      "heldout_shapes_in_prompt": 0
+    }
   },
   {
     "probe_id": "F5.cs-fulldocument-lookup",
@@ -1007,7 +1059,11 @@
     },
     "status": "valid",
     "probe_hash": "2e753af1",
-    "strategy_version": "v005"
+    "strategy_version": "v005",
+    "pre_seal_check": {
+      "ledger_commit": "6b69027",
+      "heldout_shapes_in_prompt": 0
+    }
   },
   {
     "probe_id": "F5.cs-event-per-change",
@@ -1106,7 +1162,11 @@
     },
     "status": "valid",
     "probe_hash": "ee2dda95",
-    "strategy_version": "v005"
+    "strategy_version": "v005",
+    "pre_seal_check": {
+      "ledger_commit": "6b69027",
+      "heldout_shapes_in_prompt": 0
+    }
   },
   {
     "probe_id": "F6.ci-lookup",
@@ -1150,7 +1210,11 @@
     },
     "status": "valid",
     "probe_hash": "1a8c4f87",
-    "strategy_version": "v005"
+    "strategy_version": "v005",
+    "pre_seal_check": {
+      "ledger_commit": "6b69027",
+      "heldout_shapes_in_prompt": 0
+    }
   },
   {
     "probe_id": "F6.ci-unique",
@@ -1212,7 +1276,11 @@
     },
     "status": "valid",
     "probe_hash": "63e693f5",
-    "strategy_version": "v005"
+    "strategy_version": "v005",
+    "pre_seal_check": {
+      "ledger_commit": "6b69027",
+      "heldout_shapes_in_prompt": 0
+    }
   },
   {
     "probe_id": "F6.ci-gating",
@@ -1256,7 +1324,11 @@
     },
     "status": "valid",
     "probe_hash": "754cf803",
-    "strategy_version": "v005"
+    "strategy_version": "v005",
+    "pre_seal_check": {
+      "ledger_commit": "6b69027",
+      "heldout_shapes_in_prompt": 0
+    }
   },
   {
     "probe_id": "F7.partial-unique-missing-exempt",
@@ -1327,7 +1399,11 @@
     },
     "status": "valid",
     "probe_hash": "513f3926",
-    "strategy_version": "v005"
+    "strategy_version": "v005",
+    "pre_seal_check": {
+      "ledger_commit": "6b69027",
+      "heldout_shapes_in_prompt": 0
+    }
   },
   {
     "probe_id": "F7.partial-unique-per-customer",
@@ -1389,7 +1465,11 @@
     },
     "status": "valid",
     "probe_hash": "67cc8483",
-    "strategy_version": "v005"
+    "strategy_version": "v005",
+    "pre_seal_check": {
+      "ledger_commit": "6b69027",
+      "heldout_shapes_in_prompt": 0
+    }
   },
   {
     "probe_id": "F7.ttl-active-only-expiry",
@@ -1450,7 +1530,11 @@
     },
     "status": "valid",
     "probe_hash": "91a5f95c",
-    "strategy_version": "v005"
+    "strategy_version": "v005",
+    "pre_seal_check": {
+      "ledger_commit": "6b69027",
+      "heldout_shapes_in_prompt": 0
+    }
   },
   {
     "probe_id": "F8.orders-required-fields",
@@ -1513,7 +1597,11 @@
     },
     "status": "valid",
     "probe_hash": "a8b58d33",
-    "strategy_version": "v005"
+    "strategy_version": "v005",
+    "pre_seal_check": {
+      "ledger_commit": "6b69027",
+      "heldout_shapes_in_prompt": 0
+    }
   },
   {
     "probe_id": "F8.orders-enum-total",
@@ -1576,7 +1664,11 @@
     },
     "status": "valid",
     "probe_hash": "6042a44c",
-    "strategy_version": "v005"
+    "strategy_version": "v005",
+    "pre_seal_check": {
+      "ledger_commit": "6b69027",
+      "heldout_shapes_in_prompt": 0
+    }
   },
   {
     "probe_id": "F8.orders-types-update",
@@ -1658,7 +1750,11 @@
     },
     "status": "valid",
     "probe_hash": "4f87ffae",
-    "strategy_version": "v005"
+    "strategy_version": "v005",
+    "pre_seal_check": {
+      "ledger_commit": "6b69027",
+      "heldout_shapes_in_prompt": 0
+    }
   },
   {
     "probe_id": "F9.text_weighted_ranking",
@@ -1701,7 +1797,11 @@
     },
     "status": "valid",
     "probe_hash": "054a1227",
-    "strategy_version": "v005"
+    "strategy_version": "v005",
+    "pre_seal_check": {
+      "ledger_commit": "6b69027",
+      "heldout_shapes_in_prompt": 0
+    }
   },
   {
     "probe_id": "F9.text_exclusion_term",
@@ -1744,7 +1844,11 @@
     },
     "status": "valid",
     "probe_hash": "e4bfa015",
-    "strategy_version": "v005"
+    "strategy_version": "v005",
+    "pre_seal_check": {
+      "ledger_commit": "6b69027",
+      "heldout_shapes_in_prompt": 0
+    }
   },
   {
     "probe_id": "F9.text_search_active_ranked",
@@ -1787,7 +1891,11 @@
     },
     "status": "valid",
     "probe_hash": "c57a94ad",
-    "strategy_version": "v005"
+    "strategy_version": "v005",
+    "pre_seal_check": {
+      "ledger_commit": "6b69027",
+      "heldout_shapes_in_prompt": 0
+    }
   },
   {
     "probe_id": "F10.cart-touch-fetch-discard",
@@ -1898,7 +2006,11 @@
     },
     "status": "valid",
     "probe_hash": "15aa1732",
-    "strategy_version": "v005"
+    "strategy_version": "v005",
+    "pre_seal_check": {
+      "ledger_commit": "7448e65",
+      "heldout_shapes_in_prompt": 0
+    }
   },
   {
     "probe_id": "F10.order-cas-history-paginate",
@@ -2011,7 +2123,11 @@
     },
     "status": "valid",
     "probe_hash": "e5ac86b0",
-    "strategy_version": "v005"
+    "strategy_version": "v005",
+    "pre_seal_check": {
+      "ledger_commit": "7448e65",
+      "heldout_shapes_in_prompt": 0
+    }
   },
   {
     "probe_id": "X:graphLookup.graphlookup-referral-chain",
@@ -2045,6 +2161,10 @@
     },
     "status": "valid",
     "probe_hash": "2c111de5",
-    "strategy_version": "v005"
+    "strategy_version": "v005",
+    "pre_seal_check": {
+      "ledger_commit": "6b69027",
+      "heldout_shapes_in_prompt": 0
+    }
   }
 ]

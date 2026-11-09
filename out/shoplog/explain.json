@@ -16,13 +16,13 @@
         "$facet"
       ],
       "replay_p95_ms": {
-        "source": 9.19,
-        "target": 3999.24
+        "source": 7.02,
+        "target": 4076.61
       },
       "source": {
         "engine_format": "MongoDB plan",
         "docs_examined": 306,
-        "time_ms": 19,
+        "time_ms": 18,
         "plan": "IXSCAN(status_1_placed_at_-1) \u2192 FETCH \u2192 PROJECTION_SIMPLE \u2192 $addFields \u2192 $lookup(indexes=['_id_'], collection scans=0, docs examined=309) \u2192 $facet",
         "full_scans": 0
       },
@@ -48,8 +48,8 @@
         "$project"
       ],
       "replay_p95_ms": {
-        "source": 0.6,
-        "target": 4.67
+        "source": 0.73,
+        "target": 3.68
       },
       "source": {
         "engine_format": "MongoDB plan",
@@ -68,30 +68,30 @@
       }
     },
     {
-      "shape_id": "S181542d4",
+      "shape_id": "Se780f2b8",
       "features": [
-        "F10"
+        "F9"
       ],
-      "collection": "orders",
+      "collection": "products",
       "stages": [],
       "replay_p95_ms": {
-        "source": 1.67,
-        "target": 3.36
+        "source": 1.06,
+        "target": 3.02
       },
       "source": {
         "engine_format": "MongoDB plan",
-        "docs_examined": 179,
-        "keys_examined": 179,
-        "time_ms": 1,
-        "plan": "IXSCAN(_id_) \u2192 FETCH \u2192 PROJECTION_DEFAULT \u2192 LIMIT",
+        "docs_examined": 98,
+        "keys_examined": 49,
+        "time_ms": 0,
+        "plan": "IXSCAN(product_search) \u2192 TEXT_OR \u2192 TEXT_MATCH(product_search) \u2192 FETCH \u2192 SORT \u2192 PROJECTION_DEFAULT",
         "full_scans": 0
       },
       "target": {
         "engine_format": "Postgres plan (FerretDB)",
-        "plan": "Limit \u2192 Sort \u2192 Bitmap Heap Scan \u2192 BitmapAnd \u2192 Bitmap Index Scan(status_1_placed_at_-1) \u2192 Bitmap Index Scan(_id_)",
+        "plan": "Limit \u2192 Sort \u2192 Custom Scan \u2192 Index Scan(product_search)",
         "full_scans": 0,
         "nested_loops": 0,
-        "estimated_total_cost": 43.02,
+        "estimated_total_cost": 22.96,
         "time_ms": null
       }
     }
