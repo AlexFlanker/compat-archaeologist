@@ -217,11 +217,11 @@ def classify(source_run: dict, target_run: dict) -> dict:
     return outcome
 
 
-def diff_probe(source: MongoClient, target: MongoClient, probe: dict) -> dict:
+def diff_probe(source: MongoClient, target: MongoClient, probe: dict, namespaces: tuple[str, str] = ("src", "tgt")) -> dict:
     """Runs one probe on both engines at once, which keeps TTL waits from adding up."""
     with ThreadPoolExecutor(max_workers=2) as pool:
-        source_future = pool.submit(run_probe, source, probe, "src")
-        target_future = pool.submit(run_probe, target, probe, "tgt")
+        source_future = pool.submit(run_probe, source, probe, namespaces[0])
+        target_future = pool.submit(run_probe, target, probe, namespaces[1])
         source_run, target_run = source_future.result(), target_future.result()
 
     result = {
