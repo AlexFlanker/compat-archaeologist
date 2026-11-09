@@ -1790,157 +1790,104 @@
     "strategy_version": "v005"
   },
   {
-    "probe_id": "F10.cart-upsert-fetch-convert-discard",
+    "probe_id": "F10.cart-touch-fetch-discard",
     "feature_id": "F10",
-    "title": "Cart upsert fetch convert conditional delete",
-    "behavior": "Touching a cart must upsert by _id marking active, fetching uses find by customer_id+status, converting updates status/order_id by _id, discarding deletes only when still active",
+    "title": "Cart upsert fetch convert discard with cents",
+    "behavior": "Touching a cart atomically create-or-updates by _id via upsert while marking active; fetching uses plain find by customer_id and status active; converting updates status to converted with order_id by _id; discarding deletes only when _id is still active",
     "steps": [
       {
         "capture": false,
-        "command_ejson": "{\"update\":\"carts\",\"updates\":[{\"q\":{\"_id\":\"cart1\"},\"u\":{\"$set\":{\"customer_id\":\"custA\",\"status\":\"active\"}},\"upsert\":true,\"multi\":false}]}",
+        "command_ejson": "{\"insert\":\"carts\",\"documents\":[{\"_id\":\"K0000021\",\"customer_id\":\"C004233\",\"items\":[{\"qty\":1,\"sku\":\"SKU-0318\"}],\"status\":\"active\",\"total\":19.99},{\"_id\":\"K0000022\",\"customer_id\":\"C004233\",\"items\":[{\"qty\":2,\"sku\":\"SKU-0001\"},{\"qty\":1,\"sku\":\"SKU-0318\"}],\"status\":\"active\",\"total\":10}]}",
         "expect_error": false,
         "in_txn": false,
-        "label": "touch-upsert",
+        "label": "seed carts",
         "op": "command",
         "unordered": false
       },
       {
         "capture": true,
-        "command_ejson": "{\"find\":\"carts\",\"filter\":{\"customer_id\":\"custA\",\"status\":\"active\"}}",
-        "expect_ejson": "{\"docs\":[{\"_id\":\"cart1\",\"customer_id\":\"custA\",\"status\":\"active\"}]}",
+        "command_ejson": "{\"find\":\"carts\",\"filter\":{},\"sort\":{\"_id\":1}}",
+        "expect_ejson": "{\"docs\":[{\"_id\":\"K0000021\",\"customer_id\":\"C004233\",\"items\":[{\"qty\":1,\"sku\":\"SKU-0318\"}],\"status\":\"active\",\"total\":19.99},{\"_id\":\"K0000022\",\"customer_id\":\"C004233\",\"items\":[{\"qty\":2,\"sku\":\"SKU-0001\"},{\"qty\":1,\"sku\":\"SKU-0318\"}],\"status\":\"active\",\"total\":10}]}",
         "expect_error": false,
         "in_txn": false,
-        "label": "fetch-by-customer-status",
-        "op": "command",
-        "unordered": true
-      },
-      {
-        "capture": false,
-        "command_ejson": "{\"update\":\"carts\",\"updates\":[{\"q\":{\"_id\":\"cart1\"},\"u\":{\"$set\":{\"order_id\":\"O1\",\"status\":\"converted\"}},\"upsert\":false,\"multi\":false}]}",
-        "expect_error": false,
-        "in_txn": false,
-        "label": "convert-cart",
-        "op": "command",
-        "unordered": false
-      },
-      {
-        "capture": true,
-        "command_ejson": "{\"find\":\"carts\",\"filter\":{\"_id\":\"cart1\"}}",
-        "expect_ejson": "{\"docs\":[{\"_id\":\"cart1\",\"customer_id\":\"custA\",\"order_id\":\"O1\",\"status\":\"converted\"}]}",
-        "expect_error": false,
-        "in_txn": false,
-        "label": "fetch-converted",
-        "op": "command",
-        "unordered": true
-      },
-      {
-        "capture": false,
-        "command_ejson": "{\"delete\":\"carts\",\"deletes\":[{\"q\":{\"_id\":\"cart1\",\"status\":\"active\"},\"limit\":1}]}",
-        "expect_error": false,
-        "in_txn": false,
-        "label": "discard-active-only-miss",
-        "op": "command",
-        "unordered": false
-      },
-      {
-        "capture": true,
-        "command_ejson": "{\"find\":\"carts\",\"filter\":{\"_id\":\"cart1\"}}",
-        "expect_ejson": "{\"docs\":[{\"_id\":\"cart1\",\"customer_id\":\"custA\",\"order_id\":\"O1\",\"status\":\"converted\"}]}",
-        "expect_error": false,
-        "in_txn": false,
-        "label": "verify-still-present",
-        "op": "command",
-        "unordered": true
-      }
-    ],
-    "generation": {
-      "attempts": 1,
-      "model": "muse-spark-1.3"
-    },
-    "status": "valid",
-    "probe_hash": "64197484",
-    "strategy_version": "v005"
-  },
-  {
-    "probe_id": "F10.order-cas-history-find",
-    "feature_id": "F10",
-    "title": "Order compare-and-set with history and filtered finds",
-    "behavior": "Order status must compare-and-set on _id+status $in while $set status/updated_at and $push history with no modification on stale prior set, history uses find by customer_id with projection sort limit, open orders uses find by status with sort limit and count",
-    "steps": [
-      {
-        "capture": false,
-        "command_ejson": "{\"insert\":\"orders\",\"documents\":[{\"_id\":\"O10\",\"customer_id\":\"custB\",\"history\":[],\"placed_at\":{\"$date\":\"2026-01-01T00:00:00Z\"},\"status\":\"placed\"},{\"_id\":\"O11\",\"customer_id\":\"custB\",\"history\":[],\"placed_at\":{\"$date\":\"2026-01-02T00:00:00Z\"},\"status\":\"placed\"}]}",
-        "expect_error": false,
-        "in_txn": false,
-        "label": "insert-orders",
+        "label": "confirm seed",
         "op": "command",
         "unordered": false
       },
       {
         "capture": false,
-        "command_ejson": "{\"update\":\"orders\",\"updates\":[{\"q\":{\"_id\":\"O10\",\"status\":{\"$in\":[\"placed\"]}},\"u\":{\"$push\":{\"history\":\"paid\"},\"$set\":{\"status\":\"paid\",\"updated_at\":{\"$date\":\"2026-01-10T00:00:00Z\"}}},\"upsert\":false,\"multi\":false}]}",
+        "command_ejson": "{\"update\":\"carts\",\"updates\":[{\"q\":{\"_id\":\"K0000099\"},\"u\":{\"$set\":{\"customer_id\":\"C009999\",\"items\":[{\"qty\":1,\"sku\":\"SKU-0318\"}],\"status\":\"active\",\"total\":5.5}},\"upsert\":true}]}",
         "expect_error": false,
         "in_txn": false,
-        "label": "cas-success",
+        "label": "touch upsert new cart",
         "op": "command",
         "unordered": false
       },
       {
         "capture": true,
-        "command_ejson": "{\"find\":\"orders\",\"filter\":{\"_id\":\"O10\"}}",
-        "expect_ejson": "{\"docs\":[{\"_id\":\"O10\",\"customer_id\":\"custB\",\"history\":[\"paid\"],\"placed_at\":{\"$date\":\"2026-01-01T00:00:00Z\"},\"status\":\"paid\",\"updated_at\":{\"$date\":\"2026-01-10T00:00:00Z\"}}]}",
+        "command_ejson": "{\"find\":\"carts\",\"filter\":{\"customer_id\":\"C009999\",\"status\":\"active\"},\"sort\":{\"_id\":1}}",
+        "expect_ejson": "{\"docs\":[{\"_id\":\"K0000099\",\"customer_id\":\"C009999\",\"items\":[{\"qty\":1,\"sku\":\"SKU-0318\"}],\"status\":\"active\",\"total\":5.5}]}",
         "expect_error": false,
         "in_txn": false,
-        "label": "verify-paid",
+        "label": "fetch active cart",
         "op": "command",
-        "unordered": true
+        "unordered": false
+      },
+      {
+        "capture": true,
+        "command_ejson": "{\"find\":\"carts\",\"filter\":{\"customer_id\":\"C-NOMATCH\",\"status\":\"active\"},\"sort\":{\"_id\":1}}",
+        "expect_ejson": "{\"docs\":[]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "fetch no-match empty",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": true,
+        "command_ejson": "{\"aggregate\":\"carts\",\"pipeline\":[{\"$group\":{\"_id\":null,\"n\":{\"$sum\":1},\"totalCents\":{\"$sum\":{\"$cond\":[{\"$eq\":[{\"$type\":\"$total\"},\"double\"]},{\"$round\":[{\"$multiply\":[\"$total\",100]},0]},{\"$multiply\":[\"$total\",100]}]}}}},{\"$project\":{\"_id\":0,\"n\":1,\"totalCents\":1}}],\"cursor\":{}}",
+        "expect_ejson": "{\"docs\":[{\"n\":3,\"totalCents\":3549}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "cents total",
+        "op": "command",
+        "unordered": false
       },
       {
         "capture": false,
-        "command_ejson": "{\"update\":\"orders\",\"updates\":[{\"q\":{\"_id\":\"O10\",\"status\":{\"$in\":[\"placed\"]}},\"u\":{\"$set\":{\"status\":\"shipped\"}},\"upsert\":false,\"multi\":false}]}",
+        "command_ejson": "{\"update\":\"carts\",\"updates\":[{\"q\":{\"_id\":\"K0000022\"},\"u\":{\"$set\":{\"items.$[a].qty\":5,\"items.$[b].qty\":9,\"order_id\":\"O0000001\",\"status\":\"converted\"}},\"arrayFilters\":[{\"a.sku\":\"SKU-0001\"},{\"b.sku\":\"SKU-0318\"}]}]}",
         "expect_error": false,
         "in_txn": false,
-        "label": "cas-stale-noop",
+        "label": "convert with two arrayFilters",
         "op": "command",
         "unordered": false
       },
       {
         "capture": true,
-        "command_ejson": "{\"find\":\"orders\",\"filter\":{\"_id\":\"O10\"}}",
-        "expect_ejson": "{\"docs\":[{\"_id\":\"O10\",\"customer_id\":\"custB\",\"history\":[\"paid\"],\"placed_at\":{\"$date\":\"2026-01-01T00:00:00Z\"},\"status\":\"paid\",\"updated_at\":{\"$date\":\"2026-01-10T00:00:00Z\"}}]}",
+        "command_ejson": "{\"find\":\"carts\",\"filter\":{\"_id\":\"K0000022\"}}",
+        "expect_ejson": "{\"docs\":[{\"_id\":\"K0000022\",\"customer_id\":\"C004233\",\"items\":[{\"qty\":5,\"sku\":\"SKU-0001\"},{\"qty\":9,\"sku\":\"SKU-0318\"}],\"order_id\":\"O0000001\",\"status\":\"converted\",\"total\":10}]}",
         "expect_error": false,
         "in_txn": false,
-        "label": "verify-still-paid",
+        "label": "read back converted",
         "op": "command",
-        "unordered": true
+        "unordered": false
       },
       {
-        "capture": true,
-        "command_ejson": "{\"find\":\"orders\",\"filter\":{\"customer_id\":\"custB\"},\"limit\":2,\"projection\":{\"_id\":1,\"status\":1},\"sort\":{\"placed_at\":-1,\"_id\":1}}",
-        "expect_ejson": "{\"docs\":[{\"_id\":\"O11\",\"status\":\"placed\"},{\"_id\":\"O10\",\"status\":\"paid\"}]}",
+        "capture": false,
+        "command_ejson": "{\"delete\":\"carts\",\"deletes\":[{\"limit\":1,\"q\":{\"_id\":\"K0000021\",\"status\":\"active\"}},{\"limit\":1,\"q\":{\"_id\":\"K0000022\",\"status\":\"active\"}}]}",
         "expect_error": false,
         "in_txn": false,
-        "label": "history-by-customer",
+        "label": "discard active plus no-op",
         "op": "command",
         "unordered": false
       },
       {
         "capture": true,
-        "command_ejson": "{\"find\":\"orders\",\"filter\":{\"status\":\"placed\"},\"limit\":10,\"projection\":{\"_id\":1,\"status\":1},\"sort\":{\"placed_at\":-1,\"_id\":1}}",
-        "expect_ejson": "{\"docs\":[{\"_id\":\"O11\",\"status\":\"placed\"}]}",
+        "command_ejson": "{\"find\":\"carts\",\"filter\":{},\"sort\":{\"_id\":1}}",
+        "expect_ejson": "{\"docs\":[{\"_id\":\"K0000022\",\"customer_id\":\"C004233\",\"items\":[{\"qty\":5,\"sku\":\"SKU-0001\"},{\"qty\":9,\"sku\":\"SKU-0318\"}],\"order_id\":\"O0000001\",\"status\":\"converted\",\"total\":10},{\"_id\":\"K0000099\",\"customer_id\":\"C009999\",\"items\":[{\"qty\":1,\"sku\":\"SKU-0318\"}],\"status\":\"active\",\"total\":5.5}]}",
         "expect_error": false,
         "in_txn": false,
-        "label": "open-by-status",
-        "op": "command",
-        "unordered": false
-      },
-      {
-        "capture": true,
-        "command_ejson": "{\"count\":\"orders\",\"query\":{\"customer_id\":\"custB\"}}",
-        "expect_ejson": "{\"n\":2}",
-        "expect_error": false,
-        "in_txn": false,
-        "label": "count-by-customer",
+        "label": "final carts",
         "op": "command",
         "unordered": false
       }
@@ -1950,7 +1897,120 @@
       "model": "muse-spark-1.3"
     },
     "status": "valid",
-    "probe_hash": "5aafeb69",
+    "probe_hash": "15aa1732",
+    "strategy_version": "v005"
+  },
+  {
+    "probe_id": "F10.order-cas-history-paginate",
+    "feature_id": "F10",
+    "title": "Order compare-and-set status with history push, customer history pagination and open-orders listing",
+    "behavior": "Order compare-and-set status with history push, customer history pagination and open-orders listing",
+    "steps": [
+      {
+        "capture": false,
+        "command_ejson": "{\"insert\":\"orders\",\"documents\":[{\"_id\":\"O0000001\",\"customer_id\":\"C001\",\"history\":[{\"at\":{\"$date\":\"2026-11-01T00:00:00Z\"},\"status\":\"paid\"}],\"items\":[{\"qty\":1,\"sku\":\"SKU-0023\"}],\"placed_at\":{\"$date\":\"2026-11-01T00:00:00Z\"},\"status\":\"paid\",\"total\":25.75},{\"_id\":\"O0000002\",\"customer_id\":\"C001\",\"history\":[],\"items\":[{\"qty\":2,\"sku\":\"SKU-0318\"}],\"placed_at\":{\"$date\":\"2026-11-02T00:00:00Z\"},\"status\":\"paid\",\"total\":20},{\"_id\":\"O0000003\",\"customer_id\":\"C002\",\"history\":[],\"items\":[{\"qty\":1,\"sku\":\"SKU-0023\"}],\"placed_at\":{\"$date\":\"2026-11-03T00:00:00Z\"},\"status\":\"shipped\",\"total\":10.1}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "seed orders",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": true,
+        "command_ejson": "{\"find\":\"orders\",\"filter\":{},\"sort\":{\"_id\":1}}",
+        "expect_ejson": "{\"docs\":[{\"_id\":\"O0000001\",\"customer_id\":\"C001\",\"history\":[{\"at\":{\"$date\":\"2026-11-01T00:00:00Z\"},\"status\":\"paid\"}],\"items\":[{\"qty\":1,\"sku\":\"SKU-0023\"}],\"placed_at\":{\"$date\":\"2026-11-01T00:00:00Z\"},\"status\":\"paid\",\"total\":25.75},{\"_id\":\"O0000002\",\"customer_id\":\"C001\",\"history\":[],\"items\":[{\"qty\":2,\"sku\":\"SKU-0318\"}],\"placed_at\":{\"$date\":\"2026-11-02T00:00:00Z\"},\"status\":\"paid\",\"total\":20},{\"_id\":\"O0000003\",\"customer_id\":\"C002\",\"history\":[],\"items\":[{\"qty\":1,\"sku\":\"SKU-0023\"}],\"placed_at\":{\"$date\":\"2026-11-03T00:00:00Z\"},\"status\":\"shipped\",\"total\":10.1}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "confirm seed",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": false,
+        "command_ejson": "{\"update\":\"orders\",\"updates\":[{\"q\":{\"_id\":\"O0000001\",\"status\":{\"$in\":[\"paid\"]}},\"u\":{\"$push\":{\"history\":{\"at\":{\"$date\":\"2026-11-02T00:00:00Z\"},\"status\":\"shipped\"}},\"$set\":{\"status\":\"shipped\",\"updated_at\":{\"$date\":\"2026-11-02T00:00:00Z\"}}}}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "cas paid to shipped",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": true,
+        "command_ejson": "{\"find\":\"orders\",\"filter\":{\"_id\":\"O0000001\"}}",
+        "expect_ejson": "{\"docs\":[{\"_id\":\"O0000001\",\"customer_id\":\"C001\",\"history\":[{\"at\":{\"$date\":\"2026-11-01T00:00:00Z\"},\"status\":\"paid\"},{\"at\":{\"$date\":\"2026-11-02T00:00:00Z\"},\"status\":\"shipped\"}],\"items\":[{\"qty\":1,\"sku\":\"SKU-0023\"}],\"placed_at\":{\"$date\":\"2026-11-01T00:00:00Z\"},\"status\":\"shipped\",\"total\":25.75,\"updated_at\":{\"$date\":\"2026-11-02T00:00:00Z\"}}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "read back transitioned",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": true,
+        "command_ejson": "{\"update\":\"orders\",\"updates\":[{\"q\":{\"_id\":\"O0000001\",\"status\":{\"$in\":[\"paid\"]}},\"u\":{\"$push\":{\"history\":{\"at\":{\"$date\":\"2026-11-02T00:00:00Z\"},\"status\":\"shipped\"}},\"$set\":{\"status\":\"shipped\",\"updated_at\":{\"$date\":\"2026-11-02T00:00:00Z\"}}}}]}",
+        "expect_ejson": "{\"n\":0,\"nModified\":0}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "cas wrong prior no-op",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": true,
+        "command_ejson": "{\"find\":\"orders\",\"filter\":{\"customer_id\":\"C001\"},\"limit\":2,\"projection\":{\"placed_at\":1,\"status\":1},\"sort\":{\"placed_at\":-1,\"_id\":1}}",
+        "expect_ejson": "{\"docs\":[{\"_id\":\"O0000002\",\"placed_at\":{\"$date\":\"2026-11-02T00:00:00Z\"},\"status\":\"paid\"},{\"_id\":\"O0000001\",\"placed_at\":{\"$date\":\"2026-11-01T00:00:00Z\"},\"status\":\"shipped\"}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "customer history page",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": true,
+        "command_ejson": "{\"find\":\"orders\",\"filter\":{\"customer_id\":\"C-NOMATCH\"},\"limit\":2,\"sort\":{\"placed_at\":-1,\"_id\":1}}",
+        "expect_ejson": "{\"docs\":[]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "history empty",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": true,
+        "command_ejson": "{\"aggregate\":\"orders\",\"cursor\":{},\"pipeline\":[{\"$match\":{\"customer_id\":\"C001\"}},{\"$project\":{\"_id\":1,\"total_cents\":{\"$round\":[{\"$cond\":[{\"$eq\":[{\"$type\":\"$total\"},\"double\"]},{\"$multiply\":[\"$total\",100]},{\"$multiply\":[\"$total\",100]}]},0]}}},{\"$sort\":{\"_id\":1}}]}",
+        "expect_ejson": "{\"docs\":[{\"_id\":\"O0000001\",\"total_cents\":2575},{\"_id\":\"O0000002\",\"total_cents\":2000}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "totals to cents",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": true,
+        "command_ejson": "{\"update\":\"orders\",\"updates\":[{\"q\":{\"_id\":\"O0000002\"},\"u\":{\"$set\":{\"items.$[a].note\":\"a-hit\",\"items.$[b].note\":\"b-hit\"}},\"arrayFilters\":[{\"a.sku\":\"SKU-0318\"},{\"b.sku\":\"SKU-NOMATCH\"}]}]}",
+        "expect_ejson": "{\"n\":1,\"nModified\":1}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "second arrayFilter identifier",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": true,
+        "command_ejson": "{\"find\":\"orders\",\"filter\":{\"_id\":\"O0000002\"}}",
+        "expect_ejson": "{\"docs\":[{\"_id\":\"O0000002\",\"customer_id\":\"C001\",\"history\":[],\"items\":[{\"note\":\"a-hit\",\"qty\":2,\"sku\":\"SKU-0318\"}],\"placed_at\":{\"$date\":\"2026-11-02T00:00:00Z\"},\"status\":\"paid\",\"total\":20}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "read back arrayfilter",
+        "op": "command",
+        "unordered": false
+      }
+    ],
+    "generation": {
+      "attempts": 3,
+      "model": "muse-spark-1.3"
+    },
+    "status": "valid",
+    "probe_hash": "e5ac86b0",
     "strategy_version": "v005"
   },
   {

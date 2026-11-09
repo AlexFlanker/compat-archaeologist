@@ -72,9 +72,10 @@ def test_memo_section_states_heldout_numbers_and_mutants():
     runs = {"replay": {"reads": {"unseen_only": {"shapes": 3, "replayed": 40, "equal": 38, "different": 2, "errors": 0}}}}
     doc = mutation_test.summarize(CATALOG, [{"zero": [], "m1": [_r("p", "F4", "result_diff")], "m2": []}])
     doc.update(run_id="R1", repeats=1)
-    text = "\n".join(memo._verification_section(runs, {"x": 1}, doc))
+    text = "\n".join(memo._verification_section(runs, {"created": "2026-11-09T08:30:31+00:00"}, doc))
     assert "## How we checked the checks" in text
-    assert "the model saw the code; it never saw how these operations ran in production." in text
+    assert "sealed on 2026-11-09: the model saw the code; it never saw how these operations ran in production." in text
+    assert "before the model wrote anything" not in text
     assert "40 recorded operations across 3 shapes: 38 equal, 2 different, 0 errors" in text
     assert "| m1 | train | yes | p |" in text and "| m2 | heldout | no | none |" in text
 

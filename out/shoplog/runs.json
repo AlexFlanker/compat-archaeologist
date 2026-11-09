@@ -1,5 +1,5 @@
 {
-  "run_id": "20261109T100709Z",
+  "run_id": "20261109T112723Z",
   "profile": "shoplog",
   "self_check": false,
   "probe_origin": "muse",
@@ -27,19 +27,19 @@
           {
             "label": "seed customers",
             "op": "command",
-            "ms": 47.79,
+            "ms": 41.01,
             "status": "ok"
           },
           {
             "label": "seed orders",
             "op": "command",
-            "ms": 57.29,
+            "ms": 12.67,
             "status": "ok"
           },
           {
             "label": "confirm customers",
             "op": "command",
-            "ms": 1.05,
+            "ms": 1.15,
             "status": "ok",
             "captured": {
               "docs": [
@@ -70,7 +70,7 @@
           {
             "label": "revenue facet with lookup",
             "op": "command",
-            "ms": 0.95,
+            "ms": 1.77,
             "status": "ok",
             "captured": {
               "docs": [
@@ -149,7 +149,7 @@
             }
           }
         ],
-        "seconds": 0.123
+        "seconds": 0.067
       },
       "target": {
         "outcome": "completed",
@@ -157,19 +157,19 @@
           {
             "label": "seed customers",
             "op": "command",
-            "ms": 16.82,
+            "ms": 14.62,
             "status": "ok"
           },
           {
             "label": "seed orders",
             "op": "command",
-            "ms": 6.83,
+            "ms": 4.65,
             "status": "ok"
           },
           {
             "label": "confirm customers",
             "op": "command",
-            "ms": 2.2,
+            "ms": 1.3,
             "status": "ok",
             "captured": {
               "docs": [
@@ -200,7 +200,7 @@
           {
             "label": "revenue facet with lookup",
             "op": "command",
-            "ms": 5.95,
+            "ms": 4.67,
             "status": "ok",
             "captured": {
               "docs": [
@@ -279,7 +279,7 @@
             }
           }
         ],
-        "seconds": 0.087
+        "seconds": 0.072
       },
       "verdict": "equal",
       "detail": {}
@@ -295,19 +295,19 @@
           {
             "label": "seed customers",
             "op": "command",
-            "ms": 47.21,
+            "ms": 44.24,
             "status": "ok"
           },
           {
             "label": "seed orders",
             "op": "command",
-            "ms": 56.77,
+            "ms": 11.82,
             "status": "ok"
           },
           {
             "label": "confirm orders",
             "op": "command",
-            "ms": 0.7,
+            "ms": 0.73,
             "status": "ok",
             "captured": {
               "docs": [
@@ -350,7 +350,7 @@
           {
             "label": "lookup preserves empty array",
             "op": "command",
-            "ms": 1.57,
+            "ms": 1.56,
             "status": "ok",
             "captured": {
               "docs": [
@@ -403,7 +403,7 @@
           {
             "label": "facet with empty branch",
             "op": "command",
-            "ms": 1.29,
+            "ms": 1.04,
             "status": "ok",
             "captured": {
               "docs": [
@@ -448,7 +448,7 @@
             }
           }
         ],
-        "seconds": 0.123
+        "seconds": 0.071
       },
       "target": {
         "outcome": "completed",
@@ -456,19 +456,19 @@
           {
             "label": "seed customers",
             "op": "command",
-            "ms": 11.44,
+            "ms": 12.75,
             "status": "ok"
           },
           {
             "label": "seed orders",
             "op": "command",
-            "ms": 6.82,
+            "ms": 5.48,
             "status": "ok"
           },
           {
             "label": "confirm orders",
             "op": "command",
-            "ms": 1.02,
+            "ms": 1.01,
             "status": "ok",
             "captured": {
               "docs": [
@@ -511,7 +511,7 @@
           {
             "label": "lookup preserves empty array",
             "op": "command",
-            "ms": 5.85,
+            "ms": 6.66,
             "status": "ok",
             "captured": {
               "docs": [
@@ -564,7 +564,7 @@
           {
             "label": "facet with empty branch",
             "op": "command",
-            "ms": 2.03,
+            "ms": 2.35,
             "status": "ok",
             "captured": {
               "docs": [
@@ -609,7 +609,7 @@
             }
           }
         ],
-        "seconds": 0.083
+        "seconds": 0.075
       },
       "verdict": "equal",
       "detail": {}
@@ -625,19 +625,19 @@
           {
             "label": "seed products",
             "op": "command",
-            "ms": 51.25,
+            "ms": 41.44,
             "status": "ok"
           },
           {
             "label": "seed inventory",
             "op": "command",
-            "ms": 56.77,
+            "ms": 12.42,
             "status": "ok"
           },
           {
             "label": "confirm products",
             "op": "command",
-            "ms": 0.73,
+            "ms": 0.44,
             "status": "ok",
             "captured": {
               "docs": [
@@ -682,7 +682,7 @@
           {
             "label": "lookup keeps empty stock",
             "op": "command",
-            "ms": 1.09,
+            "ms": 1.15,
             "status": "ok",
             "captured": {
               "docs": [
@@ -747,7 +747,7 @@
           {
             "label": "group facet with cents",
             "op": "command",
-            "ms": 0.82,
+            "ms": 1.44,
             "status": "ok",
             "captured": {
               "docs": [
@@ -790,7 +790,7 @@
             }
           }
         ],
-        "seconds": 0.122
+        "seconds": 0.068
       },
       "target": {
         "outcome": "completed",
@@ -798,19 +798,19 @@
           {
             "label": "seed products",
             "op": "command",
-            "ms": 16.73,
+            "ms": 10.35,
             "status": "ok"
           },
           {
             "label": "seed inventory",
             "op": "command",
-            "ms": 5.8,
+            "ms": 5.4,
             "status": "ok"
           },
           {
             "label": "confirm products",
             "op": "command",
-            "ms": 1.13,
+            "ms": 1.69,
             "status": "ok",
             "captured": {
               "docs": [
@@ -855,7 +855,7 @@
           {
             "label": "lookup keeps empty stock",
             "op": "command",
-            "ms": 1.85,
+            "ms": 1.47,
             "status": "ok",
             "captured": {
               "docs": [
@@ -920,7 +920,7 @@
           {
             "label": "group facet with cents",
             "op": "command",
-            "ms": 3.28,
+            "ms": 1.66,
             "status": "ok",
             "captured": {
               "docs": [
@@ -963,7 +963,7 @@
             }
           }
         ],
-        "seconds": 0.085
+        "seconds": 0.07
       },
       "verdict": "equal",
       "detail": {}
@@ -979,13 +979,13 @@
           {
             "label": "seed-orders",
             "op": "command",
-            "ms": 50.83,
+            "ms": 43.79,
             "status": "ok"
           },
           {
             "label": "running-total-seq",
             "op": "command",
-            "ms": 0.88,
+            "ms": 0.94,
             "status": "ok",
             "captured": {
               "docs": [
@@ -1040,7 +1040,7 @@
             }
           }
         ],
-        "seconds": 0.109
+        "seconds": 0.056
       },
       "target": {
         "outcome": "completed",
@@ -1048,13 +1048,13 @@
           {
             "label": "seed-orders",
             "op": "command",
-            "ms": 12.08,
+            "ms": 9.83,
             "status": "ok"
           },
           {
             "label": "running-total-seq",
             "op": "command",
-            "ms": 2.01,
+            "ms": 4.01,
             "status": "ok",
             "captured": {
               "docs": [
@@ -1109,7 +1109,7 @@
             }
           }
         ],
-        "seconds": 0.028
+        "seconds": 0.027
       },
       "verdict": "equal",
       "detail": {}
@@ -1125,13 +1125,13 @@
           {
             "label": "seed-orders",
             "op": "command",
-            "ms": 49.6,
+            "ms": 40.84,
             "status": "ok"
           },
           {
             "label": "rolling-90d",
             "op": "command",
-            "ms": 0.81,
+            "ms": 0.93,
             "status": "ok",
             "captured": {
               "docs": [
@@ -1180,7 +1180,7 @@
             }
           }
         ],
-        "seconds": 0.107
+        "seconds": 0.054
       },
       "target": {
         "outcome": "completed",
@@ -1188,13 +1188,13 @@
           {
             "label": "seed-orders",
             "op": "command",
-            "ms": 20.03,
+            "ms": 14.44,
             "status": "ok"
           },
           {
             "label": "rolling-90d",
             "op": "command",
-            "ms": 3.51,
+            "ms": 5.2,
             "status": "ok",
             "captured": {
               "docs": [
@@ -1243,7 +1243,7 @@
             }
           }
         ],
-        "seconds": 0.081
+        "seconds": 0.029
       },
       "verdict": "equal",
       "detail": {}
@@ -1259,13 +1259,13 @@
           {
             "label": "seed-orders",
             "op": "command",
-            "ms": 49.22,
+            "ms": 42.32,
             "status": "ok"
           },
           {
             "label": "prev-order-shift",
             "op": "command",
-            "ms": 0.74,
+            "ms": 1.03,
             "status": "ok",
             "captured": {
               "docs": [
@@ -1314,7 +1314,7 @@
             }
           }
         ],
-        "seconds": 0.107
+        "seconds": 0.056
       },
       "target": {
         "outcome": "completed",
@@ -1322,13 +1322,13 @@
           {
             "label": "seed-orders",
             "op": "command",
-            "ms": 19.78,
+            "ms": 10.85,
             "status": "ok"
           },
           {
             "label": "prev-order-shift",
             "op": "command",
-            "ms": 3.94,
+            "ms": 4.41,
             "status": "ok",
             "captured": {
               "docs": [
@@ -1377,7 +1377,7 @@
             }
           }
         ],
-        "seconds": 0.038
+        "seconds": 0.026
       },
       "verdict": "equal",
       "detail": {}
@@ -1393,13 +1393,13 @@
           {
             "label": "seed order with 2 lines",
             "op": "command",
-            "ms": 11.38,
+            "ms": 10.81,
             "status": "ok"
           },
           {
             "label": "confirm seed",
             "op": "command",
-            "ms": 0.75,
+            "ms": 0.43,
             "status": "ok",
             "captured": {
               "docs": [
@@ -1454,7 +1454,7 @@
           {
             "label": "no-match arrayFilter no-op",
             "op": "command",
-            "ms": 4.33,
+            "ms": 1.02,
             "status": "ok",
             "captured": {
               "n": 1,
@@ -1469,7 +1469,7 @@
           {
             "label": "read back unchanged",
             "op": "command",
-            "ms": 1.23,
+            "ms": 1.51,
             "status": "ok",
             "captured": {
               "docs": [
@@ -1524,7 +1524,7 @@
           {
             "label": "two identifiers only line A",
             "op": "command",
-            "ms": 9.48,
+            "ms": 0.79,
             "status": "ok",
             "captured": {
               "n": 1,
@@ -1539,7 +1539,7 @@
           {
             "label": "read back only A changed",
             "op": "command",
-            "ms": 0.78,
+            "ms": 0.26,
             "status": "ok",
             "captured": {
               "docs": [
@@ -1596,7 +1596,7 @@
           {
             "label": "all-positional reviewed",
             "op": "command",
-            "ms": 9.88,
+            "ms": 0.69,
             "status": "ok",
             "captured": {
               "n": 1,
@@ -1611,7 +1611,7 @@
           {
             "label": "read back all reviewed",
             "op": "command",
-            "ms": 0.43,
+            "ms": 0.23,
             "status": "ok",
             "captured": {
               "docs": [
@@ -1668,7 +1668,7 @@
           {
             "label": "cents from double total",
             "op": "command",
-            "ms": 0.59,
+            "ms": 0.84,
             "status": "ok",
             "captured": {
               "docs": [
@@ -1689,7 +1689,7 @@
             }
           }
         ],
-        "seconds": 0.044
+        "seconds": 0.024
       },
       "target": {
         "outcome": "completed",
@@ -1697,13 +1697,13 @@
           {
             "label": "seed order with 2 lines",
             "op": "command",
-            "ms": 8.06,
+            "ms": 9.56,
             "status": "ok"
           },
           {
             "label": "confirm seed",
             "op": "command",
-            "ms": 1.06,
+            "ms": 1.83,
             "status": "ok",
             "captured": {
               "docs": [
@@ -1758,7 +1758,7 @@
           {
             "label": "no-match arrayFilter no-op",
             "op": "command",
-            "ms": 0.81,
+            "ms": 2.25,
             "status": "ok",
             "captured": {
               "n": 1,
@@ -1773,7 +1773,7 @@
           {
             "label": "read back unchanged",
             "op": "command",
-            "ms": 0.87,
+            "ms": 0.74,
             "status": "ok",
             "captured": {
               "docs": [
@@ -1828,7 +1828,7 @@
           {
             "label": "two identifiers only line A",
             "op": "command",
-            "ms": 1.8,
+            "ms": 3.4,
             "status": "ok",
             "captured": {
               "n": 1,
@@ -1843,7 +1843,7 @@
           {
             "label": "read back only A changed",
             "op": "command",
-            "ms": 0.67,
+            "ms": 0.7,
             "status": "ok",
             "captured": {
               "docs": [
@@ -1900,7 +1900,7 @@
           {
             "label": "all-positional reviewed",
             "op": "command",
-            "ms": 4.02,
+            "ms": 2.12,
             "status": "ok",
             "captured": {
               "n": 1,
@@ -1915,7 +1915,7 @@
           {
             "label": "read back all reviewed",
             "op": "command",
-            "ms": 0.94,
+            "ms": 0.52,
             "status": "ok",
             "captured": {
               "docs": [
@@ -1972,7 +1972,7 @@
           {
             "label": "cents from double total",
             "op": "command",
-            "ms": 3.44,
+            "ms": 3.01,
             "status": "ok",
             "captured": {
               "docs": [
@@ -1993,7 +1993,7 @@
             }
           }
         ],
-        "seconds": 0.03
+        "seconds": 0.033
       },
       "verdict": "result_diff",
       "detail": {
@@ -2017,13 +2017,13 @@
           {
             "label": "seed 2-line order",
             "op": "command",
-            "ms": 9.49,
+            "ms": 9.98,
             "status": "ok"
           },
           {
             "label": "confirm seed",
             "op": "command",
-            "ms": 0.84,
+            "ms": 0.62,
             "status": "ok",
             "captured": {
               "docs": [
@@ -2078,7 +2078,7 @@
           {
             "label": "no-match arrayFilter no-op",
             "op": "command",
-            "ms": 8.59,
+            "ms": 0.61,
             "status": "ok",
             "captured": {
               "n": 1,
@@ -2093,7 +2093,7 @@
           {
             "label": "read back unchanged",
             "op": "command",
-            "ms": 0.8,
+            "ms": 0.41,
             "status": "ok",
             "captured": {
               "docs": [
@@ -2148,7 +2148,7 @@
           {
             "label": "two identifiers same element",
             "op": "command",
-            "ms": 9.87,
+            "ms": 1.49,
             "status": "ok",
             "captured": {
               "n": 1,
@@ -2163,7 +2163,7 @@
           {
             "label": "read back only line 1 changed",
             "op": "command",
-            "ms": 0.68,
+            "ms": 0.36,
             "status": "ok",
             "captured": {
               "docs": [
@@ -2220,7 +2220,7 @@
           {
             "label": "all-positional reviewed",
             "op": "command",
-            "ms": 5.22,
+            "ms": 0.48,
             "status": "ok",
             "captured": {
               "n": 1,
@@ -2235,7 +2235,7 @@
           {
             "label": "read back after all-positional",
             "op": "command",
-            "ms": 1.16,
+            "ms": 0.24,
             "status": "ok",
             "captured": {
               "docs": [
@@ -2292,7 +2292,7 @@
           {
             "label": "cents from double total",
             "op": "command",
-            "ms": 1.4,
+            "ms": 0.49,
             "status": "ok",
             "captured": {
               "docs": [
@@ -2313,7 +2313,7 @@
             }
           }
         ],
-        "seconds": 0.051
+        "seconds": 0.023
       },
       "target": {
         "outcome": "completed",
@@ -2321,13 +2321,13 @@
           {
             "label": "seed 2-line order",
             "op": "command",
-            "ms": 7.54,
+            "ms": 9.28,
             "status": "ok"
           },
           {
             "label": "confirm seed",
             "op": "command",
-            "ms": 0.96,
+            "ms": 1.59,
             "status": "ok",
             "captured": {
               "docs": [
@@ -2382,7 +2382,7 @@
           {
             "label": "no-match arrayFilter no-op",
             "op": "command",
-            "ms": 1.84,
+            "ms": 1.52,
             "status": "ok",
             "captured": {
               "n": 1,
@@ -2397,7 +2397,7 @@
           {
             "label": "read back unchanged",
             "op": "command",
-            "ms": 0.82,
+            "ms": 1.48,
             "status": "ok",
             "captured": {
               "docs": [
@@ -2452,7 +2452,7 @@
           {
             "label": "two identifiers same element",
             "op": "command",
-            "ms": 1.14,
+            "ms": 2.25,
             "status": "ok",
             "captured": {
               "n": 1,
@@ -2467,7 +2467,7 @@
           {
             "label": "read back only line 1 changed",
             "op": "command",
-            "ms": 0.78,
+            "ms": 0.64,
             "status": "ok",
             "captured": {
               "docs": [
@@ -2524,7 +2524,7 @@
           {
             "label": "all-positional reviewed",
             "op": "command",
-            "ms": 3.23,
+            "ms": 1.35,
             "status": "ok",
             "captured": {
               "n": 1,
@@ -2539,7 +2539,7 @@
           {
             "label": "read back after all-positional",
             "op": "command",
-            "ms": 1.0,
+            "ms": 0.68,
             "status": "ok",
             "captured": {
               "docs": [
@@ -2596,7 +2596,7 @@
           {
             "label": "cents from double total",
             "op": "command",
-            "ms": 3.11,
+            "ms": 0.8,
             "status": "ok",
             "captured": {
               "docs": [
@@ -2641,13 +2641,13 @@
           {
             "label": "seed order with two lines",
             "op": "command",
-            "ms": 15.66,
+            "ms": 9.66,
             "status": "ok"
           },
           {
             "label": "confirm seed",
             "op": "command",
-            "ms": 0.54,
+            "ms": 0.4,
             "status": "ok",
             "captured": {
               "docs": [
@@ -2702,7 +2702,7 @@
           {
             "label": "no-match arrayfilter no-op",
             "op": "command",
-            "ms": 1.31,
+            "ms": 0.59,
             "status": "ok",
             "captured": {
               "n": 1,
@@ -2717,7 +2717,7 @@
           {
             "label": "read back unchanged after no-op",
             "op": "command",
-            "ms": 0.79,
+            "ms": 0.44,
             "status": "ok",
             "captured": {
               "docs": [
@@ -2772,7 +2772,7 @@
           {
             "label": "two-identifier filtered update line 1",
             "op": "command",
-            "ms": 12.19,
+            "ms": 1.53,
             "status": "ok",
             "captured": {
               "n": 1,
@@ -2787,7 +2787,7 @@
           {
             "label": "read back only line 1 changed",
             "op": "command",
-            "ms": 0.47,
+            "ms": 0.52,
             "status": "ok",
             "captured": {
               "docs": [
@@ -2844,7 +2844,7 @@
           {
             "label": "mark all reviewed with $[]",
             "op": "command",
-            "ms": 6.07,
+            "ms": 1.1,
             "status": "ok",
             "captured": {
               "n": 1,
@@ -2859,7 +2859,7 @@
           {
             "label": "read back all reviewed",
             "op": "command",
-            "ms": 0.72,
+            "ms": 0.29,
             "status": "ok",
             "captured": {
               "docs": [
@@ -2916,7 +2916,7 @@
           {
             "label": "cents from double total",
             "op": "command",
-            "ms": 0.48,
+            "ms": 0.64,
             "status": "ok",
             "captured": {
               "docs": [
@@ -2937,7 +2937,7 @@
             }
           }
         ],
-        "seconds": 0.044
+        "seconds": 0.023
       },
       "target": {
         "outcome": "completed",
@@ -2945,13 +2945,13 @@
           {
             "label": "seed order with two lines",
             "op": "command",
-            "ms": 7.15,
+            "ms": 8.95,
             "status": "ok"
           },
           {
             "label": "confirm seed",
             "op": "command",
-            "ms": 0.81,
+            "ms": 1.22,
             "status": "ok",
             "captured": {
               "docs": [
@@ -3006,7 +3006,7 @@
           {
             "label": "no-match arrayfilter no-op",
             "op": "command",
-            "ms": 4.07,
+            "ms": 6.7,
             "status": "ok",
             "captured": {
               "n": 1,
@@ -3021,7 +3021,7 @@
           {
             "label": "read back unchanged after no-op",
             "op": "command",
-            "ms": 0.69,
+            "ms": 0.76,
             "status": "ok",
             "captured": {
               "docs": [
@@ -3076,7 +3076,7 @@
           {
             "label": "two-identifier filtered update line 1",
             "op": "command",
-            "ms": 4.28,
+            "ms": 2.49,
             "status": "ok",
             "captured": {
               "n": 1,
@@ -3091,7 +3091,7 @@
           {
             "label": "read back only line 1 changed",
             "op": "command",
-            "ms": 0.79,
+            "ms": 0.65,
             "status": "ok",
             "captured": {
               "docs": [
@@ -3148,7 +3148,7 @@
           {
             "label": "mark all reviewed with $[]",
             "op": "command",
-            "ms": 1.41,
+            "ms": 1.07,
             "status": "ok",
             "captured": {
               "n": 1,
@@ -3163,7 +3163,7 @@
           {
             "label": "read back all reviewed",
             "op": "command",
-            "ms": 1.03,
+            "ms": 0.93,
             "status": "ok",
             "captured": {
               "docs": [
@@ -3220,7 +3220,7 @@
           {
             "label": "cents from double total",
             "op": "command",
-            "ms": 0.9,
+            "ms": 2.86,
             "status": "ok",
             "captured": {
               "docs": [
@@ -3241,7 +3241,7 @@
             }
           }
         ],
-        "seconds": 0.03
+        "seconds": 0.038
       },
       "verdict": "result_diff",
       "detail": {
@@ -3265,37 +3265,37 @@
           {
             "label": "seed-inv",
             "op": "command",
-            "ms": 14.72,
+            "ms": 6.83,
             "status": "ok"
           },
           {
             "label": "start",
             "op": "txn_start",
-            "ms": 0.0,
+            "ms": 0.01,
             "status": "ok"
           },
           {
             "label": "reserve-in-txn",
             "op": "command",
-            "ms": 0.87,
+            "ms": 2.34,
             "status": "ok"
           },
           {
             "label": "insert-order-in-txn",
             "op": "command",
-            "ms": 8.55,
+            "ms": 13.65,
             "status": "ok"
           },
           {
             "label": "abort",
             "op": "txn_abort",
-            "ms": 3.33,
+            "ms": 6.65,
             "status": "ok"
           },
           {
             "label": "check-inv-rolled-back",
             "op": "command",
-            "ms": 1.18,
+            "ms": 0.5,
             "status": "ok",
             "captured": {
               "docs": [
@@ -3330,7 +3330,7 @@
           {
             "label": "check-orders-rolled-back",
             "op": "command",
-            "ms": 1.04,
+            "ms": 0.43,
             "status": "ok",
             "captured": {
               "docs": []
@@ -3341,7 +3341,7 @@
             }
           }
         ],
-        "seconds": 0.043
+        "seconds": 0.045
       },
       "target": {
         "outcome": "completed",
@@ -3349,7 +3349,7 @@
           {
             "label": "seed-inv",
             "op": "command",
-            "ms": 5.88,
+            "ms": 8.51,
             "status": "ok"
           },
           {
@@ -3361,25 +3361,25 @@
           {
             "label": "reserve-in-txn",
             "op": "command",
-            "ms": 1.47,
+            "ms": 1.81,
             "status": "ok"
           },
           {
             "label": "insert-order-in-txn",
             "op": "command",
-            "ms": 6.98,
+            "ms": 6.0,
             "status": "ok"
           },
           {
             "label": "abort",
             "op": "txn_abort",
-            "ms": 0.94,
+            "ms": 0.49,
             "status": "ok"
           },
           {
             "label": "check-inv-rolled-back",
             "op": "command",
-            "ms": 1.56,
+            "ms": 0.71,
             "status": "ok",
             "captured": {
               "docs": [
@@ -3414,7 +3414,7 @@
           {
             "label": "check-orders-rolled-back",
             "op": "command",
-            "ms": 1.48,
+            "ms": 0.94,
             "status": "ok",
             "captured": {
               "docs": [
@@ -3455,7 +3455,7 @@
             }
           }
         ],
-        "seconds": 0.028
+        "seconds": 0.03
       },
       "verdict": "result_diff",
       "detail": {
@@ -3479,49 +3479,49 @@
           {
             "label": "seed-inv",
             "op": "command",
-            "ms": 20.07,
+            "ms": 21.04,
             "status": "ok"
           },
           {
             "label": "seed-cart",
             "op": "command",
-            "ms": 5.99,
+            "ms": 16.24,
             "status": "ok"
           },
           {
             "label": "start",
             "op": "txn_start",
-            "ms": 0.01,
+            "ms": 0.0,
             "status": "ok"
           },
           {
             "label": "reserve-in-txn",
             "op": "command",
-            "ms": 1.64,
+            "ms": 0.57,
             "status": "ok"
           },
           {
             "label": "insert-order-in-txn",
             "op": "command",
-            "ms": 5.28,
+            "ms": 6.59,
             "status": "ok"
           },
           {
             "label": "convert-cart-in-txn",
             "op": "command",
-            "ms": 0.4,
+            "ms": 0.34,
             "status": "ok"
           },
           {
             "label": "commit",
             "op": "txn_commit",
-            "ms": 7.55,
+            "ms": 2.18,
             "status": "ok"
           },
           {
             "label": "check-inv-committed",
             "op": "command",
-            "ms": 1.15,
+            "ms": 0.5,
             "status": "ok",
             "captured": {
               "docs": [
@@ -3556,7 +3556,7 @@
           {
             "label": "check-order-committed",
             "op": "command",
-            "ms": 0.94,
+            "ms": 0.44,
             "status": "ok",
             "captured": {
               "docs": [
@@ -3599,7 +3599,7 @@
           {
             "label": "check-cart-committed",
             "op": "command",
-            "ms": 0.9,
+            "ms": 0.86,
             "status": "ok",
             "captured": {
               "docs": [
@@ -3634,7 +3634,7 @@
             }
           }
         ],
-        "seconds": 0.055
+        "seconds": 0.053
       },
       "target": {
         "outcome": "failed",
@@ -3642,13 +3642,13 @@
           {
             "label": "seed-inv",
             "op": "command",
-            "ms": 10.03,
+            "ms": 6.75,
             "status": "ok"
           },
           {
             "label": "seed-cart",
             "op": "command",
-            "ms": 4.82,
+            "ms": 3.09,
             "status": "ok"
           },
           {
@@ -3660,31 +3660,31 @@
           {
             "label": "reserve-in-txn",
             "op": "command",
-            "ms": 0.98,
+            "ms": 1.28,
             "status": "ok"
           },
           {
             "label": "insert-order-in-txn",
             "op": "command",
-            "ms": 2.92,
+            "ms": 3.28,
             "status": "ok"
           },
           {
             "label": "convert-cart-in-txn",
             "op": "command",
-            "ms": 2.52,
+            "ms": 1.28,
             "status": "ok"
           },
           {
             "label": "commit",
             "op": "txn_commit",
-            "ms": 0.47,
+            "ms": 0.41,
             "status": "error",
             "code": 59,
             "message": "no such command: 'commitTransaction', full error: {'ok': 0.0, 'errmsg': \"no such command: 'commitTransaction'\", 'code': 59, 'codeName': 'CommandNotFound'}"
           }
         ],
-        "seconds": 0.032
+        "seconds": 0.034
       },
       "verdict": "unsupported",
       "detail": {
@@ -3704,7 +3704,7 @@
           {
             "label": "seed-inv",
             "op": "command",
-            "ms": 11.08,
+            "ms": 21.4,
             "status": "ok"
           },
           {
@@ -3716,7 +3716,7 @@
           {
             "label": "reserve-in-txn",
             "op": "command",
-            "ms": 0.64,
+            "ms": 1.31,
             "status": "ok"
           },
           {
@@ -3747,7 +3747,7 @@
           {
             "label": "read-inside-sees-new",
             "op": "command",
-            "ms": 0.65,
+            "ms": 0.47,
             "status": "ok",
             "captured": {
               "docs": [
@@ -3772,13 +3772,13 @@
           {
             "label": "abort",
             "op": "txn_abort",
-            "ms": 4.33,
+            "ms": 12.0,
             "status": "ok"
           },
           {
             "label": "read-after-abort",
             "op": "command",
-            "ms": 1.81,
+            "ms": 0.73,
             "status": "ok",
             "captured": {
               "docs": [
@@ -3801,7 +3801,7 @@
             }
           }
         ],
-        "seconds": 0.032
+        "seconds": 0.041
       },
       "target": {
         "outcome": "completed",
@@ -3809,7 +3809,7 @@
           {
             "label": "seed-inv",
             "op": "command",
-            "ms": 9.64,
+            "ms": 7.2,
             "status": "ok"
           },
           {
@@ -3821,13 +3821,13 @@
           {
             "label": "reserve-in-txn",
             "op": "command",
-            "ms": 2.73,
+            "ms": 1.93,
             "status": "ok"
           },
           {
             "label": "read-outside-sees-old",
             "op": "command",
-            "ms": 1.02,
+            "ms": 0.8,
             "status": "ok",
             "captured": {
               "docs": [
@@ -3852,7 +3852,7 @@
           {
             "label": "read-inside-sees-new",
             "op": "command",
-            "ms": 0.43,
+            "ms": 0.88,
             "status": "ok",
             "captured": {
               "docs": [
@@ -3877,13 +3877,13 @@
           {
             "label": "abort",
             "op": "txn_abort",
-            "ms": 0.29,
+            "ms": 0.5,
             "status": "ok"
           },
           {
             "label": "read-after-abort",
             "op": "command",
-            "ms": 0.36,
+            "ms": 0.79,
             "status": "ok",
             "captured": {
               "docs": [
@@ -3906,7 +3906,7 @@
             }
           }
         ],
-        "seconds": 0.021
+        "seconds": 0.024
       },
       "verdict": "result_diff",
       "detail": {
@@ -3930,37 +3930,37 @@
           {
             "label": "seed",
             "op": "command",
-            "ms": 13.61,
+            "ms": 16.14,
             "status": "ok"
           },
           {
             "label": "open-filtered",
             "op": "watch_open",
-            "ms": 1.17,
+            "ms": 1.07,
             "status": "ok"
           },
           {
             "label": "update-one",
             "op": "command",
-            "ms": 6.69,
+            "ms": 1.56,
             "status": "ok"
           },
           {
             "label": "insert-filtered-out",
             "op": "command",
-            "ms": 5.0,
+            "ms": 6.86,
             "status": "ok"
           },
           {
             "label": "replace-one",
             "op": "command",
-            "ms": 1.42,
+            "ms": 5.76,
             "status": "ok"
           },
           {
             "label": "poll-two-events",
             "op": "watch_next",
-            "ms": 0.4,
+            "ms": 0.76,
             "status": "ok",
             "captured": [
               {
@@ -4041,11 +4041,11 @@
           {
             "label": "close",
             "op": "watch_close",
-            "ms": 0.86,
+            "ms": 0.35,
             "status": "ok"
           }
         ],
-        "seconds": 0.033
+        "seconds": 0.038
       },
       "target": {
         "outcome": "failed",
@@ -4053,19 +4053,19 @@
           {
             "label": "seed",
             "op": "command",
-            "ms": 5.75,
+            "ms": 8.93,
             "status": "ok"
           },
           {
             "label": "open-filtered",
             "op": "watch_open",
-            "ms": 0.7,
+            "ms": 1.31,
             "status": "error",
             "code": 115,
             "message": "Stage $changeStream is not supported yet in native pipeline, full error: {'ok': 0.0, 'errmsg': 'Stage $changeStream is not supported yet in native pipeline', 'code': 115, 'codeName': 'CommandNotSupported'}"
           }
         ],
-        "seconds": 0.038
+        "seconds": 0.074
       },
       "verdict": "unsupported",
       "detail": {
@@ -4085,25 +4085,25 @@
           {
             "label": "seed",
             "op": "command",
-            "ms": 12.85,
+            "ms": 16.61,
             "status": "ok"
           },
           {
             "label": "open-lookup",
             "op": "watch_open",
-            "ms": 1.17,
+            "ms": 0.82,
             "status": "ok"
           },
           {
             "label": "update-qty",
             "op": "command",
-            "ms": 6.71,
+            "ms": 6.41,
             "status": "ok"
           },
           {
             "label": "poll-fullDocument",
             "op": "watch_next",
-            "ms": 0.42,
+            "ms": 0.52,
             "status": "ok",
             "captured": [
               {
@@ -4156,11 +4156,11 @@
           {
             "label": "close",
             "op": "watch_close",
-            "ms": 0.24,
+            "ms": 0.32,
             "status": "ok"
           }
         ],
-        "seconds": 0.026
+        "seconds": 0.03
       },
       "target": {
         "outcome": "failed",
@@ -4168,19 +4168,19 @@
           {
             "label": "seed",
             "op": "command",
-            "ms": 5.72,
+            "ms": 4.72,
             "status": "ok"
           },
           {
             "label": "open-lookup",
             "op": "watch_open",
-            "ms": 0.53,
+            "ms": 1.16,
             "status": "error",
             "code": 115,
             "message": "Stage $changeStream is not supported yet in native pipeline, full error: {'ok': 0.0, 'errmsg': 'Stage $changeStream is not supported yet in native pipeline', 'code': 115, 'codeName': 'CommandNotSupported'}"
           }
         ],
-        "seconds": 0.042
+        "seconds": 0.068
       },
       "verdict": "unsupported",
       "detail": {
@@ -4200,37 +4200,37 @@
           {
             "label": "seed",
             "op": "command",
-            "ms": 12.17,
+            "ms": 4.81,
             "status": "ok"
           },
           {
             "label": "open-filtered",
             "op": "watch_open",
-            "ms": 1.09,
+            "ms": 0.79,
             "status": "ok"
           },
           {
             "label": "insert-filtered",
             "op": "command",
-            "ms": 0.71,
+            "ms": 6.27,
             "status": "ok"
           },
           {
             "label": "replace-first",
             "op": "command",
-            "ms": 2.02,
+            "ms": 5.36,
             "status": "ok"
           },
           {
             "label": "replace-second",
             "op": "command",
-            "ms": 2.13,
+            "ms": 1.46,
             "status": "ok"
           },
           {
             "label": "poll-two-changes",
             "op": "watch_next",
-            "ms": 0.36,
+            "ms": 1.11,
             "status": "ok",
             "captured": [
               {
@@ -4297,7 +4297,7 @@
           {
             "label": "poll-empty-nonblocking",
             "op": "watch_next",
-            "ms": 615.39,
+            "ms": 621.75,
             "status": "ok",
             "captured": [],
             "capture": true,
@@ -4306,11 +4306,11 @@
           {
             "label": "close",
             "op": "watch_close",
-            "ms": 1.6,
+            "ms": 1.06,
             "status": "ok"
           }
         ],
-        "seconds": 0.65
+        "seconds": 0.696
       },
       "target": {
         "outcome": "failed",
@@ -4318,19 +4318,19 @@
           {
             "label": "seed",
             "op": "command",
-            "ms": 7.5,
+            "ms": 58.5,
             "status": "ok"
           },
           {
             "label": "open-filtered",
             "op": "watch_open",
-            "ms": 0.96,
+            "ms": 1.33,
             "status": "error",
             "code": 115,
             "message": "Stage $changeStream is not supported yet in native pipeline, full error: {'ok': 0.0, 'errmsg': 'Stage $changeStream is not supported yet in native pipeline', 'code': 115, 'codeName': 'CommandNotSupported'}"
           }
         ],
-        "seconds": 0.017
+        "seconds": 0.073
       },
       "verdict": "unsupported",
       "detail": {
@@ -4350,13 +4350,13 @@
           {
             "label": "insert-seed",
             "op": "command",
-            "ms": 11.55,
+            "ms": 7.08,
             "status": "ok"
           },
           {
             "label": "find-upper-with-collation",
             "op": "command",
-            "ms": 0.73,
+            "ms": 0.49,
             "status": "ok",
             "captured": {
               "docs": [
@@ -4381,7 +4381,7 @@
           {
             "label": "find-lower-with-collation",
             "op": "command",
-            "ms": 0.5,
+            "ms": 0.29,
             "status": "ok",
             "captured": {
               "docs": [
@@ -4404,7 +4404,7 @@
             }
           }
         ],
-        "seconds": 0.017
+        "seconds": 0.013
       },
       "target": {
         "outcome": "completed",
@@ -4412,13 +4412,13 @@
           {
             "label": "insert-seed",
             "op": "command",
-            "ms": 6.98,
+            "ms": 55.55,
             "status": "ok"
           },
           {
             "label": "find-upper-with-collation",
             "op": "command",
-            "ms": 1.27,
+            "ms": 0.86,
             "status": "ok",
             "captured": {
               "docs": []
@@ -4431,7 +4431,7 @@
           {
             "label": "find-lower-with-collation",
             "op": "command",
-            "ms": 0.68,
+            "ms": 1.45,
             "status": "ok",
             "captured": {
               "docs": []
@@ -4442,7 +4442,7 @@
             }
           }
         ],
-        "seconds": 0.016
+        "seconds": 0.067
       },
       "verdict": "result_diff",
       "detail": {
@@ -4466,19 +4466,19 @@
           {
             "label": "create-ci-unique-index",
             "op": "command",
-            "ms": 11.79,
+            "ms": 5.88,
             "status": "ok"
           },
           {
             "label": "insert-base",
             "op": "command",
-            "ms": 1.42,
+            "ms": 1.23,
             "status": "ok"
           },
           {
             "label": "insert-case-variant-duplicate",
             "op": "command",
-            "ms": 2.24,
+            "ms": 3.13,
             "status": "ok",
             "captured": {
               "error_code": 11000
@@ -4489,13 +4489,13 @@
           {
             "label": "insert-distinct-allowed",
             "op": "command",
-            "ms": 2.17,
+            "ms": 2.18,
             "status": "ok"
           },
           {
             "label": "read-all-after-unique-check",
             "op": "command",
-            "ms": 0.46,
+            "ms": 0.29,
             "status": "ok",
             "captured": {
               "docs": [
@@ -4524,7 +4524,7 @@
             }
           }
         ],
-        "seconds": 0.026
+        "seconds": 0.048
       },
       "target": {
         "outcome": "failed",
@@ -4532,13 +4532,13 @@
           {
             "label": "create-ci-unique-index",
             "op": "command",
-            "ms": 1.28,
+            "ms": 0.53,
             "status": "error",
             "code": 115,
             "message": "Error in specification { \"key\" : { \"email\" : 1 }, \"name\" : \"email_ci_unique\", \"unique\" : true, \"collation\" : { \"locale\" : \"en\", \"strength\" : 2 } } :: caused by :: createIndex.collation is not implemented yet, full error: {'ok': 0.0, 'errmsg': 'Error in specification { \"key\" : { \"email\" : 1 }, \"name\" : \"email_ci_unique\", \"unique\" : true, \"collation\" : { \"locale\" : \"en\", \"strength\" : 2 } } :: caused"
           }
         ],
-        "seconds": 0.002
+        "seconds": 0.046
       },
       "verdict": "unsupported",
       "detail": {
@@ -4558,13 +4558,13 @@
           {
             "label": "insert-seed",
             "op": "command",
-            "ms": 4.41,
+            "ms": 5.27,
             "status": "ok"
           },
           {
             "label": "find-without-collation-no-match",
             "op": "command",
-            "ms": 0.42,
+            "ms": 0.34,
             "status": "ok",
             "captured": {
               "docs": []
@@ -4577,7 +4577,7 @@
           {
             "label": "find-with-collation-matches",
             "op": "command",
-            "ms": 0.4,
+            "ms": 0.31,
             "status": "ok",
             "captured": {
               "docs": [
@@ -4598,7 +4598,7 @@
             }
           }
         ],
-        "seconds": 0.013
+        "seconds": 0.041
       },
       "target": {
         "outcome": "completed",
@@ -4606,13 +4606,13 @@
           {
             "label": "insert-seed",
             "op": "command",
-            "ms": 6.52,
+            "ms": 6.39,
             "status": "ok"
           },
           {
             "label": "find-without-collation-no-match",
             "op": "command",
-            "ms": 4.08,
+            "ms": 4.29,
             "status": "ok",
             "captured": {
               "docs": []
@@ -4625,7 +4625,7 @@
           {
             "label": "find-with-collation-matches",
             "op": "command",
-            "ms": 0.72,
+            "ms": 0.97,
             "status": "ok",
             "captured": {
               "docs": []
@@ -4636,7 +4636,7 @@
             }
           }
         ],
-        "seconds": 0.02
+        "seconds": 0.028
       },
       "verdict": "result_diff",
       "detail": {
@@ -4660,19 +4660,19 @@
           {
             "label": "create-partial-unique-index",
             "op": "command",
-            "ms": 32.28,
+            "ms": 40.55,
             "status": "ok"
           },
           {
             "label": "insert-first-coupon",
             "op": "command",
-            "ms": 3.94,
+            "ms": 1.47,
             "status": "ok"
           },
           {
             "label": "insert-duplicate-same-customer-coupon",
             "op": "command",
-            "ms": 1.82,
+            "ms": 0.94,
             "status": "ok",
             "captured": {
               "error_code": 11000
@@ -4683,19 +4683,19 @@
           {
             "label": "insert-no-coupon-first",
             "op": "command",
-            "ms": 1.01,
+            "ms": 0.57,
             "status": "ok"
           },
           {
             "label": "insert-no-coupon-second",
             "op": "command",
-            "ms": 0.62,
+            "ms": 1.43,
             "status": "ok"
           },
           {
             "label": "verify-missing-exempt-duplicate-rejected",
             "op": "command",
-            "ms": 0.32,
+            "ms": 0.36,
             "status": "ok",
             "captured": {
               "docs": [
@@ -4734,7 +4734,7 @@
             }
           }
         ],
-        "seconds": 0.143
+        "seconds": 0.15
       },
       "target": {
         "outcome": "completed",
@@ -4742,19 +4742,19 @@
           {
             "label": "create-partial-unique-index",
             "op": "command",
-            "ms": 8.77,
+            "ms": 8.19,
             "status": "ok"
           },
           {
             "label": "insert-first-coupon",
             "op": "command",
-            "ms": 2.76,
+            "ms": 2.13,
             "status": "ok"
           },
           {
             "label": "insert-duplicate-same-customer-coupon",
             "op": "command",
-            "ms": 4.41,
+            "ms": 10.8,
             "status": "ok",
             "captured": {
               "error_code": 11000
@@ -4765,19 +4765,19 @@
           {
             "label": "insert-no-coupon-first",
             "op": "command",
-            "ms": 1.1,
+            "ms": 1.67,
             "status": "ok"
           },
           {
             "label": "insert-no-coupon-second",
             "op": "command",
-            "ms": 1.49,
+            "ms": 1.53,
             "status": "ok"
           },
           {
             "label": "verify-missing-exempt-duplicate-rejected",
             "op": "command",
-            "ms": 0.78,
+            "ms": 1.52,
             "status": "ok",
             "captured": {
               "docs": [
@@ -4816,7 +4816,7 @@
             }
           }
         ],
-        "seconds": 0.027
+        "seconds": 0.034
       },
       "verdict": "equal",
       "detail": {}
@@ -4832,25 +4832,25 @@
           {
             "label": "create-partial-unique-index",
             "op": "command",
-            "ms": 33.0,
+            "ms": 39.9,
             "status": "ok"
           },
           {
             "label": "insert-custA-coupon",
             "op": "command",
-            "ms": 2.22,
+            "ms": 1.2,
             "status": "ok"
           },
           {
             "label": "insert-custB-same-coupon",
             "op": "command",
-            "ms": 1.69,
+            "ms": 0.95,
             "status": "ok"
           },
           {
             "label": "insert-duplicate-same-customer",
             "op": "command",
-            "ms": 0.82,
+            "ms": 1.04,
             "status": "ok",
             "captured": {
               "error_code": 11000
@@ -4861,7 +4861,7 @@
           {
             "label": "verify-per-customer-uniqueness",
             "op": "command",
-            "ms": 0.46,
+            "ms": 0.74,
             "status": "ok",
             "captured": {
               "docs": [
@@ -4894,7 +4894,7 @@
             }
           }
         ],
-        "seconds": 0.142
+        "seconds": 0.148
       },
       "target": {
         "outcome": "completed",
@@ -4902,25 +4902,25 @@
           {
             "label": "create-partial-unique-index",
             "op": "command",
-            "ms": 8.48,
+            "ms": 9.95,
             "status": "ok"
           },
           {
             "label": "insert-custA-coupon",
             "op": "command",
-            "ms": 1.85,
+            "ms": 4.95,
             "status": "ok"
           },
           {
             "label": "insert-custB-same-coupon",
             "op": "command",
-            "ms": 1.63,
+            "ms": 5.05,
             "status": "ok"
           },
           {
             "label": "insert-duplicate-same-customer",
             "op": "command",
-            "ms": 3.22,
+            "ms": 4.16,
             "status": "ok",
             "captured": {
               "error_code": 11000
@@ -4931,7 +4931,7 @@
           {
             "label": "verify-per-customer-uniqueness",
             "op": "command",
-            "ms": 1.34,
+            "ms": 0.59,
             "status": "ok",
             "captured": {
               "docs": [
@@ -4964,7 +4964,7 @@
             }
           }
         ],
-        "seconds": 0.026
+        "seconds": 0.032
       },
       "verdict": "equal",
       "detail": {}
@@ -4980,31 +4980,31 @@
           {
             "label": "create-partial-ttl-index",
             "op": "command",
-            "ms": 31.96,
+            "ms": 39.06,
             "status": "ok"
           },
           {
             "label": "insert-active-expired-cart",
             "op": "command",
-            "ms": 1.54,
+            "ms": 1.12,
             "status": "ok"
           },
           {
             "label": "insert-inactive-expired-cart",
             "op": "command",
-            "ms": 1.06,
+            "ms": 0.87,
             "status": "ok"
           },
           {
             "label": "wait-for-ttl",
             "op": "wait_ttl",
-            "ms": 72003.36,
+            "ms": 72010.03,
             "status": "ok"
           },
           {
             "label": "verify-only-active-expired",
             "op": "command",
-            "ms": 1.35,
+            "ms": 1.76,
             "status": "ok",
             "captured": {
               "docs": [
@@ -5027,7 +5027,7 @@
             }
           }
         ],
-        "seconds": 72.139
+        "seconds": 72.142
       },
       "target": {
         "outcome": "completed",
@@ -5035,31 +5035,31 @@
           {
             "label": "create-partial-ttl-index",
             "op": "command",
-            "ms": 7.42,
+            "ms": 17.3,
             "status": "ok"
           },
           {
             "label": "insert-active-expired-cart",
             "op": "command",
-            "ms": 1.82,
+            "ms": 1.83,
             "status": "ok"
           },
           {
             "label": "insert-inactive-expired-cart",
             "op": "command",
-            "ms": 1.5,
+            "ms": 1.14,
             "status": "ok"
           },
           {
             "label": "wait-for-ttl",
             "op": "wait_ttl",
-            "ms": 72010.06,
+            "ms": 72010.1,
             "status": "ok"
           },
           {
             "label": "verify-only-active-expired",
             "op": "command",
-            "ms": 3.25,
+            "ms": 7.4,
             "status": "ok",
             "captured": {
               "docs": [
@@ -5082,7 +5082,7 @@
             }
           }
         ],
-        "seconds": 72.035
+        "seconds": 72.052
       },
       "verdict": "equal",
       "detail": {}
@@ -5098,19 +5098,19 @@
           {
             "label": "create orders with validator",
             "op": "command",
-            "ms": 22.25,
+            "ms": 29.67,
             "status": "ok"
           },
           {
             "label": "insert valid order",
             "op": "command",
-            "ms": 1.46,
+            "ms": 1.25,
             "status": "ok"
           },
           {
             "label": "insert missing customer_id fails",
             "op": "command",
-            "ms": 1.5,
+            "ms": 0.46,
             "status": "ok",
             "captured": {
               "error_code": 121
@@ -5121,7 +5121,7 @@
           {
             "label": "insert missing total fails",
             "op": "command",
-            "ms": 0.43,
+            "ms": 0.63,
             "status": "ok",
             "captured": {
               "error_code": 121
@@ -5132,7 +5132,7 @@
           {
             "label": "read back orders",
             "op": "command",
-            "ms": 0.64,
+            "ms": 1.22,
             "status": "ok",
             "captured": {
               "docs": [
@@ -5171,7 +5171,7 @@
             }
           }
         ],
-        "seconds": 0.13
+        "seconds": 0.138
       },
       "target": {
         "outcome": "completed",
@@ -5179,19 +5179,19 @@
           {
             "label": "create orders with validator",
             "op": "command",
-            "ms": 6.89,
+            "ms": 9.69,
             "status": "ok"
           },
           {
             "label": "insert valid order",
             "op": "command",
-            "ms": 3.26,
+            "ms": 1.02,
             "status": "ok"
           },
           {
             "label": "insert missing customer_id fails",
             "op": "command",
-            "ms": 0.93,
+            "ms": 1.16,
             "status": "unexpected_success",
             "captured": {
               "no_error": true
@@ -5201,7 +5201,7 @@
           {
             "label": "insert missing total fails",
             "op": "command",
-            "ms": 0.96,
+            "ms": 1.73,
             "status": "unexpected_success",
             "captured": {
               "no_error": true
@@ -5211,7 +5211,7 @@
           {
             "label": "read back orders",
             "op": "command",
-            "ms": 1.01,
+            "ms": 1.02,
             "status": "ok",
             "captured": {
               "docs": [
@@ -5298,7 +5298,7 @@
             }
           }
         ],
-        "seconds": 0.019
+        "seconds": 0.022
       },
       "verdict": "result_diff",
       "detail": {
@@ -5322,19 +5322,19 @@
           {
             "label": "create orders with validator",
             "op": "command",
-            "ms": 19.63,
+            "ms": 18.71,
             "status": "ok"
           },
           {
             "label": "insert valid order",
             "op": "command",
-            "ms": 1.74,
+            "ms": 1.19,
             "status": "ok"
           },
           {
             "label": "insert bad status fails",
             "op": "command",
-            "ms": 0.5,
+            "ms": 0.84,
             "status": "ok",
             "captured": {
               "error_code": 121
@@ -5345,7 +5345,7 @@
           {
             "label": "insert negative total fails",
             "op": "command",
-            "ms": 0.32,
+            "ms": 0.95,
             "status": "ok",
             "captured": {
               "error_code": 121
@@ -5356,7 +5356,7 @@
           {
             "label": "read back orders",
             "op": "command",
-            "ms": 0.41,
+            "ms": 0.33,
             "status": "ok",
             "captured": {
               "docs": [
@@ -5403,19 +5403,19 @@
           {
             "label": "create orders with validator",
             "op": "command",
-            "ms": 6.41,
+            "ms": 3.98,
             "status": "ok"
           },
           {
             "label": "insert valid order",
             "op": "command",
-            "ms": 0.96,
+            "ms": 1.17,
             "status": "ok"
           },
           {
             "label": "insert bad status fails",
             "op": "command",
-            "ms": 1.14,
+            "ms": 0.88,
             "status": "unexpected_success",
             "captured": {
               "no_error": true
@@ -5425,7 +5425,7 @@
           {
             "label": "insert negative total fails",
             "op": "command",
-            "ms": 2.35,
+            "ms": 0.94,
             "status": "unexpected_success",
             "captured": {
               "no_error": true
@@ -5435,7 +5435,7 @@
           {
             "label": "read back orders",
             "op": "command",
-            "ms": 0.63,
+            "ms": 0.6,
             "status": "ok",
             "captured": {
               "docs": [
@@ -5550,19 +5550,19 @@
           {
             "label": "create orders with validator",
             "op": "command",
-            "ms": 10.25,
+            "ms": 18.18,
             "status": "ok"
           },
           {
             "label": "insert valid order",
             "op": "command",
-            "ms": 34.66,
+            "ms": 11.32,
             "status": "ok"
           },
           {
             "label": "insert items not array fails",
             "op": "command",
-            "ms": 0.71,
+            "ms": 1.93,
             "status": "ok",
             "captured": {
               "error_code": 121
@@ -5573,7 +5573,7 @@
           {
             "label": "insert placed_at string fails",
             "op": "command",
-            "ms": 0.68,
+            "ms": 0.69,
             "status": "ok",
             "captured": {
               "error_code": 121
@@ -5584,7 +5584,7 @@
           {
             "label": "invalid update total fails",
             "op": "command",
-            "ms": 0.73,
+            "ms": 2.55,
             "status": "ok",
             "captured": {
               "error_code": 121
@@ -5595,13 +5595,13 @@
           {
             "label": "valid update status succeeds",
             "op": "command",
-            "ms": 2.24,
+            "ms": 1.96,
             "status": "ok"
           },
           {
             "label": "read back orders",
             "op": "command",
-            "ms": 0.82,
+            "ms": 0.83,
             "status": "ok",
             "captured": {
               "docs": [
@@ -5640,7 +5640,7 @@
             }
           }
         ],
-        "seconds": 0.063
+        "seconds": 0.051
       },
       "target": {
         "outcome": "completed",
@@ -5648,19 +5648,19 @@
           {
             "label": "create orders with validator",
             "op": "command",
-            "ms": 10.52,
+            "ms": 8.3,
             "status": "ok"
           },
           {
             "label": "insert valid order",
             "op": "command",
-            "ms": 1.72,
+            "ms": 2.01,
             "status": "ok"
           },
           {
             "label": "insert items not array fails",
             "op": "command",
-            "ms": 1.39,
+            "ms": 1.36,
             "status": "unexpected_success",
             "captured": {
               "no_error": true
@@ -5670,7 +5670,7 @@
           {
             "label": "insert placed_at string fails",
             "op": "command",
-            "ms": 1.52,
+            "ms": 1.14,
             "status": "unexpected_success",
             "captured": {
               "no_error": true
@@ -5680,7 +5680,7 @@
           {
             "label": "invalid update total fails",
             "op": "command",
-            "ms": 1.56,
+            "ms": 1.87,
             "status": "unexpected_success",
             "captured": {
               "no_error": true
@@ -5690,13 +5690,13 @@
           {
             "label": "valid update status succeeds",
             "op": "command",
-            "ms": 1.53,
+            "ms": 2.83,
             "status": "ok"
           },
           {
             "label": "read back orders",
             "op": "command",
-            "ms": 1.06,
+            "ms": 1.36,
             "status": "ok",
             "captured": {
               "docs": [
@@ -5781,7 +5781,7 @@
             }
           }
         ],
-        "seconds": 0.028
+        "seconds": 0.027
       },
       "verdict": "result_diff",
       "detail": {
@@ -5805,19 +5805,19 @@
           {
             "label": "create-text-index",
             "op": "command",
-            "ms": 44.38,
+            "ms": 27.51,
             "status": "ok"
           },
           {
             "label": "seed-products",
             "op": "command",
-            "ms": 0.75,
+            "ms": 2.16,
             "status": "ok"
           },
           {
             "label": "search-premium-ranked",
             "op": "command",
-            "ms": 1.03,
+            "ms": 0.47,
             "status": "ok",
             "captured": {
               "docs": [
@@ -5866,7 +5866,7 @@
             }
           }
         ],
-        "seconds": 0.049
+        "seconds": 0.033
       },
       "target": {
         "outcome": "completed",
@@ -5874,19 +5874,19 @@
           {
             "label": "create-text-index",
             "op": "command",
-            "ms": 11.24,
+            "ms": 8.58,
             "status": "ok"
           },
           {
             "label": "seed-products",
             "op": "command",
-            "ms": 3.59,
+            "ms": 2.47,
             "status": "ok"
           },
           {
             "label": "search-premium-ranked",
             "op": "command",
-            "ms": 6.55,
+            "ms": 4.65,
             "status": "ok",
             "captured": {
               "docs": [
@@ -5935,7 +5935,7 @@
             }
           }
         ],
-        "seconds": 0.031
+        "seconds": 0.021
       },
       "verdict": "equal",
       "detail": {}
@@ -5951,19 +5951,19 @@
           {
             "label": "create-text-index",
             "op": "command",
-            "ms": 44.89,
+            "ms": 28.42,
             "status": "ok"
           },
           {
             "label": "seed-products",
             "op": "command",
-            "ms": 0.92,
+            "ms": 2.07,
             "status": "ok"
           },
           {
             "label": "search-exclusion",
             "op": "command",
-            "ms": 0.6,
+            "ms": 0.59,
             "status": "ok",
             "captured": {
               "docs": [
@@ -5988,7 +5988,7 @@
             }
           }
         ],
-        "seconds": 0.049
+        "seconds": 0.035
       },
       "target": {
         "outcome": "completed",
@@ -5996,19 +5996,19 @@
           {
             "label": "create-text-index",
             "op": "command",
-            "ms": 11.28,
+            "ms": 9.49,
             "status": "ok"
           },
           {
             "label": "seed-products",
             "op": "command",
-            "ms": 3.49,
+            "ms": 2.75,
             "status": "ok"
           },
           {
             "label": "search-exclusion",
             "op": "command",
-            "ms": 5.81,
+            "ms": 4.14,
             "status": "ok",
             "captured": {
               "docs": [
@@ -6033,7 +6033,7 @@
             }
           }
         ],
-        "seconds": 0.029
+        "seconds": 0.023
       },
       "verdict": "equal",
       "detail": {}
@@ -6049,13 +6049,13 @@
           {
             "label": "create-text-index",
             "op": "command",
-            "ms": 43.92,
+            "ms": 27.86,
             "status": "ok"
           },
           {
             "label": "seed-products",
             "op": "command",
-            "ms": 0.72,
+            "ms": 2.13,
             "status": "ok"
           },
           {
@@ -6098,7 +6098,7 @@
             }
           }
         ],
-        "seconds": 0.048
+        "seconds": 0.034
       },
       "target": {
         "outcome": "completed",
@@ -6106,19 +6106,19 @@
           {
             "label": "create-text-index",
             "op": "command",
-            "ms": 11.3,
+            "ms": 8.67,
             "status": "ok"
           },
           {
             "label": "seed-products",
             "op": "command",
-            "ms": 3.19,
+            "ms": 2.47,
             "status": "ok"
           },
           {
             "label": "search-premium-active-ranked",
             "op": "command",
-            "ms": 5.03,
+            "ms": 3.53,
             "status": "ok",
             "captured": {
               "docs": [
@@ -6155,36 +6155,59 @@
             }
           }
         ],
-        "seconds": 0.031
+        "seconds": 0.021
       },
       "verdict": "equal",
       "detail": {}
     },
     {
-      "probe_id": "F10.cart-upsert-fetch-convert-discard",
+      "probe_id": "F10.cart-touch-fetch-discard",
       "feature_id": "F10",
-      "title": "Cart upsert fetch convert conditional delete",
-      "behavior": "Touching a cart must upsert by _id marking active, fetching uses find by customer_id+status, converting updates status/order_id by _id, discarding deletes only when still active",
+      "title": "Cart upsert fetch convert discard with cents",
+      "behavior": "Touching a cart atomically create-or-updates by _id via upsert while marking active; fetching uses plain find by customer_id and status active; converting updates status to converted with order_id by _id; discarding deletes only when _id is still active",
       "source": {
         "outcome": "completed",
         "steps": [
           {
-            "label": "touch-upsert",
+            "label": "seed carts",
             "op": "command",
-            "ms": 18.32,
+            "ms": 13.68,
             "status": "ok"
           },
           {
-            "label": "fetch-by-customer-status",
+            "label": "confirm seed",
             "op": "command",
-            "ms": 0.4,
+            "ms": 0.62,
             "status": "ok",
             "captured": {
               "docs": [
                 {
-                  "_id": "cart1",
-                  "customer_id": "custA",
-                  "status": "active"
+                  "_id": "K0000021",
+                  "customer_id": "C004233",
+                  "items": [
+                    {
+                      "qty": 1,
+                      "sku": "SKU-0318"
+                    }
+                  ],
+                  "status": "active",
+                  "total": 19.99
+                },
+                {
+                  "_id": "K0000022",
+                  "customer_id": "C004233",
+                  "items": [
+                    {
+                      "qty": 2,
+                      "sku": "SKU-0001"
+                    },
+                    {
+                      "qty": 1,
+                      "sku": "SKU-0318"
+                    }
+                  ],
+                  "status": "active",
+                  "total": 10
                 }
               ]
             },
@@ -6194,29 +6217,58 @@
                 {
                   "_id": null,
                   "customer_id": null,
-                  "status": null
+                  "items": [
+                    {
+                      "qty": "int",
+                      "sku": null
+                    }
+                  ],
+                  "status": null,
+                  "total": "double"
+                },
+                {
+                  "_id": null,
+                  "customer_id": null,
+                  "items": [
+                    {
+                      "qty": "int",
+                      "sku": null
+                    },
+                    {
+                      "qty": "int",
+                      "sku": null
+                    }
+                  ],
+                  "status": null,
+                  "total": "int"
                 }
               ]
             }
           },
           {
-            "label": "convert-cart",
+            "label": "touch upsert new cart",
             "op": "command",
-            "ms": 1.1,
+            "ms": 0.97,
             "status": "ok"
           },
           {
-            "label": "fetch-converted",
+            "label": "fetch active cart",
             "op": "command",
-            "ms": 0.44,
+            "ms": 0.92,
             "status": "ok",
             "captured": {
               "docs": [
                 {
-                  "_id": "cart1",
-                  "customer_id": "custA",
-                  "order_id": "O1",
-                  "status": "converted"
+                  "_id": "K0000099",
+                  "customer_id": "C009999",
+                  "items": [
+                    {
+                      "qty": 1,
+                      "sku": "SKU-0318"
+                    }
+                  ],
+                  "status": "active",
+                  "total": 5.5
                 }
               ]
             },
@@ -6226,30 +6278,83 @@
                 {
                   "_id": null,
                   "customer_id": null,
-                  "order_id": null,
-                  "status": null
+                  "items": [
+                    {
+                      "qty": "int",
+                      "sku": null
+                    }
+                  ],
+                  "status": null,
+                  "total": "double"
                 }
               ]
             }
           },
           {
-            "label": "discard-active-only-miss",
+            "label": "fetch no-match empty",
             "op": "command",
-            "ms": 0.43,
-            "status": "ok"
+            "ms": 0.38,
+            "status": "ok",
+            "captured": {
+              "docs": []
+            },
+            "capture": true,
+            "types": {
+              "docs": []
+            }
           },
           {
-            "label": "verify-still-present",
+            "label": "cents total",
             "op": "command",
-            "ms": 0.29,
+            "ms": 0.5,
             "status": "ok",
             "captured": {
               "docs": [
                 {
-                  "_id": "cart1",
-                  "customer_id": "custA",
-                  "order_id": "O1",
-                  "status": "converted"
+                  "n": 3,
+                  "totalCents": 3549
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "n": "int",
+                  "totalCents": "double"
+                }
+              ]
+            }
+          },
+          {
+            "label": "convert with two arrayFilters",
+            "op": "command",
+            "ms": 0.84,
+            "status": "ok"
+          },
+          {
+            "label": "read back converted",
+            "op": "command",
+            "ms": 0.39,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": "K0000022",
+                  "customer_id": "C004233",
+                  "items": [
+                    {
+                      "qty": 5,
+                      "sku": "SKU-0001"
+                    },
+                    {
+                      "qty": 9,
+                      "sku": "SKU-0318"
+                    }
+                  ],
+                  "order_id": "O0000001",
+                  "status": "converted",
+                  "total": 10
                 }
               ]
             },
@@ -6259,231 +6364,148 @@
                 {
                   "_id": null,
                   "customer_id": null,
+                  "items": [
+                    {
+                      "qty": "int",
+                      "sku": null
+                    },
+                    {
+                      "qty": "int",
+                      "sku": null
+                    }
+                  ],
                   "order_id": null,
-                  "status": null
+                  "status": null,
+                  "total": "int"
+                }
+              ]
+            }
+          },
+          {
+            "label": "discard active plus no-op",
+            "op": "command",
+            "ms": 2.03,
+            "status": "ok"
+          },
+          {
+            "label": "final carts",
+            "op": "command",
+            "ms": 0.31,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": "K0000022",
+                  "customer_id": "C004233",
+                  "items": [
+                    {
+                      "qty": 5,
+                      "sku": "SKU-0001"
+                    },
+                    {
+                      "qty": 9,
+                      "sku": "SKU-0318"
+                    }
+                  ],
+                  "order_id": "O0000001",
+                  "status": "converted",
+                  "total": 10
+                },
+                {
+                  "_id": "K0000099",
+                  "customer_id": "C009999",
+                  "items": [
+                    {
+                      "qty": 1,
+                      "sku": "SKU-0318"
+                    }
+                  ],
+                  "status": "active",
+                  "total": 5.5
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": null,
+                  "customer_id": null,
+                  "items": [
+                    {
+                      "qty": "int",
+                      "sku": null
+                    },
+                    {
+                      "qty": "int",
+                      "sku": null
+                    }
+                  ],
+                  "order_id": null,
+                  "status": null,
+                  "total": "int"
+                },
+                {
+                  "_id": null,
+                  "customer_id": null,
+                  "items": [
+                    {
+                      "qty": "int",
+                      "sku": null
+                    }
+                  ],
+                  "status": null,
+                  "total": "double"
                 }
               ]
             }
           }
         ],
-        "seconds": 0.124
+        "seconds": 0.125
       },
       "target": {
         "outcome": "completed",
         "steps": [
           {
-            "label": "touch-upsert",
+            "label": "seed carts",
             "op": "command",
-            "ms": 7.24,
+            "ms": 5.65,
             "status": "ok"
           },
           {
-            "label": "fetch-by-customer-status",
+            "label": "confirm seed",
             "op": "command",
-            "ms": 3.2,
+            "ms": 1.0,
             "status": "ok",
             "captured": {
               "docs": [
                 {
-                  "_id": "cart1",
-                  "customer_id": "custA",
-                  "status": "active"
-                }
-              ]
-            },
-            "capture": true,
-            "types": {
-              "docs": [
-                {
-                  "_id": null,
-                  "customer_id": null,
-                  "status": null
-                }
-              ]
-            }
-          },
-          {
-            "label": "convert-cart",
-            "op": "command",
-            "ms": 1.55,
-            "status": "ok"
-          },
-          {
-            "label": "fetch-converted",
-            "op": "command",
-            "ms": 0.46,
-            "status": "ok",
-            "captured": {
-              "docs": [
-                {
-                  "_id": "cart1",
-                  "customer_id": "custA",
-                  "order_id": "O1",
-                  "status": "converted"
-                }
-              ]
-            },
-            "capture": true,
-            "types": {
-              "docs": [
-                {
-                  "_id": null,
-                  "customer_id": null,
-                  "order_id": null,
-                  "status": null
-                }
-              ]
-            }
-          },
-          {
-            "label": "discard-active-only-miss",
-            "op": "command",
-            "ms": 0.69,
-            "status": "ok"
-          },
-          {
-            "label": "verify-still-present",
-            "op": "command",
-            "ms": 0.44,
-            "status": "ok",
-            "captured": {
-              "docs": [
-                {
-                  "_id": "cart1",
-                  "customer_id": "custA",
-                  "order_id": "O1",
-                  "status": "converted"
-                }
-              ]
-            },
-            "capture": true,
-            "types": {
-              "docs": [
-                {
-                  "_id": null,
-                  "customer_id": null,
-                  "order_id": null,
-                  "status": null
-                }
-              ]
-            }
-          }
-        ],
-        "seconds": 0.019
-      },
-      "verdict": "equal",
-      "detail": {}
-    },
-    {
-      "probe_id": "F10.order-cas-history-find",
-      "feature_id": "F10",
-      "title": "Order compare-and-set with history and filtered finds",
-      "behavior": "Order status must compare-and-set on _id+status $in while $set status/updated_at and $push history with no modification on stale prior set, history uses find by customer_id with projection sort limit, open orders uses find by status with sort limit and count",
-      "source": {
-        "outcome": "completed",
-        "steps": [
-          {
-            "label": "insert-orders",
-            "op": "command",
-            "ms": 17.11,
-            "status": "ok"
-          },
-          {
-            "label": "cas-success",
-            "op": "command",
-            "ms": 1.54,
-            "status": "ok"
-          },
-          {
-            "label": "verify-paid",
-            "op": "command",
-            "ms": 0.41,
-            "status": "ok",
-            "captured": {
-              "docs": [
-                {
-                  "_id": "O10",
-                  "customer_id": "custB",
-                  "history": [
-                    "paid"
+                  "_id": "K0000021",
+                  "customer_id": "C004233",
+                  "items": [
+                    {
+                      "qty": 1,
+                      "sku": "SKU-0318"
+                    }
                   ],
-                  "placed_at": "2026-01-01T00:00:00.000+00:00",
-                  "status": "paid",
-                  "updated_at": "2026-01-10T00:00:00.000+00:00"
-                }
-              ]
-            },
-            "capture": true,
-            "types": {
-              "docs": [
-                {
-                  "_id": null,
-                  "customer_id": null,
-                  "history": [
-                    null
-                  ],
-                  "placed_at": null,
-                  "status": null,
-                  "updated_at": null
-                }
-              ]
-            }
-          },
-          {
-            "label": "cas-stale-noop",
-            "op": "command",
-            "ms": 0.46,
-            "status": "ok"
-          },
-          {
-            "label": "verify-still-paid",
-            "op": "command",
-            "ms": 0.26,
-            "status": "ok",
-            "captured": {
-              "docs": [
-                {
-                  "_id": "O10",
-                  "customer_id": "custB",
-                  "history": [
-                    "paid"
-                  ],
-                  "placed_at": "2026-01-01T00:00:00.000+00:00",
-                  "status": "paid",
-                  "updated_at": "2026-01-10T00:00:00.000+00:00"
-                }
-              ]
-            },
-            "capture": true,
-            "types": {
-              "docs": [
-                {
-                  "_id": null,
-                  "customer_id": null,
-                  "history": [
-                    null
-                  ],
-                  "placed_at": null,
-                  "status": null,
-                  "updated_at": null
-                }
-              ]
-            }
-          },
-          {
-            "label": "history-by-customer",
-            "op": "command",
-            "ms": 0.34,
-            "status": "ok",
-            "captured": {
-              "docs": [
-                {
-                  "_id": "O11",
-                  "status": "placed"
+                  "status": "active",
+                  "total": 19.99
                 },
                 {
-                  "_id": "O10",
-                  "status": "paid"
+                  "_id": "K0000022",
+                  "customer_id": "C004233",
+                  "items": [
+                    {
+                      "qty": 2,
+                      "sku": "SKU-0001"
+                    },
+                    {
+                      "qty": 1,
+                      "sku": "SKU-0318"
+                    }
+                  ],
+                  "status": "active",
+                  "total": 10
                 }
               ]
             },
@@ -6492,85 +6514,59 @@
               "docs": [
                 {
                   "_id": null,
-                  "status": null
+                  "customer_id": null,
+                  "items": [
+                    {
+                      "qty": "int",
+                      "sku": null
+                    }
+                  ],
+                  "status": null,
+                  "total": "double"
                 },
                 {
                   "_id": null,
-                  "status": null
-                }
-              ]
-            }
-          },
-          {
-            "label": "open-by-status",
-            "op": "command",
-            "ms": 0.3,
-            "status": "ok",
-            "captured": {
-              "docs": [
-                {
-                  "_id": "O11",
-                  "status": "placed"
-                }
-              ]
-            },
-            "capture": true,
-            "types": {
-              "docs": [
-                {
-                  "_id": null,
-                  "status": null
-                }
-              ]
-            }
-          },
-          {
-            "label": "count-by-customer",
-            "op": "command",
-            "ms": 0.27,
-            "status": "ok",
-            "captured": {
-              "n": 2
-            },
-            "capture": true,
-            "types": {
-              "n": "int"
-            }
-          }
-        ],
-        "seconds": 0.122
-      },
-      "target": {
-        "outcome": "completed",
-        "steps": [
-          {
-            "label": "insert-orders",
-            "op": "command",
-            "ms": 6.8,
-            "status": "ok"
-          },
-          {
-            "label": "cas-success",
-            "op": "command",
-            "ms": 1.18,
-            "status": "ok"
-          },
-          {
-            "label": "verify-paid",
-            "op": "command",
-            "ms": 0.55,
-            "status": "ok",
-            "captured": {
-              "docs": [
-                {
-                  "_id": "O10",
-                  "customer_id": "custB",
-                  "history": [
-                    "paid"
+                  "customer_id": null,
+                  "items": [
+                    {
+                      "qty": "int",
+                      "sku": null
+                    },
+                    {
+                      "qty": "int",
+                      "sku": null
+                    }
                   ],
-                  "placed_at": "2026-01-01T00:00:00.000+00:00",
-                  "status": "paid",
-                  "updated_at": "2026-01-10T00:00:00.000+00:00"
+                  "status": null,
+                  "total": "int"
+                }
+              ]
+            }
+          },
+          {
+            "label": "touch upsert new cart",
+            "op": "command",
+            "ms": 1.04,
+            "status": "ok"
+          },
+          {
+            "label": "fetch active cart",
+            "op": "command",
+            "ms": 0.65,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": "K0000099",
+                  "customer_id": "C009999",
+                  "items": [
+                    {
+                      "qty": 1,
+                      "sku": "SKU-0318"
+                    }
+                  ],
+                  "status": "active",
+                  "total": 5.5
                 }
               ]
             },
@@ -6580,38 +6576,261 @@
                 {
                   "_id": null,
                   "customer_id": null,
-                  "history": [
-                    null
+                  "items": [
+                    {
+                      "qty": "int",
+                      "sku": null
+                    }
                   ],
-                  "placed_at": null,
                   "status": null,
-                  "updated_at": null
+                  "total": "double"
                 }
               ]
             }
           },
           {
-            "label": "cas-stale-noop",
+            "label": "fetch no-match empty",
             "op": "command",
-            "ms": 0.6,
+            "ms": 0.56,
+            "status": "ok",
+            "captured": {
+              "docs": []
+            },
+            "capture": true,
+            "types": {
+              "docs": []
+            }
+          },
+          {
+            "label": "cents total",
+            "op": "command",
+            "ms": 1.24,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "n": 3,
+                  "totalCents": 3549
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "n": "int",
+                  "totalCents": "double"
+                }
+              ]
+            }
+          },
+          {
+            "label": "convert with two arrayFilters",
+            "op": "command",
+            "ms": 1.12,
             "status": "ok"
           },
           {
-            "label": "verify-still-paid",
+            "label": "read back converted",
+            "op": "command",
+            "ms": 0.36,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": "K0000022",
+                  "customer_id": "C004233",
+                  "items": [
+                    {
+                      "qty": 5,
+                      "sku": "SKU-0001"
+                    },
+                    {
+                      "qty": 9,
+                      "sku": "SKU-0318"
+                    }
+                  ],
+                  "order_id": "O0000001",
+                  "status": "converted",
+                  "total": 10
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": null,
+                  "customer_id": null,
+                  "items": [
+                    {
+                      "qty": "int",
+                      "sku": null
+                    },
+                    {
+                      "qty": "int",
+                      "sku": null
+                    }
+                  ],
+                  "order_id": null,
+                  "status": null,
+                  "total": "int"
+                }
+              ]
+            }
+          },
+          {
+            "label": "discard active plus no-op",
+            "op": "command",
+            "ms": 0.96,
+            "status": "ok"
+          },
+          {
+            "label": "final carts",
             "op": "command",
             "ms": 0.57,
             "status": "ok",
             "captured": {
               "docs": [
                 {
-                  "_id": "O10",
-                  "customer_id": "custB",
-                  "history": [
-                    "paid"
+                  "_id": "K0000022",
+                  "customer_id": "C004233",
+                  "items": [
+                    {
+                      "qty": 5,
+                      "sku": "SKU-0001"
+                    },
+                    {
+                      "qty": 9,
+                      "sku": "SKU-0318"
+                    }
                   ],
-                  "placed_at": "2026-01-01T00:00:00.000+00:00",
+                  "order_id": "O0000001",
+                  "status": "converted",
+                  "total": 10
+                },
+                {
+                  "_id": "K0000099",
+                  "customer_id": "C009999",
+                  "items": [
+                    {
+                      "qty": 1,
+                      "sku": "SKU-0318"
+                    }
+                  ],
+                  "status": "active",
+                  "total": 5.5
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": null,
+                  "customer_id": null,
+                  "items": [
+                    {
+                      "qty": "int",
+                      "sku": null
+                    },
+                    {
+                      "qty": "int",
+                      "sku": null
+                    }
+                  ],
+                  "order_id": null,
+                  "status": null,
+                  "total": "int"
+                },
+                {
+                  "_id": null,
+                  "customer_id": null,
+                  "items": [
+                    {
+                      "qty": "int",
+                      "sku": null
+                    }
+                  ],
+                  "status": null,
+                  "total": "double"
+                }
+              ]
+            }
+          }
+        ],
+        "seconds": 0.02
+      },
+      "verdict": "equal",
+      "detail": {}
+    },
+    {
+      "probe_id": "F10.order-cas-history-paginate",
+      "feature_id": "F10",
+      "title": "Order compare-and-set status with history push, customer history pagination and open-orders listing",
+      "behavior": "Order compare-and-set status with history push, customer history pagination and open-orders listing",
+      "source": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "seed orders",
+            "op": "command",
+            "ms": 14.25,
+            "status": "ok"
+          },
+          {
+            "label": "confirm seed",
+            "op": "command",
+            "ms": 0.64,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": "O0000001",
+                  "customer_id": "C001",
+                  "history": [
+                    {
+                      "at": "2026-11-01T00:00:00.000+00:00",
+                      "status": "paid"
+                    }
+                  ],
+                  "items": [
+                    {
+                      "qty": 1,
+                      "sku": "SKU-0023"
+                    }
+                  ],
+                  "placed_at": "2026-11-01T00:00:00.000+00:00",
                   "status": "paid",
-                  "updated_at": "2026-01-10T00:00:00.000+00:00"
+                  "total": 25.75
+                },
+                {
+                  "_id": "O0000002",
+                  "customer_id": "C001",
+                  "history": [],
+                  "items": [
+                    {
+                      "qty": 2,
+                      "sku": "SKU-0318"
+                    }
+                  ],
+                  "placed_at": "2026-11-02T00:00:00.000+00:00",
+                  "status": "paid",
+                  "total": 20
+                },
+                {
+                  "_id": "O0000003",
+                  "customer_id": "C002",
+                  "history": [],
+                  "items": [
+                    {
+                      "qty": 1,
+                      "sku": "SKU-0023"
+                    }
+                  ],
+                  "placed_at": "2026-11-03T00:00:00.000+00:00",
+                  "status": "shipped",
+                  "total": 10.1
                 }
               ]
             },
@@ -6622,29 +6841,496 @@
                   "_id": null,
                   "customer_id": null,
                   "history": [
-                    null
+                    {
+                      "at": null,
+                      "status": null
+                    }
+                  ],
+                  "items": [
+                    {
+                      "qty": "int",
+                      "sku": null
+                    }
                   ],
                   "placed_at": null,
                   "status": null,
+                  "total": "double"
+                },
+                {
+                  "_id": null,
+                  "customer_id": null,
+                  "history": [],
+                  "items": [
+                    {
+                      "qty": "int",
+                      "sku": null
+                    }
+                  ],
+                  "placed_at": null,
+                  "status": null,
+                  "total": "int"
+                },
+                {
+                  "_id": null,
+                  "customer_id": null,
+                  "history": [],
+                  "items": [
+                    {
+                      "qty": "int",
+                      "sku": null
+                    }
+                  ],
+                  "placed_at": null,
+                  "status": null,
+                  "total": "double"
+                }
+              ]
+            }
+          },
+          {
+            "label": "cas paid to shipped",
+            "op": "command",
+            "ms": 0.99,
+            "status": "ok"
+          },
+          {
+            "label": "read back transitioned",
+            "op": "command",
+            "ms": 0.58,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": "O0000001",
+                  "customer_id": "C001",
+                  "history": [
+                    {
+                      "at": "2026-11-01T00:00:00.000+00:00",
+                      "status": "paid"
+                    },
+                    {
+                      "at": "2026-11-02T00:00:00.000+00:00",
+                      "status": "shipped"
+                    }
+                  ],
+                  "items": [
+                    {
+                      "qty": 1,
+                      "sku": "SKU-0023"
+                    }
+                  ],
+                  "placed_at": "2026-11-01T00:00:00.000+00:00",
+                  "status": "shipped",
+                  "total": 25.75,
+                  "updated_at": "2026-11-02T00:00:00.000+00:00"
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": null,
+                  "customer_id": null,
+                  "history": [
+                    {
+                      "at": null,
+                      "status": null
+                    },
+                    {
+                      "at": null,
+                      "status": null
+                    }
+                  ],
+                  "items": [
+                    {
+                      "qty": "int",
+                      "sku": null
+                    }
+                  ],
+                  "placed_at": null,
+                  "status": null,
+                  "total": "double",
                   "updated_at": null
                 }
               ]
             }
           },
           {
-            "label": "history-by-customer",
+            "label": "cas wrong prior no-op",
+            "op": "command",
+            "ms": 1.15,
+            "status": "ok",
+            "captured": {
+              "n": 0,
+              "nModified": 0
+            },
+            "capture": true,
+            "types": {
+              "n": "int",
+              "nModified": "int"
+            }
+          },
+          {
+            "label": "customer history page",
+            "op": "command",
+            "ms": 0.43,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": "O0000002",
+                  "placed_at": "2026-11-02T00:00:00.000+00:00",
+                  "status": "paid"
+                },
+                {
+                  "_id": "O0000001",
+                  "placed_at": "2026-11-01T00:00:00.000+00:00",
+                  "status": "shipped"
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": null,
+                  "placed_at": null,
+                  "status": null
+                },
+                {
+                  "_id": null,
+                  "placed_at": null,
+                  "status": null
+                }
+              ]
+            }
+          },
+          {
+            "label": "history empty",
+            "op": "command",
+            "ms": 0.44,
+            "status": "ok",
+            "captured": {
+              "docs": []
+            },
+            "capture": true,
+            "types": {
+              "docs": []
+            }
+          },
+          {
+            "label": "totals to cents",
+            "op": "command",
+            "ms": 0.52,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": "O0000001",
+                  "total_cents": 2575
+                },
+                {
+                  "_id": "O0000002",
+                  "total_cents": 2000
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": null,
+                  "total_cents": "double"
+                },
+                {
+                  "_id": null,
+                  "total_cents": "int"
+                }
+              ]
+            }
+          },
+          {
+            "label": "second arrayFilter identifier",
+            "op": "command",
+            "ms": 1.63,
+            "status": "ok",
+            "captured": {
+              "n": 1,
+              "nModified": 1
+            },
+            "capture": true,
+            "types": {
+              "n": "int",
+              "nModified": "int"
+            }
+          },
+          {
+            "label": "read back arrayfilter",
+            "op": "command",
+            "ms": 0.28,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": "O0000002",
+                  "customer_id": "C001",
+                  "history": [],
+                  "items": [
+                    {
+                      "note": "a-hit",
+                      "qty": 2,
+                      "sku": "SKU-0318"
+                    }
+                  ],
+                  "placed_at": "2026-11-02T00:00:00.000+00:00",
+                  "status": "paid",
+                  "total": 20
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": null,
+                  "customer_id": null,
+                  "history": [],
+                  "items": [
+                    {
+                      "note": null,
+                      "qty": "int",
+                      "sku": null
+                    }
+                  ],
+                  "placed_at": null,
+                  "status": null,
+                  "total": "int"
+                }
+              ]
+            }
+          }
+        ],
+        "seconds": 0.126
+      },
+      "target": {
+        "outcome": "completed",
+        "steps": [
+          {
+            "label": "seed orders",
+            "op": "command",
+            "ms": 5.59,
+            "status": "ok"
+          },
+          {
+            "label": "confirm seed",
+            "op": "command",
+            "ms": 1.21,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": "O0000001",
+                  "customer_id": "C001",
+                  "history": [
+                    {
+                      "at": "2026-11-01T00:00:00.000+00:00",
+                      "status": "paid"
+                    }
+                  ],
+                  "items": [
+                    {
+                      "qty": 1,
+                      "sku": "SKU-0023"
+                    }
+                  ],
+                  "placed_at": "2026-11-01T00:00:00.000+00:00",
+                  "status": "paid",
+                  "total": 25.75
+                },
+                {
+                  "_id": "O0000002",
+                  "customer_id": "C001",
+                  "history": [],
+                  "items": [
+                    {
+                      "qty": 2,
+                      "sku": "SKU-0318"
+                    }
+                  ],
+                  "placed_at": "2026-11-02T00:00:00.000+00:00",
+                  "status": "paid",
+                  "total": 20
+                },
+                {
+                  "_id": "O0000003",
+                  "customer_id": "C002",
+                  "history": [],
+                  "items": [
+                    {
+                      "qty": 1,
+                      "sku": "SKU-0023"
+                    }
+                  ],
+                  "placed_at": "2026-11-03T00:00:00.000+00:00",
+                  "status": "shipped",
+                  "total": 10.1
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": null,
+                  "customer_id": null,
+                  "history": [
+                    {
+                      "at": null,
+                      "status": null
+                    }
+                  ],
+                  "items": [
+                    {
+                      "qty": "int",
+                      "sku": null
+                    }
+                  ],
+                  "placed_at": null,
+                  "status": null,
+                  "total": "double"
+                },
+                {
+                  "_id": null,
+                  "customer_id": null,
+                  "history": [],
+                  "items": [
+                    {
+                      "qty": "int",
+                      "sku": null
+                    }
+                  ],
+                  "placed_at": null,
+                  "status": null,
+                  "total": "int"
+                },
+                {
+                  "_id": null,
+                  "customer_id": null,
+                  "history": [],
+                  "items": [
+                    {
+                      "qty": "int",
+                      "sku": null
+                    }
+                  ],
+                  "placed_at": null,
+                  "status": null,
+                  "total": "double"
+                }
+              ]
+            }
+          },
+          {
+            "label": "cas paid to shipped",
+            "op": "command",
+            "ms": 1.12,
+            "status": "ok"
+          },
+          {
+            "label": "read back transitioned",
+            "op": "command",
+            "ms": 0.47,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": "O0000001",
+                  "customer_id": "C001",
+                  "history": [
+                    {
+                      "at": "2026-11-01T00:00:00.000+00:00",
+                      "status": "paid"
+                    },
+                    {
+                      "at": "2026-11-02T00:00:00.000+00:00",
+                      "status": "shipped"
+                    }
+                  ],
+                  "items": [
+                    {
+                      "qty": 1,
+                      "sku": "SKU-0023"
+                    }
+                  ],
+                  "placed_at": "2026-11-01T00:00:00.000+00:00",
+                  "status": "shipped",
+                  "total": 25.75,
+                  "updated_at": "2026-11-02T00:00:00.000+00:00"
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": null,
+                  "customer_id": null,
+                  "history": [
+                    {
+                      "at": null,
+                      "status": null
+                    },
+                    {
+                      "at": null,
+                      "status": null
+                    }
+                  ],
+                  "items": [
+                    {
+                      "qty": "int",
+                      "sku": null
+                    }
+                  ],
+                  "placed_at": null,
+                  "status": null,
+                  "total": "double",
+                  "updated_at": null
+                }
+              ]
+            }
+          },
+          {
+            "label": "cas wrong prior no-op",
+            "op": "command",
+            "ms": 0.74,
+            "status": "ok",
+            "captured": {
+              "n": 0,
+              "nModified": 0
+            },
+            "capture": true,
+            "types": {
+              "n": "int",
+              "nModified": "int"
+            }
+          },
+          {
+            "label": "customer history page",
             "op": "command",
             "ms": 0.64,
             "status": "ok",
             "captured": {
               "docs": [
                 {
-                  "_id": "O11",
-                  "status": "placed"
-                },
-                {
-                  "_id": "O10",
+                  "_id": "O0000002",
+                  "placed_at": "2026-11-02T00:00:00.000+00:00",
                   "status": "paid"
+                },
+                {
+                  "_id": "O0000001",
+                  "placed_at": "2026-11-01T00:00:00.000+00:00",
+                  "status": "shipped"
                 }
               ]
             },
@@ -6653,25 +7339,44 @@
               "docs": [
                 {
                   "_id": null,
+                  "placed_at": null,
                   "status": null
                 },
                 {
                   "_id": null,
+                  "placed_at": null,
                   "status": null
                 }
               ]
             }
           },
           {
-            "label": "open-by-status",
+            "label": "history empty",
             "op": "command",
-            "ms": 0.71,
+            "ms": 0.57,
+            "status": "ok",
+            "captured": {
+              "docs": []
+            },
+            "capture": true,
+            "types": {
+              "docs": []
+            }
+          },
+          {
+            "label": "totals to cents",
+            "op": "command",
+            "ms": 0.55,
             "status": "ok",
             "captured": {
               "docs": [
                 {
-                  "_id": "O11",
-                  "status": "placed"
+                  "_id": "O0000001",
+                  "total_cents": 2575
+                },
+                {
+                  "_id": "O0000002",
+                  "total_cents": 2000
                 }
               ]
             },
@@ -6680,26 +7385,77 @@
               "docs": [
                 {
                   "_id": null,
-                  "status": null
+                  "total_cents": "double"
+                },
+                {
+                  "_id": null,
+                  "total_cents": "int"
                 }
               ]
             }
           },
           {
-            "label": "count-by-customer",
+            "label": "second arrayFilter identifier",
             "op": "command",
-            "ms": 0.8,
+            "ms": 1.87,
             "status": "ok",
             "captured": {
-              "n": 2
+              "n": 1,
+              "nModified": 1
             },
             "capture": true,
             "types": {
-              "n": "int"
+              "n": "int",
+              "nModified": "int"
+            }
+          },
+          {
+            "label": "read back arrayfilter",
+            "op": "command",
+            "ms": 0.56,
+            "status": "ok",
+            "captured": {
+              "docs": [
+                {
+                  "_id": "O0000002",
+                  "customer_id": "C001",
+                  "history": [],
+                  "items": [
+                    {
+                      "note": "a-hit",
+                      "qty": 2,
+                      "sku": "SKU-0318"
+                    }
+                  ],
+                  "placed_at": "2026-11-02T00:00:00.000+00:00",
+                  "status": "paid",
+                  "total": 20
+                }
+              ]
+            },
+            "capture": true,
+            "types": {
+              "docs": [
+                {
+                  "_id": null,
+                  "customer_id": null,
+                  "history": [],
+                  "items": [
+                    {
+                      "note": null,
+                      "qty": "int",
+                      "sku": null
+                    }
+                  ],
+                  "placed_at": null,
+                  "status": null,
+                  "total": "int"
+                }
+              ]
             }
           }
         ],
-        "seconds": 0.017
+        "seconds": 0.019
       },
       "verdict": "equal",
       "detail": {}
@@ -6715,13 +7471,13 @@
           {
             "label": "seed customers chain",
             "op": "command",
-            "ms": 17.21,
+            "ms": 13.61,
             "status": "ok"
           },
           {
             "label": "graphLookup ancestors with depth",
             "op": "command",
-            "ms": 0.61,
+            "ms": 0.74,
             "status": "ok",
             "captured": {
               "docs": [
@@ -6758,7 +7514,7 @@
             }
           }
         ],
-        "seconds": 0.019
+        "seconds": 0.018
       },
       "target": {
         "outcome": "completed",
@@ -6766,13 +7522,13 @@
           {
             "label": "seed customers chain",
             "op": "command",
-            "ms": 6.82,
+            "ms": 5.65,
             "status": "ok"
           },
           {
             "label": "graphLookup ancestors with depth",
             "op": "command",
-            "ms": 3.78,
+            "ms": 3.76,
             "status": "ok",
             "captured": {
               "docs": [
@@ -6809,7 +7565,7 @@
             }
           }
         ],
-        "seconds": 0.016
+        "seconds": 0.015
       },
       "verdict": "equal",
       "detail": {}
@@ -6827,88 +7583,88 @@
             "F10"
           ],
           "source_ms_samples": [
-            0.55,
-            0.5,
-            0.41,
+            0.56,
+            0.75,
+            0.53,
+            0.53,
+            0.42,
+            0.49,
+            0.45,
+            0.79,
+            0.49,
+            0.51,
             0.47,
+            0.43,
             0.34,
-            0.32,
-            0.31,
+            0.39,
             0.28,
-            0.28,
-            0.29,
-            0.26,
-            0.31,
-            0.27,
-            0.26,
-            0.27,
-            0.26,
-            0.28,
-            0.28,
-            0.28,
-            0.26,
-            0.28,
-            0.29,
-            0.3,
-            0.35,
             0.35,
             0.33,
+            0.31,
             0.3,
-            0.27,
+            0.37,
+            0.37,
             0.28,
-            0.41,
-            0.26,
-            0.27,
-            0.28,
-            0.3,
-            0.27,
+            0.34,
+            0.33,
+            0.31,
+            0.37,
+            0.34,
             0.29,
             0.31,
+            0.27,
             0.29,
+            0.29,
+            0.3,
             0.28,
-            0.28
+            0.28,
+            0.27,
+            1.72,
+            0.29,
+            0.31,
+            0.31
           ],
           "target_ms_samples": [
-            0.7,
-            0.7,
-            0.72,
-            0.51,
-            0.41,
+            1.06,
+            0.95,
+            0.87,
+            0.81,
+            0.64,
+            0.65,
+            0.71,
+            0.99,
+            0.79,
+            0.66,
+            1.97,
+            0.73,
+            0.67,
+            0.52,
+            0.43,
+            0.38,
+            0.46,
             0.38,
             0.4,
-            0.37,
-            0.36,
-            0.37,
-            0.35,
-            0.38,
-            0.37,
-            0.34,
-            0.36,
+            0.41,
+            0.41,
             0.39,
-            0.33,
-            0.39,
-            0.36,
-            0.35,
-            0.35,
-            0.38,
-            0.39,
-            1.17,
-            0.43,
-            0.36,
+            0.45,
+            0.41,
             0.48,
-            0.39,
-            0.39,
-            0.32,
             0.37,
-            0.32,
+            0.41,
+            0.4,
             0.38,
-            0.36,
+            0.42,
+            0.42,
             0.34,
-            0.35,
+            0.39,
+            0.41,
             0.37,
-            0.32,
             0.37,
-            0.36
+            0.39,
+            0.38,
+            0.42,
+            0.46
           ],
           "target_timeouts": 0,
           "stages": [],
@@ -6919,10 +7675,10 @@
           "target_errors": 0,
           "source_errors": 0,
           "budget_exhausted": false,
-          "source_p50_ms": 0.29,
-          "source_p95_ms": 0.5,
-          "target_p50_ms": 0.37,
-          "target_p95_ms": 0.72,
+          "source_p50_ms": 0.34,
+          "source_p95_ms": 0.79,
+          "target_p50_ms": 0.42,
+          "target_p95_ms": 1.06,
           "first_difference": null,
           "difference_kinds": {},
           "ranking_only": false,
@@ -6937,88 +7693,88 @@
             "F6"
           ],
           "source_ms_samples": [
-            0.29,
-            0.29,
+            0.32,
+            0.35,
             0.3,
-            0.29,
-            0.28,
-            0.28,
-            0.28,
-            0.28,
-            0.26,
-            0.26,
-            0.27,
-            0.27,
-            0.8,
-            0.26,
-            0.23,
-            0.26,
-            0.27,
-            0.26,
-            0.25,
-            0.27,
-            0.25,
-            0.28,
-            0.28,
+            0.35,
             0.31,
-            0.24,
-            0.26,
-            0.24,
-            0.25,
-            0.25,
-            0.25,
-            0.24,
-            0.3,
+            0.36,
+            0.28,
+            0.32,
+            0.31,
             0.3,
             0.29,
             0.27,
-            0.25,
-            0.26,
             0.28,
+            0.33,
             0.27,
-            0.26
+            0.28,
+            0.29,
+            0.29,
+            0.37,
+            0.33,
+            0.36,
+            0.38,
+            0.86,
+            0.3,
+            0.29,
+            0.32,
+            0.28,
+            0.28,
+            0.36,
+            0.32,
+            0.31,
+            0.31,
+            0.31,
+            0.27,
+            0.26,
+            0.59,
+            0.61,
+            0.44,
+            0.34,
+            0.37
           ],
           "target_ms_samples": [
-            0.75,
-            0.8,
-            0.35,
-            0.51,
-            0.69,
-            0.53,
-            0.8,
-            0.45,
-            0.67,
-            0.41,
-            0.74,
-            0.39,
-            0.38,
-            0.71,
-            0.49,
-            0.56,
-            0.76,
-            0.45,
-            0.72,
-            0.36,
-            0.4,
-            0.43,
-            0.63,
-            0.75,
-            0.34,
+            0.93,
+            0.79,
+            0.42,
             0.6,
-            0.54,
-            0.73,
-            0.76,
-            0.73,
-            0.8,
-            0.73,
-            0.53,
-            0.69,
+            0.79,
+            0.65,
+            0.88,
+            0.64,
+            0.96,
+            0.52,
+            0.77,
+            0.52,
+            0.41,
+            0.88,
+            0.5,
+            0.6,
+            0.83,
+            0.47,
+            0.78,
+            0.46,
+            0.45,
+            0.49,
             0.75,
-            0.63,
-            0.71,
-            0.68,
+            0.8,
+            0.45,
+            0.66,
+            0.59,
             0.74,
-            0.72
+            0.75,
+            0.69,
+            0.78,
+            0.75,
+            0.59,
+            0.71,
+            0.9,
+            1.5,
+            1.42,
+            1.19,
+            1.37,
+            0.92
           ],
           "target_timeouts": 0,
           "stages": [],
@@ -7029,10 +7785,10 @@
           "target_errors": 0,
           "source_errors": 0,
           "budget_exhausted": false,
-          "source_p50_ms": 0.27,
-          "source_p95_ms": 0.31,
-          "target_p50_ms": 0.68,
-          "target_p95_ms": 0.8,
+          "source_p50_ms": 0.31,
+          "source_p95_ms": 0.61,
+          "target_p50_ms": 0.75,
+          "target_p95_ms": 1.42,
           "first_difference": {
             "path": "$.docs.length",
             "source": 1,
@@ -7053,88 +7809,88 @@
             "F9"
           ],
           "source_ms_samples": [
-            0.69,
-            0.92,
-            0.81,
-            0.95,
-            0.88,
-            0.52,
-            0.72,
-            0.84,
-            0.54,
-            2.49,
-            0.73,
-            0.62,
             0.58,
+            1.95,
+            0.92,
+            0.8,
+            0.81,
+            0.65,
+            0.81,
+            0.68,
+            0.54,
+            0.82,
+            0.56,
+            0.52,
+            0.59,
+            0.64,
+            0.83,
+            0.51,
+            0.96,
+            0.71,
+            0.65,
             0.53,
-            0.79,
+            0.52,
             0.54,
             0.57,
-            0.87,
-            0.49,
-            0.59,
             0.66,
-            0.82,
-            0.72,
-            0.8,
-            0.52,
-            0.73,
-            0.68,
-            0.74,
-            0.73,
-            0.44,
-            0.69,
-            0.62,
-            0.55,
-            0.76,
-            0.5,
-            0.98,
+            0.57,
+            0.91,
+            0.9,
+            0.67,
+            0.79,
+            0.45,
             0.75,
-            0.61,
-            0.54,
-            0.47
+            0.64,
+            0.52,
+            0.65,
+            0.55,
+            0.6,
+            0.75,
+            0.52,
+            0.77,
+            0.49
           ],
           "target_ms_samples": [
-            2.7,
-            1.71,
-            1.69,
-            1.61,
-            1.61,
-            1.11,
-            1.57,
-            1.49,
-            1.71,
-            3.36,
-            1.71,
-            1.7,
-            1.61,
-            1.84,
-            1.58,
-            1.61,
-            1.58,
-            1.59,
-            1.08,
-            1.68,
-            1.49,
-            1.89,
-            1.64,
-            1.6,
-            1.59,
-            1.53,
-            1.43,
-            1.49,
-            1.42,
-            1.03,
-            1.57,
-            1.48,
-            1.57,
-            1.44,
-            1.59,
+            1.28,
+            2.02,
+            1.86,
             1.67,
-            1.6,
+            1.63,
+            1.26,
             1.59,
+            1.55,
+            1.64,
+            1.66,
+            1.61,
+            1.55,
+            1.58,
+            1.64,
+            1.61,
+            1.61,
+            1.74,
+            1.58,
+            1.13,
+            1.62,
+            1.53,
+            1.9,
+            1.49,
+            1.47,
+            1.54,
+            1.68,
+            1.59,
+            1.56,
+            1.67,
+            2.2,
+            1.69,
+            1.56,
+            1.5,
+            1.46,
             1.52,
-            1.56
+            1.48,
+            1.64,
+            1.52,
+            1.66,
+            1.6
           ],
           "target_timeouts": 0,
           "stages": [],
@@ -7145,10 +7901,10 @@
           "target_errors": 0,
           "source_errors": 0,
           "budget_exhausted": false,
-          "source_p50_ms": 0.69,
-          "source_p95_ms": 0.98,
-          "target_p50_ms": 1.59,
-          "target_p95_ms": 2.7,
+          "source_p50_ms": 0.65,
+          "source_p95_ms": 0.96,
+          "target_p50_ms": 1.6,
+          "target_p95_ms": 2.02,
           "first_difference": {
             "path": "$.docs[0]._id",
             "source": "SKU-0062",
@@ -7169,88 +7925,88 @@
             "F10"
           ],
           "source_ms_samples": [
-            0.33,
-            0.39,
             0.44,
-            0.37,
-            0.45,
-            0.54,
-            0.57,
-            0.58,
-            0.46,
-            0.39,
-            0.45,
-            0.37,
-            0.33,
-            0.44,
-            0.33,
-            0.43,
-            0.37,
-            0.33,
-            0.38,
-            0.37,
-            0.46,
-            0.34,
-            0.48,
-            0.34,
-            0.36,
-            0.34,
-            0.38,
-            0.38,
-            0.34,
-            0.35,
-            0.38,
-            0.36,
-            0.34,
-            0.45,
-            0.37,
+            0.5,
+            0.55,
             0.41,
-            0.38,
+            0.54,
+            0.49,
+            0.55,
+            0.53,
+            0.48,
+            0.46,
+            0.46,
             0.42,
+            0.42,
+            0.47,
+            0.44,
+            0.62,
             0.4,
-            0.35
+            0.43,
+            0.48,
+            0.43,
+            0.48,
+            0.37,
+            0.5,
+            0.36,
+            0.42,
+            0.42,
+            0.46,
+            0.45,
+            0.47,
+            0.42,
+            0.45,
+            0.47,
+            0.39,
+            0.51,
+            0.44,
+            0.58,
+            0.81,
+            0.58,
+            0.5,
+            0.36
           ],
           "target_ms_samples": [
-            0.43,
-            0.45,
-            0.5,
-            0.4,
-            0.5,
-            0.62,
-            0.56,
-            0.58,
-            0.56,
-            0.4,
-            0.55,
-            0.43,
-            0.42,
-            0.44,
-            0.44,
-            0.43,
+            0.53,
+            3.43,
+            0.61,
+            0.48,
+            0.6,
             0.49,
+            0.6,
+            0.58,
+            0.46,
+            0.47,
+            0.49,
+            0.51,
             0.44,
             0.48,
-            0.44,
+            0.5,
+            0.56,
             0.48,
-            0.4,
-            0.56,
-            0.41,
-            0.43,
-            0.41,
-            0.54,
-            0.38,
-            0.56,
-            0.73,
+            0.49,
+            0.64,
+            0.5,
+            0.45,
             0.47,
             0.51,
-            0.38,
-            0.49,
-            0.44,
-            0.54,
             0.48,
             0.46,
+            0.49,
+            0.46,
+            0.46,
+            0.5,
+            0.5,
+            0.49,
+            1.57,
+            0.67,
+            0.52,
+            0.49,
+            0.63,
             0.57,
-            0.5
+            0.54,
+            0.53,
+            0.44
           ],
           "target_timeouts": 0,
           "stages": [],
@@ -7261,10 +8017,10 @@
           "target_errors": 0,
           "source_errors": 0,
           "budget_exhausted": false,
-          "source_p50_ms": 0.38,
-          "source_p95_ms": 0.57,
-          "target_p50_ms": 0.48,
-          "target_p95_ms": 0.62,
+          "source_p50_ms": 0.46,
+          "source_p95_ms": 0.62,
+          "target_p50_ms": 0.5,
+          "target_p95_ms": 1.57,
           "first_difference": null,
           "difference_kinds": {},
           "ranking_only": false,
@@ -7279,88 +8035,88 @@
             "F10"
           ],
           "source_ms_samples": [
+            0.29,
+            0.32,
+            0.29,
+            0.34,
+            0.34,
+            0.28,
+            0.28,
+            0.28,
+            0.29,
+            0.29,
+            0.3,
             0.31,
-            0.3,
             0.28,
+            0.29,
+            0.28,
+            0.34,
+            0.29,
             0.33,
-            0.3,
-            0.28,
-            0.27,
-            0.26,
-            0.27,
-            0.3,
-            0.3,
-            0.28,
-            0.28,
-            0.26,
+            0.31,
             0.29,
-            0.27,
-            0.25,
-            0.29,
-            0.29,
-            0.28,
-            0.28,
-            0.27,
-            0.26,
-            0.28,
-            0.27,
-            0.27,
-            0.26,
-            0.28,
-            0.3,
-            0.3,
-            0.28,
-            0.3,
-            0.29,
-            0.28,
             0.28,
             0.32,
+            0.27,
+            0.29,
+            0.29,
             0.28,
+            0.26,
+            0.3,
+            0.27,
+            0.26,
+            0.26,
+            0.28,
+            0.27,
+            0.3,
+            0.28,
+            0.28,
+            0.27,
             0.29,
             0.27,
-            0.3
+            0.29
           ],
           "target_ms_samples": [
-            0.34,
-            0.44,
-            0.4,
-            0.36,
-            0.35,
             0.41,
-            0.35,
-            0.36,
-            0.34,
-            0.36,
-            0.42,
-            0.43,
-            0.37,
-            0.4,
-            0.38,
-            0.32,
-            0.42,
-            0.4,
-            0.35,
-            0.35,
-            0.36,
-            0.31,
-            0.37,
-            0.36,
-            0.36,
-            0.34,
-            0.33,
-            0.3,
-            0.36,
-            0.33,
+            0.59,
+            0.59,
+            0.67,
+            0.68,
             0.41,
-            0.35,
-            0.36,
-            0.34,
-            0.33,
-            1.34,
-            0.92,
-            0.32,
             0.39,
-            0.39
+            0.37,
+            0.55,
+            0.56,
+            0.67,
+            0.6,
+            0.57,
+            0.47,
+            0.55,
+            0.54,
+            0.68,
+            0.33,
+            0.48,
+            0.36,
+            0.56,
+            0.36,
+            0.35,
+            0.33,
+            0.37,
+            0.61,
+            0.35,
+            0.53,
+            0.39,
+            0.46,
+            0.58,
+            0.34,
+            0.45,
+            0.36,
+            0.34,
+            0.41,
+            0.38,
+            0.31,
+            0.46,
+            0.35
           ],
           "target_timeouts": 0,
           "stages": [],
@@ -7371,10 +8127,10 @@
           "target_errors": 0,
           "source_errors": 0,
           "budget_exhausted": false,
-          "source_p50_ms": 0.28,
-          "source_p95_ms": 0.32,
-          "target_p50_ms": 0.36,
-          "target_p95_ms": 0.92,
+          "source_p50_ms": 0.29,
+          "source_p95_ms": 0.34,
+          "target_p50_ms": 0.46,
+          "target_p95_ms": 0.68,
           "first_difference": null,
           "difference_kinds": {},
           "ranking_only": false,
@@ -7389,88 +8145,88 @@
             "F2"
           ],
           "source_ms_samples": [
-            0.54,
-            0.41,
-            0.52,
-            0.49,
-            0.54,
-            0.44,
-            0.41,
-            0.38,
-            0.73,
+            0.59,
             0.47,
-            0.47,
-            0.44,
-            0.42,
-            0.42,
-            0.42,
+            0.54,
+            0.56,
+            0.54,
             0.48,
-            0.57,
-            0.39,
-            0.42,
-            0.49,
             0.53,
+            0.52,
+            0.6,
+            0.53,
+            0.53,
+            0.46,
+            0.54,
+            0.52,
+            0.56,
+            0.6,
+            0.55,
+            0.47,
+            0.52,
+            0.54,
+            0.45,
+            0.48,
+            0.52,
+            0.51,
+            0.47,
+            0.53,
+            0.46,
+            0.45,
             0.44,
-            0.42,
             0.43,
             0.51,
             0.43,
-            0.71,
-            0.43,
-            0.53,
-            0.47,
-            0.57,
-            0.43,
-            0.42,
-            0.44,
+            0.41,
             0.46,
-            0.42,
-            0.55,
+            0.48,
             0.47,
-            0.69,
-            0.36
+            0.42,
+            0.46,
+            0.47,
+            0.42
           ],
           "target_ms_samples": [
-            3.55,
-            3.52,
-            3.57,
-            3.56,
-            3.5,
-            3.46,
-            3.56,
-            3.48,
-            3.61,
-            3.53,
-            3.47,
-            3.4,
-            3.41,
-            3.44,
-            3.47,
-            3.43,
-            3.45,
-            3.42,
-            3.47,
-            3.44,
-            3.54,
-            3.46,
-            6.36,
-            3.51,
-            3.49,
-            3.45,
-            3.46,
-            3.38,
-            3.54,
-            3.43,
-            3.68,
-            3.45,
             3.35,
-            3.35,
-            3.44,
-            3.53,
+            3.34,
             3.36,
-            3.5,
-            3.45,
-            3.38
+            3.32,
+            3.3,
+            3.37,
+            3.35,
+            3.27,
+            3.23,
+            3.33,
+            3.29,
+            3.27,
+            3.23,
+            3.35,
+            4.16,
+            3.31,
+            3.36,
+            3.26,
+            3.29,
+            3.3,
+            3.24,
+            3.29,
+            3.31,
+            3.25,
+            3.19,
+            3.36,
+            3.38,
+            4.67,
+            3.25,
+            3.18,
+            3.35,
+            3.27,
+            3.25,
+            3.21,
+            3.23,
+            4.83,
+            4.63,
+            3.27,
+            3.18,
+            3.13
           ],
           "target_timeouts": 0,
           "stages": [
@@ -7486,10 +8242,10 @@
           "target_errors": 0,
           "source_errors": 0,
           "budget_exhausted": false,
-          "source_p50_ms": 0.46,
-          "source_p95_ms": 0.71,
-          "target_p50_ms": 3.47,
-          "target_p95_ms": 3.68,
+          "source_p50_ms": 0.51,
+          "source_p95_ms": 0.6,
+          "target_p50_ms": 3.3,
+          "target_p95_ms": 4.67,
           "first_difference": null,
           "difference_kinds": {},
           "ranking_only": false,
@@ -7502,88 +8258,88 @@
           "path": "online",
           "features": [],
           "source_ms_samples": [
-            0.41,
-            0.42,
+            0.38,
             0.4,
             0.37,
             0.36,
-            0.38,
-            0.34,
             0.35,
-            0.35,
-            0.33,
             0.37,
-            0.35,
-            0.31,
             0.44,
-            0.51,
-            0.53,
-            0.48,
+            0.35,
+            0.41,
             0.34,
-            0.4,
-            0.35,
-            0.45,
-            0.35,
-            0.31,
-            0.35,
+            0.36,
+            0.34,
             0.34,
             0.39,
             0.34,
-            0.44,
-            0.55,
+            0.38,
+            0.36,
             0.35,
-            1.88,
+            0.33,
+            0.35,
+            0.35,
+            0.37,
+            0.34,
+            0.34,
+            0.34,
+            0.38,
+            1.35,
+            0.34,
             0.33,
             0.34,
-            0.31,
-            0.42,
-            0.35,
             0.34,
+            0.32,
+            0.34,
+            0.33,
+            0.34,
+            0.34,
+            0.35,
             0.36,
-            0.37,
+            0.34,
             0.33
           ],
           "target_ms_samples": [
-            0.44,
-            0.46,
-            0.46,
             0.4,
             0.45,
-            0.45,
-            0.43,
+            0.4,
+            0.39,
             0.38,
-            0.43,
-            0.36,
+            0.4,
+            0.44,
+            0.4,
             0.41,
-            0.37,
-            0.45,
             0.41,
-            0.58,
-            0.52,
-            0.51,
-            0.35,
-            0.44,
-            0.44,
-            0.44,
-            0.37,
             0.42,
             0.38,
-            0.36,
+            0.39,
+            0.38,
+            0.4,
+            0.38,
+            0.42,
+            0.37,
+            0.39,
+            0.4,
+            0.42,
+            0.39,
+            0.38,
+            0.44,
+            0.4,
+            0.42,
+            0.41,
             0.43,
+            0.38,
             0.4,
             0.37,
-            0.49,
-            0.37,
+            0.41,
+            0.41,
+            0.34,
             0.42,
-            0.36,
-            1.62,
-            0.48,
-            0.54,
+            0.38,
+            0.4,
+            0.43,
             0.45,
-            0.44,
-            0.36,
-            0.46,
-            0.43
+            0.34
           ],
           "target_timeouts": 0,
           "stages": [
@@ -7597,10 +8353,10 @@
           "target_errors": 0,
           "source_errors": 0,
           "budget_exhausted": false,
-          "source_p50_ms": 0.36,
-          "source_p95_ms": 0.55,
-          "target_p50_ms": 0.43,
-          "target_p95_ms": 0.58,
+          "source_p50_ms": 0.35,
+          "source_p95_ms": 0.44,
+          "target_p50_ms": 0.4,
+          "target_p95_ms": 0.45,
           "first_difference": null,
           "difference_kinds": {},
           "ranking_only": false,
@@ -7615,87 +8371,87 @@
             "F10"
           ],
           "source_ms_samples": [
-            0.71,
-            1.16,
-            1.8,
-            1.09,
+            0.68,
+            1.19,
+            2.1,
+            1.34,
+            0.82,
             0.76,
-            0.65,
-            0.65,
-            0.59,
-            0.86,
-            0.66,
-            0.88,
-            0.68,
-            0.59,
-            0.99,
+            0.72,
             0.61,
-            0.58,
-            0.62,
-            0.97,
-            0.63,
-            0.6,
-            0.6,
-            1.12,
-            1.06,
-            0.75,
-            0.66,
-            0.64,
-            0.69,
-            0.68,
-            0.7,
-            1.21,
-            0.66,
-            1.07,
-            0.79,
-            0.67,
-            0.63,
-            1.2,
-            1.0,
-            1.11,
+            1.13,
+            1.66,
+            0.99,
+            0.74,
+            0.56,
             1.04,
-            1.05
+            0.58,
+            0.63,
+            0.71,
+            1.09,
+            0.62,
+            0.57,
+            0.61,
+            1.11,
+            0.73,
+            0.69,
+            0.57,
+            0.75,
+            0.69,
+            0.71,
+            0.69,
+            1.24,
+            0.69,
+            2.28,
+            1.14,
+            0.77,
+            0.68,
+            1.11,
+            1.03,
+            1.22,
+            0.99,
+            1.13
           ],
           "target_ms_samples": [
-            0.83,
-            1.34,
-            2.45,
-            1.28,
             0.81,
-            0.91,
-            0.74,
-            0.74,
-            1.01,
-            0.83,
-            1.0,
-            0.75,
-            0.75,
-            2.38,
-            0.71,
-            0.71,
-            0.81,
-            1.0,
-            0.77,
-            0.76,
-            0.84,
-            1.13,
-            2.39,
-            1.23,
-            0.78,
-            1.1,
-            0.83,
-            0.77,
+            1.37,
+            2.41,
+            1.17,
             0.85,
-            1.96,
+            0.89,
+            0.81,
+            1.06,
+            1.18,
+            1.15,
+            1.17,
+            0.78,
+            0.71,
+            0.98,
+            0.73,
+            0.72,
+            0.88,
+            1.21,
+            0.79,
+            0.69,
+            0.76,
+            1.22,
+            0.89,
+            0.83,
+            0.88,
+            0.85,
+            0.89,
+            0.8,
+            0.88,
+            1.49,
             0.92,
-            1.11,
-            0.93,
-            0.81,
-            0.81,
-            1.25,
-            1.35,
-            1.26,
-            1.29,
+            1.51,
+            1.07,
+            0.87,
+            0.88,
+            1.43,
+            2.8,
+            1.17,
+            1.23,
             1.15
           ],
           "target_timeouts": 0,
@@ -7707,10 +8463,10 @@
           "target_errors": 0,
           "source_errors": 0,
           "budget_exhausted": false,
-          "source_p50_ms": 0.71,
-          "source_p95_ms": 1.21,
-          "target_p50_ms": 0.92,
-          "target_p95_ms": 2.39,
+          "source_p50_ms": 0.76,
+          "source_p95_ms": 2.1,
+          "target_p50_ms": 0.89,
+          "target_p95_ms": 2.41,
           "first_difference": null,
           "difference_kinds": {},
           "ranking_only": false,
@@ -7725,68 +8481,68 @@
             "F10"
           ],
           "source_ms_samples": [
-            0.48,
-            0.52,
-            0.53,
-            0.52,
-            0.52,
-            0.51,
             0.47,
-            0.53,
-            0.56,
-            0.52,
-            0.56,
-            0.88,
-            0.48,
             0.51,
-            0.48,
-            0.45,
-            0.47,
-            0.48,
-            0.54,
             0.46,
-            0.47,
-            0.44,
             0.45,
-            0.44,
-            0.45,
-            0.45,
-            0.5,
+            0.42,
+            0.8,
             0.48,
-            0.49,
-            0.5
+            0.46,
+            0.44,
+            0.44,
+            0.46,
+            0.46,
+            0.44,
+            0.43,
+            0.48,
+            0.44,
+            0.45,
+            0.47,
+            0.53,
+            0.48,
+            0.45,
+            0.44,
+            0.47,
+            0.53,
+            0.44,
+            0.53,
+            0.52,
+            0.52,
+            0.45,
+            0.44
           ],
           "target_ms_samples": [
-            0.55,
-            0.75,
-            1.01,
-            0.68,
-            0.64,
             0.58,
-            0.62,
-            1.87,
-            0.75,
-            0.7,
-            0.92,
-            1.55,
-            0.68,
-            0.6,
-            0.61,
-            0.53,
-            0.59,
-            0.54,
-            0.63,
-            0.58,
-            0.59,
-            0.55,
             0.57,
+            0.6,
+            0.56,
+            0.53,
+            0.85,
+            0.53,
+            0.55,
+            0.56,
+            0.56,
+            0.56,
             0.58,
             0.56,
-            0.55,
-            0.59,
-            3.36,
+            0.56,
+            1.98,
+            0.54,
+            0.58,
+            0.67,
+            0.66,
             0.6,
-            0.64
+            0.7,
+            0.59,
+            0.56,
+            0.53,
+            0.54,
+            0.58,
+            0.64,
+            0.62,
+            0.54,
+            0.6
           ],
           "target_timeouts": 0,
           "stages": [],
@@ -7797,10 +8553,10 @@
           "target_errors": 0,
           "source_errors": 0,
           "budget_exhausted": false,
-          "source_p50_ms": 0.49,
-          "source_p95_ms": 0.56,
-          "target_p50_ms": 0.61,
-          "target_p95_ms": 1.87,
+          "source_p50_ms": 0.46,
+          "source_p95_ms": 0.53,
+          "target_p50_ms": 0.58,
+          "target_p95_ms": 0.85,
           "first_difference": null,
           "difference_kinds": {},
           "ranking_only": false,
@@ -7815,22 +8571,22 @@
             "F1"
           ],
           "source_ms_samples": [
-            8.84,
-            7.26,
-            6.13,
-            7.01,
-            6.14,
-            6.98,
-            5.58
+            6.48,
+            7.95,
+            6.56,
+            7.24,
+            6.3,
+            9.19,
+            7.55
           ],
           "target_ms_samples": [
-            3492.89,
-            3729.6,
-            3839.12,
-            3808.99,
-            4020.56,
-            3876.6,
-            3462.42
+            3468.67,
+            3750.44,
+            3865.89,
+            3847.86,
+            3999.24,
+            3899.77,
+            3441.14
           ],
           "target_timeouts": 0,
           "stages": [
@@ -7847,10 +8603,10 @@
           "target_errors": 0,
           "source_errors": 0,
           "budget_exhausted": true,
-          "source_p50_ms": 6.98,
-          "source_p95_ms": 8.84,
-          "target_p50_ms": 3808.99,
-          "target_p95_ms": 4020.56,
+          "source_p50_ms": 7.24,
+          "source_p95_ms": 9.19,
+          "target_p50_ms": 3847.86,
+          "target_p95_ms": 3999.24,
           "first_difference": null,
           "difference_kinds": {},
           "ranking_only": false,
@@ -7865,38 +8621,38 @@
             "F10"
           ],
           "source_ms_samples": [
-            6.52,
-            6.2,
-            39.38,
-            6.01,
-            8.51,
-            36.86,
-            8.89,
-            5.51,
-            38.74,
-            8.48,
-            8.52,
-            7.77,
-            5.68,
-            5.74,
-            6.3
+            6.55,
+            5.61,
+            39.18,
+            6.97,
+            9.27,
+            44.6,
+            10.13,
+            6.48,
+            40.37,
+            8.33,
+            8.62,
+            7.95,
+            6.48,
+            5.58,
+            6.04
           ],
           "target_ms_samples": [
-            6.55,
-            7.44,
-            31.9,
-            6.43,
-            7.75,
-            28.85,
-            7.85,
-            5.64,
-            27.38,
-            8.28,
-            7.48,
-            7.84,
-            5.2,
-            7.03,
-            5.12
+            6.4,
+            6.01,
+            32.34,
+            6.77,
+            7.96,
+            35.82,
+            11.41,
+            6.75,
+            30.41,
+            8.66,
+            7.61,
+            8.17,
+            6.0,
+            5.73,
+            5.31
           ],
           "target_timeouts": 0,
           "stages": [],
@@ -7907,10 +8663,10 @@
           "target_errors": 0,
           "source_errors": 0,
           "budget_exhausted": false,
-          "source_p50_ms": 7.77,
-          "source_p95_ms": 39.38,
-          "target_p50_ms": 7.48,
-          "target_p95_ms": 31.9,
+          "source_p50_ms": 7.95,
+          "source_p95_ms": 44.6,
+          "target_p50_ms": 7.61,
+          "target_p95_ms": 35.82,
           "first_difference": null,
           "difference_kinds": {},
           "ranking_only": false,
@@ -7925,28 +8681,28 @@
             "F1"
           ],
           "source_ms_samples": [
-            6.45,
+            6.39,
             6.31,
-            6.46,
-            6.17,
-            6.27,
-            6.13,
-            6.19,
-            6.11,
-            6.24,
-            6.05
+            6.5,
+            6.64,
+            6.8,
+            6.36,
+            6.52,
+            6.4,
+            6.39,
+            6.31
           ],
           "target_ms_samples": [
-            1.85,
-            1.65,
-            1.78,
-            1.69,
+            1.79,
+            1.57,
+            1.79,
             1.7,
+            1.79,
             1.56,
-            1.75,
-            1.61,
-            1.7,
-            1.59
+            1.72,
+            1.67,
+            1.66,
+            1.65
           ],
           "target_timeouts": 0,
           "stages": [
@@ -7962,10 +8718,10 @@
           "target_errors": 0,
           "source_errors": 0,
           "budget_exhausted": false,
-          "source_p50_ms": 6.24,
-          "source_p95_ms": 6.46,
+          "source_p50_ms": 6.4,
+          "source_p95_ms": 6.8,
           "target_p50_ms": 1.7,
-          "target_p95_ms": 1.85,
+          "target_p95_ms": 1.79,
           "first_difference": null,
           "difference_kinds": {},
           "ranking_only": false,
@@ -7980,10 +8736,10 @@
             "F10"
           ],
           "source_ms_samples": [
-            1.32
+            1.67
           ],
           "target_ms_samples": [
-            3.18
+            3.36
           ],
           "target_timeouts": 0,
           "stages": [],
@@ -7994,10 +8750,10 @@
           "target_errors": 0,
           "source_errors": 0,
           "budget_exhausted": false,
-          "source_p50_ms": 1.32,
-          "source_p95_ms": 1.32,
-          "target_p50_ms": 3.18,
-          "target_p95_ms": 3.18,
+          "source_p50_ms": 1.67,
+          "source_p95_ms": 1.67,
+          "target_p50_ms": 3.36,
+          "target_p95_ms": 3.36,
           "first_difference": null,
           "difference_kinds": {},
           "ranking_only": false,
@@ -8015,7 +8771,7 @@
             0.71
           ],
           "target_ms_samples": [
-            0.55
+            0.47
           ],
           "target_timeouts": 0,
           "stages": [],
@@ -8028,8 +8784,8 @@
           "budget_exhausted": false,
           "source_p50_ms": 0.71,
           "source_p95_ms": 0.71,
-          "target_p50_ms": 0.55,
-          "target_p95_ms": 0.55,
+          "target_p50_ms": 0.47,
+          "target_p95_ms": 0.47,
           "first_difference": null,
           "difference_kinds": {},
           "ranking_only": false,
@@ -8044,10 +8800,10 @@
         "errors": 0
       },
       "overall": {
-        "source_p50_ms": 0.43,
-        "source_p95_ms": 6.2,
-        "target_p50_ms": 0.67,
-        "target_p95_ms": 6.36,
+        "source_p50_ms": 0.46,
+        "source_p95_ms": 6.48,
+        "target_p50_ms": 0.68,
+        "target_p95_ms": 6.0,
         "compared_on_both": 384
       }
     },
@@ -8060,9 +8816,9 @@
       "first_difference": null,
       "first_error": null,
       "source_p50_ms": 1.28,
-      "source_p95_ms": 2.0,
-      "target_p50_ms": 0.63,
-      "target_p95_ms": 1.05,
+      "source_p95_ms": 1.93,
+      "target_p50_ms": 0.58,
+      "target_p95_ms": 1.07,
       "by_feature": {
         "F10": {
           "equal": 297
@@ -8318,11 +9074,11 @@
       "verdict": "equal",
       "probes": [
         {
-          "probe_id": "F10.cart-upsert-fetch-convert-discard",
+          "probe_id": "F10.cart-touch-fetch-discard",
           "verdict": "equal"
         },
         {
-          "probe_id": "F10.order-cas-history-find",
+          "probe_id": "F10.order-cas-history-paginate",
           "verdict": "equal"
         }
       ],
@@ -8351,5 +9107,5 @@
       "schema_rejections": []
     }
   },
-  "seconds": 105.8
+  "seconds": 105.9
 }

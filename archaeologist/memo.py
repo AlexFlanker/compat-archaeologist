@@ -252,7 +252,8 @@ def _verification_section(runs: dict, heldout: dict | None, mutation: dict | Non
         lines.append("The held-out slice was not sealed in this run, so there is no measurement on operations the model never saw.")
     else:
         lines.append(
-            f"A slice of the recorded workload was sealed before the model wrote anything: the model saw the code; it never saw how these operations ran in production. "
+            f"A slice of the recorded workload was sealed on {str(heldout.get('created', 'an unrecorded date'))[:10]}: "
+            f"the model saw the code; it never saw how these operations ran in production. "
             f"Replayed on both engines: {unseen['replayed']} recorded operations across {unseen['shapes']} shapes: "
             f"{unseen['equal']} equal, {unseen['different']} different, {unseen['errors']} errors."
         )

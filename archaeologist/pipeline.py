@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 import time
+from datetime import datetime, timezone
 
 from rich.console import Console
 from rich.table import Table
@@ -274,7 +275,10 @@ def main() -> int:
     console.print(f"  wrote out/{profile}/memo.md")
     saved = store.save(profile, runs["run_id"], ledger, runs, result, text)
     console.print(f"  Atlas: {'saved to ' + saved['database'] + '.' + saved['collection'] if saved['saved'] else '[yellow]skipped[/] (' + saved['reason'] + ')'}")
-    console.print(f"[bold]Done in {time.perf_counter() - started:.0f}s[/]")
+    total_seconds = time.perf_counter() - started
+    (OUT_DIR / profile / "timing.json").write_text(json.dumps(
+        {"seconds": round(total_seconds), "finished_at": datetime.now(timezone.utc).isoformat(timespec="seconds")}, indent=2) + "\n")
+    console.print(f"[bold]Done in {total_seconds:.0f}s[/]")
     _banner(profile, result)
     return 0
 

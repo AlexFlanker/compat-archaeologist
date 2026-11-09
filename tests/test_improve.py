@@ -307,3 +307,35 @@ def test_generation_failure_is_recorded_and_reraised(env, monkeypatch):
     assert last["version"] == "v001" and last["decision"] == "rolled_back"
     assert last["reason"].startswith("generation failed: MetaUnavailable")
     assert strategy.roster()["active"] == "v000"
+
+
+def test_measurement_failure_is_recorded_restored_and_reraised(env, monkeypatch):
+    _install_fakes(monkeypatch, _mut_doc("v001", 1, 1), [])
+    mutation_path = improve.OUT_DIR / "shoplog" / "mutation_test.json"
+    calls = []
+
+    def run(profile, ps, repeats=3, mutation_ids=None):
+        calls.append(1)
+        if len(calls) == 1:
+            doc = _mut_doc("v000", 0, 0)
+            mutation_path.write_text(json.dumps(doc))
+            return doc
+        mutation_path.write_text("{}")  # the candidate measurement overwrote the file, then died
+        raise RuntimeError("engine went away")
+
+    monkeypatch.setattr(mutation_test, "run", run)
+    with pytest.raises(RuntimeError):
+        improve.iterate("shoplog", 2)
+    history = strategy.roster()["history"]
+    last, ref = history[-1], history[0]
+    assert last["decision"] == "rolled_back" and last["reason"].startswith("measurement failed: RuntimeError")
+    assert all(last[k] == ref[k] for k in ("train_catch", "heldout_catch", "false_flips_max", "invalid_probes", "probes"))
+    assert json.loads(mutation_path.read_text())["strategy_version"] == "v000"
+
+
+def test_generation_failure_reason_says_generation(env, monkeypatch):
+    _install_fakes(monkeypatch, _mut_doc("v001", 1, 1), [])
+    monkeypatch.setattr(probes, "generate", lambda *a, **k: (_ for _ in ()).throw(ValueError("x")))
+    with pytest.raises(ValueError):
+        improve.iterate("shoplog", 2)
+    assert strategy.roster()["history"][-1]["reason"].startswith("generation failed: ValueError")

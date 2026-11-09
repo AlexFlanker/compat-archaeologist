@@ -91,9 +91,13 @@ def render_overview(ctx: dict) -> str:
         equal = verdicts.count("equal")
         tiles.append(_tile("Probes equal on both engines", f"{equal} of {len(probes)}", f"out/{profile}/runs.json", f"run {runs.get('run_id', '')}"))
         reads = (runs.get("replay") or {}).get("reads") or {}
-        overall = reads.get("overall") or {}
-        if overall:
-            tiles.append(_tile("Recorded reads replayed", _e(overall.get("replayed", "")), f"out/{profile}/runs.json", f"{overall.get('equal', 0)} equal, {overall.get('different', 0)} different, {overall.get('errors', 0)} target errors"))
+        shapes = reads.get("shapes") or []
+        if shapes:
+            totals = {key: sum(int(shape.get(key, 0) or 0) for shape in shapes) for key in ("replayed", "equal", "different", "target_errors")}
+            tiles.append(_tile("Recorded reads replayed", _e(totals["replayed"]), f"out/{profile}/runs.json", f"{totals['equal']} equal, {totals['different']} different, {totals['target_errors']} target errors"))
+        unseen = reads.get("unseen_only") or {}
+        if unseen:
+            tiles.append(_tile("Replayed on operations the model never saw", _e(unseen.get("replayed", "")), f"out/{profile}/runs.json replay.reads.unseen_only", f"{unseen.get('equal', 0)} equal, {unseen.get('different', 0)} different, {unseen.get('errors', 0)} errors"))
     if mutation:
         s = mutation["summary"]
         tiles.append(_tile("Planted gaps caught", f"{s['caught']} of {s['planted']}", f"out/{profile}/mutation_test.json", f"train {s['train']['caught']}/{s['train']['planted']}, held-out {s['heldout']['caught']}/{s['heldout']['planted']}, false flips (max) {s['false_flips_max']}"))

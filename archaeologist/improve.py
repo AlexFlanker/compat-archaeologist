@@ -38,8 +38,8 @@ additions, per-feature hints (keyed by feature id), probe count overrides, and r
 every probe must satisfy). Return the complete new values for all four fields; an empty value keeps nothing.
 You must always return at least one per_feature_hints entry, keyed by one of the listed feature ids exactly, that
 proposes a concrete behaviour the current probes do not exercise (boundary conditions, empty or unmatched cases,
-options not yet used), even when no planted incompatibility was missed. Rules: never ask probes to project or compare textScore values; keep the existing guidance valid; do not name
-specific engines. Be concrete about what a probe must set up and read back."""
+options not yet used), even when no planted incompatibility was missed. Rules: never ask probes to project or compare textScore values;
+keep the existing guidance valid; do not name specific engines. Be concrete about what a probe must set up and read back."""
 
 CONTENT_KEYS = ("system_prompt_additions", "per_feature_hints", "probe_count_overrides", "required_checks")
 
@@ -200,6 +200,7 @@ def iterate(profile: str, repeats: int = 2) -> dict:
         strategy.record(entry)
         return entry
     previous = mutation_path.read_text() if mutation_path.exists() else None
+    phase = "generation"
     try:
         candidate_path = cache.with_name(f"{profile}.candidate.json")
         generated = probes.generate(
@@ -211,6 +212,7 @@ def iterate(profile: str, repeats: int = 2) -> dict:
         candidate_path.write_text(json.dumps(generated, indent=2))
         valid = _valid(generated)
 
+        phase = "measurement"
         candidate_doc = mutation_test.run(profile, valid, repeats)
         measured = _measures(candidate_doc, generated)
         decision, reason = decide(measured, ref)
@@ -233,7 +235,7 @@ def iterate(profile: str, repeats: int = 2) -> dict:
             "version": candidate["version"], "parent": candidate["parent"], "decision": "rolled_back",
             **{key: ref[key] for key in ("train_catch", "heldout_catch", "false_flips_max", "invalid_probes", "probes")},
             "generated_features": [], "ferretdb_run_id": None, "at": _now(),
-            "reason": f"generation failed: {type(error).__name__}: {str(error)[:120]}",
+            "reason": f"{phase} failed: {type(error).__name__}: {str(error)[:120]}",
         })
         raise
     if decision == "adopted":

@@ -138,3 +138,19 @@ def test_challenge_status_transitions():
     assert _wait(challenges, job) == {"status": "done", "result": {"verdict": "equal"}}
     assert challenges.status("nope") == {"status": "unknown"}
     assert _wait(challenges, challenges.start("p", lambda pid: 1 / 0))["status"] == "error"
+
+
+def test_overview_tiles_sum_shapes_and_show_unseen_only():
+    runs = {
+        "run_id": "R", "probes": [{"probe_id": "F1.a", "feature_id": "F1", "verdict": "equal"}],
+        "replay": {"reads": {
+            "shapes": [{"replayed": 10, "equal": 9, "different": 1, "target_errors": 0},
+                       {"replayed": 5, "equal": 5, "different": 0, "target_errors": 2}],
+            "unseen_only": {"shapes": 2, "replayed": 7, "equal": 6, "different": 1, "errors": 0},
+        }},
+    }
+    html = pages.render_overview({"profile": "shoplog", "runs": runs, "mutation": None, "roster": None})
+    assert "Recorded reads replayed" in html
+    assert "14 equal, 1 different, 2 target errors" in html
+    assert "Replayed on operations the model never saw" in html
+    assert "6 equal, 1 different, 0 errors" in html and "replay.reads.unseen_only" in html
