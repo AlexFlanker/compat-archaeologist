@@ -110,6 +110,25 @@ def test_challenge_uses_own_namespaces(monkeypatch):
     assert seen["ns"] == ("chs", "cht")
 
 
+def test_second_start_for_running_probe_returns_same_job():
+    challenges = serve.Challenges()
+    gate = threading.Event()
+    first = challenges.start("p", lambda pid: gate.wait(2) and {"verdict": "equal"})
+    assert challenges.start("p", lambda pid: {"verdict": "other"}) == first
+    assert challenges.start("q", lambda pid: {"verdict": "equal"}) != first
+    gate.set()
+    assert _wait(challenges, first)["status"] == "done"
+    assert challenges.start("p", lambda pid: {"verdict": "equal"}) != first
+
+
+def test_live_finding_has_elements_the_poller_updates(ctx):
+    probe_id = ctx["runs"]["probes"][0]["probe_id"]
+    page = pages.render_finding(ctx, probe_id, live=True)
+    for element in ('id="verdict"', 'id="difference"', 'id="compare-body"', 'id="challenge-status"'):
+        assert element in page
+    assert ".catch(" in page and "className" in page
+
+
 def test_challenge_status_transitions():
     challenges = serve.Challenges()
     gate = threading.Event()

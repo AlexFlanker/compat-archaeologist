@@ -15,8 +15,12 @@ POLLER = """<script>
   var esc = function (s) { return String(s).replace(/[&<>]/g, function (c) { return {'&': '&amp;', '<': '&lt;', '>': '&gt;'}[c]; }); };
   var cell = function (r) { return '<td>' + esc(r.status || '') + '<pre>' + esc(r.captured === undefined ? '' : JSON.stringify(r.captured, null, 1)) + '</pre></td>'; };
   function show(result) {
-    document.getElementById('verdict').textContent = result.verdict;
-    var diff = (result.detail || {}).difference, at = (result.detail || {}).at_step, rows = '';
+    var v = document.getElementById('verdict');
+    v.textContent = result.verdict; v.className = 'v-' + result.verdict;
+    var d = result.detail || {}, diff = d.difference, at = d.at_step, rows = '';
+    document.getElementById('difference').innerHTML = diff
+      ? 'First difference at step <code>' + esc(at) + '</code>, path <mark>' + esc(diff.path) + '</mark>: source <code>' + esc(JSON.stringify(diff.source)) + '</code>, target <code>' + esc(JSON.stringify(diff.target)) + '</code>'
+      : esc(d.message || d.reason || '');
     (result.source.steps || []).forEach(function (s, i) {
       var t = (result.target.steps || [])[i] || {};
       rows += '<tr' + (s.label === at ? ' class="diff"' : '') + '><td>' + esc(s.label) + '</td>' + cell(s) + cell(t) + '</tr>';
@@ -24,16 +28,17 @@ POLLER = """<script>
     document.getElementById('compare-body').innerHTML = rows;
     out.textContent = 'Rerun finished' + (diff ? ' (difference at ' + diff.path + ')' : '');
   }
+  function fail(message) { btn.disabled = false; out.textContent = 'Rerun failed: ' + message; }
+  function ok(r) { if (!r.ok) { throw new Error('server answered ' + r.status); } return r.json(); }
   function poll(job) {
-    fetch('/api/challenge/' + job).then(function (r) { return r.json(); }).then(function (s) {
+    fetch('/api/challenge/' + job).then(ok).then(function (s) {
       if (s.status === 'running') { setTimeout(function () { poll(job); }, 1000); return; }
-      btn.disabled = false;
-      if (s.status === 'done') { show(s.result); } else { out.textContent = 'Rerun failed: ' + (s.error || s.status); }
-    });
+      if (s.status === 'done') { btn.disabled = false; show(s.result); } else { fail(s.error || s.status); }
+    }).catch(function (e) { fail(e.message); });
   }
   btn.addEventListener('click', function () {
     btn.disabled = true; out.textContent = 'Running on both engines...';
-    fetch('/api/challenge/' + btn.dataset.probe, {method: 'POST'}).then(function (r) { return r.json(); }).then(function (j) { poll(j.job_id); });
+    fetch('/api/challenge/' + btn.dataset.probe, {method: 'POST'}).then(ok).then(function (j) { poll(j.job_id); }).catch(function (e) { fail(e.message); });
   });
 })();
 </script>"""
@@ -152,11 +157,12 @@ def render_finding(ctx: dict, probe_id: str, live: bool = False) -> str:
     detail = run.get("detail") or {}
     body = f'<h1>{_e(run.get("title") or probe_id)}</h1><p class="muted">{_e(probe_id)} (feature {_e(run["feature_id"])})</p><p>{_e(run.get("behavior"))}</p>'
     body += f'<h2>Verdict: <span id="verdict" class="v-{_e(run["verdict"])}">{_e(run["verdict"])}</span></h2>'
-    if detail.get("difference"):
-        d = detail["difference"]
-        body += f'<p>First difference at step <code>{_e(detail.get("at_step"))}</code>, path <mark>{_e(d.get("path"))}</mark>: source <code>{_e(_json(d.get("source")))}</code>, target <code>{_e(_json(d.get("target")))}</code></p>'
-    elif detail.get("message") or detail.get("reason"):
-        body += f'<p>{_e(detail.get("message") or detail.get("reason"))}</p>'
+    d = detail.get("difference")
+    if d:
+        text = f'First difference at step <code>{_e(detail.get("at_step"))}</code>, path <mark>{_e(d.get("path"))}</mark>: source <code>{_e(_json(d.get("source")))}</code>, target <code>{_e(_json(d.get("target")))}</code>'
+    else:
+        text = _e(detail.get("message") or detail.get("reason"))
+    body += f'<p id="difference">{text}</p>'
     if live:
         body += f'<p><button id="challenge" data-probe="{_e(probe_id)}">Challenge: rerun on both engines</button> <span id="challenge-status"></span></p>'
     else:

@@ -31,12 +31,18 @@ def default_runner(probe_id: str, profile: str = "shoplog") -> dict:
 class Challenges:
     def __init__(self) -> None:
         self._jobs: dict[str, dict] = {}
+        self._running: dict[str, str] = {}
         self._lock = threading.Lock()
 
     def start(self, probe_id: str, runner: Callable[[str], dict]) -> str:
-        job_id = uuid.uuid4().hex
         with self._lock:
+            # One run per probe at a time: they share the chs/cht databases.
+            existing = self._running.get(probe_id)
+            if existing:
+                return existing
+            job_id = uuid.uuid4().hex
             self._jobs[job_id] = {"status": "running"}
+            self._running[probe_id] = job_id
 
         def work() -> None:
             try:
@@ -45,6 +51,7 @@ class Challenges:
                 state = {"status": "error", "error": f"{type(error).__name__}: {error}"}
             with self._lock:
                 self._jobs[job_id] = state
+                del self._running[probe_id]
 
         threading.Thread(target=work, daemon=True).start()
         return job_id
