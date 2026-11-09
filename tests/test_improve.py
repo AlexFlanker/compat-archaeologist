@@ -280,3 +280,14 @@ def test_iterate_forwards_heldout_strings_to_generate(env, monkeypatch):
     monkeypatch.setattr(probes, "generate", spy)
     improve.iterate("shoplog", 2)
     assert "m_held" in got["extra"] and CATALOG[1]["description"] in got["extra"]
+
+
+def test_edit_prompt_lists_generatable_ids_and_requires_hint_when_nothing_escaped():
+    active = {"version": "v000", "system_prompt_additions": "", "per_feature_hints": {},
+              "probe_count_overrides": {}, "required_checks": []}
+    ledger = {"items": [{"id": "F1", "feature": "lookup", "why_risky": "r1"}, {"id": "F4", "feature": "txn", "why_risky": "r4"},
+                        {"id": "F11", "feature": "atlas search", "why_risky": "r11"}]}
+    prompt = improve._edit_prompt(active, [], [_probe("F1.a", "F1")], ledger)
+    assert "F1: lookup" in prompt and "F4: txn" in prompt and "F11" not in prompt
+    assert "title F1.a" in prompt
+    assert "at least one per_feature_hints entry" in prompt

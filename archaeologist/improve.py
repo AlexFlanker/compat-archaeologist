@@ -36,7 +36,9 @@ exist for those features, and any failures from the oracle gate (real MongoDB re
 Propose the smallest change to the instructions that would make a rule-following probe catch them: system prompt
 additions, per-feature hints (keyed by feature id), probe count overrides, and required checks (short sentences
 every probe must satisfy). Return the complete new values for all four fields; an empty value keeps nothing.
-Rules: never ask probes to project or compare textScore values; keep the existing guidance valid; do not name
+You must always return at least one per_feature_hints entry, keyed by one of the listed feature ids exactly, that
+proposes a concrete behaviour the current probes do not exercise (boundary conditions, empty or unmatched cases,
+options not yet used), even when no planted incompatibility was missed. Rules: never ask probes to project or compare textScore values; keep the existing guidance valid; do not name
 specific engines. Be concrete about what a probe must set up and read back."""
 
 CONTENT_KEYS = ("system_prompt_additions", "per_feature_hints", "probe_count_overrides", "required_checks")
@@ -118,10 +120,28 @@ def _latest_doc(profile: str, active: dict, repeats: int) -> dict:
     return mutation_test.run(profile, _valid(_all_probes(probes.cache_path(profile))), repeats)
 
 
-def _edit_prompt(active: dict, escaped: list[dict], current: list[dict]) -> str:
+def _coverage_section(ledger: dict, current: list[dict]) -> str:
+    lines = ["Feature ids you may write per_feature_hints for (use these exact ids), with the current probes for each:"]
+    for item in ledger["items"]:
+        if item["id"] in probes.ORACLE_UNAVAILABLE:
+            continue
+        lines.append(f"{item['id']}: {item.get('feature', '')} (risk: {item.get('why_risky', '')})")
+        for probe in current:
+            if probe["feature_id"] == item["id"] and probe.get("status") != "invalid":
+                lines.append(f"  - {probe['title']}: {probe['behavior']}")
+    lines.append(
+        "Required: return at least one per_feature_hints entry keyed by one of these exact ids, proposing a concrete "
+        "behaviour the current probes above do not exercise."
+    )
+    return "\n".join(lines)
+
+
+def _edit_prompt(active: dict, escaped: list[dict], current: list[dict], ledger: dict | None = None) -> str:
     sections = [f"Current strategy:\n{json.dumps({key: active[key] for key in CONTENT_KEYS}, indent=1)}"]
     if not escaped:
         sections.append("Every train mutant was caught; no train gap is outstanding.")
+    if ledger is not None:
+        sections.append(_coverage_section(ledger, current))
     for mutant in escaped:
         features = set(mutant["feature_ids"])
         lines = [f"Missed planted incompatibility {mutant['id']} (features {', '.join(mutant['feature_ids'])}): {mutant['description']}"]
@@ -158,7 +178,8 @@ def iterate(profile: str, repeats: int = 2) -> dict:
     doc = _latest_doc(profile, active, repeats)
     escaped = [m for m in doc["mutants"] if m["split"] == "train" and not m["caught"]]
 
-    response = _propose(STRATEGY_SYSTEM, _edit_prompt(active, escaped, current))
+    ledger = json.loads((OUT_DIR / profile / "ledger.json").read_text())
+    response = _propose(STRATEGY_SYSTEM, _edit_prompt(active, escaped, current, ledger))
     candidate = {
         "version": strategy.next_version(),
         "parent": active["version"],
@@ -168,7 +189,6 @@ def iterate(profile: str, repeats: int = 2) -> dict:
     strategy.save(candidate)
 
     targets = set(candidate["per_feature_hints"]) | {feature for m in escaped for feature in m["feature_ids"]}
-    ledger = json.loads((OUT_DIR / profile / "ledger.json").read_text())
     generatable = sorted(targets & {item["id"] for item in ledger["items"] if item["id"] not in probes.ORACLE_UNAVAILABLE})
     if not generatable:  # Nothing would change, so a measurement could only adopt noise.
         entry = {
