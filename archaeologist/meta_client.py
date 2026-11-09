@@ -21,6 +21,11 @@ MAX_ATTEMPTS = 4
 LEAK_GUARD: Callable[[str], str | None] | None = None
 
 
+def guard_installed() -> bool:
+    """True when every prompt sent from now on is checked against the held-out slice."""
+    return LEAK_GUARD is not None
+
+
 class PromptBlocked(Exception):
     """The prompt contains held-out production operations and was not sent."""
 

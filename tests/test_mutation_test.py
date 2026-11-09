@@ -61,6 +61,20 @@ def test_summary_splits_train_and_heldout():
     assert summary["heldout"] == {"planted": 1, "caught": 0}
 
 
+def test_subset_run_leaves_the_canonical_file_alone(tmp_path, monkeypatch):
+    monkeypatch.setattr(mutation_test, "OUT_DIR", tmp_path)
+    monkeypatch.setattr(mutation_test, "_run_against", lambda mutation, probes: [])
+    canonical = tmp_path / "shoplog" / "mutation_test.json"
+    canonical.parent.mkdir()
+    canonical.write_text('{"canonical": true}')
+    doc = mutation_test.run("shoplog", [], repeats=1, mutation_ids=["collation_ignored", "abort_commits"])
+    assert canonical.read_text() == '{"canonical": true}'
+    subset = tmp_path / "shoplog" / "mutation_test.abort_commits-collation_ignored.json"
+    assert json.loads(subset.read_text())["run_id"] == doc["run_id"]
+    mutation_test.run("shoplog", [], repeats=1)
+    assert json.loads(canonical.read_text())["summary"]["planted"] == 10
+
+
 def test_unknown_mutation_id_is_rejected_before_running():
     with pytest.raises(ValueError, match="nope"):
         mutation_test.run("shoplog", [], repeats=1, mutation_ids=["abort_commits", "nope"])
@@ -72,12 +86,37 @@ def test_memo_section_states_heldout_numbers_and_mutants():
     runs = {"replay": {"reads": {"unseen_only": {"shapes": 3, "replayed": 40, "equal": 38, "different": 2, "errors": 0}}}}
     doc = mutation_test.summarize(CATALOG, [{"zero": [], "m1": [_r("p", "F4", "result_diff")], "m2": []}])
     doc.update(run_id="R1", repeats=1)
-    text = "\n".join(memo._verification_section(runs, {"created": "2026-11-09T08:30:31+00:00"}, doc))
+    clean = {"total": 30, "post_seal": 8, "checked_pre_seal": 22, "unchecked": 0}
+    text = "\n".join(memo._verification_section(runs, {"created": "2026-11-09T08:30:31+00:00"}, doc, provenance=clean))
     assert "## How we checked the checks" in text
     assert "sealed on 2026-11-09: the model saw the code; it never saw how these operations ran in production." in text
     assert "before the model wrote anything" not in text
     assert "40 recorded operations across 3 shapes: 38 equal, 2 different, 0 errors" in text
     assert "| m1 | train | yes | p |" in text and "| m2 | heldout | no | none |" in text
+
+
+def test_memo_makes_no_unseen_claim_when_probes_predate_the_seal_unchecked():
+    from archaeologist import memo
+
+    runs = {"replay": {"reads": {"unseen_only": {"shapes": 2, "replayed": 9, "equal": 9, "different": 0, "errors": 0}}}}
+    mixed = {"total": 30, "post_seal": 6, "checked_pre_seal": 22, "unchecked": 2}
+    text = "\n".join(memo._verification_section(runs, {"created": "2026-11-09T10:49:50+00:00"}, None, provenance=mixed))
+    assert (
+        "sealed on 2026-11-09; 2 of 30 probes were written before the seal from prompts that were not checked, "
+        "so no claim is made that the model never saw these operations." in text
+    )
+    assert "it never saw how these operations ran in production" not in text
+    assert "9 recorded operations across 2 shapes: 9 equal, 0 different, 0 errors" in text
+
+
+def test_memo_makes_no_unseen_claim_without_provenance():
+    from archaeologist import memo
+
+    runs = {"replay": {"reads": {"unseen_only": {"shapes": 2, "replayed": 9, "equal": 9, "different": 0, "errors": 0}}}}
+    text = "\n".join(memo._verification_section(runs, {"created": "2026-11-09T10:49:50+00:00"}, None))
+    assert "it never saw how these operations ran in production" not in text
+    assert "no claim is made that the model never saw these operations" in text
+    assert "9 recorded operations across 2 shapes" in text
 
 
 def test_memo_section_when_nothing_was_run():
@@ -95,10 +134,13 @@ def test_run_catches_abort_commits_and_has_no_false_flips(tmp_path, monkeypatch)
         client.admin.command("ping")
     except Exception:
         pytest.skip("MongoDB not reachable")
+    finally:
+        client.close()
     monkeypatch.setattr(mutation_test, "OUT_DIR", tmp_path)
     fixture = json.loads((Path(__file__).parent / "fixtures" / "handwritten_probes.json").read_text())
     probes = [p for p in fixture if p["probe_id"] == "T.txn_abort"]
     doc = mutation_test.run("shoplog", probes, repeats=1, mutation_ids=["abort_commits"])
     assert doc["mutants"][0]["caught"] is True
     assert doc["zero_mutation"]["false_flips_each_repeat"] == [0]
-    assert (tmp_path / "shoplog" / "mutation_test.json").exists()
+    assert (tmp_path / "shoplog" / "mutation_test.abort_commits.json").exists()
+    assert not (tmp_path / "shoplog" / "mutation_test.json").exists()

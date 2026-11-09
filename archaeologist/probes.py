@@ -11,6 +11,7 @@ import argparse
 import hashlib
 import json
 from concurrent.futures import ThreadPoolExecutor
+from datetime import datetime, timezone
 from pathlib import Path
 
 from archaeologist import meta_client, strategy as strategy_store
@@ -141,9 +142,15 @@ def probe_hash(probe: dict) -> str:
     return hashlib.sha1(json.dumps(probe["steps"], sort_keys=True, default=str).encode()).hexdigest()[:8]
 
 
+def _now() -> str:
+    return datetime.now(timezone.utc).isoformat(timespec="seconds")
+
+
 def generate_for_item(item: dict, source, strategy: dict | None = None) -> list[dict]:
     """Returns validated probes for one item, with invalid ones marked so the report can count them."""
     strategy = strategy or strategy_store.active()
+    # Provenance: taken before the first prompt is sent, so a probe never looks newer than its prompt.
+    generated_at, prompt_guarded = _now(), meta_client.guard_installed()
     count = strategy_store.count_for(strategy, item)
     system = strategy_store.render_system(SYSTEM_PROMPT.format(ttl_wait=TTL_WAIT_LIMIT_S - 8, count=count), strategy)
     user = _user_prompt(item)
@@ -196,7 +203,29 @@ def generate_for_item(item: dict, source, strategy: dict | None = None) -> list[
     for probe in validated:
         probe["probe_hash"] = probe_hash(probe)
         probe["strategy_version"] = strategy["version"]
+        probe["generated_at"] = generated_at
+        probe["prompt_guarded"] = prompt_guarded
     return validated
+
+
+def provenance(probes: list[dict], held_out: dict) -> dict:
+    """Counts probes by whether their prompts could have carried the held-out slice.
+
+    post_seal: stamped at generation as written at or after the seal, with the prompt guard installed.
+    checked_pre_seal: written before these stamps existed, and a recorded check (`pre_seal_check`, naming the
+    ledger commit its prompt was built from) found no sealed shape in that ledger item.
+    unchecked: everything else; any unchecked probe voids the claim that the model never saw the sealed operations.
+    """
+    sealed = datetime.fromisoformat(held_out["created"]) if held_out.get("created") else None
+    post_seal = checked = 0
+    for probe in probes:
+        written = probe.get("generated_at")
+        check = probe.get("pre_seal_check") or {}
+        if sealed and written and probe.get("prompt_guarded") is True and datetime.fromisoformat(written) >= sealed:
+            post_seal += 1
+        elif check.get("ledger_commit") and check.get("heldout_shapes_in_prompt") == 0:
+            checked += 1
+    return {"total": len(probes), "post_seal": post_seal, "checked_pre_seal": checked, "unchecked": len(probes) - post_seal - checked}
 
 
 def _validate_on_source(probe: dict, source) -> str | None:

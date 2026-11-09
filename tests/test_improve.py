@@ -65,6 +65,13 @@ def _probe(pid, feature, version="v000", status="valid", steps=None):
             "steps": steps or [{"op": "command", "label": pid}], "strategy_version": version}
 
 
+@pytest.fixture(autouse=True)
+def _reset_guard():
+    """iterate installs a real guard; it must not leak into other tests."""
+    yield
+    meta_client.LEAK_GUARD = None
+
+
 @pytest.fixture
 def env(tmp_path, monkeypatch):
     sdir = tmp_path / "strategy"
@@ -96,6 +103,7 @@ def test_first_iteration_records_reference(env, monkeypatch):
     history = strategy.roster()["history"]
     assert entry["decision"] == "reference" and history[0]["version"] == "v000"
     assert history[0]["train_catch"] == 0 and history[0]["invalid_probes"] == 1 and history[0]["probes"] == 2
+    assert history[0]["measured"] is True
     # a second call is a no-op
     monkeypatch.setattr(mutation_test, "run", lambda *a, **k: pytest.fail("must not re-measure"))
     assert improve.reference("shoplog", 2) == entry
@@ -137,7 +145,7 @@ def test_iterate_adopts_and_runs_ferretdb(env, monkeypatch):
     entry = improve.iterate("shoplog", 2)
     assert entry["decision"] == "adopted" and entry["version"] == "v001" and entry["ferretdb_run_id"] == "RUN1"
     assert strategy.roster()["active"] == "v001"
-    assert entry["generated_features"] == ["F4"]
+    assert entry["generated_features"] == ["F4"] and entry["measured"] is True
     written = json.loads(probes.cache_path("shoplog").read_text())
     assert {p["probe_id"] for p in written} == {"F1.a", "F4.new"} and all(p["strategy_version"] == "v001" for p in written)
     assert [p["probe_id"] for p in ran[0]] == ["F1.a", "F4.new"]
@@ -149,6 +157,7 @@ def test_iterate_rolls_back_and_keeps_files(env, monkeypatch):
     ran = _install_fakes(monkeypatch, _mut_doc("v001", 0, 0), captured)
     entry = improve.iterate("shoplog", 2)
     assert entry["decision"] == "rolled_back" and entry["ferretdb_run_id"] is None and not ran
+    assert entry["measured"] is True
     assert strategy.roster()["active"] == "v000"
     assert probes.cache_path("shoplog").read_text() == before
     assert json.loads((improve.OUT_DIR / "shoplog" / "mutation_test.json").read_text())["strategy_version"] == "v000"
@@ -249,6 +258,7 @@ def test_noop_when_no_target_is_in_ledger(env, monkeypatch):
     monkeypatch.setattr(probes, "generate", lambda *a, **k: pytest.fail("must not generate"))
     entry = improve.iterate("shoplog", 2)
     assert entry["decision"] == "rolled_back" and entry["reason"] == "edit targets no generatable feature"
+    assert entry["measured"] is False
     assert entry["generated_features"] == [] and strategy.roster()["active"] == "v000"
 
 
@@ -306,6 +316,7 @@ def test_generation_failure_is_recorded_and_reraised(env, monkeypatch):
     last = strategy.roster()["history"][-1]
     assert last["version"] == "v001" and last["decision"] == "rolled_back"
     assert last["reason"].startswith("generation failed: MetaUnavailable")
+    assert last["measured"] is False
     assert strategy.roster()["active"] == "v000"
 
 
@@ -330,7 +341,29 @@ def test_measurement_failure_is_recorded_restored_and_reraised(env, monkeypatch)
     last, ref = history[-1], history[0]
     assert last["decision"] == "rolled_back" and last["reason"].startswith("measurement failed: RuntimeError")
     assert all(last[k] == ref[k] for k in ("train_catch", "heldout_catch", "false_flips_max", "invalid_probes", "probes"))
+    assert last["measured"] is False and ref["measured"] is True
     assert json.loads(mutation_path.read_text())["strategy_version"] == "v000"
+
+
+def test_guard_left_installed_by_iterate_is_reset_between_tests():
+    assert meta_client.LEAK_GUARD is None
+
+
+def test_pre_seal_ledger_is_refused_before_any_edit(env, monkeypatch):
+    ledger = {"items": [{"id": "F1", "sources": [], "sample_operations": [{"command": {"find": "orders", "filter": {"SEALED": 1}}}]},
+                        {"id": "F4"}]}
+    (improve.OUT_DIR / "shoplog" / "ledger.json").write_text(json.dumps(ledger))
+    _install_fakes(monkeypatch, _mut_doc("v001", 1, 1), [])
+
+    def install(doc, entries, extra_forbidden=()):
+        meta_client.LEAK_GUARD = lambda text: "shape S1" if "SEALED" in text else None
+
+    monkeypatch.setattr(heldout, "install_guard", install)
+    monkeypatch.setattr(meta_client, "structured", lambda **k: pytest.fail("no edit may be proposed"))
+    with pytest.raises(improve.StaleLedger, match="ledger.json predates the held-out seal; rerun the ledger step"):
+        improve.iterate("shoplog", 2)
+    assert not (env / "strategy" / "v001.json").exists()
+    assert [entry["version"] for entry in strategy.roster()["history"]] == ["v000"]
 
 
 def test_generation_failure_reason_says_generation(env, monkeypatch):

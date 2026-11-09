@@ -4,9 +4,12 @@ from __future__ import annotations
 
 import difflib
 import json
+import re
 from html import escape
 
 BAD_VERDICTS = {"result_diff", "error", "unsupported", "timeout"}
+UNSAFE_IN_FILE_NAME = re.compile(r"[^A-Za-z0-9._:-]")
+COPIED_MEASURES = ("train_catch", "heldout_catch", "false_flips_max", "invalid_probes", "probes")
 NAV = [("index.html", "Overview"), ("querylog.html", "Query log"), ("planted.html", "Planted gaps"), ("strategy.html", "Strategy")]
 
 POLLER = """<script>
@@ -38,10 +41,15 @@ POLLER = """<script>
   }
   btn.addEventListener('click', function () {
     btn.disabled = true; out.textContent = 'Running on both engines...';
-    fetch('/api/challenge/' + btn.dataset.probe, {method: 'POST'}).then(ok).then(function (j) { poll(j.job_id); }).catch(function (e) { fail(e.message); });
+    fetch('/api/challenge/' + encodeURIComponent(btn.dataset.probe), {method: 'POST'}).then(ok).then(function (j) { poll(j.job_id); }).catch(function (e) { fail(e.message); });
   });
 })();
 </script>"""
+
+
+def finding_path(probe_id: str) -> str:
+    """Site path of a probe's page. probe_id is model-written, so no '/' survives: the page stays inside findings/."""
+    return f"findings/{UNSAFE_IN_FILE_NAME.sub('_', probe_id)}.html"
 
 
 def shape_colour(shape: dict, features: dict, items: list[dict]) -> str:
@@ -82,6 +90,15 @@ def _tile(title: str, value: str, source: str, note: str = "") -> str:
     return f'<div class="tile"><h3>{_e(title)}</h3><div class="big">{value}</div><p>{_e(note)}</p><p class="src">{_e(source)}</p></div>'
 
 
+def _unseen_title(provenance: dict | None) -> str:
+    """Claims "never saw" only when every probe's prompt is accounted for (see probes.provenance)."""
+    if provenance is not None and provenance["unchecked"] == 0:
+        return "Replayed on operations the model never saw"
+    if provenance is None:
+        return "Replayed on the sealed slice"
+    return f"Replayed on the sealed slice ({provenance['unchecked']} probes predate the seal, unchecked)"
+
+
 def render_overview(ctx: dict) -> str:
     profile, runs, mutation, roster = ctx["profile"], ctx["runs"], ctx["mutation"], ctx["roster"]
     tiles = []
@@ -97,7 +114,7 @@ def render_overview(ctx: dict) -> str:
             tiles.append(_tile("Recorded reads replayed", _e(totals["replayed"]), f"out/{profile}/runs.json", f"{totals['equal']} equal, {totals['different']} different, {totals['target_errors']} target errors"))
         unseen = reads.get("unseen_only") or {}
         if unseen:
-            tiles.append(_tile("Replayed on operations the model never saw", _e(unseen.get("replayed", "")), f"out/{profile}/runs.json replay.reads.unseen_only", f"{unseen.get('equal', 0)} equal, {unseen.get('different', 0)} different, {unseen.get('errors', 0)} errors"))
+            tiles.append(_tile(_unseen_title(ctx.get("provenance")), _e(unseen.get("replayed", "")), f"out/{profile}/runs.json replay.reads.unseen_only", f"{unseen.get('equal', 0)} equal, {unseen.get('different', 0)} different, {unseen.get('errors', 0)} errors"))
     if mutation:
         s = mutation["summary"]
         tiles.append(_tile("Planted gaps caught", f"{s['caught']} of {s['planted']}", f"out/{profile}/mutation_test.json", f"train {s['train']['caught']}/{s['train']['planted']}, held-out {s['heldout']['caught']}/{s['heldout']['planted']}, false flips (max) {s['false_flips_max']}"))
@@ -112,7 +129,7 @@ def render_overview(ctx: dict) -> str:
     body += '<div class="tiles">' + "".join(tiles) + "</div>" if tiles else _missing(f"out/{profile}/runs.json")
     if runs:
         rows = "".join(
-            f'<tr><td><a href="findings/{_e(p["probe_id"])}.html">{_e(p["probe_id"])}</a></td><td>{_e(p["feature_id"])}</td><td class="v-{_e(p["verdict"])}">{_e(p["verdict"])}</td></tr>'
+            f'<tr><td><a href="{_e(finding_path(p["probe_id"]))}">{_e(p["probe_id"])}</a></td><td>{_e(p["feature_id"])}</td><td class="v-{_e(p["verdict"])}">{_e(p["verdict"])}</td></tr>'
             for p in runs["probes"]
         )
         body += f"<h2>Findings</h2><table><tr><th>Probe</th><th>Feature</th><th>Verdict</th></tr>{rows}</table>"
@@ -206,7 +223,7 @@ def render_planted(ctx: dict) -> str:
     rows = []
     for m in mutation["mutants"]:
         state = "missed" if not m["caught"] else "flaky" if m["flaky"] else "caught"
-        who = ", ".join(f'<a href="findings/{_e(p)}.html">{_e(p)}</a>' for p in m.get("caught_by") or []) or ("no probe for these features" if m.get("no_probe_for_features") else "")
+        who = ", ".join(f'<a href="{_e(finding_path(p))}">{_e(p)}</a>' for p in m.get("caught_by") or []) or ("no probe for these features" if m.get("no_probe_for_features") else "")
         rows.append(f'<tr><td><code>{_e(m["id"])}</code></td><td>{_e(m["split"])}</td><td>{_e(", ".join(m["feature_ids"]))}</td><td>{_e(m["description"] or catalog.get(m["id"], {}).get("description"))}</td><td class="m-{state}">{state}</td><td>{who}</td></tr>')
     body += f'<table><tr><th>Gap</th><th>Split</th><th>Features</th><th>What was planted</th><th>Result</th><th>Caught by</th></tr>{"".join(rows)}</table>'
     return _page("Planted gaps", body + f'<p class="src">out/{_e(profile)}/mutation_test.json, mutants/catalog.json</p>')
@@ -224,7 +241,12 @@ def render_strategy(ctx: dict) -> str:
     body += f'<p>Active version: <b>{_e(roster.get("active"))}</b></p>'
     cols = ["version", "parent", "decision", "train_catch", "heldout_catch", "false_flips_max", "invalid_probes", "probes", "generated_features", "ferretdb_run_id", "at", "reason"]
     history = roster.get("history") or []
-    rows = "".join("<tr>" + "".join(f"<td>{_e(h.get(c))}</td>" for c in cols) + "</tr>" for h in history)
+
+    def cell(h: dict, c: str) -> str:
+        # measured: false means these numbers were copied from the reference, not measured for this version.
+        return "not measured" if c in COPIED_MEASURES and h.get("measured", True) is False else _e(h.get(c))
+
+    rows = "".join("<tr>" + "".join(f"<td>{cell(h, c)}</td>" for c in cols) + "</tr>" for h in history)
     body += f"<table><tr>{''.join(f'<th>{c}</th>' for c in cols)}</tr>{rows}</table>" if rows else "<p>No strategy changes recorded yet.</p>"
     body += "<h2>Changes from parent</h2>"
     for h in history:

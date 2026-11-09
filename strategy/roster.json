@@ -27,7 +27,8 @@
       "generated_features": [],
       "ferretdb_run_id": null,
       "at": "2026-11-09T08:30:39+00:00",
-      "reason": "edit targets no generatable feature"
+      "reason": "edit targets no generatable feature",
+      "measured": false
     },
     {
       "version": "v002",
@@ -41,7 +42,8 @@
       "generated_features": [],
       "ferretdb_run_id": null,
       "at": "2026-11-09T08:30:46+00:00",
-      "reason": "edit targets no generatable feature"
+      "reason": "edit targets no generatable feature",
+      "measured": false
     },
     {
       "version": "v003",
@@ -55,7 +57,8 @@
       "generated_features": [],
       "ferretdb_run_id": null,
       "at": "2026-11-09T08:30:53+00:00",
-      "reason": "edit targets no generatable feature"
+      "reason": "edit targets no generatable feature",
+      "measured": false
     },
     {
       "version": "v004",
@@ -103,7 +106,8 @@
       "generated_features": [],
       "ferretdb_run_id": null,
       "at": "2026-11-09T09:51:37+00:00",
-      "reason": "generation failed: MetaUnavailable: Meta API failed after 4 attempts: invalid_json (probe_generation:F3)"
+      "reason": "generation failed: MetaUnavailable: Meta API failed after 4 attempts: invalid_json (probe_generation:F3)",
+      "measured": false
     },
     {
       "version": "v007",
@@ -117,7 +121,8 @@
       "generated_features": [],
       "ferretdb_run_id": null,
       "at": "2026-11-09T10:05:35+00:00",
-      "reason": "generation failed: MetaUnavailable: Meta API failed after 4 attempts: invalid_json (retry of round 6)"
+      "reason": "generation failed: MetaUnavailable: Meta API failed after 4 attempts: invalid_json (retry of round 6)",
+      "measured": false
     }
   ]
 }

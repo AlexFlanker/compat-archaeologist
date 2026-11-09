@@ -203,26 +203,36 @@ def _require():
         client.admin.command("ping")
     except Exception:
         pytest.skip("MongoDB not reachable")
+    finally:
+        client.close()
 
 
 def _probes():
     return json.loads((Path(__file__).parent / "fixtures" / "handwritten_probes.json").read_text())
 
 
-@pytest.mark.integration
-def test_zero_mutation_proxy_matches_mongodb_on_handwritten_probes():
+@pytest.fixture
+def engines():
+    """A real source and a second real client for the proxy to wrap; both closed afterwards."""
     _require()
-    source = source_client(timeout_ms=5000)
-    target = mutants.MutantClient(source_client(timeout_ms=5000), None)
+    source, inner = source_client(timeout_ms=5000), source_client(timeout_ms=5000)
+    yield source, inner
+    source.close()
+    inner.close()
+
+
+@pytest.mark.integration
+def test_zero_mutation_proxy_matches_mongodb_on_handwritten_probes(engines):
+    source, inner = engines
+    target = mutants.MutantClient(inner, None)
     for probe in _probes():
         verdict = diff_probe(source, target, probe, namespaces=("mt0s", "mt0t"))["verdict"]
         assert verdict in {"equal", "probe_invalid"}, (probe["probe_id"], verdict)
 
 
 @pytest.mark.integration
-def test_abort_commits_is_caught_by_txn_abort_fixture():
-    _require()
-    source = source_client(timeout_ms=5000)
-    target = mutants.MutantClient(source_client(timeout_ms=5000), "abort_commits")
+def test_abort_commits_is_caught_by_txn_abort_fixture(engines):
+    source, inner = engines
+    target = mutants.MutantClient(inner, "abort_commits")
     probe = next(p for p in _probes() if p["probe_id"] == "T.txn_abort")
     assert diff_probe(source, target, probe, namespaces=("mt1s", "mt1t"))["verdict"] == "result_diff"

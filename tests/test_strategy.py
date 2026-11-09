@@ -16,7 +16,27 @@ def tmp_roster(tmp_path, monkeypatch):
 
 
 def _entry(version, decision):
-    return {"version": version, "parent": "v000", "decision": decision, "reason": "r"}
+    return {"version": version, "parent": "v000", "decision": decision, "reason": "r", "measured": True}
+
+
+def test_record_refuses_an_entry_without_the_measured_flag(tmp_roster):
+    entry = _entry("v001", "rolled_back")
+    del entry["measured"]
+    with pytest.raises(ValueError, match="measured"):
+        strategy.record(entry)
+    assert json.loads((tmp_roster / "roster.json").read_text())["history"] == []
+
+
+def test_committed_roster_marks_copied_numbers_as_not_measured():
+    """Entries whose numbers were copied from the reference (no candidate was measured) say so."""
+    history = json.loads((strategy.STRATEGY_DIR / "roster.json").read_text())["history"]
+    unmeasured = [
+        entry["version"] for entry in history
+        if entry["reason"] == "edit targets no generatable feature" or entry["reason"].startswith(("generation failed", "measurement failed"))
+    ]
+    assert unmeasured == ["v001", "v002", "v003", "v006", "v007"]
+    assert all(entry.get("measured") is False for entry in history if entry["version"] in unmeasured)
+    assert all(entry.get("measured", True) is True for entry in history if entry["version"] not in unmeasured)
 
 
 def test_v000_renders_base_prompt_unchanged(tmp_roster):

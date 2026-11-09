@@ -143,7 +143,8 @@ def run(
     out_dir.mkdir(parents=True, exist_ok=True)
     file_name = "self_check.json" if self_check else (f"runs_{output_name}.json" if output_name else "runs.json")
     (out_dir / file_name).write_text(json.dumps(document, indent=2, default=str))
-    if not self_check:
+    # Status history tracks the current target only: a named run (the upgrade check's older target) is not a flip.
+    if not self_check and not output_name:
         entry = {
             "run_id": run_id,
             "at": datetime.now(timezone.utc).isoformat(timespec="seconds"),

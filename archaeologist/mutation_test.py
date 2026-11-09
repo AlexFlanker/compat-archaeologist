@@ -116,7 +116,9 @@ def run(profile: str, probes: list[dict], repeats: int = 3, mutation_ids: list[s
         "strategy_version": probes[0].get("strategy_version", "v000") if probes else "v000",
         **summarize(catalog, per_repeat),
     }
-    path = OUT_DIR / profile / "mutation_test.json"
+    # Only a whole-catalog run may speak for the probe set; a subset gets its own file.
+    name = "mutation_test.json" if mutation_ids is None else f"mutation_test.{'-'.join(sorted(set(mutation_ids)))}.json"
+    path = OUT_DIR / profile / name
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(doc, indent=2))
     return doc
@@ -138,6 +140,8 @@ def main() -> int:
     ids = [name for name in arguments.mutations.split(",") if name] if arguments.mutations else None
     doc = run(arguments.profile, probe_store.load_cached(arguments.profile), arguments.repeats, ids)
     print(summary_line(doc))
+    if ids is not None:
+        print(f"subset run: wrote out/{arguments.profile}/mutation_test.{'-'.join(sorted(set(ids)))}.json; mutation_test.json is unchanged")
     return 0
 
 

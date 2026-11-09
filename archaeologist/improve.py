@@ -106,6 +106,7 @@ def reference(profile: str, repeats: int) -> dict:
         "ferretdb_run_id": None,
         "at": _now(),
         "reason": "baseline measurement of the starting strategy",
+        "measured": True,
     }
     strategy.record(entry)
     return entry
@@ -164,6 +165,22 @@ def _propose(system: str, user: str) -> dict:
     raise ValueError("strategy edit did not return the required fields")
 
 
+class StaleLedger(Exception):
+    """ledger.json was written before the held-out seal, so its samples still carry sealed operations."""
+
+
+def _refuse_pre_seal_ledger(ledger: dict) -> None:
+    """Fails fast, before any strategy file exists, instead of a PromptBlocked deep inside probe generation."""
+    guard = meta_client.LEAK_GUARD
+    if guard is None:
+        return
+    for item in ledger["items"]:
+        for key in ("sample_operations", "sources"):
+            hit = guard(json.dumps(item.get(key, []), default=str))
+            if hit:
+                raise StaleLedger(f"ledger.json predates the held-out seal; rerun the ledger step ({item['id']} {key}: {hit})")
+
+
 def iterate(profile: str, repeats: int = 2) -> dict:
     ref = reference(profile, repeats)
     active = strategy.active()
@@ -171,6 +188,8 @@ def iterate(profile: str, repeats: int = 2) -> dict:
     held = [m for m in catalog if m["split"] == "heldout"]
     extra = [text for m in held for text in (m["id"], m["description"])]
     heldout.install_guard(heldout.load_or_create(profile), load_log(query_log_path(profile)), extra_forbidden=extra)
+    ledger = json.loads((OUT_DIR / profile / "ledger.json").read_text())
+    _refuse_pre_seal_ledger(ledger)
 
     cache = probes.cache_path(profile)
     mutation_path = OUT_DIR / profile / "mutation_test.json"
@@ -178,7 +197,6 @@ def iterate(profile: str, repeats: int = 2) -> dict:
     doc = _latest_doc(profile, active, repeats)
     escaped = [m for m in doc["mutants"] if m["split"] == "train" and not m["caught"]]
 
-    ledger = json.loads((OUT_DIR / profile / "ledger.json").read_text())
     response = _propose(STRATEGY_SYSTEM, _edit_prompt(active, escaped, current, ledger))
     candidate = {
         "version": strategy.next_version(),
@@ -196,6 +214,7 @@ def iterate(profile: str, repeats: int = 2) -> dict:
             **{key: ref[key] for key in ("train_catch", "heldout_catch", "false_flips_max", "invalid_probes", "probes")},
             "generated_features": [], "ferretdb_run_id": None, "at": _now(),
             "reason": "edit targets no generatable feature",
+            "measured": False,  # the numbers are the reference's, copied; no candidate was measured
         }
         strategy.record(entry)
         return entry
@@ -227,6 +246,7 @@ def iterate(profile: str, repeats: int = 2) -> dict:
             "ferretdb_run_id": None,
             "at": _now(),
             "reason": reason,
+            "measured": True,
         }
     except Exception as error:  # Never leave a strategy file without a roster entry.
         if previous is not None:
@@ -236,6 +256,7 @@ def iterate(profile: str, repeats: int = 2) -> dict:
             **{key: ref[key] for key in ("train_catch", "heldout_catch", "false_flips_max", "invalid_probes", "probes")},
             "generated_features": [], "ferretdb_run_id": None, "at": _now(),
             "reason": f"{phase} failed: {type(error).__name__}: {str(error)[:120]}",
+            "measured": False,  # copied from the reference; the candidate never got a measurement
         })
         raise
     if decision == "adopted":

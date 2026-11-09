@@ -45,6 +45,9 @@ def save(strategy: dict) -> Path:
 
 
 def record(entry: dict) -> None:
+    # measured: false marks an entry whose numbers were copied from the reference rather than measured.
+    if "measured" not in entry:
+        raise ValueError(f"roster entry {entry.get('version')} has no 'measured' flag")
     doc = roster()
     doc["history"].append(entry)
     if entry["decision"] == "adopted":

@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import argparse
+import errno
 import json
+import sys
 import threading
 import uuid
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -12,6 +14,7 @@ from urllib.parse import unquote
 
 from archaeologist.config import PROBES_DIR, source_client, target_client
 from archaeologist.evidence_site import build
+from archaeologist.evidence_site.pages import finding_path
 from archaeologist.probe_runner import diff_probe
 
 CONTENT_TYPES = {".html": "text/html; charset=utf-8", ".css": "text/css; charset=utf-8"}
@@ -25,7 +28,15 @@ def _load_probe(profile: str, probe_id: str) -> dict:
 def default_runner(probe_id: str, profile: str = "shoplog") -> dict:
     """Uses its own database names, so a Challenge never touches the databases of a pipeline run."""
     probe = _load_probe(profile, probe_id)
-    return diff_probe(source_client(), target_client(), probe, namespaces=("chs", "cht"))
+    source = source_client()
+    try:
+        target = target_client()
+        try:
+            return diff_probe(source, target, probe, namespaces=("chs", "cht"))
+        finally:
+            target.close()
+    finally:
+        source.close()
 
 
 class Challenges:
@@ -86,7 +97,7 @@ def make_handler(pages: dict[str, str], challenges: Challenges, runner: Callable
         def do_POST(self) -> None:  # noqa: N802
             path = unquote(self.path.split("?")[0]).lstrip("/")
             probe_id = path.removeprefix("api/challenge/")
-            if not path.startswith("api/challenge/") or f"findings/{probe_id}.html" not in pages:
+            if not path.startswith("api/challenge/") or finding_path(probe_id) not in pages:
                 return self._json(404, {"error": "unknown probe"})
             self._json(200, {"job_id": challenges.start(probe_id, runner)})
 
@@ -103,7 +114,13 @@ def main() -> None:
     args = parser.parse_args()
     pages = build.render_all(args.profile, live=True)
     runner = lambda probe_id: default_runner(probe_id, args.profile)  # noqa: E731
-    server = ThreadingHTTPServer(("127.0.0.1", args.port), make_handler(pages, Challenges(), runner))
+    try:
+        server = ThreadingHTTPServer(("127.0.0.1", args.port), make_handler(pages, Challenges(), runner))
+    except OSError as error:
+        if error.errno != errno.EADDRINUSE:
+            raise
+        print(f"port {args.port} in use; pass --port", file=sys.stderr)
+        raise SystemExit(1) from None
     print(f"Evidence site for {args.profile} at http://localhost:{args.port}/ (Ctrl-C to stop)")
     try:
         server.serve_forever()
