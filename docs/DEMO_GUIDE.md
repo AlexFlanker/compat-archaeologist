@@ -124,7 +124,7 @@ Open the evidence site first. The full ShopLog run with self-check and the mutat
 | Judging: Impact 20% | Done | CTO one-pager, TCO, changed business numbers |
 | Judging: Technical Demo 35% | Done | Live control run (18 s), flip from the committed run, ASI:One card |
 | Judging: Creativity 15% | Done | Database as referee for an LLM, fault-injection drill, plan-shape projection, blind scoreboard |
-| Judging: Implementation Difficulty 30% | Done | Probe language, differential runner, replay, CDC copier and verifier, 135 tests |
+| Judging: Implementation Difficulty 30% | Done | Probe language, differential runner, replay, CDC copier and verifier, 161 tests |
 | Best Use of Meta Model API | Done | muse-spark-1.3 for code evidence, reconciliation, 30 probes with repair, rewrite estimates; 141 calls in `logs/meta_calls.jsonl` |
 | Fetch.ai: Agentverse registration | Done | Active · ASI Available · Mailbox |
 | Fetch.ai: Chat Protocol | Done | Manifest published |
