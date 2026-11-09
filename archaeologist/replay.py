@@ -103,7 +103,7 @@ def _with_tz(client, name: str):
     return client[name].with_options(codec_options=CodecOptions(tz_aware=True, uuid_representation=4))
 
 
-def replay_reads(source, target, database: str, reads: list[dict]) -> dict:
+def replay_reads(source, target, database: str, reads: list[dict], heldout_ids: set[str] | frozenset[str] = frozenset()) -> dict:
     groups: dict[str, list[dict]] = defaultdict(list)
     for entry in reads:
         groups[shape_of(entry)].append(entry)
@@ -163,6 +163,7 @@ def replay_reads(source, target, database: str, reads: list[dict]) -> dict:
         shapes.append(
             {
                 "shape_id": _shape_id(shape),
+                "heldout": _shape_id(shape) in heldout_ids,
                 "collection": collection_of(entries[0]),
                 "path": path_of(entries[0]),
                 "features": sorted(features_of(entries[0])),
@@ -190,6 +191,7 @@ def replay_reads(source, target, database: str, reads: list[dict]) -> dict:
 
     return {
         "shapes": shapes,
+        "unseen_only": unseen_rollup(shapes),
         "overall": {
             "source_p50_ms": _percentile(source_all, 0.5),
             "source_p95_ms": _percentile(source_all, 0.95),
@@ -197,6 +199,18 @@ def replay_reads(source, target, database: str, reads: list[dict]) -> dict:
             "target_p95_ms": _percentile(target_all, 0.95),
             "compared_on_both": len(target_all),
         },
+    }
+
+
+def unseen_rollup(shapes: list[dict]) -> dict:
+    """Totals over held-out shapes only: the replay results for operations Muse never saw."""
+    unseen = [shape for shape in shapes if shape.get("heldout")]
+    return {
+        "shapes": len(unseen),
+        "replayed": sum(shape["replayed"] for shape in unseen),
+        "equal": sum(shape["equal"] for shape in unseen),
+        "different": sum(shape["different"] for shape in unseen),
+        "errors": sum(shape["target_errors"] for shape in unseen),
     }
 
 

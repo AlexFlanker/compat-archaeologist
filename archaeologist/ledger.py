@@ -12,7 +12,7 @@ import hashlib
 import json
 from collections import defaultdict
 
-from archaeologist import extract_atlas, extract_code, meta_client, subq_client
+from archaeologist import extract_atlas, extract_code, heldout, meta_client, subq_client
 from archaeologist.config import EVIDENCE_DIR, OUT_DIR
 from archaeologist.extract_querylog import clean_command, features_of, load_log, query_log_path, shape_of
 from archaeologist.features import EXTRA_STAGE_TOKENS, FEATURES, extra_item_id
@@ -144,10 +144,12 @@ def _data_sources(data_profile: dict) -> dict[str, list[dict]]:
     return sources
 
 
-def _sample_operations(entries: list[dict]) -> dict[str, list[dict]]:
+def _sample_operations(entries: list[dict], held_out: dict | None = None) -> dict[str, list[dict]]:
     samples: dict[str, list[dict]] = defaultdict(list)
     seen: set[tuple[str, str]] = set()
     for entry in entries:
+        if held_out and heldout.is_heldout(entry, held_out):
+            continue
         shape = shape_of(entry)
         for feature in features_of(entry):
             if (feature, shape) in seen or len(samples[feature]) >= SAMPLE_OPERATIONS_PER_ITEM:
@@ -166,10 +168,12 @@ def _status_and_confidence(sources: list[dict]) -> tuple[str, float | None, str,
     return status, None, "pending", count
 
 
-def build_items(data_profile: dict, summary: dict, code_doc: dict, entries: list[dict], atlas: dict | None = None) -> list[dict]:
+def build_items(
+    data_profile: dict, summary: dict, code_doc: dict, entries: list[dict], atlas: dict | None = None, held_out: dict | None = None
+) -> list[dict]:
     code, querylog, data = _code_sources(code_doc), _querylog_sources(summary), _data_sources(data_profile)
     atlas_sources = extract_atlas.ledger_sources(atlas)
-    samples = _sample_operations(entries)
+    samples = _sample_operations(entries, held_out)
     all_ids = set(code) | set(querylog) | set(data) | set(atlas_sources)
     order = list(FEATURES) + sorted(all_ids - set(FEATURES))
 
@@ -315,10 +319,12 @@ def run(profile: str, refresh_code: bool = True) -> dict:
     data_profile = json.loads((EVIDENCE_DIR / f"{profile}_data_profile.json").read_text())
     summary = json.loads((EVIDENCE_DIR / f"{profile}_querylog_summary.json").read_text())
     entries = load_log(query_log_path(profile))
+    held_out = heldout.load_or_create(profile)
+    heldout.install_guard(held_out, entries)
     code_doc = extract_code.run(profile, refresh=refresh_code)
     atlas = extract_atlas.run(profile)
 
-    items = build_items(data_profile, summary, code_doc, entries, atlas)
+    items = build_items(data_profile, summary, code_doc, entries, atlas, held_out)
     behaviors = build_behaviors(data_profile, code_doc, profile, refresh=refresh_code)
     item_answer = _resolve_single_source_confidence(profile, items, lambda record: f"{record['feature']}. {record['behavior']}")
     behavior_answer = _resolve_single_source_confidence(profile, behaviors, lambda record: record["statement"])

@@ -8,6 +8,7 @@ import time
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
 
+from archaeologist import heldout
 from archaeologist.config import OUT_DIR, server_info, source_client, target_client
 from archaeologist.extract_querylog import load_log, query_log_path
 from archaeologist.features import FEATURES
@@ -104,7 +105,8 @@ def run(
 
     entries = load_log(query_log_path(profile))
     parts = partition(entries)
-    read_replay = replay_reads(source, target, names["base"], parts["reads"])
+    heldout_ids = set(heldout.load_or_create(profile)["heldout_shape_ids"])
+    read_replay = replay_reads(source, target, names["base"], parts["reads"], heldout_ids)
 
     if self_check:
         # With one engine on both sides, writes would land twice, so a second fixture stands in for the target.

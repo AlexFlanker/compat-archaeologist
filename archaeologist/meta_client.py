@@ -6,6 +6,7 @@ import hashlib
 import json
 import time
 from datetime import datetime, timezone
+from typing import Callable
 
 from openai import APIStatusError, APITimeoutError, OpenAI, RateLimitError
 
@@ -14,6 +15,14 @@ from archaeologist.config import LOGS_DIR, env
 BASE_URL = "https://api.meta.ai/v1"
 DEFAULT_MODEL = "muse-spark-1.3"
 MAX_ATTEMPTS = 4
+
+
+# Set by heldout.install_guard: returns what in the prompt is sealed, or None when the text is clean.
+LEAK_GUARD: Callable[[str], str | None] | None = None
+
+
+class PromptBlocked(Exception):
+    """The prompt contains held-out production operations and was not sent."""
 
 
 class MetaUnavailable(Exception):
@@ -60,6 +69,18 @@ def structured(
     reasoning_effort: str | None = None,
 ) -> dict:
     """Returns the parsed JSON object for one structured completion."""
+    hit = LEAK_GUARD(system + user) if LEAK_GUARD else None
+    if hit:
+        _record(
+            {
+                "at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+                "purpose": purpose,
+                "model": model_name(),
+                "status": "blocked_leak",
+                "hit": hit[:80],
+            }
+        )
+        raise PromptBlocked(f"prompt for {purpose} contains held-out material: {hit[:80]}")
     key = _api_key()
     if not key:
         raise MetaUnavailable("META_API_KEY (or MODEL_API_KEY) is not set")
