@@ -199,32 +199,43 @@ def iterate(profile: str, repeats: int = 2) -> dict:
         }
         strategy.record(entry)
         return entry
-    candidate_path = cache.with_name(f"{profile}.candidate.json")
-    generated = probes.generate(
-        profile, ledger, strategy=candidate, only_features=targets, base_probes=current, out_path=candidate_path,
-        extra_forbidden=extra,
-    )
-    for probe in generated:  # The file is evaluated, and later replayed, as one version; probe_hash keeps replacements visible.
-        probe["strategy_version"] = candidate["version"]
-    candidate_path.write_text(json.dumps(generated, indent=2))
-    valid = _valid(generated)
-
     previous = mutation_path.read_text() if mutation_path.exists() else None
-    candidate_doc = mutation_test.run(profile, valid, repeats)
-    measured = _measures(candidate_doc, generated)
-    decision, reason = decide(measured, ref)
+    try:
+        candidate_path = cache.with_name(f"{profile}.candidate.json")
+        generated = probes.generate(
+            profile, ledger, strategy=candidate, only_features=targets, base_probes=current, out_path=candidate_path,
+            extra_forbidden=extra,
+        )
+        for probe in generated:  # The file is evaluated, and later replayed, as one version; probe_hash keeps replacements visible.
+            probe["strategy_version"] = candidate["version"]
+        candidate_path.write_text(json.dumps(generated, indent=2))
+        valid = _valid(generated)
 
-    entry = {
-        "version": candidate["version"],
-        "parent": candidate["parent"],
-        "decision": decision,
-        **measured,
-        "probes": len(valid),
-        "generated_features": generatable,
-        "ferretdb_run_id": None,
-        "at": _now(),
-        "reason": reason,
-    }
+        candidate_doc = mutation_test.run(profile, valid, repeats)
+        measured = _measures(candidate_doc, generated)
+        decision, reason = decide(measured, ref)
+
+        entry = {
+            "version": candidate["version"],
+            "parent": candidate["parent"],
+            "decision": decision,
+            **measured,
+            "probes": len(valid),
+            "generated_features": generatable,
+            "ferretdb_run_id": None,
+            "at": _now(),
+            "reason": reason,
+        }
+    except Exception as error:  # Never leave a strategy file without a roster entry.
+        if previous is not None:
+            mutation_path.write_text(previous)
+        strategy.record({
+            "version": candidate["version"], "parent": candidate["parent"], "decision": "rolled_back",
+            **{key: ref[key] for key in ("train_catch", "heldout_catch", "false_flips_max", "invalid_probes", "probes")},
+            "generated_features": [], "ferretdb_run_id": None, "at": _now(),
+            "reason": f"generation failed: {type(error).__name__}: {str(error)[:120]}",
+        })
+        raise
     if decision == "adopted":
         cache.write_text(candidate_path.read_text())
         try:

@@ -19,3 +19,6 @@ logs/*.log
 
 # Built evidence site
 site/
+
+# Scratch file written by improve iterate
+probes/*.candidate.json

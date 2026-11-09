@@ -291,3 +291,19 @@ def test_edit_prompt_lists_generatable_ids_and_requires_hint_when_nothing_escape
     assert "F1: lookup" in prompt and "F4: txn" in prompt and "F11" not in prompt
     assert "title F1.a" in prompt
     assert "at least one per_feature_hints entry" in prompt
+
+
+def test_generation_failure_is_recorded_and_reraised(env, monkeypatch):
+    captured = []
+    _install_fakes(monkeypatch, _mut_doc("v001", 1, 1), captured)
+
+    def boom(*args, **kwargs):
+        raise meta_client.MetaUnavailable("Meta API failed after 4 attempts: invalid_json")
+
+    monkeypatch.setattr(probes, "generate", boom)
+    with pytest.raises(meta_client.MetaUnavailable):
+        improve.iterate("shoplog", 2)
+    last = strategy.roster()["history"][-1]
+    assert last["version"] == "v001" and last["decision"] == "rolled_back"
+    assert last["reason"].startswith("generation failed: MetaUnavailable")
+    assert strategy.roster()["active"] == "v000"
