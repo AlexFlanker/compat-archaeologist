@@ -21,7 +21,7 @@ STRATEGY_SCHEMA = {
     "properties": {
         "system_prompt_additions": {"type": "string"},
         "per_feature_hints": {"type": "object", "additionalProperties": {"type": "string"}},
-        "probe_count_overrides": {"type": "object", "additionalProperties": {"type": "integer"}},
+        "probe_count_overrides": {"type": "object", "additionalProperties": {"type": "integer", "minimum": 1, "maximum": 4}},
         "required_checks": {"type": "array", "items": {"type": "string"}},
     },
 }
@@ -149,11 +149,8 @@ def iterate(profile: str, repeats: int = 2) -> dict:
     active = strategy.active()
     catalog = mutants.load_catalog()
     held = [m for m in catalog if m["split"] == "heldout"]
-    heldout.install_guard(
-        heldout.load_or_create(profile),
-        load_log(query_log_path(profile)),
-        extra_forbidden=[text for m in held for text in (m["id"], m["description"])],
-    )
+    extra = [text for m in held for text in (m["id"], m["description"])]
+    heldout.install_guard(heldout.load_or_create(profile), load_log(query_log_path(profile)), extra_forbidden=extra)
 
     cache = probes.cache_path(profile)
     mutation_path = OUT_DIR / profile / "mutation_test.json"
@@ -171,9 +168,22 @@ def iterate(profile: str, repeats: int = 2) -> dict:
     strategy.save(candidate)
 
     targets = set(candidate["per_feature_hints"]) | {feature for m in escaped for feature in m["feature_ids"]}
-    candidate_path = cache.with_name(f"{profile}.candidate.json")
     ledger = json.loads((OUT_DIR / profile / "ledger.json").read_text())
-    generated = probes.generate(profile, ledger, strategy=candidate, only_features=targets, base_probes=current, out_path=candidate_path)
+    generatable = sorted(targets & {item["id"] for item in ledger["items"] if item["id"] not in probes.ORACLE_UNAVAILABLE})
+    if not generatable:  # Nothing would change, so a measurement could only adopt noise.
+        entry = {
+            "version": candidate["version"], "parent": candidate["parent"], "decision": "rolled_back",
+            **{key: ref[key] for key in ("train_catch", "heldout_catch", "false_flips_max", "invalid_probes", "probes")},
+            "generated_features": [], "ferretdb_run_id": None, "at": _now(),
+            "reason": "edit targets no generatable feature",
+        }
+        strategy.record(entry)
+        return entry
+    candidate_path = cache.with_name(f"{profile}.candidate.json")
+    generated = probes.generate(
+        profile, ledger, strategy=candidate, only_features=targets, base_probes=current, out_path=candidate_path,
+        extra_forbidden=extra,
+    )
     for probe in generated:  # The file is evaluated, and later replayed, as one version; probe_hash keeps replacements visible.
         probe["strategy_version"] = candidate["version"]
     candidate_path.write_text(json.dumps(generated, indent=2))
@@ -190,14 +200,17 @@ def iterate(profile: str, repeats: int = 2) -> dict:
         "decision": decision,
         **measured,
         "probes": len(valid),
-        "generated_features": sorted(targets & {item["id"] for item in ledger["items"]}),
+        "generated_features": generatable,
         "ferretdb_run_id": None,
         "at": _now(),
         "reason": reason,
     }
     if decision == "adopted":
         cache.write_text(candidate_path.read_text())
-        entry["ferretdb_run_id"] = diff.run(profile, valid, probe_origin="muse")["run_id"]
+        try:
+            entry["ferretdb_run_id"] = diff.run(profile, valid, probe_origin="muse")["run_id"]
+        except Exception as error:  # The probes are already adopted on disk; the roster must say so.
+            entry["reason"] += f"; FerretDB run failed: {type(error).__name__}: {str(error)[:120]}"
     elif previous is not None:
         mutation_path.write_text(previous)  # mutation_test.json keeps describing the active probes
     strategy.record(entry)

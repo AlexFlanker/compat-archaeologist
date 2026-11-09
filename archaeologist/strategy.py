@@ -14,6 +14,7 @@ from pathlib import Path
 from archaeologist.config import ROOT
 
 STRATEGY_DIR = ROOT / "strategy"
+MIN_PROBES, MAX_PROBES = 1, 4
 
 
 def _roster_path() -> Path:
@@ -71,4 +72,4 @@ def count_for(strategy: dict, item: dict) -> int:
     from archaeologist import probes
 
     override = strategy.get("probe_count_overrides", {}).get(item["id"])
-    return override if override else probes.probe_count_for(item)
+    return min(max(override, MIN_PROBES), MAX_PROBES) if override else probes.probe_count_for(item)

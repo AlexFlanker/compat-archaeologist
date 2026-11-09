@@ -234,12 +234,13 @@ def generate(
     only_features: set[str] | None = None,
     base_probes: list[dict] | None = None,
     out_path: Path | None = None,
+    extra_forbidden: list[str] = (),
 ) -> list[dict]:
     """Writes probes for every item, or only for `only_features` (others carry over from `base_probes`)."""
     from archaeologist import heldout
     from archaeologist.extract_querylog import load_log, query_log_path
 
-    heldout.install_guard(heldout.load_or_create(profile), load_log(query_log_path(profile)))
+    heldout.install_guard(heldout.load_or_create(profile), load_log(query_log_path(profile)), extra_forbidden=extra_forbidden)
     strategy = strategy or strategy_store.active()
     source = source_client(timeout_ms=120_000)
     items = [item for item in ledger["items"] if item["id"] not in ORACLE_UNAVAILABLE]
@@ -251,7 +252,10 @@ def generate(
         if item["id"] in fresh:
             probes.extend(fresh[item["id"]])
         else:
-            probes.extend(probe for probe in (base_probes or []) if probe["feature_id"] == item["id"])
+            for probe in (base_probes or []):
+                if probe["feature_id"] == item["id"]:
+                    probe.setdefault("probe_hash", probe_hash(probe))
+                    probes.append(probe)
     target = out_path or cache_path(profile)
     target.parent.mkdir(exist_ok=True)
     target.write_text(json.dumps(probes, indent=2))

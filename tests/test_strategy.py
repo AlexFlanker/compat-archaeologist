@@ -25,12 +25,12 @@ def test_v000_renders_base_prompt_unchanged(tmp_roster):
 
 def test_additions_appended_and_hint_and_count_override(tmp_roster):
     s = {**strategy.active(), "system_prompt_additions": "Be strict.", "per_feature_hints": {"F1": "use $lookup"},
-         "probe_count_overrides": {"F1": 5}, "required_checks": ["read back the write"]}
+         "probe_count_overrides": {"F1": 2}, "required_checks": ["read back the write"]}
     rendered = strategy.render_system("BASE", s)
     assert rendered.startswith("BASE\n\nBe strict.")
     assert "Every probe must also:" in rendered and "read back the write" in rendered
     assert strategy.hint_for(s, "F1") == "use $lookup" and strategy.hint_for(s, "F2") == ""
-    assert strategy.count_for(s, {"id": "F1"}) == 5
+    assert strategy.count_for(s, {"id": "F1"}) == 2
     assert strategy.count_for(s, {"id": "F4"}) == probes.probe_count_for({"id": "F4"})
 
 

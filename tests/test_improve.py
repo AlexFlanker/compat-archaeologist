@@ -119,7 +119,7 @@ def _install_fakes(monkeypatch, candidate_doc, captured):
 
     monkeypatch.setattr(meta_client, "structured", structured)
 
-    def generate(profile, ledger, strategy=None, only_features=None, base_probes=None, out_path=None):
+    def generate(profile, ledger, strategy=None, only_features=None, base_probes=None, out_path=None, extra_forbidden=()):
         out = [p for p in base_probes if p["feature_id"] not in only_features]
         out += [_probe("F4.new", "F4", version=strategy["version"])]
         out_path.write_text(json.dumps(out))
@@ -209,3 +209,74 @@ def test_probe_stamps_hash_and_version(env, monkeypatch):
     (probe,) = probes.generate_for_item(item, object(), s)
     assert probe["strategy_version"] == "v007" and len(probe["probe_hash"]) == 8
     assert seen[0]["user"].endswith("Additional guidance for this feature: HINT")
+
+
+# ---------- review fixes ----------
+
+def test_carried_probes_get_probe_hash(env, monkeypatch):
+    monkeypatch.setattr(probes, "source_client", lambda **k: object())
+    monkeypatch.setattr(heldout, "install_guard", lambda *a, **k: None)
+    monkeypatch.setattr(probes, "generate_for_item", lambda item, source, strategy=None: [])
+    kept = _probe("F4.keep", "F4")
+    out = probes.generate("shoplog", {"items": [{"id": "F4"}]}, strategy=strategy.active(), only_features=set(), base_probes=[kept])
+    assert len(out[0]["probe_hash"]) == 8 and out[0] is kept
+
+
+def test_adopt_records_entry_even_if_diff_run_fails(env, monkeypatch):
+    _install_fakes(monkeypatch, _mut_doc("v001", 1, 1), [])
+
+    def boom(*a, **k):
+        raise RuntimeError("docker down")
+
+    monkeypatch.setattr(improve.diff, "run", boom)
+    entry = improve.iterate("shoplog", 2)
+    assert entry["decision"] == "adopted" and entry["ferretdb_run_id"] is None and "docker down" in entry["reason"]
+    assert strategy.roster()["active"] == "v001"
+    assert json.loads(probes.cache_path("shoplog").read_text())[1]["strategy_version"] == "v001"
+
+
+def test_noop_when_no_target_is_in_ledger(env, monkeypatch):
+    docs = iter([_mut_doc("v000", 1, 0)])  # train mutant caught -> no escaped features
+
+    def run(profile, ps, repeats=3, mutation_ids=None):
+        doc = next(docs)
+        (improve.OUT_DIR / profile / "mutation_test.json").write_text(json.dumps(doc))
+        return doc
+
+    monkeypatch.setattr(mutation_test, "run", run)
+    monkeypatch.setattr(meta_client, "structured", lambda **k: {
+        "system_prompt_additions": "x", "per_feature_hints": {"NOPE": "h"}, "probe_count_overrides": {}, "required_checks": []})
+    monkeypatch.setattr(probes, "generate", lambda *a, **k: pytest.fail("must not generate"))
+    entry = improve.iterate("shoplog", 2)
+    assert entry["decision"] == "rolled_back" and entry["reason"] == "edit targets no generatable feature"
+    assert entry["generated_features"] == [] and strategy.roster()["active"] == "v000"
+
+
+def test_probe_count_override_is_clamped_and_schema_bounded(env):
+    s = {**strategy.active(), "probe_count_overrides": {"F1": -2, "F2": 99, "F3": 2}}
+    assert [strategy.count_for(s, {"id": i}) for i in ("F1", "F2", "F3")] == [1, 4, 2]
+    spec = improve.STRATEGY_SCHEMA["properties"]["probe_count_overrides"]["additionalProperties"]
+    assert spec["minimum"] == 1 and spec["maximum"] == 4
+
+
+def test_generate_passes_extra_forbidden_to_guard(env, monkeypatch):
+    seen = []
+    monkeypatch.setattr(probes, "source_client", lambda **k: object())
+    monkeypatch.setattr(heldout, "install_guard", lambda doc, entries, extra_forbidden=(): seen.append(list(extra_forbidden)))
+    monkeypatch.setattr(probes, "generate_for_item", lambda item, source, strategy=None: [])
+    probes.generate("shoplog", {"items": []}, strategy=strategy.active(), extra_forbidden=["HELD"])
+    assert seen == [["HELD"]]
+
+
+def test_iterate_forwards_heldout_strings_to_generate(env, monkeypatch):
+    got = {}
+    _install_fakes(monkeypatch, _mut_doc("v001", 0, 0), [])
+    inner = probes.generate
+
+    def spy(*a, extra_forbidden=(), **k):
+        got["extra"] = list(extra_forbidden)
+        return inner(*a, **k)
+
+    monkeypatch.setattr(probes, "generate", spy)
+    improve.iterate("shoplog", 2)
+    assert "m_held" in got["extra"] and CATALOG[1]["description"] in got["extra"]
