@@ -8,6 +8,7 @@ import time
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
 
+from archaeologist import heldout
 from archaeologist.config import OUT_DIR, server_info, source_client, target_client
 from archaeologist.extract_querylog import load_log, query_log_path
 from archaeologist.features import FEATURES
@@ -104,7 +105,8 @@ def run(
 
     entries = load_log(query_log_path(profile))
     parts = partition(entries)
-    read_replay = replay_reads(source, target, names["base"], parts["reads"])
+    heldout_ids = set(heldout.load_or_create(profile)["heldout_shape_ids"])
+    read_replay = replay_reads(source, target, names["base"], parts["reads"], heldout_ids)
 
     if self_check:
         # With one engine on both sides, writes would land twice, so a second fixture stands in for the target.
@@ -141,6 +143,16 @@ def run(
     out_dir.mkdir(parents=True, exist_ok=True)
     file_name = "self_check.json" if self_check else (f"runs_{output_name}.json" if output_name else "runs.json")
     (out_dir / file_name).write_text(json.dumps(document, indent=2, default=str))
+    # Status history tracks the current target only: a named run (the upgrade check's older target) is not a flip.
+    if not self_check and not output_name:
+        entry = {
+            "run_id": run_id,
+            "at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+            "strategy_version": probes[0].get("strategy_version", "v000") if probes else "v000",
+            "verdicts": {result["probe_id"]: result["verdict"] for result in probe_results},
+        }
+        with (out_dir / "history.jsonl").open("a") as history:
+            history.write(json.dumps(entry) + "\n")
     return document
 
 

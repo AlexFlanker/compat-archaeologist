@@ -1,35 +1,45 @@
 [
   {
-    "probe_id": "F1.revenue_facet_full",
+    "probe_id": "F1.revenue-lookup-facet",
     "feature_id": "F1",
-    "title": "Revenue $lookup sub-pipeline plus $facet by_tier by_month largest",
-    "behavior": "revenue report joins orders to customers via $lookup let/pipeline + $unwind and returns by_tier, by_month and largest in one $facet; cancelled and out-of-range orders excluded, double totals converted to cents",
+    "title": "Revenue lookup plus facet report",
+    "behavior": "revenue report joins orders to customers via $lookup let/pipeline and returns by_tier, by_month and 5 largest in single $facet with double-to-cents conversion",
     "steps": [
       {
         "capture": false,
-        "command_ejson": "{\"insert\":\"customers\",\"documents\":[{\"_id\":\"c1\",\"tier\":\"gold\"},{\"_id\":\"c2\",\"tier\":\"silver\"}]}",
+        "command_ejson": "{\"insert\":\"customers\",\"documents\":[{\"_id\":1,\"tier\":\"gold\"},{\"_id\":2,\"tier\":\"silver\"}]}",
         "expect_error": false,
         "in_txn": false,
-        "label": "insert_customers",
+        "label": "seed customers",
         "op": "command",
         "unordered": false
       },
       {
         "capture": false,
-        "command_ejson": "{\"insert\":\"orders\",\"documents\":[{\"_id\":\"o1\",\"customer_id\":\"c1\",\"placed_at\":{\"$date\":\"2024-01-05T00:00:00Z\"},\"status\":\"paid\",\"total\":{\"$numberDouble\":\"120.5\"}},{\"_id\":\"o2\",\"customer_id\":\"c2\",\"placed_at\":{\"$date\":\"2024-01-15T00:00:00Z\"},\"status\":\"paid\",\"total\":{\"$numberInt\":\"8000\"}},{\"_id\":\"o3\",\"customer_id\":\"c1\",\"placed_at\":{\"$date\":\"2024-01-20T00:00:00Z\"},\"status\":\"cancelled\",\"total\":{\"$numberDouble\":\"999.99\"}},{\"_id\":\"o4\",\"customer_id\":\"c1\",\"placed_at\":{\"$date\":\"2024-02-02T00:00:00Z\"},\"status\":\"paid\",\"total\":{\"$numberDouble\":\"10.0\"}}]}",
+        "command_ejson": "{\"insert\":\"orders\",\"documents\":[{\"_id\":101,\"customer_id\":1,\"status\":\"paid\",\"placed_at\":{\"$date\":\"2024-01-05T00:00:00Z\"},\"total\":{\"$numberDouble\":\"19.99\"}},{\"_id\":102,\"customer_id\":2,\"status\":\"paid\",\"placed_at\":{\"$date\":\"2024-01-15T00:00:00Z\"},\"total\":2500},{\"_id\":103,\"customer_id\":1,\"status\":\"cancelled\",\"placed_at\":{\"$date\":\"2024-01-20T00:00:00Z\"},\"total\":9999},{\"_id\":104,\"customer_id\":1,\"status\":\"paid\",\"placed_at\":{\"$date\":\"2024-02-05T00:00:00Z\"},\"total\":5000}]}",
         "expect_error": false,
         "in_txn": false,
-        "label": "insert_orders",
+        "label": "seed orders",
         "op": "command",
         "unordered": false
       },
       {
         "capture": true,
-        "command_ejson": "{\"aggregate\":\"orders\",\"pipeline\":[{\"$match\":{\"placed_at\":{\"$gte\":{\"$date\":\"2024-01-01T00:00:00Z\"},\"$lt\":{\"$date\":\"2024-02-01T00:00:00Z\"}},\"status\":{\"$ne\":\"cancelled\"}}},{\"$addFields\":{\"total_cents\":{\"$cond\":[{\"$eq\":[{\"$type\":\"$total\"},\"double\"]},{\"$round\":[{\"$multiply\":[\"$total\",100]},0]},\"$total\"]}}},{\"$lookup\":{\"from\":\"customers\",\"let\":{\"cid\":\"$customer_id\"},\"pipeline\":[{\"$match\":{\"$expr\":{\"$eq\":[\"$_id\",\"$$cid\"]}}},{\"$project\":{\"tier\":1,\"_id\":0}}],\"as\":\"customer\"}},{\"$unwind\":\"$customer\"},{\"$facet\":{\"by_tier\":[{\"$group\":{\"_id\":\"$customer.tier\",\"revenue\":{\"$sum\":\"$total_cents\"},\"orders\":{\"$sum\":1}}},{\"$sort\":{\"_id\":1}}],\"by_month\":[{\"$group\":{\"_id\":{\"$dateToString\":{\"format\":\"%Y-%m\",\"date\":\"$placed_at\"}},\"revenue\":{\"$sum\":\"$total_cents\"}}},{\"$sort\":{\"_id\":1}}],\"largest\":[{\"$sort\":{\"total_cents\":-1,\"_id\":1}},{\"$limit\":5},{\"$project\":{\"total_cents\":1,\"tier\":\"$customer.tier\"}}]}}],\"cursor\":{}}",
-        "expect_ejson": "{\"docs\":[{\"by_tier\":[{\"_id\":\"gold\",\"revenue\":12050,\"orders\":1},{\"_id\":\"silver\",\"revenue\":8000,\"orders\":1}],\"by_month\":[{\"_id\":\"2024-01\",\"revenue\":20050}],\"largest\":[{\"_id\":\"o1\",\"total_cents\":12050,\"tier\":\"gold\"},{\"_id\":\"o2\",\"total_cents\":8000,\"tier\":\"silver\"}]}]}",
+        "command_ejson": "{\"find\":\"customers\",\"filter\":{},\"sort\":{\"_id\":1}}",
+        "expect_ejson": "{\"docs\":[{\"_id\":1,\"tier\":\"gold\"},{\"_id\":2,\"tier\":\"silver\"}]}",
         "expect_error": false,
         "in_txn": false,
-        "label": "revenue_facet",
+        "label": "confirm customers",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": true,
+        "command_ejson": "{\"aggregate\":\"orders\",\"pipeline\":[{\"$match\":{\"placed_at\":{\"$gte\":{\"$date\":\"2024-01-01T00:00:00Z\"},\"$lt\":{\"$date\":\"2024-02-01T00:00:00Z\"}},\"status\":{\"$ne\":\"cancelled\"}}},{\"$addFields\":{\"total_cents\":{\"$cond\":[{\"$eq\":[{\"$type\":\"$total\"},\"double\"]},{\"$round\":[{\"$multiply\":[\"$total\",100]},0]},\"$total\"]}}},{\"$lookup\":{\"from\":\"customers\",\"let\":{\"cid\":\"$customer_id\"},\"pipeline\":[{\"$match\":{\"$expr\":{\"$eq\":[\"$_id\",\"$$cid\"]}}},{\"$project\":{\"tier\":1,\"_id\":0}}],\"as\":\"customer\"}},{\"$unwind\":\"$customer\"},{\"$facet\":{\"by_tier\":[{\"$group\":{\"_id\":\"$customer.tier\",\"revenue\":{\"$sum\":\"$total_cents\"},\"orders\":{\"$sum\":1}}},{\"$sort\":{\"_id\":1}}],\"by_month\":[{\"$group\":{\"_id\":{\"$dateToString\":{\"format\":\"%Y-%m\",\"date\":\"$placed_at\"}},\"revenue\":{\"$sum\":\"$total_cents\"}}},{\"$sort\":{\"_id\":1}}],\"largest\":[{\"$sort\":{\"total_cents\":-1,\"_id\":1}},{\"$limit\":5},{\"$project\":{\"total_cents\":1,\"tier\":\"$customer.tier\"}}],\"empty_branch\":[{\"$match\":{\"_id\":-999}},{\"$group\":{\"_id\":null,\"revenue\":{\"$sum\":\"$total_cents\"}}}]}}],\"cursor\":{}}",
+        "expect_ejson": "{\"docs\":[{\"by_tier\":[{\"_id\":\"gold\",\"revenue\":1999,\"orders\":1},{\"_id\":\"silver\",\"revenue\":2500,\"orders\":1}],\"by_month\":[{\"_id\":\"2024-01\",\"revenue\":4499}],\"largest\":[{\"_id\":102,\"total_cents\":2500,\"tier\":\"silver\"},{\"_id\":101,\"total_cents\":1999,\"tier\":\"gold\"}],\"empty_branch\":[]}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "revenue facet with lookup",
         "op": "command",
         "unordered": false
       }
@@ -38,39 +48,65 @@
       "attempts": 1,
       "model": "muse-spark-1.3"
     },
-    "status": "valid"
+    "status": "valid",
+    "probe_hash": "23179a4b",
+    "strategy_version": "v005",
+    "pre_seal_check": {
+      "ledger_commit": "6b69027",
+      "heldout_shapes_in_prompt": 0
+    }
   },
   {
-    "probe_id": "F1.inventory_lookup_pipeline",
+    "probe_id": "F1.empty-join-empty-facet",
     "feature_id": "F1",
-    "title": "Lookup with localField plus pipeline filter and group",
-    "behavior": "products join inventory via $lookup with localField/foreignField plus pipeline $expr $lt filter, then $match stock.0 $exists and $group by category with $sort",
+    "title": "Empty join and empty facet branch",
+    "behavior": "empty join preserves outer doc with [] and empty facet branch returns [] with double-to-cents conversion and zero counts",
     "steps": [
       {
         "capture": false,
-        "command_ejson": "{\"insert\":\"products\",\"documents\":[{\"_id\":\"p1\",\"category\":\"books\"},{\"_id\":\"p2\",\"category\":\"books\"},{\"_id\":\"p3\",\"category\":\"toys\"}]}",
+        "command_ejson": "{\"insert\":\"customers\",\"documents\":[{\"_id\":10,\"tier\":\"bronze\"},{\"_id\":11,\"tier\":\"gold\"}]}",
         "expect_error": false,
         "in_txn": false,
-        "label": "insert_products",
+        "label": "seed customers",
         "op": "command",
         "unordered": false
       },
       {
         "capture": false,
-        "command_ejson": "{\"insert\":\"inventory\",\"documents\":[{\"_id\":\"p1\",\"on_hand\":50},{\"_id\":\"p2\",\"on_hand\":500},{\"_id\":\"p3\",\"on_hand\":150}]}",
+        "command_ejson": "{\"insert\":\"orders\",\"documents\":[{\"_id\":201,\"customer_id\":11,\"status\":\"paid\",\"placed_at\":{\"$date\":\"2024-01-10T00:00:00Z\"},\"total\":{\"$numberDouble\":\"5.55\"}},{\"_id\":202,\"customer_id\":11,\"status\":\"paid\",\"placed_at\":{\"$date\":\"2024-01-12T00:00:00Z\"},\"total\":1000}]}",
         "expect_error": false,
         "in_txn": false,
-        "label": "insert_inventory",
+        "label": "seed orders",
         "op": "command",
         "unordered": false
       },
       {
         "capture": true,
-        "command_ejson": "{\"aggregate\":\"products\",\"pipeline\":[{\"$lookup\":{\"from\":\"inventory\",\"localField\":\"_id\",\"foreignField\":\"_id\",\"pipeline\":[{\"$match\":{\"$expr\":{\"$lt\":[\"$on_hand\",200]}}}],\"as\":\"stock\"}},{\"$match\":{\"stock.0\":{\"$exists\":true}}},{\"$group\":{\"_id\":\"$category\",\"skus\":{\"$sum\":1}}},{\"$sort\":{\"skus\":-1,\"_id\":1}}],\"cursor\":{}}",
-        "expect_ejson": "{\"docs\":[{\"_id\":\"books\",\"skus\":1},{\"_id\":\"toys\",\"skus\":1}]}",
+        "command_ejson": "{\"find\":\"orders\",\"filter\":{},\"sort\":{\"_id\":1}}",
+        "expect_ejson": "{\"docs\":[{\"_id\":201,\"customer_id\":11,\"status\":\"paid\",\"placed_at\":{\"$date\":\"2024-01-10T00:00:00Z\"},\"total\":5.55},{\"_id\":202,\"customer_id\":11,\"status\":\"paid\",\"placed_at\":{\"$date\":\"2024-01-12T00:00:00Z\"},\"total\":1000}]}",
         "expect_error": false,
         "in_txn": false,
-        "label": "lookup_pipeline_group",
+        "label": "confirm orders",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": true,
+        "command_ejson": "{\"aggregate\":\"customers\",\"pipeline\":[{\"$sort\":{\"_id\":1}},{\"$lookup\":{\"from\":\"orders\",\"let\":{\"cid\":\"$_id\"},\"pipeline\":[{\"$match\":{\"$expr\":{\"$eq\":[\"$customer_id\",\"$$cid\"]}}},{\"$sort\":{\"_id\":1}},{\"$addFields\":{\"total_cents\":{\"$cond\":[{\"$eq\":[{\"$type\":\"$total\"},\"double\"]},{\"$round\":[{\"$multiply\":[\"$total\",100]},0]},\"$total\"]}}},{\"$project\":{\"total_cents\":1}}],\"as\":\"matched\"}},{\"$project\":{\"tier\":1,\"matched\":1}}],\"cursor\":{}}",
+        "expect_ejson": "{\"docs\":[{\"_id\":10,\"tier\":\"bronze\",\"matched\":[]},{\"_id\":11,\"tier\":\"gold\",\"matched\":[{\"_id\":201,\"total_cents\":555},{\"_id\":202,\"total_cents\":1000}]}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "lookup preserves empty array",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": true,
+        "command_ejson": "{\"aggregate\":\"orders\",\"pipeline\":[{\"$match\":{\"placed_at\":{\"$gte\":{\"$date\":\"2024-01-01T00:00:00Z\"},\"$lt\":{\"$date\":\"2024-02-01T00:00:00Z\"}},\"status\":{\"$ne\":\"cancelled\"}}},{\"$addFields\":{\"total_cents\":{\"$cond\":[{\"$eq\":[{\"$type\":\"$total\"},\"double\"]},{\"$round\":[{\"$multiply\":[\"$total\",100]},0]},\"$total\"]}}},{\"$lookup\":{\"from\":\"customers\",\"let\":{\"cid\":\"$customer_id\"},\"pipeline\":[{\"$match\":{\"$expr\":{\"$eq\":[\"$_id\",\"$$cid\"]}}},{\"$project\":{\"tier\":1,\"_id\":0}}],\"as\":\"customer\"}},{\"$unwind\":\"$customer\"},{\"$facet\":{\"by_tier\":[{\"$group\":{\"_id\":\"$customer.tier\",\"revenue\":{\"$sum\":\"$total_cents\"},\"orders\":{\"$sum\":1}}},{\"$sort\":{\"_id\":1}}],\"by_month\":[{\"$group\":{\"_id\":{\"$dateToString\":{\"format\":\"%Y-%m\",\"date\":\"$placed_at\"}},\"revenue\":{\"$sum\":\"$total_cents\"}}},{\"$sort\":{\"_id\":1}}],\"empty_branch\":[{\"$match\":{\"_id\":-1}},{\"$group\":{\"_id\":null,\"n\":{\"$sum\":1}}}]}}],\"cursor\":{}}",
+        "expect_ejson": "{\"docs\":[{\"by_tier\":[{\"_id\":\"gold\",\"revenue\":1555,\"orders\":2}],\"by_month\":[{\"_id\":\"2024-01\",\"revenue\":1555}],\"empty_branch\":[]}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "facet with empty branch",
         "op": "command",
         "unordered": false
       }
@@ -79,39 +115,65 @@
       "attempts": 1,
       "model": "muse-spark-1.3"
     },
-    "status": "valid"
+    "status": "valid",
+    "probe_hash": "b9845fb6",
+    "strategy_version": "v005",
+    "pre_seal_check": {
+      "ledger_commit": "6b69027",
+      "heldout_shapes_in_prompt": 0
+    }
   },
   {
-    "probe_id": "F1.revenue_facet_largest_top5",
+    "probe_id": "F1.inventory-lookup-group",
     "feature_id": "F1",
-    "title": "Facet largest top-5 with lookup tier",
-    "behavior": "revenue largest facet returns 5 largest orders sorted by total_cents desc with tier from $lookup sub-pipeline, exercising $sort $limit $project inside $facet and double-to-cents conversion",
+    "title": "Inventory lookup with pipeline filter",
+    "behavior": "products join inventory via $lookup localField foreignField plus pipeline $lt filter with cents conversion and facet grouping",
     "steps": [
       {
         "capture": false,
-        "command_ejson": "{\"insert\":\"customers\",\"documents\":[{\"_id\":\"c1\",\"tier\":\"gold\"},{\"_id\":\"c2\",\"tier\":\"silver\"}]}",
+        "command_ejson": "{\"insert\":\"products\",\"documents\":[{\"_id\":1,\"category\":\"books\",\"price\":{\"$numberDouble\":\"12.34\"}},{\"_id\":2,\"category\":\"books\",\"price\":1500},{\"_id\":3,\"category\":\"toys\",\"price\":{\"$numberDouble\":\"9.99\"}}]}",
         "expect_error": false,
         "in_txn": false,
-        "label": "insert_customers",
+        "label": "seed products",
         "op": "command",
         "unordered": false
       },
       {
         "capture": false,
-        "command_ejson": "{\"insert\":\"orders\",\"documents\":[{\"_id\":\"o1\",\"customer_id\":\"c1\",\"placed_at\":{\"$date\":\"2024-01-03T00:00:00Z\"},\"status\":\"paid\",\"total\":{\"$numberDouble\":\"10.0\"}},{\"_id\":\"o2\",\"customer_id\":\"c2\",\"placed_at\":{\"$date\":\"2024-01-05T00:00:00Z\"},\"status\":\"paid\",\"total\":{\"$numberInt\":\"2000\"}},{\"_id\":\"o3\",\"customer_id\":\"c1\",\"placed_at\":{\"$date\":\"2024-01-07T00:00:00Z\"},\"status\":\"paid\",\"total\":{\"$numberDouble\":\"30.75\"}},{\"_id\":\"o4\",\"customer_id\":\"c1\",\"placed_at\":{\"$date\":\"2024-01-09T00:00:00Z\"},\"status\":\"paid\",\"total\":{\"$numberInt\":\"500\"}},{\"_id\":\"o5\",\"customer_id\":\"c2\",\"placed_at\":{\"$date\":\"2024-01-11T00:00:00Z\"},\"status\":\"paid\",\"total\":{\"$numberDouble\":\"99.99\"}},{\"_id\":\"o6\",\"customer_id\":\"c1\",\"placed_at\":{\"$date\":\"2024-01-13T00:00:00Z\"},\"status\":\"paid\",\"total\":{\"$numberInt\":\"7000\"}}]}",
+        "command_ejson": "{\"insert\":\"inventory\",\"documents\":[{\"_id\":1,\"on_hand\":50},{\"_id\":2,\"on_hand\":500},{\"_id\":3,\"on_hand\":150}]}",
         "expect_error": false,
         "in_txn": false,
-        "label": "insert_orders",
+        "label": "seed inventory",
         "op": "command",
         "unordered": false
       },
       {
         "capture": true,
-        "command_ejson": "{\"aggregate\":\"orders\",\"pipeline\":[{\"$match\":{\"placed_at\":{\"$gte\":{\"$date\":\"2024-01-01T00:00:00Z\"},\"$lt\":{\"$date\":\"2024-02-01T00:00:00Z\"}},\"status\":{\"$ne\":\"cancelled\"}}},{\"$addFields\":{\"total_cents\":{\"$cond\":[{\"$eq\":[{\"$type\":\"$total\"},\"double\"]},{\"$round\":[{\"$multiply\":[\"$total\",100]},0]},\"$total\"]}}},{\"$lookup\":{\"from\":\"customers\",\"let\":{\"cid\":\"$customer_id\"},\"pipeline\":[{\"$match\":{\"$expr\":{\"$eq\":[\"$_id\",\"$$cid\"]}}},{\"$project\":{\"tier\":1,\"_id\":0}}],\"as\":\"customer\"}},{\"$unwind\":\"$customer\"},{\"$facet\":{\"largest\":[{\"$sort\":{\"total_cents\":-1,\"_id\":1}},{\"$limit\":5},{\"$project\":{\"total_cents\":1,\"tier\":\"$customer.tier\"}}]}}],\"cursor\":{}}",
-        "expect_ejson": "{\"docs\":[{\"largest\":[{\"_id\":\"o5\",\"total_cents\":9999,\"tier\":\"silver\"},{\"_id\":\"o6\",\"total_cents\":7000,\"tier\":\"gold\"},{\"_id\":\"o3\",\"total_cents\":3075,\"tier\":\"gold\"},{\"_id\":\"o2\",\"total_cents\":2000,\"tier\":\"silver\"},{\"_id\":\"o1\",\"total_cents\":1000,\"tier\":\"gold\"}]}]}",
+        "command_ejson": "{\"find\":\"products\",\"filter\":{},\"sort\":{\"_id\":1}}",
+        "expect_ejson": "{\"docs\":[{\"_id\":1,\"category\":\"books\",\"price\":12.34},{\"_id\":2,\"category\":\"books\",\"price\":1500},{\"_id\":3,\"category\":\"toys\",\"price\":9.99}]}",
         "expect_error": false,
         "in_txn": false,
-        "label": "facet_largest_top5",
+        "label": "confirm products",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": true,
+        "command_ejson": "{\"aggregate\":\"products\",\"pipeline\":[{\"$sort\":{\"_id\":1}},{\"$lookup\":{\"from\":\"inventory\",\"localField\":\"_id\",\"foreignField\":\"_id\",\"pipeline\":[{\"$match\":{\"$expr\":{\"$lt\":[\"$on_hand\",200]}}}],\"as\":\"stock\"}},{\"$project\":{\"category\":1,\"stock\":1}}],\"cursor\":{}}",
+        "expect_ejson": "{\"docs\":[{\"_id\":1,\"category\":\"books\",\"stock\":[{\"_id\":1,\"on_hand\":50}]},{\"_id\":2,\"category\":\"books\",\"stock\":[]},{\"_id\":3,\"category\":\"toys\",\"stock\":[{\"_id\":3,\"on_hand\":150}]}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "lookup keeps empty stock",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": true,
+        "command_ejson": "{\"aggregate\":\"products\",\"pipeline\":[{\"$lookup\":{\"from\":\"inventory\",\"localField\":\"_id\",\"foreignField\":\"_id\",\"pipeline\":[{\"$match\":{\"$expr\":{\"$lt\":[\"$on_hand\",200]}}}],\"as\":\"stock\"}},{\"$match\":{\"stock.0\":{\"$exists\":true}}},{\"$addFields\":{\"price_cents\":{\"$cond\":[{\"$eq\":[{\"$type\":\"$price\"},\"double\"]},{\"$round\":[{\"$multiply\":[\"$price\",100]},0]},\"$price\"]}}},{\"$facet\":{\"by_category\":[{\"$group\":{\"_id\":\"$category\",\"skus\":{\"$sum\":1},\"revenue\":{\"$sum\":\"$price_cents\"}}},{\"$sort\":{\"skus\":-1,\"_id\":1}}],\"empty_branch\":[{\"$match\":{\"_id\":-1}},{\"$group\":{\"_id\":null,\"n\":{\"$sum\":1}}}]}}],\"cursor\":{}}",
+        "expect_ejson": "{\"docs\":[{\"by_category\":[{\"_id\":\"books\",\"skus\":1,\"revenue\":1234},{\"_id\":\"toys\",\"skus\":1,\"revenue\":999}],\"empty_branch\":[]}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "group facet with cents",
         "op": "command",
         "unordered": false
       }
@@ -120,7 +182,13 @@
       "attempts": 1,
       "model": "muse-spark-1.3"
     },
-    "status": "valid"
+    "status": "valid",
+    "probe_hash": "53a53ee0",
+    "strategy_version": "v005",
+    "pre_seal_check": {
+      "ledger_commit": "6b69027",
+      "heldout_shapes_in_prompt": 0
+    }
   },
   {
     "probe_id": "F2.swf-running-total-seq",
@@ -152,7 +220,13 @@
       "attempts": 1,
       "model": "muse-spark-1.3"
     },
-    "status": "valid"
+    "status": "valid",
+    "probe_hash": "1f913e96",
+    "strategy_version": "v005",
+    "pre_seal_check": {
+      "ledger_commit": "6b69027",
+      "heldout_shapes_in_prompt": 0
+    }
   },
   {
     "probe_id": "F2.swf-rolling-90d",
@@ -184,7 +258,13 @@
       "attempts": 1,
       "model": "muse-spark-1.3"
     },
-    "status": "valid"
+    "status": "valid",
+    "probe_hash": "b01758e3",
+    "strategy_version": "v005",
+    "pre_seal_check": {
+      "ledger_commit": "6b69027",
+      "heldout_shapes_in_prompt": 0
+    }
   },
   {
     "probe_id": "F2.swf-prev-order-shift",
@@ -216,130 +296,337 @@
       "attempts": 1,
       "model": "muse-spark-1.3"
     },
-    "status": "valid"
+    "status": "valid",
+    "probe_hash": "0664fdb2",
+    "strategy_version": "v005",
+    "pre_seal_check": {
+      "ledger_commit": "6b69027",
+      "heldout_shapes_in_prompt": 0
+    }
   },
   {
-    "probe_id": "F3.arrayfilter-refund-selected",
+    "probe_id": "F3.arrayfilters-refund-reviewed",
     "feature_id": "F3",
-    "title": "Filtered positional refund targets only requested lines",
-    "behavior": "mark only the requested order lines as refunded with a filtered positional update guarded by line_id list and refund_status none",
+    "title": "filtered positional refund and all-positional review",
+    "behavior": "mark only the requested order lines as refunded with a filtered positional update guarded by line_id list and refund_status none | mark every order line as reviewed in a single update using the all-positional $[] operator",
     "steps": [
       {
         "capture": false,
-        "command_ejson": "{\"insert\":\"orders\",\"documents\":[{\"_id\":\"O00001995\",\"status\":\"delivered\",\"refund_total\":0,\"updated_at\":{\"$date\":\"2026-11-01T00:00:00Z\"},\"items\":[{\"line_id\":1,\"refund_status\":\"none\"},{\"line_id\":2,\"refund_status\":\"none\"},{\"line_id\":3,\"refund_status\":\"none\"}]}]}",
+        "command_ejson": "{\"insert\":\"orders\",\"documents\":[{\"_id\":\"O00001995\",\"status\":\"delivered\",\"refund_total\":{\"$numberDouble\":\"0.0\"},\"updated_at\":{\"$date\":\"2026-01-01T00:00:00Z\"},\"items\":[{\"line_id\":\"A\",\"refund_status\":\"none\",\"price\":{\"$numberDouble\":\"10.0\"},\"reviewed_by\":\"\"},{\"line_id\":\"B\",\"refund_status\":\"none\",\"price\":{\"$numberDouble\":\"20.5\"},\"reviewed_by\":\"\"}]}]}",
         "expect_error": false,
         "in_txn": false,
-        "label": "seed-order",
-        "op": "command",
-        "unordered": false
-      },
-      {
-        "capture": false,
-        "command_ejson": "{\"update\":\"orders\",\"updates\":[{\"q\":{\"_id\":\"O00001995\",\"status\":{\"$in\":[\"delivered\",\"partially_refunded\"]}},\"u\":{\"$set\":{\"items.$[line].refund_status\":\"refunded\",\"items.$[line].refunded_at\":{\"$date\":\"2026-11-02T00:00:00Z\"},\"updated_at\":{\"$date\":\"2026-11-02T00:00:00Z\"}},\"$inc\":{\"refund_total\":64800}},\"arrayFilters\":[{\"line.line_id\":{\"$in\":[1,2]},\"line.refund_status\":\"none\"}],\"multi\":false,\"upsert\":false}]}",
-        "expect_error": false,
-        "in_txn": false,
-        "label": "refund-selected-lines",
+        "label": "seed order with 2 lines",
         "op": "command",
         "unordered": false
       },
       {
         "capture": true,
-        "command_ejson": "{\"find\":\"orders\",\"filter\":{\"_id\":\"O00001995\"}}",
-        "expect_ejson": "{\"docs\":[{\"_id\":\"O00001995\",\"status\":\"delivered\",\"refund_total\":64800,\"updated_at\":{\"$date\":\"2026-11-02T00:00:00Z\"},\"items\":[{\"line_id\":1,\"refund_status\":\"refunded\",\"refunded_at\":{\"$date\":\"2026-11-02T00:00:00Z\"}},{\"line_id\":2,\"refund_status\":\"refunded\",\"refunded_at\":{\"$date\":\"2026-11-02T00:00:00Z\"}},{\"line_id\":3,\"refund_status\":\"none\"}]}]}",
+        "command_ejson": "{\"find\":\"orders\",\"filter\":{\"_id\":\"O00001995\"},\"sort\":{\"_id\":1}}",
+        "expect_ejson": "{\"docs\":[{\"_id\":\"O00001995\",\"status\":\"delivered\",\"refund_total\":0,\"updated_at\":{\"$date\":\"2026-01-01T00:00:00Z\"},\"items\":[{\"line_id\":\"A\",\"refund_status\":\"none\",\"price\":10,\"reviewed_by\":\"\"},{\"line_id\":\"B\",\"refund_status\":\"none\",\"price\":20.5,\"reviewed_by\":\"\"}]}]}",
         "expect_error": false,
         "in_txn": false,
-        "label": "verify-only-targeted-refunded",
-        "op": "command",
-        "unordered": true
-      }
-    ],
-    "generation": {
-      "attempts": 1,
-      "model": "muse-spark-1.3"
-    },
-    "status": "valid"
-  },
-  {
-    "probe_id": "F3.arrayfilter-refund-guard",
-    "feature_id": "F3",
-    "title": "Filtered positional guard skips already-refunded lines",
-    "behavior": "filtered positional guard on refund_status none prevents re-refunding an already refunded line",
-    "steps": [
-      {
-        "capture": false,
-        "command_ejson": "{\"insert\":\"orders\",\"documents\":[{\"_id\":\"O00001995\",\"status\":\"partially_refunded\",\"refund_total\":10000,\"updated_at\":{\"$date\":\"2026-11-01T00:00:00Z\"},\"items\":[{\"line_id\":1,\"refund_status\":\"none\"},{\"line_id\":2,\"refund_status\":\"refunded\",\"refunded_at\":{\"$date\":\"2026-10-20T00:00:00Z\"}},{\"line_id\":3,\"refund_status\":\"none\"}]}]}",
-        "expect_error": false,
-        "in_txn": false,
-        "label": "seed-mixed-states",
-        "op": "command",
-        "unordered": false
-      },
-      {
-        "capture": false,
-        "command_ejson": "{\"update\":\"orders\",\"updates\":[{\"q\":{\"_id\":\"O00001995\",\"status\":{\"$in\":[\"delivered\",\"partially_refunded\"]}},\"u\":{\"$set\":{\"items.$[line].refund_status\":\"refunded\",\"items.$[line].refunded_at\":{\"$date\":\"2026-11-02T00:00:00Z\"},\"updated_at\":{\"$date\":\"2026-11-02T00:00:00Z\"}},\"$inc\":{\"refund_total\":64800}},\"arrayFilters\":[{\"line.line_id\":{\"$in\":[1,2]},\"line.refund_status\":\"none\"}],\"multi\":false,\"upsert\":false}]}",
-        "expect_error": false,
-        "in_txn": false,
-        "label": "refund-with-guard",
+        "label": "confirm seed",
         "op": "command",
         "unordered": false
       },
       {
         "capture": true,
-        "command_ejson": "{\"find\":\"orders\",\"filter\":{\"_id\":\"O00001995\"}}",
-        "expect_ejson": "{\"docs\":[{\"_id\":\"O00001995\",\"status\":\"partially_refunded\",\"refund_total\":74800,\"updated_at\":{\"$date\":\"2026-11-02T00:00:00Z\"},\"items\":[{\"line_id\":1,\"refund_status\":\"refunded\",\"refunded_at\":{\"$date\":\"2026-11-02T00:00:00Z\"}},{\"line_id\":2,\"refund_status\":\"refunded\",\"refunded_at\":{\"$date\":\"2026-10-20T00:00:00Z\"}},{\"line_id\":3,\"refund_status\":\"none\"}]}]}",
+        "command_ejson": "{\"update\":\"orders\",\"updates\":[{\"q\":{\"_id\":\"O00001995\"},\"u\":{\"$set\":{\"items.$[line].refund_status\":\"refunded\"}},\"upsert\":false,\"multi\":false,\"arrayFilters\":[{\"line.line_id\":{\"$in\":[\"Z\"]},\"line.refund_status\":\"none\"}]}]}",
+        "expect_ejson": "{\"n\":1,\"nModified\":0}",
         "expect_error": false,
         "in_txn": false,
-        "label": "verify-guard-preserved",
-        "op": "command",
-        "unordered": true
-      }
-    ],
-    "generation": {
-      "attempts": 1,
-      "model": "muse-spark-1.3"
-    },
-    "status": "valid"
-  },
-  {
-    "probe_id": "F3.all-positional-reviewed",
-    "feature_id": "F3",
-    "title": "All-positional marks every line reviewed",
-    "behavior": "mark every order line as reviewed in a single update using the all-positional $[] operator",
-    "steps": [
-      {
-        "capture": false,
-        "command_ejson": "{\"insert\":\"orders\",\"documents\":[{\"_id\":\"O00001473\",\"status\":\"delivered\",\"items\":[{\"line_id\":1,\"sku\":\"A\"},{\"line_id\":2,\"sku\":\"B\"},{\"line_id\":3,\"sku\":\"C\"}]}]}",
-        "expect_error": false,
-        "in_txn": false,
-        "label": "seed-order",
-        "op": "command",
-        "unordered": false
-      },
-      {
-        "capture": false,
-        "command_ejson": "{\"update\":\"orders\",\"updates\":[{\"q\":{\"_id\":\"O00001473\"},\"u\":{\"$set\":{\"items.$[].reviewed_by\":\"qa-bot\"}},\"multi\":false,\"upsert\":false}]}",
-        "expect_error": false,
-        "in_txn": false,
-        "label": "mark-all-reviewed",
+        "label": "no-match arrayFilter no-op",
         "op": "command",
         "unordered": false
       },
       {
         "capture": true,
-        "command_ejson": "{\"find\":\"orders\",\"filter\":{\"_id\":\"O00001473\"}}",
-        "expect_ejson": "{\"docs\":[{\"_id\":\"O00001473\",\"status\":\"delivered\",\"items\":[{\"line_id\":1,\"sku\":\"A\",\"reviewed_by\":\"qa-bot\"},{\"line_id\":2,\"sku\":\"B\",\"reviewed_by\":\"qa-bot\"},{\"line_id\":3,\"sku\":\"C\",\"reviewed_by\":\"qa-bot\"}]}]}",
+        "command_ejson": "{\"find\":\"orders\",\"filter\":{\"_id\":\"O00001995\"},\"sort\":{\"_id\":1}}",
+        "expect_ejson": "{\"docs\":[{\"_id\":\"O00001995\",\"status\":\"delivered\",\"refund_total\":0,\"updated_at\":{\"$date\":\"2026-01-01T00:00:00Z\"},\"items\":[{\"line_id\":\"A\",\"refund_status\":\"none\",\"price\":10,\"reviewed_by\":\"\"},{\"line_id\":\"B\",\"refund_status\":\"none\",\"price\":20.5,\"reviewed_by\":\"\"}]}]}",
         "expect_error": false,
         "in_txn": false,
-        "label": "verify-all-reviewed",
+        "label": "read back unchanged",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": true,
+        "command_ejson": "{\"update\":\"orders\",\"updates\":[{\"q\":{\"_id\":\"O00001995\",\"status\":{\"$in\":[\"delivered\",\"partially_refunded\"]}},\"u\":{\"$set\":{\"items.$[a].refund_status\":\"refunded\",\"items.$[a].refunded_at\":{\"$date\":\"2026-11-02T00:00:00Z\"},\"items.$[b].reviewed_by\":\"early-review\",\"updated_at\":{\"$date\":\"2026-11-02T00:00:00Z\"}},\"$inc\":{\"refund_total\":100}},\"upsert\":false,\"multi\":false,\"arrayFilters\":[{\"a.line_id\":{\"$in\":[\"A\"]},\"a.refund_status\":\"none\"},{\"b.line_id\":\"A\"}]}]}",
+        "expect_ejson": "{\"n\":1,\"nModified\":1}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "two identifiers only line A",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": true,
+        "command_ejson": "{\"find\":\"orders\",\"filter\":{\"_id\":\"O00001995\"},\"sort\":{\"_id\":1}}",
+        "expect_ejson": "{\"docs\":[{\"_id\":\"O00001995\",\"status\":\"delivered\",\"refund_total\":100,\"updated_at\":{\"$date\":\"2026-11-02T00:00:00Z\"},\"items\":[{\"line_id\":\"A\",\"refund_status\":\"refunded\",\"refunded_at\":{\"$date\":\"2026-11-02T00:00:00Z\"},\"price\":10,\"reviewed_by\":\"early-review\"},{\"line_id\":\"B\",\"refund_status\":\"none\",\"price\":20.5,\"reviewed_by\":\"\"}]}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "read back only A changed",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": true,
+        "command_ejson": "{\"update\":\"orders\",\"updates\":[{\"q\":{\"_id\":\"O00001995\"},\"u\":{\"$set\":{\"items.$[].reviewed_by\":\"qa-bot\"}},\"upsert\":false,\"multi\":false}]}",
+        "expect_ejson": "{\"n\":1,\"nModified\":1}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "all-positional reviewed",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": true,
+        "command_ejson": "{\"find\":\"orders\",\"filter\":{\"_id\":\"O00001995\"},\"sort\":{\"_id\":1}}",
+        "expect_ejson": "{\"docs\":[{\"_id\":\"O00001995\",\"status\":\"delivered\",\"refund_total\":100,\"updated_at\":{\"$date\":\"2026-11-02T00:00:00Z\"},\"items\":[{\"line_id\":\"A\",\"refund_status\":\"refunded\",\"refunded_at\":{\"$date\":\"2026-11-02T00:00:00Z\"},\"price\":10,\"reviewed_by\":\"qa-bot\"},{\"line_id\":\"B\",\"refund_status\":\"none\",\"price\":20.5,\"reviewed_by\":\"qa-bot\"}]}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "read back all reviewed",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": true,
+        "command_ejson": "{\"aggregate\":\"orders\",\"pipeline\":[{\"$match\":{\"_id\":\"O00001995\"}},{\"$project\":{\"_id\":1,\"cents\":{\"$round\":[{\"$cond\":[{\"$eq\":[{\"$type\":\"$refund_total\"},\"double\"]},{\"$multiply\":[\"$refund_total\",100]},{\"$multiply\":[\"$refund_total\",100]}]},0]}}}],\"cursor\":{}}",
+        "expect_ejson": "{\"docs\":[{\"_id\":\"O00001995\",\"cents\":10000}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "cents from double total",
         "op": "command",
         "unordered": true
       }
     ],
     "generation": {
-      "attempts": 1,
+      "attempts": 2,
       "model": "muse-spark-1.3"
     },
-    "status": "valid"
+    "status": "valid",
+    "probe_hash": "5947a409",
+    "strategy_version": "v005",
+    "pre_seal_check": {
+      "ledger_commit": "6b69027",
+      "heldout_shapes_in_prompt": 0
+    }
+  },
+  {
+    "probe_id": "F3.arrayfilters-two-ids-allpos",
+    "feature_id": "F3",
+    "title": "filtered positional with two identifiers and all-positional review",
+    "behavior": "mark only requested order lines as refunded with filtered positional $[line] guarded by line_id $in list and refund_status none; mark every line reviewed with all-positional $[]",
+    "steps": [
+      {
+        "capture": false,
+        "command_ejson": "{\"insert\":\"orders\",\"documents\":[{\"_id\":\"O00002001\",\"status\":\"delivered\",\"refund_total\":{\"$numberDouble\":\"0.0\"},\"updated_at\":{\"$date\":\"2026-01-01T00:00:00Z\"},\"items\":[{\"line_id\":1,\"refund_status\":\"none\",\"price\":{\"$numberDouble\":\"15.0\"},\"reviewed_by\":\"\"},{\"line_id\":2,\"refund_status\":\"none\",\"price\":{\"$numberDouble\":\"25.0\"},\"reviewed_by\":\"\"}]}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "seed 2-line order",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": true,
+        "command_ejson": "{\"find\":\"orders\",\"filter\":{\"_id\":\"O00002001\"},\"sort\":{\"_id\":1}}",
+        "expect_ejson": "{\"docs\":[{\"_id\":\"O00002001\",\"status\":\"delivered\",\"refund_total\":0,\"updated_at\":{\"$date\":\"2026-01-01T00:00:00Z\"},\"items\":[{\"line_id\":1,\"refund_status\":\"none\",\"price\":15,\"reviewed_by\":\"\"},{\"line_id\":2,\"refund_status\":\"none\",\"price\":25,\"reviewed_by\":\"\"}]}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "confirm seed",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": true,
+        "command_ejson": "{\"update\":\"orders\",\"updates\":[{\"q\":{\"_id\":\"O00002001\"},\"u\":{\"$set\":{\"items.$[line].refund_status\":\"refunded\"}},\"arrayFilters\":[{\"line.line_id\":{\"$in\":[99]},\"line.refund_status\":\"none\"}],\"multi\":false,\"upsert\":false}]}",
+        "expect_ejson": "{\"n\":1,\"nModified\":0}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "no-match arrayFilter no-op",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": true,
+        "command_ejson": "{\"find\":\"orders\",\"filter\":{\"_id\":\"O00002001\"},\"sort\":{\"_id\":1}}",
+        "expect_ejson": "{\"docs\":[{\"_id\":\"O00002001\",\"status\":\"delivered\",\"refund_total\":0,\"updated_at\":{\"$date\":\"2026-01-01T00:00:00Z\"},\"items\":[{\"line_id\":1,\"refund_status\":\"none\",\"price\":15,\"reviewed_by\":\"\"},{\"line_id\":2,\"refund_status\":\"none\",\"price\":25,\"reviewed_by\":\"\"}]}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "read back unchanged",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": true,
+        "command_ejson": "{\"update\":\"orders\",\"updates\":[{\"q\":{\"_id\":\"O00002001\"},\"u\":{\"$set\":{\"items.$[a].refund_status\":\"refunded\",\"items.$[a].refunded_at\":{\"$date\":\"2026-11-02T00:00:00Z\"},\"items.$[b].reviewed_by\":\"checked\",\"updated_at\":{\"$date\":\"2026-11-02T00:00:00Z\"}},\"$inc\":{\"refund_total\":50}},\"arrayFilters\":[{\"a.line_id\":{\"$in\":[1,2]},\"a.refund_status\":\"none\",\"a.price\":{\"$lt\":20}},{\"b.line_id\":{\"$in\":[1]}}],\"multi\":false,\"upsert\":false}]}",
+        "expect_ejson": "{\"n\":1,\"nModified\":1}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "two identifiers same element",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": true,
+        "command_ejson": "{\"find\":\"orders\",\"filter\":{\"_id\":\"O00002001\"},\"sort\":{\"_id\":1}}",
+        "expect_ejson": "{\"docs\":[{\"_id\":\"O00002001\",\"status\":\"delivered\",\"refund_total\":50,\"updated_at\":{\"$date\":\"2026-11-02T00:00:00Z\"},\"items\":[{\"line_id\":1,\"refund_status\":\"refunded\",\"price\":15,\"reviewed_by\":\"checked\",\"refunded_at\":{\"$date\":\"2026-11-02T00:00:00Z\"}},{\"line_id\":2,\"refund_status\":\"none\",\"price\":25,\"reviewed_by\":\"\"}]}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "read back only line 1 changed",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": true,
+        "command_ejson": "{\"update\":\"orders\",\"updates\":[{\"q\":{\"_id\":\"O00002001\"},\"u\":{\"$set\":{\"items.$[].reviewed_by\":\"qa-bot\"}},\"multi\":false,\"upsert\":false}]}",
+        "expect_ejson": "{\"n\":1,\"nModified\":1}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "all-positional reviewed",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": true,
+        "command_ejson": "{\"find\":\"orders\",\"filter\":{\"_id\":\"O00002001\"},\"sort\":{\"_id\":1}}",
+        "expect_ejson": "{\"docs\":[{\"_id\":\"O00002001\",\"status\":\"delivered\",\"refund_total\":50,\"updated_at\":{\"$date\":\"2026-11-02T00:00:00Z\"},\"items\":[{\"line_id\":1,\"refund_status\":\"refunded\",\"price\":15,\"reviewed_by\":\"qa-bot\",\"refunded_at\":{\"$date\":\"2026-11-02T00:00:00Z\"}},{\"line_id\":2,\"refund_status\":\"none\",\"price\":25,\"reviewed_by\":\"qa-bot\"}]}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "read back after all-positional",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": true,
+        "command_ejson": "{\"aggregate\":\"orders\",\"pipeline\":[{\"$match\":{\"_id\":\"O00002001\"}},{\"$project\":{\"_id\":1,\"cents\":{\"$round\":[{\"$cond\":[{\"$eq\":[{\"$type\":\"$refund_total\"},\"double\"]},{\"$multiply\":[\"$refund_total\",100]},{\"$multiply\":[\"$refund_total\",100]}]},0]}}}],\"cursor\":{}}",
+        "expect_ejson": "{\"docs\":[{\"_id\":\"O00002001\",\"cents\":5000}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "cents from double total",
+        "op": "command",
+        "unordered": false
+      }
+    ],
+    "generation": {
+      "attempts": 3,
+      "model": "muse-spark-1.3"
+    },
+    "status": "valid",
+    "probe_hash": "eb3b7930",
+    "strategy_version": "v005",
+    "pre_seal_check": {
+      "ledger_commit": "6b69027",
+      "heldout_shapes_in_prompt": 0
+    }
+  },
+  {
+    "probe_id": "F3.arrayfilters-pos-updates",
+    "feature_id": "F3",
+    "title": "filtered positional and all-positional item updates",
+    "behavior": "mark only requested order lines as refunded with filtered positional $[line] guarded by line_id list and refund_status none, and mark every line reviewed with all-positional $[]",
+    "steps": [
+      {
+        "capture": false,
+        "command_ejson": "{\"insert\":\"orders\",\"documents\":[{\"_id\":\"O00001995\",\"status\":\"delivered\",\"refund_total\":{\"$numberDouble\":\"10.5\"},\"updated_at\":{\"$date\":\"2026-01-01T00:00:00Z\"},\"items\":[{\"line_id\":1,\"refund_status\":\"none\",\"reviewed_by\":\"\",\"price\":{\"$numberDouble\":\"9.99\"}},{\"line_id\":2,\"refund_status\":\"none\",\"reviewed_by\":\"\",\"price\":{\"$numberDouble\":\"5.0\"}}]}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "seed order with two lines",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": true,
+        "command_ejson": "{\"find\":\"orders\",\"filter\":{\"_id\":\"O00001995\"},\"sort\":{\"_id\":1}}",
+        "expect_ejson": "{\"docs\":[{\"_id\":\"O00001995\",\"status\":\"delivered\",\"refund_total\":10.5,\"updated_at\":{\"$date\":\"2026-01-01T00:00:00Z\"},\"items\":[{\"line_id\":1,\"refund_status\":\"none\",\"reviewed_by\":\"\",\"price\":9.99},{\"line_id\":2,\"refund_status\":\"none\",\"reviewed_by\":\"\",\"price\":5}]}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "confirm seed",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": true,
+        "command_ejson": "{\"update\":\"orders\",\"updates\":[{\"q\":{\"_id\":\"O00001995\",\"status\":{\"$in\":[\"delivered\",\"partially_refunded\"]}},\"u\":{\"$set\":{\"items.$[line].refund_status\":\"refunded\"}},\"arrayFilters\":[{\"line.line_id\":{\"$in\":[99]},\"line.refund_status\":\"none\"}],\"multi\":false,\"upsert\":false}]}",
+        "expect_ejson": "{\"n\":1,\"nModified\":0}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "no-match arrayfilter no-op",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": true,
+        "command_ejson": "{\"find\":\"orders\",\"filter\":{\"_id\":\"O00001995\"},\"sort\":{\"_id\":1}}",
+        "expect_ejson": "{\"docs\":[{\"_id\":\"O00001995\",\"status\":\"delivered\",\"refund_total\":10.5,\"updated_at\":{\"$date\":\"2026-01-01T00:00:00Z\"},\"items\":[{\"line_id\":1,\"refund_status\":\"none\",\"reviewed_by\":\"\",\"price\":9.99},{\"line_id\":2,\"refund_status\":\"none\",\"reviewed_by\":\"\",\"price\":5}]}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "read back unchanged after no-op",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": true,
+        "command_ejson": "{\"update\":\"orders\",\"updates\":[{\"q\":{\"_id\":\"O00001995\",\"status\":{\"$in\":[\"delivered\",\"partially_refunded\"]}},\"u\":{\"$set\":{\"items.$[line].refund_status\":\"refunded\",\"items.$[line].refunded_at\":{\"$date\":\"2026-11-02T00:00:00Z\"},\"items.$[r2].reviewed_by\":\"qa-bot\",\"updated_at\":{\"$date\":\"2026-11-02T00:00:00Z\"}},\"$inc\":{\"refund_total\":64800}},\"arrayFilters\":[{\"line.line_id\":{\"$in\":[1]},\"line.refund_status\":\"none\"},{\"r2.line_id\":1}],\"multi\":false,\"upsert\":false}]}",
+        "expect_ejson": "{\"n\":1,\"nModified\":1}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "two-identifier filtered update line 1",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": true,
+        "command_ejson": "{\"find\":\"orders\",\"filter\":{\"_id\":\"O00001995\"},\"sort\":{\"_id\":1}}",
+        "expect_ejson": "{\"docs\":[{\"_id\":\"O00001995\",\"status\":\"delivered\",\"refund_total\":64810.5,\"updated_at\":{\"$date\":\"2026-11-02T00:00:00Z\"},\"items\":[{\"line_id\":1,\"refund_status\":\"refunded\",\"refunded_at\":{\"$date\":\"2026-11-02T00:00:00Z\"},\"reviewed_by\":\"qa-bot\",\"price\":9.99},{\"line_id\":2,\"refund_status\":\"none\",\"reviewed_by\":\"\",\"price\":5}]}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "read back only line 1 changed",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": true,
+        "command_ejson": "{\"update\":\"orders\",\"updates\":[{\"q\":{\"_id\":\"O00001995\"},\"u\":{\"$set\":{\"items.$[].reviewed_by\":\"qa-bot\"}},\"multi\":false,\"upsert\":false}]}",
+        "expect_ejson": "{\"n\":1,\"nModified\":1}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "mark all reviewed with $[]",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": true,
+        "command_ejson": "{\"find\":\"orders\",\"filter\":{\"_id\":\"O00001995\"},\"sort\":{\"_id\":1}}",
+        "expect_ejson": "{\"docs\":[{\"_id\":\"O00001995\",\"status\":\"delivered\",\"refund_total\":64810.5,\"updated_at\":{\"$date\":\"2026-11-02T00:00:00Z\"},\"items\":[{\"line_id\":1,\"refund_status\":\"refunded\",\"refunded_at\":{\"$date\":\"2026-11-02T00:00:00Z\"},\"reviewed_by\":\"qa-bot\",\"price\":9.99},{\"line_id\":2,\"refund_status\":\"none\",\"reviewed_by\":\"qa-bot\",\"price\":5}]}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "read back all reviewed",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": true,
+        "command_ejson": "{\"aggregate\":\"orders\",\"pipeline\":[{\"$match\":{\"_id\":\"O00001995\"}},{\"$project\":{\"_id\":1,\"cents\":{\"$round\":[{\"$cond\":[{\"$eq\":[{\"$type\":\"$refund_total\"},\"double\"]},{\"$multiply\":[\"$refund_total\",100]},{\"$multiply\":[\"$refund_total\",100]}]},0]}}}],\"cursor\":{}}",
+        "expect_ejson": "{\"docs\":[{\"_id\":\"O00001995\",\"cents\":6481050}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "cents from double total",
+        "op": "command",
+        "unordered": true
+      }
+    ],
+    "generation": {
+      "attempts": 2,
+      "model": "muse-spark-1.3"
+    },
+    "status": "valid",
+    "probe_hash": "fb834cae",
+    "strategy_version": "v005",
+    "pre_seal_check": {
+      "ledger_commit": "6b69027",
+      "heldout_shapes_in_prompt": 0
+    }
   },
   {
     "probe_id": "F4.txn-abort-rollback",
@@ -415,7 +702,13 @@
       "attempts": 1,
       "model": "muse-spark-1.3"
     },
-    "status": "valid"
+    "status": "valid",
+    "probe_hash": "6fa2dafb",
+    "strategy_version": "v005",
+    "pre_seal_check": {
+      "ledger_commit": "6b69027",
+      "heldout_shapes_in_prompt": 0
+    }
   },
   {
     "probe_id": "F4.txn-commit-atomic",
@@ -519,7 +812,13 @@
       "attempts": 1,
       "model": "muse-spark-1.3"
     },
-    "status": "valid"
+    "status": "valid",
+    "probe_hash": "3525dbc0",
+    "strategy_version": "v005",
+    "pre_seal_check": {
+      "ledger_commit": "6b69027",
+      "heldout_shapes_in_prompt": 0
+    }
   },
   {
     "probe_id": "F4.txn-isolation-uncommitted",
@@ -596,7 +895,13 @@
       "attempts": 1,
       "model": "muse-spark-1.3"
     },
-    "status": "valid"
+    "status": "valid",
+    "probe_hash": "71f24419",
+    "strategy_version": "v005",
+    "pre_seal_check": {
+      "ledger_commit": "6b69027",
+      "heldout_shapes_in_prompt": 0
+    }
   },
   {
     "probe_id": "F5.cs-filter-update-replace",
@@ -681,7 +986,13 @@
       "attempts": 2,
       "model": "muse-spark-1.3"
     },
-    "status": "valid"
+    "status": "valid",
+    "probe_hash": "744dd751",
+    "strategy_version": "v005",
+    "pre_seal_check": {
+      "ledger_commit": "6b69027",
+      "heldout_shapes_in_prompt": 0
+    }
   },
   {
     "probe_id": "F5.cs-fulldocument-lookup",
@@ -746,7 +1057,13 @@
       "attempts": 2,
       "model": "muse-spark-1.3"
     },
-    "status": "valid"
+    "status": "valid",
+    "probe_hash": "2e753af1",
+    "strategy_version": "v005",
+    "pre_seal_check": {
+      "ledger_commit": "6b69027",
+      "heldout_shapes_in_prompt": 0
+    }
   },
   {
     "probe_id": "F5.cs-event-per-change",
@@ -843,7 +1160,13 @@
       "attempts": 2,
       "model": "muse-spark-1.3"
     },
-    "status": "valid"
+    "status": "valid",
+    "probe_hash": "ee2dda95",
+    "strategy_version": "v005",
+    "pre_seal_check": {
+      "ledger_commit": "6b69027",
+      "heldout_shapes_in_prompt": 0
+    }
   },
   {
     "probe_id": "F6.ci-lookup",
@@ -885,7 +1208,13 @@
       "attempts": 1,
       "model": "muse-spark-1.3"
     },
-    "status": "valid"
+    "status": "valid",
+    "probe_hash": "1a8c4f87",
+    "strategy_version": "v005",
+    "pre_seal_check": {
+      "ledger_commit": "6b69027",
+      "heldout_shapes_in_prompt": 0
+    }
   },
   {
     "probe_id": "F6.ci-unique",
@@ -945,7 +1274,13 @@
       "attempts": 1,
       "model": "muse-spark-1.3"
     },
-    "status": "valid"
+    "status": "valid",
+    "probe_hash": "63e693f5",
+    "strategy_version": "v005",
+    "pre_seal_check": {
+      "ledger_commit": "6b69027",
+      "heldout_shapes_in_prompt": 0
+    }
   },
   {
     "probe_id": "F6.ci-gating",
@@ -987,7 +1322,13 @@
       "attempts": 1,
       "model": "muse-spark-1.3"
     },
-    "status": "valid"
+    "status": "valid",
+    "probe_hash": "754cf803",
+    "strategy_version": "v005",
+    "pre_seal_check": {
+      "ledger_commit": "6b69027",
+      "heldout_shapes_in_prompt": 0
+    }
   },
   {
     "probe_id": "F7.partial-unique-missing-exempt",
@@ -1056,7 +1397,13 @@
       "attempts": 1,
       "model": "muse-spark-1.3"
     },
-    "status": "valid"
+    "status": "valid",
+    "probe_hash": "513f3926",
+    "strategy_version": "v005",
+    "pre_seal_check": {
+      "ledger_commit": "6b69027",
+      "heldout_shapes_in_prompt": 0
+    }
   },
   {
     "probe_id": "F7.partial-unique-per-customer",
@@ -1116,7 +1463,13 @@
       "attempts": 1,
       "model": "muse-spark-1.3"
     },
-    "status": "valid"
+    "status": "valid",
+    "probe_hash": "67cc8483",
+    "strategy_version": "v005",
+    "pre_seal_check": {
+      "ledger_commit": "6b69027",
+      "heldout_shapes_in_prompt": 0
+    }
   },
   {
     "probe_id": "F7.ttl-active-only-expiry",
@@ -1175,7 +1528,13 @@
       "attempts": 1,
       "model": "muse-spark-1.3"
     },
-    "status": "valid"
+    "status": "valid",
+    "probe_hash": "91a5f95c",
+    "strategy_version": "v005",
+    "pre_seal_check": {
+      "ledger_commit": "6b69027",
+      "heldout_shapes_in_prompt": 0
+    }
   },
   {
     "probe_id": "F8.orders-required-fields",
@@ -1236,7 +1595,13 @@
       "attempts": 1,
       "model": "muse-spark-1.3"
     },
-    "status": "valid"
+    "status": "valid",
+    "probe_hash": "a8b58d33",
+    "strategy_version": "v005",
+    "pre_seal_check": {
+      "ledger_commit": "6b69027",
+      "heldout_shapes_in_prompt": 0
+    }
   },
   {
     "probe_id": "F8.orders-enum-total",
@@ -1297,7 +1662,13 @@
       "attempts": 1,
       "model": "muse-spark-1.3"
     },
-    "status": "valid"
+    "status": "valid",
+    "probe_hash": "6042a44c",
+    "strategy_version": "v005",
+    "pre_seal_check": {
+      "ledger_commit": "6b69027",
+      "heldout_shapes_in_prompt": 0
+    }
   },
   {
     "probe_id": "F8.orders-types-update",
@@ -1377,7 +1748,13 @@
       "attempts": 1,
       "model": "muse-spark-1.3"
     },
-    "status": "valid"
+    "status": "valid",
+    "probe_hash": "4f87ffae",
+    "strategy_version": "v005",
+    "pre_seal_check": {
+      "ledger_commit": "6b69027",
+      "heldout_shapes_in_prompt": 0
+    }
   },
   {
     "probe_id": "F9.text_weighted_ranking",
@@ -1418,7 +1795,13 @@
       "attempts": 3,
       "model": "muse-spark-1.3"
     },
-    "status": "valid"
+    "status": "valid",
+    "probe_hash": "054a1227",
+    "strategy_version": "v005",
+    "pre_seal_check": {
+      "ledger_commit": "6b69027",
+      "heldout_shapes_in_prompt": 0
+    }
   },
   {
     "probe_id": "F9.text_exclusion_term",
@@ -1459,7 +1842,13 @@
       "attempts": 2,
       "model": "muse-spark-1.3"
     },
-    "status": "valid"
+    "status": "valid",
+    "probe_hash": "e4bfa015",
+    "strategy_version": "v005",
+    "pre_seal_check": {
+      "ledger_commit": "6b69027",
+      "heldout_shapes_in_prompt": 0
+    }
   },
   {
     "probe_id": "F9.text_search_active_ranked",
@@ -1500,158 +1889,113 @@
       "attempts": 3,
       "model": "muse-spark-1.3"
     },
-    "status": "valid"
+    "status": "valid",
+    "probe_hash": "c57a94ad",
+    "strategy_version": "v005",
+    "pre_seal_check": {
+      "ledger_commit": "6b69027",
+      "heldout_shapes_in_prompt": 0
+    }
   },
   {
-    "probe_id": "F10.cart-upsert-fetch-convert-discard",
+    "probe_id": "F10.cart-touch-fetch-discard",
     "feature_id": "F10",
-    "title": "Cart upsert fetch convert conditional delete",
-    "behavior": "Touching a cart must upsert by _id marking active, fetching uses find by customer_id+status, converting updates status/order_id by _id, discarding deletes only when still active",
+    "title": "Cart upsert fetch convert discard with cents",
+    "behavior": "Touching a cart atomically create-or-updates by _id via upsert while marking active; fetching uses plain find by customer_id and status active; converting updates status to converted with order_id by _id; discarding deletes only when _id is still active",
     "steps": [
       {
         "capture": false,
-        "command_ejson": "{\"update\":\"carts\",\"updates\":[{\"q\":{\"_id\":\"cart1\"},\"u\":{\"$set\":{\"customer_id\":\"custA\",\"status\":\"active\"}},\"upsert\":true,\"multi\":false}]}",
+        "command_ejson": "{\"insert\":\"carts\",\"documents\":[{\"_id\":\"K0000021\",\"customer_id\":\"C004233\",\"items\":[{\"qty\":1,\"sku\":\"SKU-0318\"}],\"status\":\"active\",\"total\":19.99},{\"_id\":\"K0000022\",\"customer_id\":\"C004233\",\"items\":[{\"qty\":2,\"sku\":\"SKU-0001\"},{\"qty\":1,\"sku\":\"SKU-0318\"}],\"status\":\"active\",\"total\":10}]}",
         "expect_error": false,
         "in_txn": false,
-        "label": "touch-upsert",
+        "label": "seed carts",
         "op": "command",
         "unordered": false
       },
       {
         "capture": true,
-        "command_ejson": "{\"find\":\"carts\",\"filter\":{\"customer_id\":\"custA\",\"status\":\"active\"}}",
-        "expect_ejson": "{\"docs\":[{\"_id\":\"cart1\",\"customer_id\":\"custA\",\"status\":\"active\"}]}",
+        "command_ejson": "{\"find\":\"carts\",\"filter\":{},\"sort\":{\"_id\":1}}",
+        "expect_ejson": "{\"docs\":[{\"_id\":\"K0000021\",\"customer_id\":\"C004233\",\"items\":[{\"qty\":1,\"sku\":\"SKU-0318\"}],\"status\":\"active\",\"total\":19.99},{\"_id\":\"K0000022\",\"customer_id\":\"C004233\",\"items\":[{\"qty\":2,\"sku\":\"SKU-0001\"},{\"qty\":1,\"sku\":\"SKU-0318\"}],\"status\":\"active\",\"total\":10}]}",
         "expect_error": false,
         "in_txn": false,
-        "label": "fetch-by-customer-status",
-        "op": "command",
-        "unordered": true
-      },
-      {
-        "capture": false,
-        "command_ejson": "{\"update\":\"carts\",\"updates\":[{\"q\":{\"_id\":\"cart1\"},\"u\":{\"$set\":{\"order_id\":\"O1\",\"status\":\"converted\"}},\"upsert\":false,\"multi\":false}]}",
-        "expect_error": false,
-        "in_txn": false,
-        "label": "convert-cart",
-        "op": "command",
-        "unordered": false
-      },
-      {
-        "capture": true,
-        "command_ejson": "{\"find\":\"carts\",\"filter\":{\"_id\":\"cart1\"}}",
-        "expect_ejson": "{\"docs\":[{\"_id\":\"cart1\",\"customer_id\":\"custA\",\"order_id\":\"O1\",\"status\":\"converted\"}]}",
-        "expect_error": false,
-        "in_txn": false,
-        "label": "fetch-converted",
-        "op": "command",
-        "unordered": true
-      },
-      {
-        "capture": false,
-        "command_ejson": "{\"delete\":\"carts\",\"deletes\":[{\"q\":{\"_id\":\"cart1\",\"status\":\"active\"},\"limit\":1}]}",
-        "expect_error": false,
-        "in_txn": false,
-        "label": "discard-active-only-miss",
-        "op": "command",
-        "unordered": false
-      },
-      {
-        "capture": true,
-        "command_ejson": "{\"find\":\"carts\",\"filter\":{\"_id\":\"cart1\"}}",
-        "expect_ejson": "{\"docs\":[{\"_id\":\"cart1\",\"customer_id\":\"custA\",\"order_id\":\"O1\",\"status\":\"converted\"}]}",
-        "expect_error": false,
-        "in_txn": false,
-        "label": "verify-still-present",
-        "op": "command",
-        "unordered": true
-      }
-    ],
-    "generation": {
-      "attempts": 1,
-      "model": "muse-spark-1.3"
-    },
-    "status": "valid"
-  },
-  {
-    "probe_id": "F10.order-cas-history-find",
-    "feature_id": "F10",
-    "title": "Order compare-and-set with history and filtered finds",
-    "behavior": "Order status must compare-and-set on _id+status $in while $set status/updated_at and $push history with no modification on stale prior set, history uses find by customer_id with projection sort limit, open orders uses find by status with sort limit and count",
-    "steps": [
-      {
-        "capture": false,
-        "command_ejson": "{\"insert\":\"orders\",\"documents\":[{\"_id\":\"O10\",\"customer_id\":\"custB\",\"history\":[],\"placed_at\":{\"$date\":\"2026-01-01T00:00:00Z\"},\"status\":\"placed\"},{\"_id\":\"O11\",\"customer_id\":\"custB\",\"history\":[],\"placed_at\":{\"$date\":\"2026-01-02T00:00:00Z\"},\"status\":\"placed\"}]}",
-        "expect_error": false,
-        "in_txn": false,
-        "label": "insert-orders",
+        "label": "confirm seed",
         "op": "command",
         "unordered": false
       },
       {
         "capture": false,
-        "command_ejson": "{\"update\":\"orders\",\"updates\":[{\"q\":{\"_id\":\"O10\",\"status\":{\"$in\":[\"placed\"]}},\"u\":{\"$push\":{\"history\":\"paid\"},\"$set\":{\"status\":\"paid\",\"updated_at\":{\"$date\":\"2026-01-10T00:00:00Z\"}}},\"upsert\":false,\"multi\":false}]}",
+        "command_ejson": "{\"update\":\"carts\",\"updates\":[{\"q\":{\"_id\":\"K0000099\"},\"u\":{\"$set\":{\"customer_id\":\"C009999\",\"items\":[{\"qty\":1,\"sku\":\"SKU-0318\"}],\"status\":\"active\",\"total\":5.5}},\"upsert\":true}]}",
         "expect_error": false,
         "in_txn": false,
-        "label": "cas-success",
+        "label": "touch upsert new cart",
         "op": "command",
         "unordered": false
       },
       {
         "capture": true,
-        "command_ejson": "{\"find\":\"orders\",\"filter\":{\"_id\":\"O10\"}}",
-        "expect_ejson": "{\"docs\":[{\"_id\":\"O10\",\"customer_id\":\"custB\",\"history\":[\"paid\"],\"placed_at\":{\"$date\":\"2026-01-01T00:00:00Z\"},\"status\":\"paid\",\"updated_at\":{\"$date\":\"2026-01-10T00:00:00Z\"}}]}",
+        "command_ejson": "{\"find\":\"carts\",\"filter\":{\"customer_id\":\"C009999\",\"status\":\"active\"},\"sort\":{\"_id\":1}}",
+        "expect_ejson": "{\"docs\":[{\"_id\":\"K0000099\",\"customer_id\":\"C009999\",\"items\":[{\"qty\":1,\"sku\":\"SKU-0318\"}],\"status\":\"active\",\"total\":5.5}]}",
         "expect_error": false,
         "in_txn": false,
-        "label": "verify-paid",
+        "label": "fetch active cart",
         "op": "command",
-        "unordered": true
+        "unordered": false
+      },
+      {
+        "capture": true,
+        "command_ejson": "{\"find\":\"carts\",\"filter\":{\"customer_id\":\"C-NOMATCH\",\"status\":\"active\"},\"sort\":{\"_id\":1}}",
+        "expect_ejson": "{\"docs\":[]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "fetch no-match empty",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": true,
+        "command_ejson": "{\"aggregate\":\"carts\",\"pipeline\":[{\"$group\":{\"_id\":null,\"n\":{\"$sum\":1},\"totalCents\":{\"$sum\":{\"$cond\":[{\"$eq\":[{\"$type\":\"$total\"},\"double\"]},{\"$round\":[{\"$multiply\":[\"$total\",100]},0]},{\"$multiply\":[\"$total\",100]}]}}}},{\"$project\":{\"_id\":0,\"n\":1,\"totalCents\":1}}],\"cursor\":{}}",
+        "expect_ejson": "{\"docs\":[{\"n\":3,\"totalCents\":3549}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "cents total",
+        "op": "command",
+        "unordered": false
       },
       {
         "capture": false,
-        "command_ejson": "{\"update\":\"orders\",\"updates\":[{\"q\":{\"_id\":\"O10\",\"status\":{\"$in\":[\"placed\"]}},\"u\":{\"$set\":{\"status\":\"shipped\"}},\"upsert\":false,\"multi\":false}]}",
+        "command_ejson": "{\"update\":\"carts\",\"updates\":[{\"q\":{\"_id\":\"K0000022\"},\"u\":{\"$set\":{\"items.$[a].qty\":5,\"items.$[b].qty\":9,\"order_id\":\"O0000001\",\"status\":\"converted\"}},\"arrayFilters\":[{\"a.sku\":\"SKU-0001\"},{\"b.sku\":\"SKU-0318\"}]}]}",
         "expect_error": false,
         "in_txn": false,
-        "label": "cas-stale-noop",
+        "label": "convert with two arrayFilters",
         "op": "command",
         "unordered": false
       },
       {
         "capture": true,
-        "command_ejson": "{\"find\":\"orders\",\"filter\":{\"_id\":\"O10\"}}",
-        "expect_ejson": "{\"docs\":[{\"_id\":\"O10\",\"customer_id\":\"custB\",\"history\":[\"paid\"],\"placed_at\":{\"$date\":\"2026-01-01T00:00:00Z\"},\"status\":\"paid\",\"updated_at\":{\"$date\":\"2026-01-10T00:00:00Z\"}}]}",
+        "command_ejson": "{\"find\":\"carts\",\"filter\":{\"_id\":\"K0000022\"}}",
+        "expect_ejson": "{\"docs\":[{\"_id\":\"K0000022\",\"customer_id\":\"C004233\",\"items\":[{\"qty\":5,\"sku\":\"SKU-0001\"},{\"qty\":9,\"sku\":\"SKU-0318\"}],\"order_id\":\"O0000001\",\"status\":\"converted\",\"total\":10}]}",
         "expect_error": false,
         "in_txn": false,
-        "label": "verify-still-paid",
+        "label": "read back converted",
         "op": "command",
-        "unordered": true
+        "unordered": false
       },
       {
-        "capture": true,
-        "command_ejson": "{\"find\":\"orders\",\"filter\":{\"customer_id\":\"custB\"},\"limit\":2,\"projection\":{\"_id\":1,\"status\":1},\"sort\":{\"placed_at\":-1,\"_id\":1}}",
-        "expect_ejson": "{\"docs\":[{\"_id\":\"O11\",\"status\":\"placed\"},{\"_id\":\"O10\",\"status\":\"paid\"}]}",
+        "capture": false,
+        "command_ejson": "{\"delete\":\"carts\",\"deletes\":[{\"limit\":1,\"q\":{\"_id\":\"K0000021\",\"status\":\"active\"}},{\"limit\":1,\"q\":{\"_id\":\"K0000022\",\"status\":\"active\"}}]}",
         "expect_error": false,
         "in_txn": false,
-        "label": "history-by-customer",
+        "label": "discard active plus no-op",
         "op": "command",
         "unordered": false
       },
       {
         "capture": true,
-        "command_ejson": "{\"find\":\"orders\",\"filter\":{\"status\":\"placed\"},\"limit\":10,\"projection\":{\"_id\":1,\"status\":1},\"sort\":{\"placed_at\":-1,\"_id\":1}}",
-        "expect_ejson": "{\"docs\":[{\"_id\":\"O11\",\"status\":\"placed\"}]}",
+        "command_ejson": "{\"find\":\"carts\",\"filter\":{},\"sort\":{\"_id\":1}}",
+        "expect_ejson": "{\"docs\":[{\"_id\":\"K0000022\",\"customer_id\":\"C004233\",\"items\":[{\"qty\":5,\"sku\":\"SKU-0001\"},{\"qty\":9,\"sku\":\"SKU-0318\"}],\"order_id\":\"O0000001\",\"status\":\"converted\",\"total\":10},{\"_id\":\"K0000099\",\"customer_id\":\"C009999\",\"items\":[{\"qty\":1,\"sku\":\"SKU-0318\"}],\"status\":\"active\",\"total\":5.5}]}",
         "expect_error": false,
         "in_txn": false,
-        "label": "open-by-status",
-        "op": "command",
-        "unordered": false
-      },
-      {
-        "capture": true,
-        "command_ejson": "{\"count\":\"orders\",\"query\":{\"customer_id\":\"custB\"}}",
-        "expect_ejson": "{\"n\":2}",
-        "expect_error": false,
-        "in_txn": false,
-        "label": "count-by-customer",
+        "label": "final carts",
         "op": "command",
         "unordered": false
       }
@@ -1660,7 +2004,130 @@
       "attempts": 2,
       "model": "muse-spark-1.3"
     },
-    "status": "valid"
+    "status": "valid",
+    "probe_hash": "15aa1732",
+    "strategy_version": "v005",
+    "pre_seal_check": {
+      "ledger_commit": "7448e65",
+      "heldout_shapes_in_prompt": 0
+    }
+  },
+  {
+    "probe_id": "F10.order-cas-history-paginate",
+    "feature_id": "F10",
+    "title": "Order compare-and-set status with history push, customer history pagination and open-orders listing",
+    "behavior": "Order compare-and-set status with history push, customer history pagination and open-orders listing",
+    "steps": [
+      {
+        "capture": false,
+        "command_ejson": "{\"insert\":\"orders\",\"documents\":[{\"_id\":\"O0000001\",\"customer_id\":\"C001\",\"history\":[{\"at\":{\"$date\":\"2026-11-01T00:00:00Z\"},\"status\":\"paid\"}],\"items\":[{\"qty\":1,\"sku\":\"SKU-0023\"}],\"placed_at\":{\"$date\":\"2026-11-01T00:00:00Z\"},\"status\":\"paid\",\"total\":25.75},{\"_id\":\"O0000002\",\"customer_id\":\"C001\",\"history\":[],\"items\":[{\"qty\":2,\"sku\":\"SKU-0318\"}],\"placed_at\":{\"$date\":\"2026-11-02T00:00:00Z\"},\"status\":\"paid\",\"total\":20},{\"_id\":\"O0000003\",\"customer_id\":\"C002\",\"history\":[],\"items\":[{\"qty\":1,\"sku\":\"SKU-0023\"}],\"placed_at\":{\"$date\":\"2026-11-03T00:00:00Z\"},\"status\":\"shipped\",\"total\":10.1}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "seed orders",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": true,
+        "command_ejson": "{\"find\":\"orders\",\"filter\":{},\"sort\":{\"_id\":1}}",
+        "expect_ejson": "{\"docs\":[{\"_id\":\"O0000001\",\"customer_id\":\"C001\",\"history\":[{\"at\":{\"$date\":\"2026-11-01T00:00:00Z\"},\"status\":\"paid\"}],\"items\":[{\"qty\":1,\"sku\":\"SKU-0023\"}],\"placed_at\":{\"$date\":\"2026-11-01T00:00:00Z\"},\"status\":\"paid\",\"total\":25.75},{\"_id\":\"O0000002\",\"customer_id\":\"C001\",\"history\":[],\"items\":[{\"qty\":2,\"sku\":\"SKU-0318\"}],\"placed_at\":{\"$date\":\"2026-11-02T00:00:00Z\"},\"status\":\"paid\",\"total\":20},{\"_id\":\"O0000003\",\"customer_id\":\"C002\",\"history\":[],\"items\":[{\"qty\":1,\"sku\":\"SKU-0023\"}],\"placed_at\":{\"$date\":\"2026-11-03T00:00:00Z\"},\"status\":\"shipped\",\"total\":10.1}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "confirm seed",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": false,
+        "command_ejson": "{\"update\":\"orders\",\"updates\":[{\"q\":{\"_id\":\"O0000001\",\"status\":{\"$in\":[\"paid\"]}},\"u\":{\"$push\":{\"history\":{\"at\":{\"$date\":\"2026-11-02T00:00:00Z\"},\"status\":\"shipped\"}},\"$set\":{\"status\":\"shipped\",\"updated_at\":{\"$date\":\"2026-11-02T00:00:00Z\"}}}}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "cas paid to shipped",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": true,
+        "command_ejson": "{\"find\":\"orders\",\"filter\":{\"_id\":\"O0000001\"}}",
+        "expect_ejson": "{\"docs\":[{\"_id\":\"O0000001\",\"customer_id\":\"C001\",\"history\":[{\"at\":{\"$date\":\"2026-11-01T00:00:00Z\"},\"status\":\"paid\"},{\"at\":{\"$date\":\"2026-11-02T00:00:00Z\"},\"status\":\"shipped\"}],\"items\":[{\"qty\":1,\"sku\":\"SKU-0023\"}],\"placed_at\":{\"$date\":\"2026-11-01T00:00:00Z\"},\"status\":\"shipped\",\"total\":25.75,\"updated_at\":{\"$date\":\"2026-11-02T00:00:00Z\"}}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "read back transitioned",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": true,
+        "command_ejson": "{\"update\":\"orders\",\"updates\":[{\"q\":{\"_id\":\"O0000001\",\"status\":{\"$in\":[\"paid\"]}},\"u\":{\"$push\":{\"history\":{\"at\":{\"$date\":\"2026-11-02T00:00:00Z\"},\"status\":\"shipped\"}},\"$set\":{\"status\":\"shipped\",\"updated_at\":{\"$date\":\"2026-11-02T00:00:00Z\"}}}}]}",
+        "expect_ejson": "{\"n\":0,\"nModified\":0}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "cas wrong prior no-op",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": true,
+        "command_ejson": "{\"find\":\"orders\",\"filter\":{\"customer_id\":\"C001\"},\"limit\":2,\"projection\":{\"placed_at\":1,\"status\":1},\"sort\":{\"placed_at\":-1,\"_id\":1}}",
+        "expect_ejson": "{\"docs\":[{\"_id\":\"O0000002\",\"placed_at\":{\"$date\":\"2026-11-02T00:00:00Z\"},\"status\":\"paid\"},{\"_id\":\"O0000001\",\"placed_at\":{\"$date\":\"2026-11-01T00:00:00Z\"},\"status\":\"shipped\"}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "customer history page",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": true,
+        "command_ejson": "{\"find\":\"orders\",\"filter\":{\"customer_id\":\"C-NOMATCH\"},\"limit\":2,\"sort\":{\"placed_at\":-1,\"_id\":1}}",
+        "expect_ejson": "{\"docs\":[]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "history empty",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": true,
+        "command_ejson": "{\"aggregate\":\"orders\",\"cursor\":{},\"pipeline\":[{\"$match\":{\"customer_id\":\"C001\"}},{\"$project\":{\"_id\":1,\"total_cents\":{\"$round\":[{\"$cond\":[{\"$eq\":[{\"$type\":\"$total\"},\"double\"]},{\"$multiply\":[\"$total\",100]},{\"$multiply\":[\"$total\",100]}]},0]}}},{\"$sort\":{\"_id\":1}}]}",
+        "expect_ejson": "{\"docs\":[{\"_id\":\"O0000001\",\"total_cents\":2575},{\"_id\":\"O0000002\",\"total_cents\":2000}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "totals to cents",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": true,
+        "command_ejson": "{\"update\":\"orders\",\"updates\":[{\"q\":{\"_id\":\"O0000002\"},\"u\":{\"$set\":{\"items.$[a].note\":\"a-hit\",\"items.$[b].note\":\"b-hit\"}},\"arrayFilters\":[{\"a.sku\":\"SKU-0318\"},{\"b.sku\":\"SKU-NOMATCH\"}]}]}",
+        "expect_ejson": "{\"n\":1,\"nModified\":1}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "second arrayFilter identifier",
+        "op": "command",
+        "unordered": false
+      },
+      {
+        "capture": true,
+        "command_ejson": "{\"find\":\"orders\",\"filter\":{\"_id\":\"O0000002\"}}",
+        "expect_ejson": "{\"docs\":[{\"_id\":\"O0000002\",\"customer_id\":\"C001\",\"history\":[],\"items\":[{\"note\":\"a-hit\",\"qty\":2,\"sku\":\"SKU-0318\"}],\"placed_at\":{\"$date\":\"2026-11-02T00:00:00Z\"},\"status\":\"paid\",\"total\":20}]}",
+        "expect_error": false,
+        "in_txn": false,
+        "label": "read back arrayfilter",
+        "op": "command",
+        "unordered": false
+      }
+    ],
+    "generation": {
+      "attempts": 3,
+      "model": "muse-spark-1.3"
+    },
+    "status": "valid",
+    "probe_hash": "e5ac86b0",
+    "strategy_version": "v005",
+    "pre_seal_check": {
+      "ledger_commit": "7448e65",
+      "heldout_shapes_in_prompt": 0
+    }
   },
   {
     "probe_id": "X:graphLookup.graphlookup-referral-chain",
@@ -1692,6 +2159,12 @@
       "attempts": 1,
       "model": "muse-spark-1.3"
     },
-    "status": "valid"
+    "status": "valid",
+    "probe_hash": "2c111de5",
+    "strategy_version": "v005",
+    "pre_seal_check": {
+      "ledger_commit": "6b69027",
+      "heldout_shapes_in_prompt": 0
+    }
   }
 ]

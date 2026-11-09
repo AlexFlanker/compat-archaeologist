@@ -35,7 +35,7 @@ def test_pack_fits_one_prompt(pack):
 def test_facts_carry_the_numbers(pack):
     facts = {fact["id"]: fact["text"] for fact in pack["facts"]}
     assert "10" in facts["probe:F4.txn-abort-rollback"] and "8" in facts["probe:F4.txn-abort-rollback"]
-    assert "-$26,700" in facts["step:1"]
+    assert "-$26,700" in facts["step:2"]
     assert "120" in facts["assumption:people.engineer_cost_per_hour"]
 
 

@@ -44,8 +44,8 @@ None blocking. Every probe, replayed operation and cutover check matched.
 
 | Path | MongoDB p95 | FerretDB p95 | FerretDB over the timeout | Timeout used |
 |---|---|---|---|---|
-| Online | 0.64 ms | 1.34 ms | 0% of 120 | 1,000 ms |
-| Reporting | 0.68 ms | 0.70 ms | 0% of 30 | 30,000 ms |
+| Online | 0.49 ms | 1.13 ms | 0% of 120 | 1,000 ms |
+| Reporting | 0.74 ms | 0.79 ms | 0% of 30 | 30,000 ms |
 | Event-driven (change streams) | not used by this app | | | |
 
 **At production size (INFERRED)**: the data size at which each slow path reaches its timeout, projected from the measured 1.0 MB using the growth shape of its query plan. This assumes every collection grows by the same factor.
@@ -103,33 +103,39 @@ A copier that works like a managed migration tool does a full load with indexes 
 | What is the total order value by status? | same | same |
 | Which 5 customers ordered the most? | same | same |
 
+## How we checked the checks
+
+A slice of the recorded workload was sealed on 2026-11-09: the model saw the code; it never saw how these operations ran in production. Replayed on both engines: 70 recorded operations across 2 shapes: 70 equal, 0 different, 0 errors.
+
+The planted-gap test was not run in this run (`--with-mutation-test`).
+
 ## Latency
 
-Both engines ran in Docker on one machine, with the same CPU and memory limits, the same data, and alternating order. FerretDB's image holds Postgres and FerretDB in one container, so they share its limit. Overall read p50/p95: MongoDB 0.44 ms / 0.65 ms, FerretDB 0.61 ms / 1.28 ms.
-Writes (70 replayed) p50/p95: MongoDB 1.27 ms / 1.65 ms, FerretDB 0.59 ms / 0.79 ms. MongoDB here also writes an oplog as a replica set. These are local numbers for comparison, not production estimates.
+Both engines ran in Docker on one machine, with the same CPU and memory limits, the same data, and alternating order. FerretDB's image holds Postgres and FerretDB in one container, so they share its limit. Overall read p50/p95: MongoDB 0.38 ms / 0.62 ms, FerretDB 0.61 ms / 1.11 ms.
+Writes (70 replayed) p50/p95: MongoDB 1.35 ms / 1.89 ms, FerretDB 0.60 ms / 0.99 ms. MongoDB here also writes an oplog as a replica set. These are local numbers for comparison, not production estimates.
 
 | Feature | Operation | Samples | MongoDB p50 / p95 | FerretDB p50 / p95 | FerretDB compared at p50 |
 |---|---|---|---|---|---|
-| F10 | orders: find | 40/50 | 0.45 ms / 0.68 ms | 1.21 ms / 1.43 ms | 2.7× |
-| F10 | orders: find | 40/300 | 0.42 ms / 0.65 ms | 0.56 ms / 0.88 ms | 1.3× |
-| other | orders: $match → $group | 30/30 | 0.55 ms / 0.68 ms | 0.63 ms / 0.70 ms | 1.1× |
-| F10 | orders: find | 40/150 | 0.43 ms / 0.51 ms | 0.56 ms / 0.67 ms | 1.3× |
+| F10 | orders: find | 40/50 | 0.33 ms / 0.46 ms | 0.99 ms / 1.23 ms | 3.0× |
+| other | orders: $match → $group | 30/30 | 0.56 ms / 0.74 ms | 0.65 ms / 0.79 ms | 1.2× |
+| F10 | orders: find | 40/300 | 0.36 ms / 0.56 ms | 0.48 ms / 0.71 ms | 1.3× |
+| F10 | orders: find | 40/150 | 0.41 ms / 0.50 ms | 0.52 ms / 0.70 ms | 1.3× |
 
 ## Why the slow paths are slow
 
 Plans from the MongoDB MCP Server's `explain` tool (`mongodb-mcp-server@3.2.2 explain`), run read-only against each engine on the slowest replayed queries.
 
-**F10 on orders** (replay p95 0.68 ms on MongoDB, 1.43 ms on FerretDB)
+**F10 on orders** (replay p95 0.46 ms on MongoDB, 1.23 ms on FerretDB)
 - MongoDB: `IXSCAN(_id_) → FETCH → LIMIT`, 94 documents examined.
 - FerretDB (Postgres plan): `Limit → Sort → Bitmap Heap Scan → Bitmap Index Scan(status_1)`, with 0 sequential scan(s) and 0 nested loop(s).
 
-**F10 on orders** (replay p95 0.65 ms on MongoDB, 0.88 ms on FerretDB)
-- MongoDB: `EXPRESS_IXSCAN(_id_)`, 1 documents examined.
-- FerretDB (Postgres plan): `Index Scan(_id_)`, with 0 sequential scan(s) and 0 nested loop(s).
-
-**F10 on orders** (replay p95 0.51 ms on MongoDB, 0.67 ms on FerretDB)
+**F10 on orders** (replay p95 0.50 ms on MongoDB, 0.70 ms on FerretDB)
 - MongoDB: `IXSCAN(customer_id_1) → FETCH → SORT`, 20 documents examined.
 - FerretDB (Postgres plan): `Limit → Sort → Bitmap Heap Scan → Bitmap Index Scan(customer_id_1)`, with 0 sequential scan(s) and 0 nested loop(s).
+
+**F10 on orders** (replay p95 0.56 ms on MongoDB, 0.71 ms on FerretDB)
+- MongoDB: `EXPRESS_IXSCAN(_id_)`, 1 documents examined.
+- FerretDB (Postgres plan): `Index Scan(_id_)`, with 0 sequential scan(s) and 0 nested loop(s).
 
 
 ## Cost over 12 months
@@ -182,4 +188,4 @@ Recovered without any documentation. 0 of 1 are OBSERVED in the data. The rest a
 - **Fair by construction:** the same pipeline, thresholds and assumptions run on every workload. ShopLog was deliberately built to depend on MongoDB-specific features, and the control app wasn't.
 - **Not modeled:** data transfer, backups, support plans and committed-use discounts. Rewrite hours are model estimates, and the risk inputs are assumptions.
 
-Evidence: [ledger](ledger.json) · [runs](runs.json) · [cost model](tco.json) · run `20261107T234555Z`
+Evidence: [ledger](ledger.json) · [runs](runs.json) · [cost model](tco.json) · run `20261109T124701Z`

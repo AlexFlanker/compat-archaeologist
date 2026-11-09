@@ -217,11 +217,11 @@ def classify(source_run: dict, target_run: dict) -> dict:
     return outcome
 
 
-def diff_probe(source: MongoClient, target: MongoClient, probe: dict) -> dict:
+def diff_probe(source: MongoClient, target: MongoClient, probe: dict, namespaces: tuple[str, str] = ("src", "tgt")) -> dict:
     """Runs one probe on both engines at once, which keeps TTL waits from adding up."""
     with ThreadPoolExecutor(max_workers=2) as pool:
-        source_future = pool.submit(run_probe, source, probe, "src")
-        target_future = pool.submit(run_probe, target, probe, "tgt")
+        source_future = pool.submit(run_probe, source, probe, namespaces[0])
+        target_future = pool.submit(run_probe, target, probe, namespaces[1])
         source_run, target_run = source_future.result(), target_future.result()
 
     result = {
@@ -263,3 +263,25 @@ def worst_verdict(verdicts: list[str]) -> str:
         if verdict in verdicts:
             return verdict
     return "no_probe"
+
+
+def main() -> None:
+    import argparse
+    import json
+
+    from archaeologist.config import PROBES_DIR, source_client, target_client
+
+    parser = argparse.ArgumentParser(description="Rerun one probe on both engines and print the verdict.")
+    parser.add_argument("--probe", required=True, help="probe_id from probes/<profile>.json")
+    parser.add_argument("--profile", default="shoplog")
+    args = parser.parse_args()
+    probes = json.loads((PROBES_DIR / f"{args.profile}.json").read_text())
+    probe = next((item for item in probes if item["probe_id"] == args.probe), None)
+    if probe is None:
+        raise SystemExit(f"no probe {args.probe} in probes/{args.profile}.json")
+    result = diff_probe(source_client(), target_client(), probe, namespaces=("cli_s", "cli_t"))
+    print(json.dumps({"probe_id": args.probe, "verdict": result["verdict"], "detail": result["detail"]}, indent=2, default=str))
+
+
+if __name__ == "__main__":
+    main()

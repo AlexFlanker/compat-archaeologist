@@ -245,6 +245,52 @@ def _scoreboard_section(scoreboard: dict | None) -> list[str]:
     return lines
 
 
+def _sealed_claim(sealed_on: str, provenance: dict | None) -> str:
+    """The "never saw" sentence is printed only when every probe's prompt is accounted for."""
+    if provenance is not None and provenance["unchecked"] == 0:
+        return f"A slice of the recorded workload was sealed on {sealed_on}: the model saw the code; it never saw how these operations ran in production."
+    if provenance is None:
+        return f"A slice of the recorded workload was sealed on {sealed_on}; the probes carry no provenance record, so no claim is made that the model never saw these operations."
+    return (
+        f"A slice of the recorded workload was sealed on {sealed_on}; {provenance['unchecked']} of {provenance['total']} probes "
+        "were written before the seal from prompts that were not checked, so no claim is made that the model never saw these operations."
+    )
+
+
+def _verification_section(
+    runs: dict, heldout: dict | None, mutation: dict | None, mutation_is_stale: bool = False, provenance: dict | None = None,
+) -> list[str]:
+    lines = ["", "## How we checked the checks", ""]
+    unseen = runs["replay"]["reads"].get("unseen_only")
+    if heldout is None or unseen is None:
+        lines.append("The held-out slice was not sealed in this run, so there is no measurement on operations the model never saw.")
+    else:
+        lines.append(
+            f"{_sealed_claim(str(heldout.get('created', 'an unrecorded date'))[:10], provenance)} "
+            f"Replayed on both engines: {unseen['replayed']} recorded operations across {unseen['shapes']} shapes: "
+            f"{unseen['equal']} equal, {unseen['different']} different, {unseen['errors']} errors."
+        )
+    lines.append("")
+    if mutation is None:
+        lines.append("The planted-gap test was not run in this run (`--with-mutation-test`).")
+        return lines
+    summary = mutation["summary"]
+    origin = f"an earlier run, `{mutation['run_id']}`" if mutation_is_stale else f"this run, `{mutation['run_id']}`"
+    lines += [
+        f"Planted-gap test ({origin}): {summary['planted']} known incompatibilities were injected in front of MongoDB, one at a time. "
+        f"The probes caught {summary['caught']} of {summary['planted']} in every one of {mutation['repeats']} repeat(s) "
+        f"(train {summary['train']['caught']}/{summary['train']['planted']}, held-out {summary['heldout']['caught']}/{summary['heldout']['planted']}). "
+        f"With no gap injected, at most {summary['false_flips_max']} probe(s) flipped per repeat.",
+        "",
+        "| Planted gap | Split | Caught | Caught by |",
+        "|---|---|---|---|",
+    ]
+    for mutant in mutation["mutants"]:
+        verdict = "flaky" if mutant["flaky"] else ("yes" if mutant["caught"] else "no")
+        lines.append(f"| {mutant['id']} | {mutant['split']} | {verdict} | {', '.join(mutant['caught_by']) or 'none'} |")
+    return lines
+
+
 def _questions_section(questions: dict | None, cutover: dict | None) -> list[str]:
     if not questions:
         return []
@@ -493,6 +539,10 @@ def write(
     questions: dict | None = None,
     scoreboard: dict | None = None,
     edge: dict | None = None,
+    mutation: dict | None = None,
+    heldout: dict | None = None,
+    mutation_is_stale: bool = False,
+    provenance: dict | None = None,
 ) -> str:
     app = APP_NAME.get(profile, profile)
     ferretdb, documentdb = tco["targets"][FERRETDB], tco["targets"][DOCUMENTDB]
@@ -545,6 +595,7 @@ def write(
     lines += _cutover_section(cutover, drill)
     lines += _questions_section(questions, cutover)
     lines += _scoreboard_section(scoreboard)
+    lines += _verification_section(runs, heldout, mutation, mutation_is_stale, provenance)
     if upgrade:
         lines += ["", "## Upgrade check", "", upgrade["summary"], ""] + upgrade.get("table", [])
 

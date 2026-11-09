@@ -13,7 +13,7 @@ FEATURE_NAMES = {key: value["name"] for key, value in FEATURES.items()}
 IMPACT = {
     "F1": "Reporting aggregations ($lookup sub-pipelines, $facet) behave differently or slow down",
     "F2": "Running totals and window functions in account pages",
-    "F3": "Line-item refunds update the wrong elements",
+    "F3": "A filtered positional update with several arrayFilters identifiers in one $set may apply only part of it, with the write still reported as modified",
     "F4": "Checkout isn't atomic: stock can be reserved without an order, and a rollback does nothing",
     "F5": "Event-driven inventory sync stops: change streams aren't available",
     "F6": "Logins and email uniqueness stop ignoring case: duplicate accounts, failed sign-ins",

@@ -5,21 +5,21 @@
   "target": "FerretDB",
   "full_load": {
     "collections": {
+      "products": 500,
+      "customers": 5000,
       "inventory": 500,
       "carts": 2000,
-      "customers": 5000,
-      "products": 500,
       "orders": 50000
     },
     "indexes": [
       {
-        "collection": "carts",
-        "name": "active_cart_expiry",
+        "collection": "products",
+        "name": "product_search",
         "ok": true
       },
       {
-        "collection": "carts",
-        "name": "customer_id_1",
+        "collection": "products",
+        "name": "category_1",
         "ok": true
       },
       {
@@ -30,13 +30,13 @@
         "error": "Error in specification { \"name\" : \"email_ci_unique\", \"unique\" : true, \"key\" : { \"email\" : 1 }, \"collation\" : { \"locale\" : \"en\", \"caseLevel\" : false, \"caseFirst\" : \"off\", \"strength\" : 2, \"numericOrderi"
       },
       {
-        "collection": "products",
-        "name": "product_search",
+        "collection": "carts",
+        "name": "active_cart_expiry",
         "ok": true
       },
       {
-        "collection": "products",
-        "name": "category_1",
+        "collection": "carts",
+        "name": "customer_id_1",
         "ok": true
       },
       {
@@ -622,5 +622,5 @@
       "explanation": "bronze: customers 3,040 \u2192 3,041"
     }
   ],
-  "seconds": 10.6
+  "seconds": 9.8
 }

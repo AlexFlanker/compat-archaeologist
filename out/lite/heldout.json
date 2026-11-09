@@ -1,0 +1,22 @@
+{
+  "seed": 20261108,
+  "fraction": 0.3,
+  "population_shape_ids": [
+    "S003befd8",
+    "S4b871cdf",
+    "S6629c94b",
+    "S70f34912"
+  ],
+  "train_shape_ids": [
+    "S4b871cdf",
+    "S6629c94b",
+    "Scd0d89a3",
+    "Sd87f0769",
+    "Sec57bc2f"
+  ],
+  "heldout_shape_ids": [
+    "S003befd8",
+    "S70f34912"
+  ],
+  "created": "2026-11-09T10:49:50+00:00"
+}

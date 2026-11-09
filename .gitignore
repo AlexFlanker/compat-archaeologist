@@ -16,3 +16,12 @@ logs/*.raw
 # OS
 .DS_Store
 logs/*.log
+
+# Built evidence site
+site/
+
+# Scratch file written by improve iterate
+probes/*.candidate.json
+
+# Subset runs of the mutation test (--mutations a,b); only the whole-catalog mutation_test.json is evidence
+out/*/mutation_test.*.json

@@ -1,0 +1,239 @@
+{
+  "profile": "shoplog",
+  "run_id": "20261109T133035Z-mutation",
+  "at": "2026-11-09T13:30:35+00:00",
+  "repeats": 3,
+  "probe_count": 30,
+  "strategy_version": "v005",
+  "mutants": [
+    {
+      "id": "abort_commits",
+      "split": "train",
+      "feature_ids": [
+        "F4"
+      ],
+      "description": "Aborting a transaction commits it instead",
+      "caught": true,
+      "flaky": false,
+      "no_probe_for_features": false,
+      "caught_each_repeat": [
+        true,
+        true,
+        true
+      ],
+      "caught_by": [
+        "F4.txn-abort-rollback",
+        "F4.txn-isolation-uncommitted"
+      ]
+    },
+    {
+      "id": "txn_writes_visible",
+      "split": "train",
+      "feature_ids": [
+        "F4"
+      ],
+      "description": "Writes sent inside a transaction bypass it, so an abort leaves them visible",
+      "caught": true,
+      "flaky": false,
+      "no_probe_for_features": false,
+      "caught_each_repeat": [
+        true,
+        true,
+        true
+      ],
+      "caught_by": [
+        "F4.txn-abort-rollback",
+        "F4.txn-isolation-uncommitted"
+      ]
+    },
+    {
+      "id": "collation_ignored",
+      "split": "train",
+      "feature_ids": [
+        "F6"
+      ],
+      "description": "Collation is silently dropped from indexes and queries",
+      "caught": true,
+      "flaky": false,
+      "no_probe_for_features": false,
+      "caught_each_repeat": [
+        true,
+        true,
+        true
+      ],
+      "caught_by": [
+        "F6.ci-gating",
+        "F6.ci-lookup",
+        "F6.ci-unique"
+      ]
+    },
+    {
+      "id": "validator_dropped",
+      "split": "train",
+      "feature_ids": [
+        "F8"
+      ],
+      "description": "Collection validators are silently dropped",
+      "caught": true,
+      "flaky": false,
+      "no_probe_for_features": false,
+      "caught_each_repeat": [
+        true,
+        true,
+        true
+      ],
+      "caught_by": [
+        "F8.orders-enum-total",
+        "F8.orders-required-fields",
+        "F8.orders-types-update"
+      ]
+    },
+    {
+      "id": "unique_not_enforced",
+      "split": "train",
+      "feature_ids": [
+        "F7"
+      ],
+      "description": "Unique index constraint is silently dropped",
+      "caught": true,
+      "flaky": false,
+      "no_probe_for_features": false,
+      "caught_each_repeat": [
+        true,
+        true,
+        true
+      ],
+      "caught_by": [
+        "F7.partial-unique-missing-exempt",
+        "F7.partial-unique-per-customer"
+      ]
+    },
+    {
+      "id": "ttl_never_expires",
+      "split": "train",
+      "feature_ids": [
+        "F7"
+      ],
+      "description": "TTL expiry is silently dropped from indexes",
+      "caught": true,
+      "flaky": false,
+      "no_probe_for_features": false,
+      "caught_each_repeat": [
+        true,
+        true,
+        true
+      ],
+      "caught_by": [
+        "F7.ttl-active-only-expiry"
+      ]
+    },
+    {
+      "id": "change_streams_unsupported",
+      "split": "heldout",
+      "feature_ids": [
+        "F5"
+      ],
+      "description": "Change streams are refused with code 115",
+      "caught": true,
+      "flaky": false,
+      "no_probe_for_features": false,
+      "caught_each_repeat": [
+        true,
+        true,
+        true
+      ],
+      "caught_by": [
+        "F5.cs-event-per-change",
+        "F5.cs-filter-update-replace",
+        "F5.cs-fulldocument-lookup"
+      ]
+    },
+    {
+      "id": "lookup_drops_unmatched",
+      "split": "heldout",
+      "feature_ids": [
+        "F1"
+      ],
+      "description": "$lookup behaves like an inner join: documents with no match vanish",
+      "caught": true,
+      "flaky": false,
+      "no_probe_for_features": false,
+      "caught_each_repeat": [
+        true,
+        true,
+        true
+      ],
+      "caught_by": [
+        "F1.empty-join-empty-facet",
+        "F1.inventory-lookup-group"
+      ]
+    },
+    {
+      "id": "facet_single_bucket",
+      "split": "heldout",
+      "feature_ids": [
+        "F1"
+      ],
+      "description": "$facet returns only its first bucket populated",
+      "caught": true,
+      "flaky": false,
+      "no_probe_for_features": false,
+      "caught_each_repeat": [
+        true,
+        true,
+        true
+      ],
+      "caught_by": [
+        "F1.empty-join-empty-facet",
+        "F1.revenue-lookup-facet"
+      ]
+    },
+    {
+      "id": "textscore_sort_dropped",
+      "split": "heldout",
+      "feature_ids": [
+        "F9"
+      ],
+      "description": "Sorting by text score is silently ignored",
+      "caught": true,
+      "flaky": false,
+      "no_probe_for_features": false,
+      "caught_each_repeat": [
+        true,
+        true,
+        true
+      ],
+      "caught_by": [
+        "F9.text_weighted_ranking"
+      ]
+    }
+  ],
+  "zero_mutation": {
+    "false_flips_each_repeat": [
+      0,
+      0,
+      0
+    ],
+    "false_flip_probes": [],
+    "invalid_each_repeat": [
+      0,
+      0,
+      0
+    ]
+  },
+  "summary": {
+    "planted": 10,
+    "caught": 10,
+    "flaky": 0,
+    "train": {
+      "planted": 6,
+      "caught": 6
+    },
+    "heldout": {
+      "planted": 4,
+      "caught": 4
+    },
+    "false_flips_max": 0,
+    "invalid_probes_max": 0
+  }
+}

@@ -1112,73 +1112,11 @@
       "sample_operations": [
         {
           "op": "query",
-          "ns": "shoplog_wl.orders",
-          "command": {
-            "find": "orders",
-            "filter": {
-              "_id": {
-                "$lte": "O00002000"
-              },
-              "status": "delivered",
-              "delivered_at": {
-                "$gte": "2026-10-07 00:00:00"
-              }
-            },
-            "sort": {
-              "_id": 1
-            },
-            "projection": {
-              "_id": 1,
-              "customer_id": 1,
-              "items.line_id": 1
-            }
-          }
-        },
-        {
-          "op": "query",
-          "ns": "shoplog_wl.orders",
-          "command": {
-            "find": "orders",
-            "filter": {
-              "_id": {
-                "$lte": "O00002000"
-              },
-              "status": {
-                "$in": [
-                  "placed",
-                  "paid",
-                  "shipped"
-                ]
-              }
-            },
-            "sort": {
-              "_id": 1
-            },
-            "projection": {
-              "_id": 1,
-              "status": 1
-            }
-          }
-        },
-        {
-          "op": "query",
           "ns": "shoplog_wl.sync_state",
           "command": {
             "find": "sync_state",
             "filter": {
               "_id": "inventory"
-            },
-            "limit": 1,
-            "singleBatch": true
-          }
-        },
-        {
-          "op": "query",
-          "ns": "shoplog_wl.orders",
-          "command": {
-            "find": "orders",
-            "filter": {
-              "_id": "O00024033"
             },
             "limit": 1,
             "singleBatch": true
@@ -1213,6 +1151,76 @@
           "command": {
             "insert": "inventory_events",
             "ordered": true
+          }
+        },
+        {
+          "op": "update",
+          "ns": "shoplog_wl.orders",
+          "command": {
+            "q": {
+              "_id": "O00001994",
+              "status": {
+                "$in": [
+                  "paid"
+                ]
+              }
+            },
+            "u": {
+              "$set": {
+                "status": "shipped",
+                "updated_at": "2026-11-02 00:00:00"
+              },
+              "$push": {
+                "history": {
+                  "status": "shipped",
+                  "at": "2026-11-02 00:00:00"
+                }
+              }
+            },
+            "multi": false,
+            "upsert": false
+          }
+        },
+        {
+          "op": "update",
+          "ns": "shoplog_wl.sync_state",
+          "command": {
+            "q": {
+              "_id": "inventory"
+            },
+            "u": {
+              "_id": "inventory",
+              "token": {
+                "_data": "826AEF8F62000000352B042C0100296E5A10045C0F5257D4664475BDE6D3D822AE73EE463C6F7065726174696F6E54797065003C7570646174650046646F63756D656E744B657900463C5F6964003C534B552D3030323300000004"
+              }
+            },
+            "multi": false,
+            "upsert": true
+          }
+        },
+        {
+          "op": "update",
+          "ns": "shoplog_wl.carts",
+          "command": {
+            "q": {
+              "_id": "K0000021"
+            },
+            "u": {
+              "$set": {
+                "customer_id": "C004233",
+                "items": [
+                  {
+                    "sku": "SKU-0318",
+                    "qty": 1
+                  }
+                ],
+                "status": "active",
+                "updated_at": "2026-11-07 20:51:46.338000",
+                "expires_at": "2026-11-08 20:51:46.338000"
+              }
+            },
+            "multi": false,
+            "upsert": true
           }
         }
       ]

@@ -22,7 +22,31 @@ The output is a Markdown memo ([ShopLog](out/shoplog/memo.md), [control app](out
 
 The demo app, ShopLog, is a fictional 10-year-old e-commerce system built today. It deliberately depends on MongoDB-specific features, as real apps do. FerretDB 2.7 ran locally in Docker; AWS DocumentDB was compared against its documentation only.
 
-Observed on FerretDB 2.7.0, each also checked with plain pymongo outside the pipeline:
+Headline results, each with the committed file it comes from:
+
+| Result | Number | Source |
+|---|---|---|
+| Probes for ShopLog | 30 valid, 0 invalid (strategy v005); 11 needed more than one attempt (15 extra in all) | `probes/shoplog.json` (`status`, `generation.attempts`) |
+| Planted incompatibilities caught | 10 of 10 (train 6/6, held-out 4/4); 0 false flips with nothing planted; 3 repeats | `out/shoplog/mutation_test.json` |
+| Replay on operations the model never saw | 97 recorded operations across 5 shapes: 97 equal, 0 different | `out/shoplog/runs.json` (`replay.reads.unseen_only`) |
+| Probe strategy versions | 1 adopted (v005), 6 rolled back (v001-v004, v006, v007); the starting v000 caught 9 of 10 | `strategy/roster.json` |
+| Cutover checks | Clean copy: 6 of 23 checks fail. Drill: 2 of 2 injected faults caught | `out/shoplog/cutover_clean.json`, `out/shoplog/cutover_drill.json` |
+| 12-month net, ShopLog to FerretDB | +$20,124 on paper, -$113,043 with the evidence (flips at the transactions finding) | `out/shoplog/tco.json` |
+
+The roster, in order (held-out catch counts the 4 planted gaps the strategy editor never saw; train counts the 6 it did see). Rows marked "not measured" carry `"measured": false` in `strategy/roster.json`: their numbers are the parent's, copied when no candidate was measured, and the evidence site's Strategy page shows them as "not measured":
+
+| Version | Decision | Held-out | Train | Why |
+|---|---|---|---|---|
+| v000 | reference | 3/4 | 6/6 | Baseline measurement |
+| v001-v003 | rolled back | not measured (parent's numbers: 3/4) | not measured (6/6) | Empty edits: with no escaped train gap, the prompt did not list ledger features, so Muse had nothing to target. Fixed in the prompt afterwards (commit 01f9c64); the entries are kept |
+| v004 | rolled back | 3/4 | 6/6 | Regenerated F3, F7: no held-out or train gain |
+| v005 | **adopted** | 4/4 | 6/6 | Regenerated F1, F3: held-out 3 to 4 |
+| v006 | rolled back | not measured (parent's numbers: 4/4) | not measured (6/6) | Crashed on four invalid-JSON Muse responses for F3; recorded as rolled back after the fact |
+| v007 | rolled back | not measured (parent's numbers: 4/4) | not measured (6/6) | The one retry of that round crashed the same way, but on `probe_generation:F2` (four invalid-JSON responses, 09:53-09:58Z per `logs/meta_calls.jsonl`), not F3. The reason text in the roster was written at recording time and is left as recorded |
+
+One adoption on a 4-mutant held-out set is a single mutant, not a trend. Held-out catch counts chose v005, so the final 10 of 10 is no longer a blind number for those 4. The F10 probes were regenerated after review, and the mutation-test table is measured on the final set. v006 and v007 were recorded by hand-run calls to `strategy.record` after the crash, because the code did not yet record failures (it does now, commit 65ba1b9).
+
+Observed on FerretDB 2.7.0, each also checked with plain pymongo outside the pipeline (the arrayFilters row was re-checked on 2026-11-09 against the same two engines, in a scratch database that was dropped afterwards):
 
 | Feature | MongoDB 8.0 | FerretDB 2.7 |
 |---|---|---|
@@ -33,7 +57,8 @@ Observed on FerretDB 2.7.0, each also checked with plain pymongo outside the pip
 | Case-insensitive collation index | Works | Refused (115), and case-variant logins find nobody |
 | Change streams | Work | Not supported (115) |
 | Revenue report (`$lookup` sub-pipeline + `$facet`) | ~7 ms | **~4,000 ms**: the Postgres plan does a sequential scan inside a nested loop |
-| `$setWindowFields`, `arrayFilters`, plain CRUD, `$text` matching | | Same results. `$text` ranks differently; writes are faster on FerretDB |
+| An update with two `arrayFilters` identifiers in one `$set` (`$[a].refund_status` and `$[b].reviewed_by`, both matching the same line) | Applies both fields | **Applies the first and silently drops the second's field**, while `modified_count` is still 1. A single-identifier update and an all-positional `$[]` update behave the same on both engines. Found by three v005 probes (`F3.arrayfilters-*`); the 56 recorded refund writes replayed equal |
+| `$setWindowFields`, plain CRUD, `$text` matching | | Same results. `$text` ranks differently; writes are faster on FerretDB |
 
 FerretDB's own [compatibility page](https://docs.ferretdb.io/migration/compatibility/) lists transactions as not implemented yet, so that part is documented. The risk is that at runtime nothing tells the application.
 
@@ -59,11 +84,20 @@ FerretDB's own [compatibility page](https://docs.ferretdb.io/migration/compatibi
 
 **Fairness check.** The same pipeline, thresholds and assumptions run on a control app, ShopLog Lite, which uses only plain CRUD. Its verdict is *the migration is fine*: FerretDB matched MongoDB on everything it does, with a 12-month net of +$8,604.
 
-**Probes.** Meta Muse wrote 30 behavioral probes for ShopLog. Muse predicted MongoDB's behavior wrongly 9 times; each time MongoDB, acting as the oracle, rejected the probe and Muse repaired it. No probe had to be excluded. MongoDB against itself matched on all 30.
+**Probes.** Meta Muse wrote 30 behavioral probes for ShopLog (strategy v005). 11 of them needed more than one generation attempt (15 extra attempts in all, from each probe's `generation.attempts` in `probes/shoplog.json`): MongoDB, acting as the oracle, rejected Muse's first prediction and Muse repaired it. No probe had to be excluded. MongoDB against itself matched on all 30.
 
-**Second opinion.** SubQ Snap's probability that migrating is net-positive within 12 months, given the same facts: ShopLog to FerretDB **0.0001**, control app to FerretDB **0.94**.
+**Second opinion.** SubQ Snap's probability that migrating is net-positive within 12 months, given the same facts: ShopLog to FerretDB **0.0002**, control app to FerretDB **0.94**.
 
 **AWS DocumentDB.** Engine 8.0.2's documentation lists support for most of these features. The memo flags only where ShopLog's actual usage conflicts with documented limits (`$shift` in window functions, `$text` exclusion terms and array fields, Atlas Search) and marks the target as **not verified**. FerretDB results say nothing about DocumentDB: they are different engines with similar names.
+
+## How we checked the checks
+
+A probe suite that finds gaps is only trustworthy if it also finds gaps we know are there, and if it is not graded on what the model already saw.
+
+- **Held out from the model.** A slice of the recorded workload was sealed on 2026-11-09, before the improvement rounds: the model saw the code; it never saw how these operations ran in production. The sealed slice (`out/shoplog/heldout.json`) is replayed on both engines as the "unseen-only" row above. The memo and the evidence site print that sentence only when every probe's prompt is accounted for (`probes.provenance`); otherwise they say how many probes predate the seal unchecked and make no claim. For the 30 ShopLog probes: the 22 carried from 2026-11-07 now carry a `pre_seal_check` stamp recorded by a programmatic check against the pre-seal ledger at commit 6b69027 (the ledger item each prompt was built from holds no sealed shape string or sealed command). The six F1 and F3 probes were written after the seal (v005) from that same ledger and carry the same stamp. The two F10 probes were regenerated after the seal, because their 2026-11-07 prompt carried sealed operations; they carry the stamp against the ledger they were written from (7448e65). For those eight, the prompt rebuilt from the named ledger matches the hash recorded for the call in `logs/meta_calls.jsonl`. Probes written from now on carry `generated_at` and `prompt_guarded` instead. The ShopLog Lite control probes were regenerated after the seal on 2026-11-09, under the guard. A prompt's query-log source line can still name a sealed shape by its hash id (S181542d4 for ShopLog F10, S003befd8 for the Lite control's F10); the id carries no part of the operation.
+- **Planted gaps.** A proxy sits in front of MongoDB and breaks one behavior at a time (for example, abort that commits, validator dropped, `$lookup` that drops unmatched rows). 10 such mutants are in `mutants/catalog.json`, split into 6 train and 4 held-out. The probes run against each mutant; a mutant is caught if any probe differs from the unmodified MongoDB. With zero mutations the proxy must produce zero differences (the false-flip check). Everything repeats 3 times, so a flaky catch is reported as flaky, not as caught (`archaeologist/mutation_test.py`).
+- **Adoption rule.** A new probe strategy is adopted only if it adds no false flips and no more than one more invalid probe than the active strategy, and catches more held-out mutants (or the same number and more train mutants); the decision is made in code (`improve.decide`), not by the model, and Muse only ever sees the train mutants that escaped.
+- **Evidence site.** `python -m archaeologist.evidence_site.serve --profile shoplog --port 8791`, then open http://localhost:8791. The server's default port is 8765; the guide uses 8791 because 8765 was taken on the demo machine (a taken port prints `port <n> in use; pass --port`). It shows the coloured query log, one page per finding with its status history, and the planted-gap results. The Challenge button on a finding re-runs that probe live on both engines and refreshes the difference and verdict. For a static copy: `python -m archaeologist.evidence_site.build --profile shoplog --out site/` (the Challenge button needs the live server).
 
 ## How it works
 
@@ -99,7 +133,7 @@ Design choices that keep the results honest:
 
 ## Run it
 
-Requirements: Docker, Python 3.11, [uv](https://docs.astral.sh/uv/), Node 22+ (for the MongoDB MCP Server).
+Requirements: Docker, Python 3.11 or newer (`run_demo.sh` creates a 3.11 venv; the committed results were produced with 3.12), [uv](https://docs.astral.sh/uv/), Node 22+ (for the MongoDB MCP Server).
 
 ```bash
 cp .env.example .env     # add META_API_KEY (or MODEL_API_KEY), SUBQ_API_KEY, optional Atlas values
@@ -107,7 +141,7 @@ cp .env.example .env     # add META_API_KEY (or MODEL_API_KEY), SUBQ_API_KEY, op
 ./run_demo.sh --profile lite
 ```
 
-`run_demo.sh` starts both engines, seeds them identically (50,000 synthetic orders), and runs the pipeline end to end. The memo lands in `out/<profile>/memo.md`. Add `--refresh-probes` to regenerate probes with Muse; otherwise cached probes in `probes/` keep runs repeatable.
+`run_demo.sh` starts both engines, seeds them identically (50,000 synthetic orders), and runs the pipeline end to end. The memo lands in `out/<profile>/memo.md`. Add `--refresh-probes` to regenerate probes with Muse; otherwise cached probes in `probes/` keep runs repeatable. `--with-mutation-test` runs the planted-gap test. If the engine containers were started from another checkout, set `COMPOSE_PROJECT_NAME` to that project's name.
 
 Regenerate the evidence: `python scripts/seed.py`, then `python scripts/workload.py --profile shoplog` (profiler on, exports `evidence/query_log.jsonl`).
 

@@ -144,20 +144,6 @@
           }
         },
         {
-          "op": "query",
-          "ns": "lite_wl.orders",
-          "command": {
-            "find": "orders",
-            "filter": {
-              "customer_id": "C000441"
-            },
-            "sort": {
-              "_id": 1
-            },
-            "limit": 20
-          }
-        },
-        {
           "op": "remove",
           "ns": "lite_wl.orders",
           "command": {

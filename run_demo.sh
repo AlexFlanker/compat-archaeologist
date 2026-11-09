@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# One command, end to end. Usage: ./run_demo.sh [--profile shoplog|lite] [--refresh-probes] [--with-self-check]
+# One command, end to end. Usage: ./run_demo.sh [--profile shoplog|lite] [--refresh-probes] [--with-self-check] [--with-mutation-test]
 set -euo pipefail
 
 cd "$(dirname "$0")"

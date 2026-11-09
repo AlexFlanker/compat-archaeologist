@@ -1,0 +1,25 @@
+{
+  "version": "v007",
+  "parent": "v005",
+  "created": "2026-11-09T09:53:08+00:00",
+  "system_prompt_additions": "Seed small deterministic data and read it back with find or aggregation to confirm setup before exercising the target feature. Every probe must include one empty, unmatched, or no-op case (no-match join, empty facet branch, single-doc window partition with null shift, arrayFilter matching zero, abort or invisible-transaction path, empty poll, collation non-match, partial-filter non-match, validator rejection) and assert the empty, null, or unchanged result explicitly. Exercise one boundary or rarely-used option (maxDepth/depthField, range-window edge, second arrayFilter identifier, partial filter with comparison, update-validation path) and compare exact read-back values and counts. Never project, sort by, or compare textScore; assert $text matches by sorted _id sets with active filter. For windows assert avg/rank/next-null edges, for change streams assert operationType/documentKey shape, for partial indexes use a comparison predicate, for validators test pattern/additionalProperties with code 121.",
+  "per_feature_hints": {
+    "F1": "Empty join and empty facet branch: seed one customer with zero matching orders plus one customer with two in-range orders; run $lookup with let/pipeline that matches zero docs for the first customer and $facet where one sub-pipeline matches zero docs; read back that the no-match lookup preserves the outer doc with empty array [], facet empty branch returns [], and counts/totals are 0 (double totals converted to cents via $cond on $type plus $round).",
+    "F2": "Avg/rank/next-row edge: seed one customer with 4 orders including two with same placed_at for tie (totals 10/20/20/40); run $setWindowFields partitioned by customer_id ordered by placed_at with $avg over documents [-1,current], $rank and $denseRank, and $shift by +1 for next total/date; read back exact avg via cents conversion, rank 1,2,2,4 vs denseRank 1,2,2,3, last doc next fields null, and single-doc partition shift null.",
+    "F3": "No-match no-op plus two identifiers: seed order with 2 lines (line_id A/B, refund_status none); run filtered positional update with arrayFilters matching zero elements (line_id Z) and read back doc unchanged with matchedCount 0 modifiedCount 0; then run update with two arrayFilters identifiers on the same element (e.g., set refunded and reviewed) and read back that only line A changed both fields.",
+    "F5": "Insert/delete shape without fullDocument: open change stream with no fullDocument option then insert one doc, update one doc, delete one doc; read back 3 events in order asserting operationType insert/update/delete, documentKey._id equals the three _ids, update event has null/missing fullDocument, and non-blocking empty poll returns promptly with zero events.",
+    "F7": "Partial comparison filter: create partial unique index on promo_code with partialFilterExpression {total: {$gt: 100}}; insert two docs same promo_code total 10 (both succeed) then two docs same promo_code total 200 (second must fail duplicate key); read back 3 persisted docs and duplicate error on second high-total insert.",
+    "F8": "Pattern plus additionalProperties: enforce $jsonSchema requiring email string pattern ^[^@]+@[^@]+\\.[^@]+$ and additionalProperties false; insert one valid doc succeeds, insert with bad email fails, insert with extra unknown field fails; read back only valid doc persists and both failures return code 121.",
+    "F9": "Case/stemming match without score: seed 3 active products (Premium Jacket, premium jacket lower-case, Running Shoes plus Run Shoe stemming pair) plus 1 inactive matching doc; run $text $search jacket and run with $caseSensitive false $diacriticSensitive false and $language en without $meta projection, sort by _id; read back sorted _id sets include case variants and stemming match, inactive excluded by active:true filter, and $caseSensitive true narrows match.",
+    "X": "maxDepth limit plus unmatched start: seed linear chain A<-B<-C<-D via referred_by to _id; run $graphLookup from D with depthField depth and maxDepth 1 and read back exactly 2 ancestors with depths 0 and 1; rerun with maxDepth 0 (1 ancestor) and with startWith non-existent _id and read back outer doc preserved with empty referrers array []."
+  },
+  "probe_count_overrides": {
+    "X": 2
+  },
+  "required_checks": [
+    "Read back seeded documents before the target operation to confirm setup.",
+    "Include and assert one empty, unmatched, or no-op case with empty array, null, or zero modifications.",
+    "Convert double totals to cents with $cond on $type plus $round before comparing.",
+    "Never project, sort by, or compare textScore values; assert text matches by sorted _id sets."
+  ]
+}

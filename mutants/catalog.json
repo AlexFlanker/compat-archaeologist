@@ -1,0 +1,12 @@
+[
+  {"id": "abort_commits", "kind": "session", "description": "Aborting a transaction commits it instead", "feature_ids": ["F4"], "split": "train"},
+  {"id": "txn_writes_visible", "kind": "session", "description": "Writes sent inside a transaction bypass it, so an abort leaves them visible", "feature_ids": ["F4"], "split": "train"},
+  {"id": "collation_ignored", "kind": "request", "description": "Collation is silently dropped from indexes and queries", "feature_ids": ["F6"], "split": "train"},
+  {"id": "validator_dropped", "kind": "request", "description": "Collection validators are silently dropped", "feature_ids": ["F8"], "split": "train"},
+  {"id": "unique_not_enforced", "kind": "request", "description": "Unique index constraint is silently dropped", "feature_ids": ["F7"], "split": "train"},
+  {"id": "ttl_never_expires", "kind": "request", "description": "TTL expiry is silently dropped from indexes", "feature_ids": ["F7"], "split": "train"},
+  {"id": "change_streams_unsupported", "kind": "watch", "description": "Change streams are refused with code 115", "feature_ids": ["F5"], "split": "heldout"},
+  {"id": "lookup_drops_unmatched", "kind": "request", "description": "$lookup behaves like an inner join: documents with no match vanish", "feature_ids": ["F1"], "split": "heldout"},
+  {"id": "facet_single_bucket", "kind": "reply", "description": "$facet returns only its first bucket populated", "feature_ids": ["F1"], "split": "heldout"},
+  {"id": "textscore_sort_dropped", "kind": "request", "description": "Sorting by text score is silently ignored", "feature_ids": ["F9"], "split": "heldout"}
+]

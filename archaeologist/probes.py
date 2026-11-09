@@ -8,11 +8,13 @@ counted against the target.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 from concurrent.futures import ThreadPoolExecutor
+from datetime import datetime, timezone
 from pathlib import Path
 
-from archaeologist import meta_client
+from archaeologist import meta_client, strategy as strategy_store
 from archaeologist.config import PROBES_DIR, source_client
 from archaeologist.features import FEATURES
 from archaeologist.probe_runner import STEP_OPS, TTL_WAIT_LIMIT_S, run_probe, source_gate
@@ -136,10 +138,25 @@ def _to_probe(item_id: str, raw: dict) -> dict:
     }
 
 
-def generate_for_item(item: dict, source) -> list[dict]:
+def probe_hash(probe: dict) -> str:
+    return hashlib.sha1(json.dumps(probe["steps"], sort_keys=True, default=str).encode()).hexdigest()[:8]
+
+
+def _now() -> str:
+    return datetime.now(timezone.utc).isoformat(timespec="seconds")
+
+
+def generate_for_item(item: dict, source, strategy: dict | None = None) -> list[dict]:
     """Returns validated probes for one item, with invalid ones marked so the report can count them."""
-    system = SYSTEM_PROMPT.format(ttl_wait=TTL_WAIT_LIMIT_S - 8, count=probe_count_for(item))
+    strategy = strategy or strategy_store.active()
+    # Provenance: taken before the first prompt is sent, so a probe never looks newer than its prompt.
+    generated_at, prompt_guarded = _now(), meta_client.guard_installed()
+    count = strategy_store.count_for(strategy, item)
+    system = strategy_store.render_system(SYSTEM_PROMPT.format(ttl_wait=TTL_WAIT_LIMIT_S - 8, count=count), strategy)
     user = _user_prompt(item)
+    hint = strategy_store.hint_for(strategy, item["id"])
+    if hint:
+        user += f"\n\nAdditional guidance for this feature: {hint}"
     response = meta_client.structured(
         purpose=f"probe_generation:{item['id']}",
         system=system,
@@ -166,7 +183,7 @@ def generate_for_item(item: dict, source) -> list[dict]:
                 break
             retry = meta_client.structured(
                 purpose=f"probe_repair:{item['id']}",
-                system=system.replace(f"Write {probe_count_for(item)} probes", "Write 1 probe"),
+                system=system.replace(f"Write {count} probes", "Write 1 probe"),
                 user=(
                     f"{user}\n\nThis probe failed on real MongoDB 8.0:\n{json.dumps(candidate)[:6000]}\n\n"
                     f"MongoDB's actual behavior: {failure}\n\n"
@@ -183,7 +200,32 @@ def generate_for_item(item: dict, source) -> list[dict]:
                 validated.append(probe)
                 break
             candidate = repaired[0]
+    for probe in validated:
+        probe["probe_hash"] = probe_hash(probe)
+        probe["strategy_version"] = strategy["version"]
+        probe["generated_at"] = generated_at
+        probe["prompt_guarded"] = prompt_guarded
     return validated
+
+
+def provenance(probes: list[dict], held_out: dict) -> dict:
+    """Counts probes by whether their prompts could have carried the held-out slice.
+
+    post_seal: stamped at generation as written at or after the seal, with the prompt guard installed.
+    checked_pre_seal: written before these stamps existed, and a recorded check (`pre_seal_check`, naming the
+    ledger commit its prompt was built from) found no sealed shape in that ledger item.
+    unchecked: everything else; any unchecked probe voids the claim that the model never saw the sealed operations.
+    """
+    sealed = datetime.fromisoformat(held_out["created"]) if held_out.get("created") else None
+    post_seal = checked = 0
+    for probe in probes:
+        written = probe.get("generated_at")
+        check = probe.get("pre_seal_check") or {}
+        if sealed and written and probe.get("prompt_guarded") is True and datetime.fromisoformat(written) >= sealed:
+            post_seal += 1
+        elif check.get("ledger_commit") and check.get("heldout_shapes_in_prompt") == 0:
+            checked += 1
+    return {"total": len(probes), "post_seal": post_seal, "checked_pre_seal": checked, "unchecked": len(probes) - post_seal - checked}
 
 
 def _validate_on_source(probe: dict, source) -> str | None:
@@ -214,14 +256,38 @@ def load_invalid(profile: str) -> list[dict]:
 ORACLE_UNAVAILABLE = {"F11": "Atlas Search needs Atlas (or mongot); the local MongoDB oracle doesn't have it"}
 
 
-def generate(profile: str, ledger: dict) -> list[dict]:
+def generate(
+    profile: str,
+    ledger: dict,
+    strategy: dict | None = None,
+    only_features: set[str] | None = None,
+    base_probes: list[dict] | None = None,
+    out_path: Path | None = None,
+    extra_forbidden: list[str] = (),
+) -> list[dict]:
+    """Writes probes for every item, or only for `only_features` (others carry over from `base_probes`)."""
+    from archaeologist import heldout
+    from archaeologist.extract_querylog import load_log, query_log_path
+
+    heldout.install_guard(heldout.load_or_create(profile), load_log(query_log_path(profile)), extra_forbidden=extra_forbidden)
+    strategy = strategy or strategy_store.active()
     source = source_client(timeout_ms=120_000)
     items = [item for item in ledger["items"] if item["id"] not in ORACLE_UNAVAILABLE]
+    chosen = [item for item in items if only_features is None or item["id"] in only_features]
     with ThreadPoolExecutor(max_workers=4) as pool:
-        results = list(pool.map(lambda item: generate_for_item(item, source), items))
-    probes = [probe for group in results for probe in group]
-    PROBES_DIR.mkdir(exist_ok=True)
-    cache_path(profile).write_text(json.dumps(probes, indent=2))
+        fresh = dict(zip([item["id"] for item in chosen], pool.map(lambda item: generate_for_item(item, source, strategy), chosen)))
+    probes = []
+    for item in items:
+        if item["id"] in fresh:
+            probes.extend(fresh[item["id"]])
+        else:
+            for probe in (base_probes or []):
+                if probe["feature_id"] == item["id"]:
+                    probe.setdefault("probe_hash", probe_hash(probe))
+                    probes.append(probe)
+    target = out_path or cache_path(profile)
+    target.parent.mkdir(exist_ok=True)
+    target.write_text(json.dumps(probes, indent=2))
     return probes
 
 

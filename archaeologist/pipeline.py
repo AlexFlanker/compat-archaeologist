@@ -5,11 +5,12 @@ from __future__ import annotations
 import argparse
 import json
 import time
+from datetime import datetime, timezone
 
 from rich.console import Console
 from rich.table import Table
 
-from archaeologist import brief, business_questions, cutover, edge_cases, docdb_inferred, explain_compare, extract_data, extract_querylog, ledger as ledger_module, memo, meta_client, probes, scoreboard, store, subq_client, tco, upgrade
+from archaeologist import brief, business_questions, cutover, edge_cases, docdb_inferred, explain_compare, extract_data, extract_querylog, heldout, ledger as ledger_module, memo, mutation_test, meta_client, probes, scoreboard, store, subq_client, tco, upgrade
 from archaeologist.config import OUT_DIR, ROOT, source_client, target_client
 from archaeologist.diff import run as run_diff
 from scripts.seed import PROFILES, database_names, seed_database
@@ -145,10 +146,29 @@ def main() -> int:
     parser.add_argument("--no-live-code", action="store_true", help=argparse.SUPPRESS)
     parser.add_argument("--with-self-check", action="store_true", help="Run MongoDB against itself first")
     parser.add_argument("--with-upgrade", action="store_true", help="Also run against the older target version (docker compose --profile upgrade)")
+    parser.add_argument("--with-mutation-test", action="store_true", help="Inject known incompatibilities in front of MongoDB and check the probes catch them (slow)")
     arguments = parser.parse_args()
+    started, status = time.perf_counter(), "failed"
+    try:
+        code = _run(arguments, started)
+        status = "ok"
+        return code
+    finally:  # a failed run leaves a record too, so a stale "ok" timing is never mistaken for this run's
+        _write_timing(arguments.profile, started, status)
 
+
+def _write_timing(profile: str, started: float, status: str) -> None:
+    path = OUT_DIR / profile / "timing.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps({
+        "seconds": round(time.perf_counter() - started),
+        "finished_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "status": status,
+    }, indent=2) + "\n")
+
+
+def _run(arguments: argparse.Namespace, started: float) -> int:
     profile = arguments.profile
-    started = time.perf_counter()
     console.print(f"[bold]Compat Archaeologist[/] · profile [bold]{profile}[/]")
     console.print(
         f"  Meta: {meta_client.model_name() if meta_client.is_configured() else '[yellow]not configured[/]'} · "
@@ -238,6 +258,16 @@ def main() -> int:
         else:
             console.print(f"  [yellow]skipped[/]: {edge.get('reason')}")
 
+    mutation, mutation_is_stale = None, False
+    if arguments.with_mutation_test:
+        _step("4g. Planted gaps: known incompatibilities injected in front of MongoDB; did the probes catch them?")
+        mutation = mutation_test.run(profile, active)
+        console.print(f"  {mutation_test.summary_line(mutation)}")
+    else:
+        mutation_path = OUT_DIR / profile / "mutation_test.json"
+        if mutation_path.exists():
+            mutation, mutation_is_stale = json.loads(mutation_path.read_text()), True
+
     upgrade_summary = upgrade.load(profile)
     if arguments.with_upgrade:
         _step("4d. Upgrade check: same probes and replay on an older target version")
@@ -254,10 +284,14 @@ def main() -> int:
 
     _step("6. Decision memo")
     measured_bytes = source_client().get_database(profile).command("dbStats").get("dataSize")
+    held_out = heldout.load_or_create(profile)
+    # Handwritten fixtures were not written by the model, so there is no prompt provenance to report.
+    provenance = probes.provenance(active + invalid, held_out) if origin == "muse" else None
     text = memo.write(
         profile, ledger, runs, self_check, docdb, result, invalid, ferretdb_documented, plans,
         cutover=cutover_clean, drill=cutover_drill, measured_bytes=measured_bytes, upgrade=upgrade_summary,
         questions=questions, scoreboard=rules, edge=edge,
+        mutation=mutation, heldout=held_out, mutation_is_stale=mutation_is_stale, provenance=provenance,
     )
     console.print(f"  wrote out/{profile}/memo.md")
     saved = store.save(profile, runs["run_id"], ledger, runs, result, text)

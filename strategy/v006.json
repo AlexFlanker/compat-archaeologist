@@ -1,0 +1,24 @@
+{
+  "version": "v006",
+  "parent": "v005",
+  "created": "2026-11-09T09:40:43+00:00",
+  "system_prompt_additions": "Seed small deterministic data and read it back with find or aggregation to confirm setup before exercising the target feature. Every probe must include one empty, unmatched, or no-op case (no-match join, empty facet branch, single-doc window partition with null shift, arrayFilter matching zero, abort or invisible-transaction path, empty poll, collation non-match, partial-filter non-match, validator rejection) and assert the empty, null, or unchanged result explicitly. Exercise one boundary or rarely-used option (maxDepth/depthField, range-window edge, second arrayFilter identifier, partial filter with comparison, update-validation path) and compare exact read-back values and counts.",
+  "per_feature_hints": {
+    "F1": "Empty join and empty facet branch: seed one customer with zero matching orders plus one customer with two in-range orders; run $lookup with let/pipeline that matches zero docs for the first customer and $facet where one sub-pipeline matches zero docs; read back that the no-match lookup preserves the outer doc with empty array [], facet empty branch returns [], and counts/totals are 0 (double totals converted to cents via $cond on $type plus $round).",
+    "F2": "Lead shift plus rank window: seed one customer with 3 orders ordered by placed_at with totals 10,20,30; run $setWindowFields partitioned by customer_id ordered by placed_at to compute next_total via $shift by +1 and pos via $rank; read back middle doc next_total 30 pos 2 and last doc next_total null pos 3 with exact values and count 3.",
+    "F3": "No-match no-op plus two identifiers: seed order with 2 lines (line_id A/B, refund_status none); run filtered positional update with arrayFilters matching zero elements (line_id Z) and read back doc unchanged with matchedCount 0 modifiedCount 0; then run update with two arrayFilters identifiers on the same element (e.g., set refunded and reviewed) and read back that only line A changed both fields.",
+    "F5": "Delete-only stream plus suppressed update: seed two products, open change stream with $match on operationType delete, then update one doc and delete one doc; read back exactly one delete event with operationType delete and documentKey _id matching deleted id, assert update produced no event and empty poll returns promptly with zero extra events.",
+    "F7": "Comparison partial filter: create partial unique index on coupon_code with partialFilterExpression status shipped and total $gt 100; seed shipped order total 150 coupon SAVE10 then retry duplicate coupon same customer total 150 must fail duplicate key while duplicate coupon total 50 succeeds; read back counts, error code, and surviving docs.",
+    "F8": "Nested items element validation: enforce $jsonSchema on orders requiring items array where each element requires product_id string and qty >=1 via nested properties; inserts with missing qty or qty 0 must fail with 121 while valid nested doc persists; read back collection count 1 and surviving doc fields.",
+    "F9": "Phrase match with active filter sorted by _id: seed 3 active products plus 1 inactive where only doc A contains contiguous phrase wireless charger in name, doc B contains wireless and charger separated, doc C unrelated; run $text with quoted phrase plus active:true filter sorted by _id; read back only doc A _id matches with count 1 and inactive excluded.",
+    "X": "maxDepth limit plus unmatched start: seed linear chain A<-B<-C<-D via referred_by to _id; run $graphLookup from D with depthField depth and maxDepth 1 and read back exactly 2 ancestors with depths 0 and 1; rerun with maxDepth 0 (1 ancestor) and with startWith non-existent _id and read back outer doc preserved with empty referrers array []."
+  },
+  "probe_count_overrides": {
+    "X": 2
+  },
+  "required_checks": [
+    "Read back seeded documents before the target operation to confirm setup.",
+    "Include and assert one empty, unmatched, or no-op case with empty array, null, or zero modifications.",
+    "Convert double totals to cents with $cond on $type plus $round before comparing."
+  ]
+}
