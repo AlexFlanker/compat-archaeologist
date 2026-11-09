@@ -16,3 +16,6 @@ logs/*.raw
 # OS
 .DS_Store
 logs/*.log
+
+# Built evidence site
+site/
