@@ -1,0 +1,34 @@
+held-out ['S181542d4', 'S4b871cdf', 'Sba60fea1', 'Se8433e70', 'Sf0f8b779'] sealed 2026-11-09T08:30:31+00:00
+30 probes in probes/shoplog.json; 0 carry generated_at
+  F1.revenue-lookup-facet                       v005 post-seal       ledger 6b69027: sealed shapes 0 guard clean prompt sha 961969301c718b49 logged: 2026-11-09T09:04:42+00:00 probe_generation:F1
+  F1.empty-join-empty-facet                     v005 post-seal       ledger 6b69027: sealed shapes 0 guard clean prompt sha 961969301c718b49 logged: 2026-11-09T09:04:42+00:00 probe_generation:F1
+  F1.inventory-lookup-group                     v005 post-seal       ledger 6b69027: sealed shapes 0 guard clean prompt sha 961969301c718b49 logged: 2026-11-09T09:04:42+00:00 probe_generation:F1
+  F2.swf-running-total-seq                      carried pre-seal     ledger 6b69027: sealed shapes 0 guard clean; also {'76187a2': [], '84c6841': []}
+  F2.swf-rolling-90d                            carried pre-seal     ledger 6b69027: sealed shapes 0 guard clean; also {'76187a2': [], '84c6841': []}
+  F2.swf-prev-order-shift                       carried pre-seal     ledger 6b69027: sealed shapes 0 guard clean; also {'76187a2': [], '84c6841': []}
+  F3.arrayfilters-refund-reviewed               v005 post-seal       ledger 6b69027: sealed shapes 0 guard clean prompt sha a76b672ab01b7fbc logged: 2026-11-09T09:06:31+00:00 probe_generation:F3
+  F3.arrayfilters-two-ids-allpos                v005 post-seal       ledger 6b69027: sealed shapes 0 guard clean prompt sha a76b672ab01b7fbc logged: 2026-11-09T09:06:31+00:00 probe_generation:F3
+  F3.arrayfilters-pos-updates                   v005 post-seal       ledger 6b69027: sealed shapes 0 guard clean prompt sha a76b672ab01b7fbc logged: 2026-11-09T09:06:31+00:00 probe_generation:F3
+  F4.txn-abort-rollback                         carried pre-seal     ledger 6b69027: sealed shapes 0 guard clean; also {'76187a2': [], '84c6841': []}
+  F4.txn-commit-atomic                          carried pre-seal     ledger 6b69027: sealed shapes 0 guard clean; also {'76187a2': [], '84c6841': []}
+  F4.txn-isolation-uncommitted                  carried pre-seal     ledger 6b69027: sealed shapes 0 guard clean; also {'76187a2': [], '84c6841': []}
+  F5.cs-filter-update-replace                   carried pre-seal     ledger 6b69027: sealed shapes 0 guard clean; also {'76187a2': [], '84c6841': []}
+  F5.cs-fulldocument-lookup                     carried pre-seal     ledger 6b69027: sealed shapes 0 guard clean; also {'76187a2': [], '84c6841': []}
+  F5.cs-event-per-change                        carried pre-seal     ledger 6b69027: sealed shapes 0 guard clean; also {'76187a2': [], '84c6841': []}
+  F6.ci-lookup                                  carried pre-seal     ledger 6b69027: sealed shapes 0 guard clean; also {'76187a2': [], '84c6841': []}
+  F6.ci-unique                                  carried pre-seal     ledger 6b69027: sealed shapes 0 guard clean; also {'76187a2': [], '84c6841': []}
+  F6.ci-gating                                  carried pre-seal     ledger 6b69027: sealed shapes 0 guard clean; also {'76187a2': [], '84c6841': []}
+  F7.partial-unique-missing-exempt              carried pre-seal     ledger 6b69027: sealed shapes 0 guard clean; also {'76187a2': [], '84c6841': []}
+  F7.partial-unique-per-customer                carried pre-seal     ledger 6b69027: sealed shapes 0 guard clean; also {'76187a2': [], '84c6841': []}
+  F7.ttl-active-only-expiry                     carried pre-seal     ledger 6b69027: sealed shapes 0 guard clean; also {'76187a2': [], '84c6841': []}
+  F8.orders-required-fields                     carried pre-seal     ledger 6b69027: sealed shapes 0 guard clean; also {'76187a2': [], '84c6841': []}
+  F8.orders-enum-total                          carried pre-seal     ledger 6b69027: sealed shapes 0 guard clean; also {'76187a2': [], '84c6841': []}
+  F8.orders-types-update                        carried pre-seal     ledger 6b69027: sealed shapes 0 guard clean; also {'76187a2': [], '84c6841': []}
+  F9.text_weighted_ranking                      carried pre-seal     ledger 6b69027: sealed shapes 0 guard clean; also {'76187a2': [], '84c6841': []}
+  F9.text_exclusion_term                        carried pre-seal     ledger 6b69027: sealed shapes 0 guard clean; also {'76187a2': [], '84c6841': []}
+  F9.text_search_active_ranked                  carried pre-seal     ledger 6b69027: sealed shapes 0 guard clean; also {'76187a2': [], '84c6841': []}
+  F10.cart-touch-fetch-discard                  F10 regen post-seal  ledger 7448e65: sealed shapes 0 guard clean prompt sha 048ae6f6b0926f1c logged: 2026-11-09T11:22:12+00:00 probe_generation:F10
+  F10.order-cas-history-paginate                F10 regen post-seal  ledger 7448e65: sealed shapes 0 guard clean prompt sha 048ae6f6b0926f1c logged: 2026-11-09T11:22:12+00:00 probe_generation:F10
+  X:graphLookup.graphlookup-referral-chain      carried pre-seal     ledger 6b69027: sealed shapes 0 guard clean; also {'76187a2': [], '84c6841': []}
+stamped 30: 6b69027 x28, 7448e65 x2
+provenance: {'total': 30, 'post_seal': 0, 'checked_pre_seal': 30, 'unchecked': 0}
