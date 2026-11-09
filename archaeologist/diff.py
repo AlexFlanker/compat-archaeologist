@@ -143,6 +143,15 @@ def run(
     out_dir.mkdir(parents=True, exist_ok=True)
     file_name = "self_check.json" if self_check else (f"runs_{output_name}.json" if output_name else "runs.json")
     (out_dir / file_name).write_text(json.dumps(document, indent=2, default=str))
+    if not self_check:
+        entry = {
+            "run_id": run_id,
+            "at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+            "strategy_version": probes[0].get("strategy_version", "v000") if probes else "v000",
+            "verdicts": {result["probe_id"]: result["verdict"] for result in probe_results},
+        }
+        with (out_dir / "history.jsonl").open("a") as history:
+            history.write(json.dumps(entry) + "\n")
     return document
 
 

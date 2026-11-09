@@ -8,11 +8,12 @@ counted against the target.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
-from archaeologist import meta_client
+from archaeologist import meta_client, strategy as strategy_store
 from archaeologist.config import PROBES_DIR, source_client
 from archaeologist.features import FEATURES
 from archaeologist.probe_runner import STEP_OPS, TTL_WAIT_LIMIT_S, run_probe, source_gate
@@ -136,10 +137,19 @@ def _to_probe(item_id: str, raw: dict) -> dict:
     }
 
 
-def generate_for_item(item: dict, source) -> list[dict]:
+def probe_hash(probe: dict) -> str:
+    return hashlib.sha1(json.dumps(probe["steps"], sort_keys=True, default=str).encode()).hexdigest()[:8]
+
+
+def generate_for_item(item: dict, source, strategy: dict | None = None) -> list[dict]:
     """Returns validated probes for one item, with invalid ones marked so the report can count them."""
-    system = SYSTEM_PROMPT.format(ttl_wait=TTL_WAIT_LIMIT_S - 8, count=probe_count_for(item))
+    strategy = strategy or strategy_store.active()
+    count = strategy_store.count_for(strategy, item)
+    system = strategy_store.render_system(SYSTEM_PROMPT.format(ttl_wait=TTL_WAIT_LIMIT_S - 8, count=count), strategy)
     user = _user_prompt(item)
+    hint = strategy_store.hint_for(strategy, item["id"])
+    if hint:
+        user += f"\n\nAdditional guidance for this feature: {hint}"
     response = meta_client.structured(
         purpose=f"probe_generation:{item['id']}",
         system=system,
@@ -166,7 +176,7 @@ def generate_for_item(item: dict, source) -> list[dict]:
                 break
             retry = meta_client.structured(
                 purpose=f"probe_repair:{item['id']}",
-                system=system.replace(f"Write {probe_count_for(item)} probes", "Write 1 probe"),
+                system=system.replace(f"Write {count} probes", "Write 1 probe"),
                 user=(
                     f"{user}\n\nThis probe failed on real MongoDB 8.0:\n{json.dumps(candidate)[:6000]}\n\n"
                     f"MongoDB's actual behavior: {failure}\n\n"
@@ -183,6 +193,9 @@ def generate_for_item(item: dict, source) -> list[dict]:
                 validated.append(probe)
                 break
             candidate = repaired[0]
+    for probe in validated:
+        probe["probe_hash"] = probe_hash(probe)
+        probe["strategy_version"] = strategy["version"]
     return validated
 
 
@@ -214,14 +227,34 @@ def load_invalid(profile: str) -> list[dict]:
 ORACLE_UNAVAILABLE = {"F11": "Atlas Search needs Atlas (or mongot); the local MongoDB oracle doesn't have it"}
 
 
-def generate(profile: str, ledger: dict) -> list[dict]:
+def generate(
+    profile: str,
+    ledger: dict,
+    strategy: dict | None = None,
+    only_features: set[str] | None = None,
+    base_probes: list[dict] | None = None,
+    out_path: Path | None = None,
+) -> list[dict]:
+    """Writes probes for every item, or only for `only_features` (others carry over from `base_probes`)."""
+    from archaeologist import heldout
+    from archaeologist.extract_querylog import load_log, query_log_path
+
+    heldout.install_guard(heldout.load_or_create(profile), load_log(query_log_path(profile)))
+    strategy = strategy or strategy_store.active()
     source = source_client(timeout_ms=120_000)
     items = [item for item in ledger["items"] if item["id"] not in ORACLE_UNAVAILABLE]
+    chosen = [item for item in items if only_features is None or item["id"] in only_features]
     with ThreadPoolExecutor(max_workers=4) as pool:
-        results = list(pool.map(lambda item: generate_for_item(item, source), items))
-    probes = [probe for group in results for probe in group]
-    PROBES_DIR.mkdir(exist_ok=True)
-    cache_path(profile).write_text(json.dumps(probes, indent=2))
+        fresh = dict(zip([item["id"] for item in chosen], pool.map(lambda item: generate_for_item(item, source, strategy), chosen)))
+    probes = []
+    for item in items:
+        if item["id"] in fresh:
+            probes.extend(fresh[item["id"]])
+        else:
+            probes.extend(probe for probe in (base_probes or []) if probe["feature_id"] == item["id"])
+    target = out_path or cache_path(profile)
+    target.parent.mkdir(exist_ok=True)
+    target.write_text(json.dumps(probes, indent=2))
     return probes
 
 

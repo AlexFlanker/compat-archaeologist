@@ -80,9 +80,14 @@ def summarize(catalog: list[dict], per_repeat: list[dict]) -> dict:
 
 def _run_against(mutation: str | None, probes: list[dict]) -> list[dict]:
     source = source_client(timeout_ms=15000)
-    target = MutantClient(source_client(timeout_ms=15000), mutation)
-    with ThreadPoolExecutor(max_workers=PROBE_WORKERS) as pool:
-        return [_slim(result) for result in pool.map(lambda probe: diff_probe(source, target, probe, namespaces=NAMESPACES), probes)]
+    inner = source_client(timeout_ms=15000)
+    try:
+        target = MutantClient(inner, mutation)
+        with ThreadPoolExecutor(max_workers=PROBE_WORKERS) as pool:
+            return [_slim(result) for result in pool.map(lambda probe: diff_probe(source, target, probe, namespaces=NAMESPACES), probes)]
+    finally:
+        source.close()
+        inner.close()
 
 
 def run(profile: str, probes: list[dict], repeats: int = 3, mutation_ids: list[str] | None = None) -> dict:
