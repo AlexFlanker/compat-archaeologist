@@ -121,6 +121,7 @@ def gaps_card(profile: str, tco: dict) -> tuple[str, dict]:
             ]
             if estimate:
                 children.append({"type": "text", "value": f"Rewrite estimate (Muse, inferred): {estimate['hours_base']:.0f} h. {estimate['approach']}", "style": "muted"})
+            children.append(_gap_button(profile, target, gap, f"Dig into {gap['feature']}"))
             items.append({"children": children})
     found = len(items)
     if not items:
@@ -235,3 +236,237 @@ def reversal_card(profile: str, tco: dict) -> tuple[str, dict]:
 
 def _back_button(profile: str) -> dict:
     return {"type": "button", "label": "Back to decision", "primary": False, "action": {"selection": {"action": "decision", "profile": profile}}}
+
+
+EXAMPLE_QUESTIONS = [
+    "Why does FerretDB lose the transaction rollback?",
+    "What would change the verdict?",
+    "How was the rewrite cost for F6 estimated?",
+    "Which business rules survived the cutover?",
+]
+
+
+def answer_card(profile: str, result: dict, tco: dict | None) -> tuple[str, dict]:
+    """A grounded answer: the text, the facts it cites, and buttons into the cited gaps or the reversal walk."""
+    children = [{"type": "text", "value": result["text"], "style": "body"}]
+    buttons = []
+    if result["citations"]:
+        children += [{"type": "divider"}, {"type": "heading", "value": "Evidence cited", "level": 3}]
+        for citation in result["citations"][:6]:
+            children.append({"type": "text", "style": "muted", "value": f"[{citation['id']}] {_clip(citation['text'], 200)}"})
+            kind, _, rest = citation["id"].partition(":")
+            if kind == "gap" and tco and len(buttons) < 3:
+                target, _, feature = rest.rpartition(":")
+                gap = next((item for name, item in blocking_gaps(tco) if name == target and item["feature"] == feature), None)
+                if gap and not any(button["label"].endswith(feature) and target in button["label"] for button in buttons):
+                    buttons.append(_gap_button(profile, target, gap, f"Dig into {feature} ({target})"))
+            elif kind == "step" and not any(button["label"] == "See the reversal" for button in buttons):
+                buttons.append({"type": "button", "label": "See the reversal", "primary": False, "action": {"selection": {"action": "view", "view": "reversal", "profile": profile}}})
+    elif not result["answerable"]:
+        for question in EXAMPLE_QUESTIONS[:3]:
+            buttons.append({"type": "button", "label": question, "primary": False, "action": {"selection": {"action": "ask", "question": question, "profile": profile}}})
+    if result.get("dropped"):
+        children.append({"type": "text", "style": "muted", "value": f"{len(result['dropped'])} citation(s) the model gave didn't match any evidence and were removed."})
+    children += [{"type": "divider"}, {"type": "group", "direction": "row", "gap": 8, "children": buttons + [_back_button(profile)]}]
+    title = "Answer from the evidence" if result["answerable"] else "Not covered by the evidence"
+    root = _section(title, f"{APP_NAME.get(profile, profile)}: only facts from this assessment, each one cited", children)
+    return result["text"], metadata("custom", {"root": root}, 680)
+
+
+def help_card(profile: str) -> tuple[str, dict]:
+    children = [
+        {"type": "text", "style": "body", "value": "I assessed whether ShopLog, a 10-year-old MongoDB app, can move to FerretDB or AWS DocumentDB, and ShopLog Lite as a control. Ask me anything about the result, or open a view."},
+        {"type": "heading", "value": "Try asking", "level": 3},
+    ]
+    for question in EXAMPLE_QUESTIONS:
+        children.append({"type": "button", "label": question, "primary": False, "action": {"selection": {"action": "ask", "question": question, "profile": profile}}})
+    children += [{"type": "divider"}, {"type": "group", "direction": "row", "gap": 8, "children": [
+        {"type": "button", "label": "What breaks", "primary": True, "action": {"selection": {"action": "view", "view": "gaps", "profile": profile}}},
+        {"type": "button", "label": "How the evidence reversed it", "primary": False, "action": {"selection": {"action": "view", "view": "reversal", "profile": profile}}},
+    ]}, _back_button(profile)]
+    root = _section("Compat Archaeologist", "Before you migrate off MongoDB", children)
+    return "I can show the decision, each gap with its evidence, or answer questions from the evidence.", metadata("custom", {"root": root}, 640)
+
+
+def _gap_button(profile: str, target: str, gap: dict, label: str, primary: bool = False) -> dict:
+    selection = {"action": "view", "view": "gap", "profile": profile, "target": target, "gap": gap["key"]}
+    return {"type": "button", "label": label, "primary": primary, "action": {"selection": selection}}
+
+
+# Cutover checks that exercise each feature, matched on the check's own wording.
+CUTOVER_LINKS = {
+    "F6": ("collation", "case is ignored", "different case"),
+    "F7": ("partialFilterExpression", "expireAfterSeconds", "coupon"),
+    "F8": ("$jsonSchema", "order schema", "unknown status"),
+    "F9": ("weights",),
+}
+TEXT_LIMIT = 240
+
+
+def load_bundle(profile: str) -> dict:
+    """Everything a detail card or an answer may cite, read once from the pipeline output."""
+    from archaeologist.config import OUT_DIR, ROOT
+
+    def read(path):
+        return json.loads(path.read_text()) if path.exists() else None
+
+    folder = OUT_DIR / profile
+    definitions = read(ROOT / "probes" / f"{profile}.json") or []
+    return {
+        "profile": profile,
+        "tco": read(folder / "tco.json"),
+        "ledger": read(folder / "ledger.json"),
+        "runs": read(folder / "runs.json"),
+        "cutover": read(folder / "cutover_clean.json"),
+        "scoreboard": read(folder / "scoreboard.json"),
+        "probes": {probe["probe_id"]: probe for probe in definitions},
+    }
+
+
+def blocking_gaps(tco: dict) -> list[tuple[str, dict]]:
+    """FerretDB first (observed), then the inferred target, in the order the reversal walk uses."""
+    from archaeologist.tco import KIND_ORDER
+
+    ordered = []
+    for target, info in sorted(tco["targets"].items(), key=lambda pair: pair[1]["evidence"] != "OBSERVED"):
+        gaps = sorted((gap for gap in info["gaps"] if gap["blocking"]), key=lambda gap: (KIND_ORDER.get(gap["kind"], 9), gap["feature"]))
+        ordered += [(target, gap) for gap in gaps]
+    return ordered
+
+
+def find_gap(tco: dict, feature: str) -> tuple[str, str] | None:
+    for target, gap in blocking_gaps(tco):
+        if gap["feature"].lower() == feature.lower() or gap["key"] == feature:
+            return target, gap["key"]
+    return None
+
+
+def _clip(value, limit: int = TEXT_LIMIT) -> str:
+    text = value if isinstance(value, str) else json.dumps(value, default=str)
+    return text if len(text) <= limit else text[: limit - 1] + "…"
+
+
+def _reversal_step(tco: dict, target: str, gap: dict) -> tuple[int, dict] | None:
+    walk = tco.get("reversal") or {}
+    if walk.get("target") != target:
+        return None
+    steps = walk.get("steps", [])
+    for index, step in enumerate(steps):
+        if step.get("gap_key") == gap["key"]:
+            return index, step
+    # Walks written before steps carried gap_key: the steps follow the blocking gaps in order.
+    keys = [item["key"] for name, item in blocking_gaps(tco) if name == target]
+    if gap["key"] in keys and keys.index(gap["key"]) + 1 < len(steps):
+        index = keys.index(gap["key"]) + 1
+        return index, steps[index]
+    return None
+
+
+def _probe_children(bundle: dict, evidence: dict) -> list[dict]:
+    run = next((probe for probe in (bundle.get("runs") or {}).get("probes", []) if probe["probe_id"] == evidence["probe_id"]), None)
+    detail = evidence.get("detail") or {}
+    at_step = detail.get("at_step")
+    children = [{"type": "heading", "value": f"Probe {evidence['probe_id']}: {evidence['verdict']}", "level": 3},
+                {"type": "text", "value": evidence["title"], "style": "muted"}]
+    difference = detail.get("difference")
+    if difference:
+        children.append({"type": "text", "style": "body", "value":
+                         f"At step '{at_step}', {difference.get('path')}: MongoDB: {_clip(difference.get('source'), 80)} | FerretDB: {_clip(difference.get('target'), 80)}"})
+    elif detail.get("message"):
+        children.append({"type": "text", "style": "body", "value": f"At step '{at_step}', FerretDB returned error {detail.get('code')}: {_clip(detail['message'], 160)}. MongoDB completed the same step."})
+    definition = bundle["probes"].get(evidence["probe_id"]) or {}
+    step = next((item for item in definition.get("steps", []) if item.get("label") == at_step), None)
+    if step:
+        sent = step.get("command_ejson") or f"{step.get('op')} (driver operation)"
+        children.append({"type": "text", "style": "muted", "value": f"Command at that step: {_clip(sent)}"})
+    if run and run.get("source", {}).get("outcome"):
+        children.append({"type": "text", "style": "muted", "value": f"Run outcome: MongoDB {run['source']['outcome']}, FerretDB {run['target']['outcome']}."})
+    return children
+
+
+def gap_detail_card(profile: str, bundle: dict, target: str, key: str) -> tuple[str, dict]:
+    """One blocking gap with everything behind it: what diverged, what was sent, where the code is, what it costs."""
+    tco = bundle["tco"]
+    ordered = blocking_gaps(tco)
+    position = next((index for index, (name, gap) in enumerate(ordered) if name == target and gap["key"] == key), None)
+    if position is None:
+        narration, card = gaps_card(profile, tco)
+        return f"{key} is not a blocking gap for {target}. {narration}", card
+    _, gap = ordered[position]
+    observed = tco["targets"][target]["evidence"] == "OBSERVED"
+    badges = [{"type": "badge", "label": f"{target} ({tco['targets'][target]['evidence']})", "variant": "info"},
+              {"type": "badge", "label": gap["kind"].replace("_", " "), "variant": "warning" if gap["kind"] in {"silent", "performance"} else "info"},
+              {"type": "badge", "label": f"Confidence {gap['confidence']:.2f}", "variant": "info"}]
+    children = [{"type": "group", "direction": "row", "gap": 8, "children": badges}]
+    if gap["kind"] == "silent":
+        children.append({"type": "text", "style": "emphasis", "value": "Silent: at least one probe got a wrong result with no error, so the application can't tell it went wrong."})
+
+    if gap["kind"] == "performance":
+        for item in gap["evidence"]:
+            ratio = item["target_p95_ms"] / item["source_p95_ms"] if item["source_p95_ms"] else None
+            children.append({"type": "text", "style": "body", "value":
+                             f"Replayed shape {item['shape_id']} ({' → '.join(item['stages'])}): p95 MongoDB {item['source_p95_ms']} ms | FerretDB {item['target_p95_ms']} ms"
+                             + (f", {ratio:,.0f}× slower" if ratio else "") + f" over {item['samples']} samples."})
+    elif gap["kind"] == "documented_conflict":
+        for item in gap["evidence"]:
+            children.append({"type": "text", "style": "body", "value": f"{item['conflict']}. Source: {item['url']}"})
+        if not observed:
+            children.append({"type": "text", "style": "muted", "value": "Inferred from documentation; nothing was measured on this engine."})
+    else:
+        for evidence in gap["evidence"][:3]:
+            children.append({"type": "divider"})
+            children += _probe_children(bundle, evidence)
+    replay = gap.get("replay") or {}
+    if replay.get("replayed"):
+        children.append({"type": "text", "style": "body", "value": f"Workload replay: {replay['different']} of {replay['replayed']} recorded operations returned different results, {replay['errors']} errored."})
+    for rejection in gap.get("schema_rejections") or []:
+        children.append({"type": "text", "style": "body", "value": f"Schema step {rejection['step']} was refused (code {rejection.get('code')})."})
+
+    item = next((entry for entry in (bundle.get("ledger") or {}).get("items", []) if entry["id"] == gap["feature"]), None)
+    if item:
+        refs = []
+        for source in sorted((s for s in item["sources"] if s["type"] == "code"), key=lambda s: s.get("origin") == "static_scan"):
+            if source["ref"] not in refs:
+                refs.append(source["ref"])
+        children.append({"type": "divider"})
+        children.append({"type": "heading", "value": "Where the app depends on it", "level": 3})
+        children.append({"type": "text", "style": "body", "value": f"{item['behavior'][:200]}"})
+        if refs:
+            children.append({"type": "text", "style": "muted", "value": "Code: " + ", ".join(refs[:4])})
+
+    checks = [check for check in (bundle.get("cutover") or {}).get("checks", [])
+              if any(word.lower() in check["check"].lower() for word in CUTOVER_LINKS.get(gap["feature"], ()))]
+    if checks and observed:
+        children.append({"type": "divider"})
+        children.append({"type": "heading", "value": "Cutover rehearsal", "level": 3})
+        for check in checks[:5]:
+            children.append({"type": "text", "style": "body", "value": f"{'PASS' if check['ok'] else 'FAIL'}: {check['check']}"})
+
+    estimate = gap.get("estimate")
+    step = _reversal_step(tco, target, gap)
+    if estimate or step:
+        children.append({"type": "divider"})
+        children.append({"type": "heading", "value": "What it costs", "level": 3})
+    if estimate:
+        children.append({"type": "text", "style": "body", "value": f"Fix (Muse, inferred): {estimate['hours_low']:.0f} to {estimate['hours_high']:.0f} h, base {estimate['hours_base']:.0f} h. {_clip(estimate['approach'], 320)}"})
+    if step:
+        index, entry = step
+        flipped = (tco["reversal"].get("flipped_at") == index)
+        children.append({"type": "text", "style": "emphasis" if flipped else "body", "value":
+                         f"Step {index} of the reversal: {_money(entry['change'])}, running net {_money(entry['net'])}" + (". The decision flips here." if flipped else ".")})
+
+    nav = []
+    if position > 0:
+        previous_target, previous = ordered[position - 1]
+        nav.append(_gap_button(profile, previous_target, previous, f"Previous: {previous['feature']}"))
+    if position + 1 < len(ordered):
+        next_target, upcoming = ordered[position + 1]
+        nav.append(_gap_button(profile, next_target, upcoming, f"Next: {upcoming['feature']}", primary=True))
+    nav.append({"type": "button", "label": "All gaps", "primary": False, "action": {"selection": {"action": "view", "view": "gaps", "profile": profile}}})
+    children += [{"type": "divider"}, {"type": "group", "direction": "row", "gap": 8, "children": nav}, _back_button(profile)]
+
+    root = _section(f"{gap['feature']}: {gap['name']}", f"{APP_NAME.get(profile, profile)} on {target}, gap {position + 1} of {len(ordered)}", children)
+    narration = f"{gap['feature']} on {target}: {gap['name']} ({gap['kind'].replace('_', ' ')})."
+    if step:
+        narration += f" It moves the 12-month net by {_money(step[1]['change'])}."
+    return narration, metadata("custom", {"root": root}, 720)

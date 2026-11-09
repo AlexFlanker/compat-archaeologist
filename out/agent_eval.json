@@ -1,0 +1,543 @@
+{
+  "at": "2026-11-09T06:32:24+00:00",
+  "model": "muse-spark-1.3",
+  "summary": {
+    "routing_accuracy": "23/24",
+    "answers_ok": "11/11",
+    "citations_valid": "33/33",
+    "routed_by_fallback": 0,
+    "median_route_seconds": 3.56,
+    "median_answer_seconds": 4.93
+  },
+  "routing": [
+    {
+      "message": "what's the verdict for shoplog?",
+      "expected": {
+        "action": "decision",
+        "feature": null
+      },
+      "got": {
+        "action": "decision",
+        "profile": "shoplog",
+        "via": "muse"
+      },
+      "ok": true,
+      "seconds": 1.89
+    },
+    {
+      "message": "should we migrate or not",
+      "expected": {
+        "action": "decision",
+        "feature": null
+      },
+      "got": {
+        "action": "decision",
+        "profile": "shoplog",
+        "via": "muse"
+      },
+      "ok": true,
+      "seconds": 2.83
+    },
+    {
+      "message": "show me how the decision flipped",
+      "expected": {
+        "action": "reversal",
+        "feature": null
+      },
+      "got": {
+        "action": "reversal",
+        "profile": "shoplog",
+        "via": "muse"
+      },
+      "ok": true,
+      "seconds": 8.1
+    },
+    {
+      "message": "walk me through the paper case versus the evidence",
+      "expected": {
+        "action": "reversal",
+        "feature": null
+      },
+      "got": {
+        "action": "reversal",
+        "profile": "shoplog",
+        "via": "muse"
+      },
+      "ok": true,
+      "seconds": 3.52
+    },
+    {
+      "message": "what breaks if we move to FerretDB?",
+      "expected": {
+        "action": "gaps",
+        "feature": null
+      },
+      "got": {
+        "action": "gaps",
+        "profile": "shoplog",
+        "via": "muse",
+        "target": "FerretDB"
+      },
+      "ok": true,
+      "seconds": 3.01
+    },
+    {
+      "message": "list the incompatibilities",
+      "expected": {
+        "action": "gaps",
+        "feature": null
+      },
+      "got": {
+        "action": "gaps",
+        "profile": "shoplog",
+        "via": "muse"
+      },
+      "ok": true,
+      "seconds": 4.12
+    },
+    {
+      "message": "tell me about the transactions problem",
+      "expected": {
+        "action": "gap_detail",
+        "feature": "F4"
+      },
+      "got": {
+        "action": "gap_detail",
+        "profile": "shoplog",
+        "via": "muse",
+        "feature": "F4"
+      },
+      "ok": true,
+      "seconds": 3.08
+    },
+    {
+      "message": "show the case-insensitive email index gap",
+      "expected": {
+        "action": "gap_detail",
+        "feature": "F6"
+      },
+      "got": {
+        "action": "gap_detail",
+        "profile": "shoplog",
+        "via": "muse",
+        "feature": "F6"
+      },
+      "ok": true,
+      "seconds": 3.5
+    },
+    {
+      "message": "details on the schema validator",
+      "expected": {
+        "action": "gap_detail",
+        "feature": "F8"
+      },
+      "got": {
+        "action": "gap_detail",
+        "profile": "shoplog",
+        "via": "muse",
+        "feature": "F8"
+      },
+      "ok": true,
+      "seconds": 2.71
+    },
+    {
+      "message": "what about change streams?",
+      "expected": {
+        "action": "gap_detail",
+        "feature": "F5"
+      },
+      "got": {
+        "action": "ask",
+        "profile": "shoplog",
+        "via": "muse",
+        "feature": "F5"
+      },
+      "ok": false,
+      "seconds": 3.56
+    },
+    {
+      "message": "show me more about that one",
+      "expected": {
+        "action": "gap_detail",
+        "feature": "F6"
+      },
+      "got": {
+        "action": "gap_detail",
+        "profile": "shoplog",
+        "via": "muse",
+        "feature": "F6"
+      },
+      "ok": true,
+      "seconds": 6.09
+    },
+    {
+      "message": "which mongodb features does the app depend on",
+      "expected": {
+        "action": "ledger",
+        "feature": null
+      },
+      "got": {
+        "action": "ledger",
+        "profile": "shoplog",
+        "via": "muse"
+      },
+      "ok": true,
+      "seconds": 3.45
+    },
+    {
+      "message": "how slow is the reporting query on ferretdb, show the query plans",
+      "expected": {
+        "action": "latency",
+        "feature": null
+      },
+      "got": {
+        "action": "latency",
+        "profile": "shoplog",
+        "via": "muse",
+        "feature": "F1",
+        "target": "FerretDB"
+      },
+      "ok": true,
+      "seconds": 5.92
+    },
+    {
+      "message": "rerun the assessment for the control app",
+      "expected": {
+        "action": "assess",
+        "feature": null
+      },
+      "got": {
+        "action": "assess",
+        "profile": "lite",
+        "via": "muse"
+      },
+      "ok": true,
+      "seconds": 3.69
+    },
+    {
+      "message": "hi, what can you do?",
+      "expected": {
+        "action": "help",
+        "feature": null
+      },
+      "got": {
+        "action": "help",
+        "profile": "shoplog",
+        "via": "muse"
+      },
+      "ok": true,
+      "seconds": 1.89
+    },
+    {
+      "message": "迁移到 FerretDB 会出什么问题？",
+      "expected": {
+        "action": "gaps",
+        "feature": null
+      },
+      "got": {
+        "action": "gaps",
+        "profile": "shoplog",
+        "via": "muse",
+        "target": "FerretDB"
+      },
+      "ok": true,
+      "seconds": 4.22
+    },
+    {
+      "message": "给我看决策是怎么反转的",
+      "expected": {
+        "action": "reversal",
+        "feature": null
+      },
+      "got": {
+        "action": "reversal",
+        "profile": "shoplog",
+        "via": "muse"
+      },
+      "ok": true,
+      "seconds": 1.55
+    },
+    {
+      "message": "事务那个问题具体是什么？",
+      "expected": {
+        "action": "gap_detail",
+        "feature": "F4"
+      },
+      "got": {
+        "action": "gap_detail",
+        "profile": "shoplog",
+        "via": "muse",
+        "feature": "F4"
+      },
+      "ok": true,
+      "seconds": 4.26
+    },
+    {
+      "message": "why is the transaction gap silent?",
+      "expected": {
+        "action": "ask",
+        "feature": null
+      },
+      "got": {
+        "action": "ask",
+        "profile": "shoplog",
+        "via": "muse",
+        "feature": "F4"
+      },
+      "ok": true,
+      "seconds": 5.59
+    },
+    {
+      "message": "what engineer hourly rate did you assume?",
+      "expected": {
+        "action": "ask",
+        "feature": null
+      },
+      "got": {
+        "action": "ask",
+        "profile": "shoplog",
+        "via": "muse"
+      },
+      "ok": true,
+      "seconds": 3.55
+    },
+    {
+      "message": "would it pay off with 25 clusters?",
+      "expected": {
+        "action": "ask",
+        "feature": null
+      },
+      "got": {
+        "action": "ask",
+        "profile": "shoplog",
+        "via": "muse"
+      },
+      "ok": true,
+      "seconds": 3.83
+    },
+    {
+      "message": "为什么这个是 silent 的？修复要花多少？",
+      "expected": {
+        "action": "ask",
+        "feature": null
+      },
+      "got": {
+        "action": "ask",
+        "profile": "shoplog",
+        "via": "muse",
+        "feature": "F4",
+        "target": "FerretDB"
+      },
+      "ok": true,
+      "seconds": 3.7
+    },
+    {
+      "message": "how long would fixing that one take?",
+      "expected": {
+        "action": "ask",
+        "feature": null
+      },
+      "got": {
+        "action": "ask",
+        "profile": "shoplog",
+        "via": "muse",
+        "feature": "F6"
+      },
+      "ok": true,
+      "seconds": 6.41
+    },
+    {
+      "message": "Next: F6",
+      "expected": {
+        "action": "gap_detail",
+        "feature": "F6"
+      },
+      "got": {
+        "profile": "shoplog",
+        "via": "keywords",
+        "action": "gap_detail",
+        "feature": "F6"
+      },
+      "ok": true,
+      "seconds": 0.0
+    }
+  ],
+  "answers": [
+    {
+      "question": "Why does FerretDB lose the transaction rollback?",
+      "expected_covered": true,
+      "must_cite": "probe:F4",
+      "answerable": true,
+      "via": "muse",
+      "citations": [
+        "gap:FerretDB:F4",
+        "ledger:F4",
+        "probe:F4.txn-commit-atomic",
+        "probe:F4.txn-abort-rollback",
+        "probe:F4.txn-isolation-uncommitted"
+      ],
+      "dropped": [],
+      "text": "FerretDB does not support the multi-document transaction in shoplog/checkout.py:57 that must atomically reserve inventory, insert the order and convert the cart. Probes show commitTransaction fails with error 59 no such command commitTransaction, abort does not roll back - stock stays 8 vs MongoDB 10 - and uncommitted reservations are visible outside, with no error raised, so the loss is silent.",
+      "ok": true,
+      "seconds": 7.45
+    },
+    {
+      "question": "What engineer hourly rate does the cost model assume?",
+      "expected_covered": true,
+      "must_cite": "assumption:",
+      "answerable": true,
+      "via": "muse",
+      "citations": [
+        "assumption:people.engineer_cost_per_hour"
+      ],
+      "dropped": [],
+      "text": "The cost model assumes $120 per engineer hour.",
+      "ok": true,
+      "seconds": 2.65
+    },
+    {
+      "question": "At which step does the decision flip, and by how much?",
+      "expected_covered": true,
+      "must_cite": "step:",
+      "answerable": true,
+      "via": "muse",
+      "citations": [
+        "step:0",
+        "step:1"
+      ],
+      "dropped": [],
+      "text": "For FerretDB the decision flips at reversal step 1: Transactions don't roll back in checkout. Running net goes from $20,124 Migrate on paper to -$6,576 Stay, a change of -$26,700. The 160 h rewrite is a Muse inferred estimate.",
+      "ok": true,
+      "seconds": 7.34
+    },
+    {
+      "question": "Would migrating pay off if we had 25 clusters?",
+      "expected_covered": true,
+      "must_cite": "sensitivity:",
+      "answerable": true,
+      "via": "muse",
+      "citations": [
+        "sensitivity:FerretDB:clusters=25",
+        "sensitivity:AWS DocumentDB:clusters=25"
+      ],
+      "dropped": [],
+      "text": "No. Estimated 12-month net with 25 clusters is -$121,358 for FerretDB (STAY) and -$78,488 for AWS DocumentDB (VERIFY_FIRST), so neither pays off.",
+      "ok": true,
+      "seconds": 4.93
+    },
+    {
+      "question": "How many hidden business rules were recovered?",
+      "expected_covered": true,
+      "must_cite": "rule",
+      "answerable": true,
+      "via": "muse",
+      "citations": [
+        "rules:summary"
+      ],
+      "dropped": [],
+      "text": "10 of 10 hidden business rules were recovered blind, with 10 of 10 labeled correctly.",
+      "ok": true,
+      "seconds": 2.91
+    },
+    {
+      "question": "Which cutover checks failed in the clean run?",
+      "expected_covered": true,
+      "must_cite": "check:",
+      "answerable": true,
+      "via": "muse",
+      "citations": [
+        "check:5",
+        "check:12",
+        "check:18",
+        "check:20",
+        "check:22",
+        "check:23"
+      ],
+      "dropped": [],
+      "text": "In the clean run 6 cutover checks failed: customers.email_ci_unique index (unique, collation); orders $jsonSchema validator; invariant emails that collide when case is ignored; invariant orders that break the order schema; day-one write sign-up with an existing email in different case; day-one write order with an unknown status and a negative total.",
+      "ok": true,
+      "seconds": 4.93
+    },
+    {
+      "question": "What does SubQ say about migrating to FerretDB?",
+      "expected_covered": true,
+      "must_cite": "subq:",
+      "answerable": true,
+      "via": "muse",
+      "citations": [
+        "subq:FerretDB"
+      ],
+      "dropped": [],
+      "text": "SubQ Snap (subq-snap-1.1) says P(migration to FerretDB is net-positive in 12 months) = 0.000096, essentially zero chance.",
+      "ok": true,
+      "seconds": 4.4
+    },
+    {
+      "question": "如果迁到 FerretDB，邮箱登录会有什么问题？",
+      "expected_covered": true,
+      "must_cite": "gap:FerretDB:F6",
+      "answerable": true,
+      "via": "muse",
+      "citations": [
+        "ledger:F6",
+        "probe:F6.ci-lookup",
+        "probe:F6.ci-unique",
+        "gap:FerretDB:F6",
+        "check:5",
+        "check:18",
+        "check:22"
+      ],
+      "dropped": [],
+      "text": "迁到 FerretDB 邮箱登录的大小写不敏感会失效。当前客户邮箱查找和唯一性都依赖 collation 大小写不敏感。用大写查邮箱时 MongoDB 返回1条，FerretDB 返回0条且不报错，属静默失败；创建大小写不敏感唯一索引直接报不支持，为阻塞性问题。切演练也失败：该索引建不上，忽略大小写碰撞的邮箱未被发现，不同大小写重复注册未被拒绝。修复为Muse推断估计，base约48小时，需改用归一化小写字段加标准唯一索引并改造读写回填。",
+      "ok": true,
+      "seconds": 10.53
+    },
+    {
+      "question": "What will MongoDB Atlas charge us in 2030?",
+      "expected_covered": false,
+      "must_cite": null,
+      "answerable": false,
+      "via": "muse",
+      "citations": [
+        "assumption:pricing.atlas_m40.per_hour",
+        "assumption:horizon_months",
+        "decision:FerretDB",
+        "decision:AWS DocumentDB"
+      ],
+      "dropped": [],
+      "text": "Not answerable. The assessment does not forecast 2030 MongoDB Atlas charges. It covers current Atlas M40 pricing and 12-month net migration economics for FerretDB and AWS DocumentDB.",
+      "ok": true,
+      "seconds": 6.29
+    },
+    {
+      "question": "What's the CEO's favorite database?",
+      "expected_covered": false,
+      "must_cite": null,
+      "answerable": false,
+      "via": "muse",
+      "citations": [
+        "decision:FerretDB",
+        "decision:AWS DocumentDB"
+      ],
+      "dropped": [],
+      "text": "Not covered. The assessment covers 12-month migration economics and blocking gaps for MongoDB to FerretDB (observed by probes/replay) and to AWS DocumentDB (inferred from documentation only).",
+      "ok": true,
+      "seconds": 4.6
+    },
+    {
+      "question": "How long would migrating to Cassandra take?",
+      "expected_covered": false,
+      "must_cite": null,
+      "answerable": false,
+      "via": "muse",
+      "citations": [
+        "decision:FerretDB",
+        "decision:AWS DocumentDB"
+      ],
+      "dropped": [],
+      "text": "Not answerable. This assessment covers only migration from MongoDB to FerretDB (observed) and to AWS DocumentDB (inferred from documentation only), not Cassandra.",
+      "ok": true,
+      "seconds": 6.4
+    }
+  ]
+}

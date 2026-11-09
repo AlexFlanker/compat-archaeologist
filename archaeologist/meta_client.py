@@ -55,18 +55,21 @@ def structured(
     schema: dict,
     schema_name: str,
     max_tokens: int = 16000,
+    timeout_s: float = 180,
+    attempts: int = MAX_ATTEMPTS,
+    reasoning_effort: str | None = None,
 ) -> dict:
     """Returns the parsed JSON object for one structured completion."""
     key = _api_key()
     if not key:
         raise MetaUnavailable("META_API_KEY (or MODEL_API_KEY) is not set")
 
-    client = OpenAI(base_url=BASE_URL, api_key=key, timeout=180, max_retries=0)
+    client = OpenAI(base_url=BASE_URL, api_key=key, timeout=timeout_s, max_retries=0)
     model = model_name()
     prompt_hash = hashlib.sha256((system + user).encode()).hexdigest()[:16]
     last_error = "unknown"
 
-    for attempt in range(1, MAX_ATTEMPTS + 1):
+    for attempt in range(1, attempts + 1):
         started = time.perf_counter()
         base_entry = {
             "at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
@@ -85,6 +88,7 @@ def structured(
                     "json_schema": {"name": schema_name, "schema": schema},
                 },
                 max_completion_tokens=max_tokens,
+                **({"reasoning_effort": reasoning_effort} if reasoning_effort else {}),
             )
         except (RateLimitError, APITimeoutError) as exc:
             last_error = type(exc).__name__
@@ -112,6 +116,7 @@ def structured(
                 )
                 return parsed
         _record({**base_entry, "status": last_error, "latency_s": round(time.perf_counter() - started, 2)})
-        time.sleep(2**attempt)
+        if attempt < attempts:
+            time.sleep(2**attempt)
 
-    raise MetaUnavailable(f"Meta API failed after {MAX_ATTEMPTS} attempts: {last_error}")
+    raise MetaUnavailable(f"Meta API failed after {attempts} attempts: {last_error}")

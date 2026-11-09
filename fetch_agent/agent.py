@@ -23,9 +23,10 @@ from uagents_core.contrib.protocols.chat import (
 )
 
 from archaeologist.config import OUT_DIR, ROOT, env
-from fetch_agent import cards
+from fetch_agent import answer, cards, router
 
 PIPELINE_TIMEOUT_S = 420
+MAX_MEMORIES = 1000
 AGENT_README = Path(__file__).resolve().parent / "AGENT_README.md"
 
 seed = env("AGENT_SEED")
@@ -43,6 +44,7 @@ agent = Agent(
 )
 protocol = Protocol(spec=chat_protocol_spec)
 running: set[str] = set()
+memories: dict[str, router.Memory] = {}
 
 
 def _read(profile: str, name: str):
@@ -55,33 +57,6 @@ def _message(text: str, card: dict | None = None) -> ChatMessage:
     if card:
         content.append(MetadataContent(type="metadata", metadata=card))
     return ChatMessage(timestamp=datetime.now(timezone.utc), msg_id=uuid4(), content=content)
-
-
-def _intent(text: str) -> dict:
-    """Card clicks arrive as JSON; typed requests arrive as prose."""
-    stripped = text.strip()
-    if stripped.startswith("{"):
-        try:
-            selection = json.loads(stripped)
-            if isinstance(selection, dict):
-                return selection
-        except json.JSONDecodeError:
-            pass
-    lowered = stripped.lower()
-    profile = "lite" if any(word in lowered for word in ("lite", "control", "simple", "crud")) else "shoplog"
-    # The "Run the control app" button can arrive as prose that also carries the selected radio option.
-    if "run the control app" in lowered:
-        return {"action": "assess", "profile": profile}
-    if any(word in lowered for word in ("revers", "flip", "on paper", "paper case")):
-        return {"action": "view", "view": "reversal", "profile": profile}
-    if "assess" in lowered:
-        return {"action": "assess", "profile": profile}
-    for view in ("gaps", "ledger", "latency"):
-        if view in lowered or (view == "gaps" and "break" in lowered):
-            return {"action": "view", "view": view, "profile": profile}
-    if any(word in lowered for word in ("cached", "last result", "decision", "summary")) and "assess" not in lowered:
-        return {"action": "decision", "profile": profile}
-    return {"action": "assess", "profile": profile}
 
 
 async def _run_pipeline(profile: str) -> tuple[bool, str]:
@@ -118,18 +93,71 @@ async def _send_view(ctx: Context, sender: str, profile: str, view: str) -> None
     await ctx.send(sender, _message(narration, card))
 
 
+async def _send_gap(ctx: Context, sender: str, profile: str, decided: dict, memory: router.Memory) -> None:
+    bundle = cards.load_bundle(profile)
+    if not bundle["tco"]:
+        await ctx.send(sender, _message(f"No assessment exists yet for {profile}. Ask me to assess it."))
+        return
+    target, key = decided.get("target"), decided.get("gap")
+    if not key and decided.get("feature"):
+        found = None
+        if target:
+            found = next(((name, gap["key"]) for name, gap in cards.blocking_gaps(bundle["tco"]) if name == target and gap["feature"] == decided["feature"]), None)
+        found = found or cards.find_gap(bundle["tco"], decided["feature"])
+        if found:
+            target, key = found
+    if not key:
+        narration, card = cards.gaps_card(profile, bundle["tco"])
+        await ctx.send(sender, _message(f"{decided.get('feature', 'That')} isn't a blocking gap in this assessment. {narration}", card))
+        return
+    narration, card = cards.gap_detail_card(profile, bundle, target, key)
+    gap = next((gap for name, gap in cards.blocking_gaps(bundle["tco"]) if name == target and gap["key"] == key), None)
+    if gap:
+        memory.target, memory.gap, memory.feature = target, key, gap["feature"]
+    await ctx.send(sender, _message(narration, card))
+
+
+async def _send_answer(ctx: Context, sender: str, profile: str, question: str, memory: router.Memory) -> None:
+    if not _read(profile, "tco.json"):
+        await ctx.send(sender, _message(f"No assessment exists yet for {profile}. Ask me to assess it."))
+        return
+    focus = f"{memory.target} {memory.feature}" if memory.feature else None
+    result = await asyncio.to_thread(answer.answer, question, profile, memory.history, focus)
+    ctx.logger.info(f"answer via {result['via']}: {len(result['citations'])} cited, {len(result['dropped'])} dropped")
+    narration, card = cards.answer_card(profile, result, _read(profile, "tco.json"))
+    memory.remember_turn(question, result["text"])
+    await ctx.send(sender, _message(narration, card))
+
+
 @protocol.on_message(ChatMessage)
 async def handle_message(ctx: Context, sender: str, msg: ChatMessage):
     await ctx.send(sender, ChatAcknowledgement(timestamp=datetime.now(timezone.utc), acknowledged_msg_id=msg.msg_id))
     text = "".join(part.text for part in msg.content if isinstance(part, TextContent))
-    intent = _intent(text)
-    profile = intent.get("profile", "shoplog") if intent.get("profile") in cards.APP_NAME else "shoplog"
-    ctx.logger.info(f"request from {sender[:16]}…: {intent}")
+    # ASI:One relays every user through one sender address, so memory is keyed by the conversation session too.
+    key = f"{sender}:{ctx.session}"
+    memory = memories.setdefault(key, router.Memory())
+    if len(memories) > MAX_MEMORIES:
+        memories.pop(next(iter(memories)))
+    decided = await asyncio.to_thread(router.route, text, memory)
+    profile = decided.get("profile") if decided.get("profile") in cards.APP_NAME else "shoplog"
+    memory.profile = profile
+    ctx.logger.info(f"request from {sender[:16]}… session {str(ctx.session)[:8]}: {decided}")
+    action = decided["action"]
 
-    if intent.get("action") == "view":
-        await _send_view(ctx, sender, profile, intent.get("view", "gaps"))
+    if action in {"reversal", "gaps", "ledger", "latency"}:
+        await _send_view(ctx, sender, profile, action)
         return
-    if intent.get("action") == "decision":
+    if action == "gap_detail":
+        await _send_gap(ctx, sender, profile, decided, memory)
+        return
+    if action == "ask":
+        await _send_answer(ctx, sender, profile, decided.get("question") or text, memory)
+        return
+    if action == "help":
+        narration, card = cards.help_card(profile)
+        await ctx.send(sender, _message(narration, card))
+        return
+    if action == "decision":
         await _send_decision(ctx, sender, profile)
         return
 

@@ -425,6 +425,7 @@ def reversal(assumptions: dict, info: dict, clusters: int, basis: str) -> dict:
         steps.append(
             {
                 "step": label,
+                "gap_key": gap["key"],
                 "evidence": f"{gap['kind'].replace('_', ' ')} · rewrite {estimate.get('hours_base', 0):.0f} h (Muse, inferred)",
                 "change": round(-cost, 2),
                 "net": round(running, 2),

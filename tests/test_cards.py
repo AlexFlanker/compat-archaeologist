@@ -71,6 +71,7 @@ def test_reversal_card_marks_the_flip():
 
 
 def test_reversal_intent():
-    from fetch_agent.agent import _intent
-    assert _intent("Show: How the evidence reversed it")["view"] == "reversal"
-    assert _intent("Run the control app (view: How the evidence reversed it)") == {"action": "assess", "profile": "lite"}
+    from fetch_agent.router import Memory, keyword_route
+    assert keyword_route("Show: How the evidence reversed it", Memory())["action"] == "reversal"
+    route = keyword_route("Run the control app (view: How the evidence reversed it)", Memory())
+    assert route["action"] == "assess" and route["profile"] == "lite"
