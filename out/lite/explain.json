@@ -10,14 +10,14 @@
       "collection": "orders",
       "stages": [],
       "replay_p95_ms": {
-        "source": 0.68,
-        "target": 1.43
+        "source": 0.38,
+        "target": 1.64
       },
       "source": {
         "engine_format": "MongoDB plan",
         "docs_examined": 94,
         "keys_examined": 94,
-        "time_ms": 1,
+        "time_ms": 0,
         "plan": "IXSCAN(_id_) \u2192 FETCH \u2192 LIMIT",
         "full_scans": 0
       },
@@ -31,34 +31,6 @@
       }
     },
     {
-      "shape_id": "S4b871cdf",
-      "features": [
-        "F10"
-      ],
-      "collection": "orders",
-      "stages": [],
-      "replay_p95_ms": {
-        "source": 0.65,
-        "target": 0.88
-      },
-      "source": {
-        "engine_format": "MongoDB plan",
-        "docs_examined": 1,
-        "keys_examined": 1,
-        "time_ms": 0,
-        "plan": "EXPRESS_IXSCAN(_id_)",
-        "full_scans": 0
-      },
-      "target": {
-        "engine_format": "Postgres plan (FerretDB)",
-        "plan": "Index Scan(_id_)",
-        "full_scans": 0,
-        "nested_loops": 0,
-        "estimated_total_cost": 1231230,
-        "time_ms": null
-      }
-    },
-    {
       "shape_id": "S003befd8",
       "features": [
         "F10"
@@ -66,8 +38,8 @@
       "collection": "orders",
       "stages": [],
       "replay_p95_ms": {
-        "source": 0.51,
-        "target": 0.67
+        "source": 0.93,
+        "target": 1.41
       },
       "source": {
         "engine_format": "MongoDB plan",
@@ -83,6 +55,34 @@
         "full_scans": 0,
         "nested_loops": 0,
         "estimated_total_cost": 316.56,
+        "time_ms": null
+      }
+    },
+    {
+      "shape_id": "S4b871cdf",
+      "features": [
+        "F10"
+      ],
+      "collection": "orders",
+      "stages": [],
+      "replay_p95_ms": {
+        "source": 0.58,
+        "target": 0.98
+      },
+      "source": {
+        "engine_format": "MongoDB plan",
+        "docs_examined": 1,
+        "keys_examined": 1,
+        "time_ms": 0,
+        "plan": "EXPRESS_IXSCAN(_id_)",
+        "full_scans": 0
+      },
+      "target": {
+        "engine_format": "Postgres plan (FerretDB)",
+        "plan": "Index Scan(_id_)",
+        "full_scans": 0,
+        "nested_loops": 0,
+        "estimated_total_cost": 1231230,
         "time_ms": null
       }
     }

@@ -43,7 +43,7 @@ def test_transaction_card_shows_both_engines_the_command_and_the_code():
     assert "MongoDB: 10" in text and "FerretDB: 8" in text
     assert "commitTransaction" in text
     assert "shoplog/checkout.py:57" in text
-    assert "Step 1 of the reversal" in text
+    assert "Step 2 of the reversal" in text
 
 
 def test_collation_card_links_the_failed_cutover_checks():

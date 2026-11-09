@@ -122,6 +122,72 @@
       "evidence": "OBSERVED",
       "gaps": [
         {
+          "key": "behavior:F3",
+          "feature": "F3",
+          "name": "arrayFilters / positional $[<id>] updates",
+          "kind": "silent",
+          "verdict": "result_diff",
+          "confidence": 0.97,
+          "blocking": true,
+          "evidence": [
+            {
+              "probe_id": "F3.arrayfilters-refund-reviewed",
+              "verdict": "result_diff",
+              "title": "filtered positional refund and all-positional review",
+              "detail": {
+                "silent": true,
+                "at_step": "read back only A changed",
+                "difference": {
+                  "path": "$.docs[0].items[0].reviewed_by",
+                  "source": "early-review",
+                  "target": ""
+                }
+              }
+            },
+            {
+              "probe_id": "F3.arrayfilters-two-ids-allpos",
+              "verdict": "result_diff",
+              "title": "filtered positional with two identifiers and all-positional review",
+              "detail": {
+                "silent": true,
+                "at_step": "read back only line 1 changed",
+                "difference": {
+                  "path": "$.docs[0].items[0].reviewed_by",
+                  "source": "checked",
+                  "target": ""
+                }
+              }
+            },
+            {
+              "probe_id": "F3.arrayfilters-pos-updates",
+              "verdict": "result_diff",
+              "title": "filtered positional and all-positional item updates",
+              "detail": {
+                "silent": true,
+                "at_step": "read back only line 1 changed",
+                "difference": {
+                  "path": "$.docs[0].items[0].reviewed_by",
+                  "source": "qa-bot",
+                  "target": ""
+                }
+              }
+            }
+          ],
+          "replay": {
+            "replayed": 56,
+            "equal": 56,
+            "different": 0,
+            "errors": 0
+          },
+          "schema_rejections": [],
+          "estimate": {
+            "approach": "Replace server-side arrayFilters/$[] updates in shoplog/refunds.py with client-side read-modify-write using indexed $set with version-guarded retry. Add audit/repair for silently dropped reviewed_by fields and regression tests for multi-identifier filters.",
+            "hours_base": 56.0,
+            "hours_high": 110.0,
+            "hours_low": 24.0
+          }
+        },
+        {
           "key": "behavior:F4",
           "feature": "F4",
           "name": "Multi-document transactions",
@@ -390,8 +456,8 @@
                 "$unwind",
                 "$facet"
               ],
-              "source_p95_ms": 8.07,
-              "target_p95_ms": 4225.34,
+              "source_p95_ms": 8.84,
+              "target_p95_ms": 4020.56,
               "samples": 7
             }
           ],
@@ -432,17 +498,17 @@
         "search_service_annual": 11937.6,
         "infra_savings": 7227.45,
         "net": {
-          "best": -36123.7,
-          "base": -98822.55,
-          "worst": -234031.4
+          "best": -41503.7,
+          "base": -113042.55,
+          "worst": -272231.4
         },
         "breakdown": {
           "best": {
             "ops_cost": 5760,
             "migration_hours": 24,
-            "rewrite_hours": 256.0,
-            "one_time_cost": 33600.0,
-            "residual_risk_cost": 9750.0,
+            "rewrite_hours": 280.0,
+            "one_time_cost": 36480.0,
+            "residual_risk_cost": 12250.0,
             "infra_savings": 12986.3,
             "lines": {
               "infrastructure": 11517.7,
@@ -450,18 +516,18 @@
               "scale_ups": 0.0,
               "extra_services": 11937.6,
               "operations": 5760,
-              "migration_and_rewrites": 33600.0,
-              "person_days": 35.0,
-              "incidents": 9750.0,
+              "migration_and_rewrites": 36480.0,
+              "person_days": 38.0,
+              "incidents": 12250.0,
               "plan": null
             }
           },
           "base": {
             "ops_cost": 11520,
             "migration_hours": 40,
-            "rewrite_hours": 504.0,
-            "one_time_cost": 65280.0,
-            "residual_risk_cost": 29250.000000000004,
+            "rewrite_hours": 560.0,
+            "one_time_cost": 72000.0,
+            "residual_risk_cost": 36750.0,
             "infra_savings": 7227.45,
             "lines": {
               "infrastructure": 11517.7,
@@ -469,18 +535,18 @@
               "scale_ups": 5758.85,
               "extra_services": 11937.6,
               "operations": 11520,
-              "migration_and_rewrites": 65280.0,
-              "person_days": 68.0,
-              "incidents": 29250.0,
+              "migration_and_rewrites": 72000.0,
+              "person_days": 75.0,
+              "incidents": 36750.0,
               "plan": null
             }
           },
           "worst": {
             "ops_cost": 23040,
             "migration_hours": 80,
-            "rewrite_hours": 878.0,
-            "one_time_cost": 114960.0,
-            "residual_risk_cost": 97500.00000000001,
+            "rewrite_hours": 988.0,
+            "one_time_cost": 128160.0,
+            "residual_risk_cost": 122500.00000000001,
             "infra_savings": 1468.6,
             "lines": {
               "infrastructure": 11517.7,
@@ -488,9 +554,9 @@
               "scale_ups": 11517.7,
               "extra_services": 11937.6,
               "operations": 23040,
-              "migration_and_rewrites": 114960.0,
-              "person_days": 119.8,
-              "incidents": 97500.0,
+              "migration_and_rewrites": 128160.0,
+              "person_days": 133.5,
+              "incidents": 122500.0,
               "plan": null
             }
           }
@@ -503,28 +569,28 @@
       "decision_text": "Stay: fixing the gaps costs more than the migration saves",
       "sensitivity": {
         "atlas_per_node": {
-          "net_base": -25939.35,
+          "net_base": -40159.35,
           "infra_savings": 80110.65,
           "decision": "STAY"
         },
         "clusters": {
           "1": {
-            "net_base": -95603.13,
+            "net_base": -109823.13,
             "infra_savings": 1806.87,
             "decision": "STAY"
           },
           "4": {
-            "net_base": -98822.55,
+            "net_base": -113042.55,
             "infra_savings": 7227.45,
             "decision": "STAY"
           },
           "10": {
-            "net_base": -105261.36,
+            "net_base": -119481.36,
             "infra_savings": 18068.64,
             "decision": "STAY"
           },
           "25": {
-            "net_base": -121358.4,
+            "net_base": -135578.4,
             "infra_savings": 45171.6,
             "decision": "STAY"
           }
@@ -714,8 +780,8 @@
     "available": true,
     "model": "subq-snap-1.1",
     "probabilities": {
-      "FerretDB": 9.573782153893262e-05,
-      "AWS DocumentDB": 0.0002132709341822192
+      "FerretDB": 0.0001834136201068759,
+      "AWS DocumentDB": 0.00035985204158350825
     }
   },
   "reversal": {
@@ -729,61 +795,75 @@
         "decision": "Migrate"
       },
       {
+        "step": "arrayFilters / positional $[<id>] updates",
+        "gap_key": "behavior:F3",
+        "evidence": "silent \u00b7 rewrite 56 h (Muse, inferred)",
+        "change": -14220.0,
+        "net": 5903.9,
+        "decision": "Migrate"
+      },
+      {
         "step": "Transactions don't roll back (checkout)",
+        "gap_key": "behavior:F4",
         "evidence": "silent \u00b7 rewrite 160 h (Muse, inferred)",
         "change": -26700.0,
-        "net": -6576.1,
+        "net": -20796.1,
         "decision": "Stay"
       },
       {
         "step": "Case-insensitive email index refused (logins)",
+        "gap_key": "behavior:F6",
         "evidence": "silent \u00b7 rewrite 48 h (Muse, inferred)",
         "change": -13260.0,
-        "net": -19836.1,
+        "net": -34056.1,
         "decision": "Stay"
       },
       {
         "step": "Schema validator silently ignored (orders)",
+        "gap_key": "behavior:F8",
         "evidence": "silent \u00b7 rewrite 28 h (Muse, inferred)",
         "change": -10860.0,
-        "net": -30696.1,
+        "net": -44916.1,
         "decision": "Stay"
       },
       {
         "step": "Change streams unsupported (inventory sync)",
+        "gap_key": "behavior:F5",
         "evidence": "loud \u00b7 rewrite 80 h (Muse, inferred)",
         "change": -11100.0,
-        "net": -41796.1,
+        "net": -56016.1,
         "decision": "Stay"
       },
       {
         "step": "Reporting on orders far slower",
+        "gap_key": "performance:S78e856b9",
         "evidence": "performance \u00b7 rewrite 48 h (Muse, inferred)",
         "change": -15268.85,
-        "net": -57064.95,
+        "net": -71284.95,
         "decision": "Stay"
       },
       {
         "step": "No Atlas Search (storefront search)",
+        "gap_key": "documented:F11",
         "evidence": "documented conflict \u00b7 rewrite 140 h (Muse, inferred)",
         "change": -30237.6,
-        "net": -87302.55,
+        "net": -101522.55,
         "decision": "Stay"
       },
       {
         "step": "Running it yourself",
         "evidence": "Self-managed operations (assumption)",
         "change": -11520,
-        "net": -98822.55,
+        "net": -113042.55,
         "decision": "Stay"
       }
     ],
-    "flipped_at": 1,
+    "flipped_at": 2,
     "adds_up": true,
-    "final_net": -98822.55,
+    "final_net": -113042.55,
     "subq": {
       "on_paper": 0.9992198944091797,
-      "with_evidence": 9.573782153893262e-05,
+      "with_evidence": 0.0001834136201068759,
       "model": "subq-snap-1.1"
     }
   }

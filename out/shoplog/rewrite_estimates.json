@@ -52,5 +52,11 @@
     "hours_base": 140.0,
     "hours_high": 240.0,
     "hours_low": 80.0
+  },
+  "FerretDB|behavior:F3": {
+    "approach": "Replace server-side arrayFilters/$[] updates in shoplog/refunds.py with client-side read-modify-write using indexed $set with version-guarded retry. Add audit/repair for silently dropped reviewed_by fields and regression tests for multi-identifier filters.",
+    "hours_base": 56.0,
+    "hours_high": 110.0,
+    "hours_low": 24.0
   }
 }

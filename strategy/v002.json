@@ -1,0 +1,9 @@
+{
+  "version": "v002",
+  "parent": "v000",
+  "created": "2026-11-09T08:30:46+00:00",
+  "system_prompt_additions": "",
+  "per_feature_hints": {},
+  "probe_count_overrides": {},
+  "required_checks": []
+}

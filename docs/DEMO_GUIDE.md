@@ -30,7 +30,7 @@ Two apps were built today for the demo:
 |---|---|---|
 | 1. Dig | Read the data, the query log and the code, independently | 29 invariants · 29 shapes · 0 bad citations |
 | 2. Label | Usage-Spec Ledger: every feature marked OBSERVED or INFERRED, with a confidence (from source agreement, or SubQ Snap for single-source items) | 11 features · 50 behaviors · dead code scored 0.57 |
-| 3. Probe | Muse writes declarative tests. MongoDB is the referee: a test counts only if MongoDB agrees with Muse's prediction | 30 probes · 9 wrong guesses repaired · 0 excluded |
+| 3. Probe | Muse writes declarative tests. MongoDB is the referee: a test counts only if MongoDB agrees with Muse's prediction | 30 probes · 10 needed a repair · 0 excluded |
 | 4. Prove | Same tests and same recorded workload on MongoDB 8.0 and FerretDB 2.7, with plans from the MongoDB MCP Server. DocumentDB is checked from its docs only | 384 reads · 353 writes · self-check 30/30 |
 | 5. Rehearse | Simulate full-load + CDC while the app writes; audit what arrived; ask the business questions again. Also run the upgrade check, FerretDB 2.2 → 2.7 | clean: 6/23 checks fail · drill: 2/2 injected faults caught |
 | 6. Decide | One-page CTO memo: top risks, 12-month TCO, latency, reversibility, SubQ second opinion | `out/shoplog/memo.md` · ASI:One cards · 134 s end to end |
@@ -51,7 +51,7 @@ Two apps were built today for the demo:
 - **5 of 8** business answers changed after a clean cutover and one morning of traffic.
 - **9 ms → 4.2 s**: revenue report p95, about 470× slower.
 - **2/2** injected cutover faults caught.
-- **ShopLog → FerretDB**: −$98,823 over 12 months; SubQ gives 0.0001 that it pays off; reversibility 15/100.
+- **ShopLog → FerretDB**: −$113,043 over 12 months; SubQ gives 0.0002 that it pays off; reversibility 15/100.
 - **48/48** edge-case documents designed by SubQ Preview behaved the same on FerretDB. The gaps are behavior, not data.
 - **Control → FerretDB**: +$8,604; SubQ 0.94; "the migration is fine".
 
@@ -59,7 +59,7 @@ Two apps were built today for the demo:
 |---|---|---|---|
 | F1 | $lookup sub-pipeline + $facet | Same results, ~470× slower | Documented |
 | F2 | $setWindowFields | Same | $shift not supported |
-| F3 | arrayFilters | Same | Documented |
+| F3 | arrayFilters + all-positional `$[]` | **Silent**: the all-positional field is left empty | Documented |
 | F4 | Transactions | **Silent**: abort doesn't roll back, and commit errors after the write | Documented, with limits |
 | F5 | Change streams | Not supported | Off by default |
 | F6 | Case-insensitive email index | Refused; 17/40 logins miss | 8.0 only |
@@ -76,9 +76,11 @@ The opening story is about a decision that looked right on paper. The run shows 
 | # | What the agent found | Running net | Decision |
 |---|---|---|---|
 | 0 | On paper: wire-compatible, cheaper infrastructure, standard migration | +$20,124 | Migrate |
-| 1 | Transactions don't roll back | −$6,576 | **Stay ← flips here** |
-| 2–6 | Collation, validator, change streams, slow reports, no Atlas Search | −$87,303 | Stay |
-| 7 | Running it yourself | −$98,823 | Stay |
+| 1 | arrayFilters / positional updates | +$5,904 | Migrate |
+| 2 | Transactions don't roll back | −$20,796 | **Stay ← flips here** |
+| 3–6 | Collation, validator, change streams, slow reports | −$71,285 | Stay |
+| 7 | No Atlas Search | −$101,523 | Stay |
+| 8 | Running it yourself | −$113,043 | Stay |
 
 SubQ Snap answers the same question twice: **>0.999** with only the paper facts, **<0.001** with the evidence. The control app doesn't flip: +$20,124 on paper, +$8,604 with evidence.
 
@@ -90,12 +92,12 @@ Start `./run_demo.sh` in the first 10 seconds. It takes about 134 s, mostly a re
 
 | Time | Say | Show | Callback |
 |---|---|---|---|
-| 0:00 | "Everything here was built today after 10:45." Then the story in one breath. | Start `./run_demo.sh` | Hard rule: built today · Impact |
+| 0:00 | "Everything here was built today after 10:45." Then the story in one breath. Start `./run_demo.sh` and the evidence site (`python -m archaeologist.evidence_site.serve --profile shoplog --port 8791`). For the first 15 seconds, stay on the query log page: "This is how the app really ran. A slice of it was sealed: the model saw the code; it never saw how these operations ran in production." Then one Challenge on an F4 finding: the probe re-runs on both engines live. | Evidence site: query log, then an F4 finding page and its Challenge button | Hard rule: built today · Impact |
 | 0:20 | "The agent writes the spec nobody wrote: 11 features, each observed or inferred, with a confidence. It even finds dead code." | Ledger table, then "hidden rules recovered blind: 10/10" | Software Archaeology · Meta |
-| 0:45 | "Muse writes 30 tests. MongoDB is the referee and overruled Muse 9 times. Then both engines run them." | Memo: Top risks | Behavioral equivalence · Trust but verify · Meta |
+| 0:45 | (Results table and roster in the README: 10 of 10 planted gaps caught, one strategy adopted, six rolled back, and why.) "Muse writes 30 tests. MongoDB is the referee and overruled Muse's first try on 10 probes. Then both engines run them." | Memo: Top risks | Behavioral equivalence · Trust but verify · Meta |
 | 1:20 | "The revenue report goes from 9 ms to 4 s. The MCP explain plan shows a sequential scan inside a nested loop. Projected, it hits a 30 s timeout near 100 MB, versus near 70 GB on MongoDB. That projection is inferred." | Memo: latency, "At production size" | Technical demo · MongoDB MCP |
 | 1:50 | "Even a clean copy loses the case-insensitive unique index and the validator. In the drill we inject a CDC gap and a dropped index, and both are caught. After one morning, 5 of 8 business numbers changed, and checkout said 'failed' while saving the order." | Memo: Cutover fidelity, Business questions | Impact · Creativity · Difficulty |
-| 2:20 | "Here is the decision the team made on paper: +$20k, migrate. SubQ agreed, at over 0.999. Watch it reverse: the first finding, transactions, flips it, and by the end it's −$98,823 and SubQ is under 0.001. Stay. Reversibility 15. DocumentDB isn't verified, so test it first." Then run `./run_demo.sh --profile lite`. "Migration is fine, +$8,604, SubQ 0.94. Same pipeline, same thresholds." | Decision table, then the Lite run | Fairness · TCO |
+| 2:20 | "Here is the decision the team made on paper: +$20k, migrate. SubQ agreed, at over 0.999. Watch it reverse: the first finding, transactions, flips it, and by the end it's −$113,043 and SubQ is under 0.001. Stay. Reversibility 15. DocumentDB isn't verified, so test it first." Then run `./run_demo.sh --profile lite`. "Migration is fine, +$8,604, SubQ 0.94. Same pipeline, same thresholds." | Decision table, then the Lite run | Fairness · TCO |
 | 2:45 | "It also runs inside ASI:One. Before you migrate a database, get the archaeology done." | ASI:One card screenshot | Fetch.ai · close |
 
 **1-minute video:**

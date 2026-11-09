@@ -1,0 +1,15 @@
+{
+  "version": "v004",
+  "parent": "v000",
+  "created": "2026-11-09T08:34:07+00:00",
+  "system_prompt_additions": "Always add one empty or unmatched case: seed a document that must not match, then read back with findOne/find or aggregate to prove empty array, zero counts, or unchanged document.",
+  "per_feature_hints": {
+    "F3": "Unmatched and empty arrayFilters boundary not yet covered: insert order with 2-3 lines with distinct line_id and refund_status none, run updateOne with arrayFilters matching a line_id that exists in no element setting refund_status, then read back with findOne and assert modifiedCount==0 and full lines array unchanged; also insert order with lines:[] and run all-positional $[] $set reviewed:true, read back with findOne to verify no error and lines still [].",
+    "F7": "TTL missing-field and inactive persistence boundary: create TTL index on expires_at with partialFilterExpression status active, insert 3 carts - active with expires_at in past, active with no expires_at field, inactive with expires_at in past - wait for expiry sweep then read back with find by _id to verify only the active with past expires_at is gone and other two persist."
+  },
+  "probe_count_overrides": {},
+  "required_checks": [
+    "Probe reads back state with findOne, find, or aggregate and asserts on documents or counts",
+    "Probe includes one empty or non-matching seed and verifies empty array or zero modification"
+  ]
+}

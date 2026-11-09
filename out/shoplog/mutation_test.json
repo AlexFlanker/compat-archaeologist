@@ -1,10 +1,10 @@
 {
   "profile": "shoplog",
-  "run_id": "20261109T072610Z-mutation",
-  "at": "2026-11-09T07:26:10+00:00",
-  "repeats": 1,
+  "run_id": "20261109T104906Z-mutation",
+  "at": "2026-11-09T10:49:06+00:00",
+  "repeats": 3,
   "probe_count": 30,
-  "strategy_version": "v000",
+  "strategy_version": "v005",
   "mutants": [
     {
       "id": "abort_commits",
@@ -17,6 +17,8 @@
       "flaky": false,
       "no_probe_for_features": false,
       "caught_each_repeat": [
+        true,
+        true,
         true
       ],
       "caught_by": [
@@ -35,6 +37,8 @@
       "flaky": false,
       "no_probe_for_features": false,
       "caught_each_repeat": [
+        true,
+        true,
         true
       ],
       "caught_by": [
@@ -53,6 +57,8 @@
       "flaky": false,
       "no_probe_for_features": false,
       "caught_each_repeat": [
+        true,
+        true,
         true
       ],
       "caught_by": [
@@ -72,6 +78,8 @@
       "flaky": false,
       "no_probe_for_features": false,
       "caught_each_repeat": [
+        true,
+        true,
         true
       ],
       "caught_by": [
@@ -91,6 +99,8 @@
       "flaky": false,
       "no_probe_for_features": false,
       "caught_each_repeat": [
+        true,
+        true,
         true
       ],
       "caught_by": [
@@ -109,6 +119,8 @@
       "flaky": false,
       "no_probe_for_features": false,
       "caught_each_repeat": [
+        true,
+        true,
         true
       ],
       "caught_by": [
@@ -126,6 +138,8 @@
       "flaky": false,
       "no_probe_for_features": false,
       "caught_each_repeat": [
+        true,
+        true,
         true
       ],
       "caught_by": [
@@ -141,13 +155,18 @@
         "F1"
       ],
       "description": "$lookup behaves like an inner join: documents with no match vanish",
-      "caught": false,
+      "caught": true,
       "flaky": false,
       "no_probe_for_features": false,
       "caught_each_repeat": [
-        false
+        true,
+        true,
+        true
       ],
-      "caught_by": []
+      "caught_by": [
+        "F1.empty-join-empty-facet",
+        "F1.inventory-lookup-group"
+      ]
     },
     {
       "id": "facet_single_bucket",
@@ -160,10 +179,13 @@
       "flaky": false,
       "no_probe_for_features": false,
       "caught_each_repeat": [
+        true,
+        true,
         true
       ],
       "caught_by": [
-        "F1.revenue_facet_full"
+        "F1.empty-join-empty-facet",
+        "F1.revenue-lookup-facet"
       ]
     },
     {
@@ -177,6 +199,8 @@
       "flaky": false,
       "no_probe_for_features": false,
       "caught_each_repeat": [
+        true,
+        true,
         true
       ],
       "caught_by": [
@@ -186,16 +210,20 @@
   ],
   "zero_mutation": {
     "false_flips_each_repeat": [
+      0,
+      0,
       0
     ],
     "false_flip_probes": [],
     "invalid_each_repeat": [
+      0,
+      0,
       0
     ]
   },
   "summary": {
     "planted": 10,
-    "caught": 9,
+    "caught": 10,
     "flaky": 0,
     "train": {
       "planted": 6,
@@ -203,7 +231,7 @@
     },
     "heldout": {
       "planted": 4,
-      "caught": 3
+      "caught": 4
     },
     "false_flips_max": 0,
     "invalid_probes_max": 0
